@@ -135,11 +135,17 @@ Tested results from the integration suite. Reliability is assessed on two axes: 
 | Model | Strategy | Reliability | Notes |
 |-------|----------|-------------|-------|
 | `anthropic/claude-opus-4-7` | `system` | ⭐⭐⭐⭐⭐ | Best available. **Prefill and temperature deprecated** — auto-routed to system strategy |
-| `anthropic/claude-sonnet-4-6` | `prefill` | ⭐⭐⭐⭐⭐ | Excellent balance of quality and speed |
+| `anthropic/claude-sonnet-4-6` | `system` | ⭐⭐⭐⭐⭐ | Prefill deprecated (temperature still supported) — auto-routed to system |
+| `anthropic/claude-opus-4-6` | `system` | ⭐⭐⭐⭐⭐ | Prefill deprecated (temperature still supported) — auto-routed to system |
+| `anthropic/claude-opus-4-5-20251101` | `prefill` | ⭐⭐⭐⭐⭐ | Last opus that accepts prefill |
+| `anthropic/claude-sonnet-4-5-20250929` | `prefill` | ⭐⭐⭐⭐⭐ | |
 | `anthropic/claude-haiku-4-5-20251001` | `prefill` | ⭐⭐⭐⭐⭐ | Fast, very clean continuation |
+| `anthropic/claude-opus-4-1-20250805` | `prefill` | ⭐⭐⭐⭐⭐ | |
+| `anthropic/claude-opus-4-20250514` | `prefill` | ⭐⭐⭐⭐⭐ | Original Opus 4 |
+| `anthropic/claude-sonnet-4-20250514` | `prefill` | ⭐⭐⭐⭐⭐ | Original Sonnet 4 |
 | `anthropic/claude-3-haiku-20240307` | `prefill` | ⭐⭐⭐⭐⭐ | Legacy, rock solid |
 
-> **The prefill trick**: The full prefix goes in the system prompt for context, then the last 20 characters seed the assistant turn. Claude is mid-sentence before generating a single new token — the cleanest strategy for models that support it. Opus 4.7 dropped prefill support; `basemode` auto-detects this and uses the system strategy instead.
+> **The prefill trick**: The full prefix goes in the system prompt for context, then the last 20 characters seed the assistant turn. Claude is mid-sentence before generating a single new token — the cleanest strategy for models that support it. Anthropic has been phasing prefill out on newer models — opus 4.7, sonnet 4.6, and opus 4.6 reject it; `basemode` auto-detects and falls back to the system strategy. The 4.5 and 4.0/4.1 families still accept it.
 
 ### Groq
 

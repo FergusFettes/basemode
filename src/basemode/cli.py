@@ -13,7 +13,14 @@ from rich.text import Text
 
 from .continue_ import branch_text, continue_text
 from .detect import detect_strategy, normalize_model
-from .keys import KEY_ALIASES, get_key, list_keys, set_key
+from .keys import (
+    KEY_ALIASES,
+    get_default_model,
+    get_key,
+    list_keys,
+    set_default_model,
+    set_key,
+)
 from .models import list_models, list_providers
 from .strategies import REGISTRY
 
@@ -21,8 +28,16 @@ console = Console()
 _BRANCH_COLORS = ["green", "blue", "yellow", "magenta", "cyan"]
 
 
+_GROUP_FLAGS = {"--help", "-h", "--install-completion", "--show-completion"}
+
+
 class _DefaultToRun(typer.core.TyperGroup):
-    """Route unrecognised first args to the 'run' command instead of erroring."""
+    """Route unrecognised first args (and empty/flag-led invocations) to 'run'."""
+
+    def parse_args(self, ctx: click.Context, args: list) -> list:
+        if not args or (args[0].startswith("-") and args[0] not in _GROUP_FLAGS):
+            args = ["run"] + args
+        return super().parse_args(ctx, args)
 
     def resolve_command(self, ctx: click.Context, args: list) -> tuple:
         try:
@@ -42,9 +57,9 @@ app = typer.Typer(
 def run(
     ctx: typer.Context,
     prefix: Annotated[str | None, typer.Argument(help="Text to continue (or pipe via stdin)")] = None,
-    model: Annotated[str, typer.Option("-m", "--model")] = "gpt-4o-mini",
+    model: Annotated[str | None, typer.Option("-m", "--model")] = None,
     n: Annotated[int, typer.Option("-n", "--branches", help="Number of parallel continuations")] = 1,
-    max_tokens: Annotated[int, typer.Option("--max-tokens")] = 200,
+    max_tokens: Annotated[int, typer.Option("-M", "--max-tokens")] = 200,
     temperature: Annotated[float, typer.Option("-t", "--temperature")] = 0.9,
     strategy: Annotated[str | None, typer.Option("-s", "--strategy")] = None,
     show_strategy: Annotated[bool, typer.Option("--show-strategy")] = False,
@@ -55,6 +70,9 @@ def run(
     if prefix is None:
         console.print(ctx.get_help())
         return
+
+    if model is None:
+        model = get_default_model() or "gpt-4o-mini"
 
     prefix = prefix.rstrip("\n")
 
@@ -193,3 +211,34 @@ def keys(
     else:
         console.print(f"[red]Unknown action {action!r}. Use: set | list | get[/red]")
         raise typer.Exit(1)
+
+
+@app.command()
+def default(
+    model: Annotated[str | None, typer.Argument(help="Model to set as default (omit to show current)")] = None,
+    unset: Annotated[bool, typer.Option("--unset", help="Clear the stored default")] = False,
+) -> None:
+    """Show or set the default model (stored in ~/.config/basemode/auth.json).
+
+    Provider prefixes are inferred — `claude-sonnet-4-6` resolves to
+    `anthropic/claude-sonnet-4-6`, `gemini-2.5-flash` to `gemini/...`, etc.
+    """
+    if unset:
+        set_default_model(None)
+        console.print("[green]✓[/green] Default model cleared.")
+        return
+
+    if model is None:
+        current = get_default_model()
+        if current is None:
+            console.print("[yellow]No default model set. E.g.: basemode default claude-sonnet-4-6[/yellow]")
+            return
+        resolved = normalize_model(current)
+        suffix = f" → [dim]{resolved}[/dim]" if resolved != current else ""
+        console.print(f"[bold]{current}[/bold]{suffix}")
+        return
+
+    set_default_model(model)
+    resolved = normalize_model(model)
+    suffix = f" → [dim]{resolved}[/dim]" if resolved != model else ""
+    console.print(f"[green]✓[/green] Default model set to [bold]{model}[/bold]{suffix}")
