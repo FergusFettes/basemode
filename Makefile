@@ -1,6 +1,7 @@
 .PHONY: publish test test-integration lint
 
 publish:
+	rm -rf dist/
 	uv build
 	@export $$(grep UV_PUBLISH_TOKEN .env | xargs) && uv publish
 
