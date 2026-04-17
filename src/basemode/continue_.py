@@ -3,6 +3,7 @@ from collections.abc import AsyncGenerator
 
 from .detect import detect_strategy, normalize_model
 from .params import GenerationParams
+from .strategies.utils import normalize_stream_newlines
 
 
 async def continue_text(
@@ -18,7 +19,7 @@ async def continue_text(
     model = normalize_model(model)
     params = GenerationParams(model=model, max_tokens=max_tokens, temperature=temperature, extra=extra)
     strat = detect_strategy(model, strategy)
-    async for token in strat.stream(prefix, params):
+    async for token in normalize_stream_newlines(prefix, strat.stream(prefix, params)):
         yield token
 
 
@@ -40,7 +41,7 @@ async def branch_text(
     queue: asyncio.Queue[tuple[int, str] | None] = asyncio.Queue()
 
     async def run_branch(idx: int) -> None:
-        async for token in strat.stream(prefix, params):
+        async for token in normalize_stream_newlines(prefix, strat.stream(prefix, params)):
             await queue.put((idx, token))
         await queue.put(None)
 

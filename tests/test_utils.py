@@ -1,7 +1,7 @@
 """Unit tests for prefix normalization edge cases."""
 import pytest
 
-from basemode.strategies.utils import needs_leading_space, normalize_prefix
+from basemode.strategies.utils import needs_leading_space, normalize_prefix, normalize_stream_newlines
 
 
 @pytest.mark.parametrize("inp,expected", [
@@ -88,3 +88,47 @@ def test_normalize_prefix_newline_then_space() -> None:
 ])
 def test_needs_leading_space(prefix: str, token: str, expected: bool) -> None:
     assert needs_leading_space(prefix, token) == expected
+
+
+async def _collect_stream(prefix: str, chunks: list[str]) -> str:
+    async def gen():
+        for chunk in chunks:
+            yield chunk
+
+    return "".join([token async for token in normalize_stream_newlines(prefix, gen())])
+
+
+async def test_normalize_stream_newlines_collapses_prose_wraps() -> None:
+    result = await _collect_stream(
+        "This is a prose paragraph about ideas.",
+        [" To 'not seek\n", "to understand' is to preserve the boundary."],
+    )
+
+    assert result == " To 'not seek to understand' is to preserve the boundary."
+
+
+async def test_normalize_stream_newlines_preserves_paragraph_breaks() -> None:
+    result = await _collect_stream(
+        "This is a prose paragraph.",
+        [" First paragraph ends.\n\n", "Second paragraph begins."],
+    )
+
+    assert result == " First paragraph ends.\n\nSecond paragraph begins."
+
+
+async def test_normalize_stream_newlines_preserves_markdown_starts() -> None:
+    result = await _collect_stream(
+        "This is a prose paragraph.",
+        [" Items:\n", "- first\n", "- second"],
+    )
+
+    assert result == " Items:\n- first\n- second"
+
+
+async def test_normalize_stream_newlines_preserves_poetry_like_prefixes() -> None:
+    result = await _collect_stream(
+        "the rain falls like static\nbetween stations, the city\nblurs into",
+        [" signal\n", "and the wires hum"],
+    )
+
+    assert result == " signal\nand the wires hum"
