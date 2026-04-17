@@ -33,6 +33,8 @@ class Settings(BaseSettings):
     groq_api_key: str = ""
     gemini_api_key: str = ""
     together_api_key: str = ""
+    moonshot_api_key: str = ""
+    xai_api_key: str = ""
 
     @property
     def available_providers(self) -> list[str]:
@@ -45,6 +47,8 @@ class Settings(BaseSettings):
                 ("groq", self.groq_api_key),
                 ("gemini", self.gemini_api_key),
                 ("together_ai", self.together_api_key),
+                ("moonshot", self.moonshot_api_key),
+                ("xai", self.xai_api_key),
             ]
             if key
         ]

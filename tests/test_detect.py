@@ -1,6 +1,6 @@
 import pytest
 
-from basemode.detect import detect_strategy
+from basemode.detect import detect_strategy, normalize_model
 from basemode.strategies import (
     CompletionStrategy,
     FIMStrategy,
@@ -45,3 +45,34 @@ def test_detect_returns_new_instance_each_call() -> None:
     a = detect_strategy("gpt-4o")
     b = detect_strategy("gpt-4o")
     assert a is not b
+
+
+def test_normalize_kimi_defaults_to_moonshot() -> None:
+    assert normalize_model("kimi-k2.5") == "moonshot/kimi-k2.5"
+
+
+def test_normalize_kimi_k2_alias_uses_known_good_non_thinking_model() -> None:
+    assert normalize_model("kimi-k2") == "moonshot/kimi-k2-0905-preview"
+
+
+def test_normalize_kimi_thinking_defaults_to_moonshot() -> None:
+    assert normalize_model("kimi-k2-thinking") == "moonshot/kimi-k2-thinking"
+
+
+def test_normalize_gemma_defaults_to_gemini() -> None:
+    assert normalize_model("gemma-3-27b-it") == "gemini/gemma-3-27b-it"
+
+
+def test_normalize_gemma_4_aliases() -> None:
+    assert normalize_model("gemma-4") == "gemini/gemma-4-26b-a4b-it"
+    assert normalize_model("gemma-4-26b") == "gemini/gemma-4-26b-a4b-it"
+    assert normalize_model("gemma-4-31b") == "gemini/gemma-4-31b-it"
+
+
+def test_normalize_kimi_does_not_probe_litellm(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fail_probe(model: str) -> None:
+        raise AssertionError(f"unexpected LiteLLM provider probe for {model}")
+
+    monkeypatch.setattr("basemode.detect.get_llm_provider", fail_probe)
+
+    assert normalize_model("kimi-k2-thinking") == "moonshot/kimi-k2-thinking"
