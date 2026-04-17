@@ -2,7 +2,9 @@ import asyncio
 import sys
 from typing import Annotated
 
+import click
 import typer
+import typer.core
 from rich.columns import Columns
 from rich.console import Console
 from rich.panel import Panel
@@ -11,26 +13,33 @@ from rich.text import Text
 
 from .continue_ import branch_text, continue_text
 from .detect import detect_strategy, normalize_model
+from .keys import KEY_ALIASES, get_key, list_keys, set_key
 from .models import list_models, list_providers
 from .strategies import REGISTRY
 
-app = typer.Typer(help="Make any LLM do raw text continuation.")
 console = Console()
-
 _BRANCH_COLORS = ["green", "blue", "yellow", "magenta", "cyan"]
 
 
-def _read_prefix(prefix: str | None) -> str | None:
-    """Return prefix from arg, stdin pipe, or None."""
-    if prefix is not None:
-        return prefix
-    if not sys.stdin.isatty():
-        return sys.stdin.read()
-    return None
+class _DefaultToRun(typer.core.TyperGroup):
+    """Route unrecognised first args to the 'run' command instead of erroring."""
+
+    def resolve_command(self, ctx: click.Context, args: list) -> tuple:
+        try:
+            return super().resolve_command(ctx, args)
+        except click.UsageError:
+            args.insert(0, "run")
+            return super().resolve_command(ctx, args)
 
 
-@app.callback(invoke_without_command=True)
-def main(
+app = typer.Typer(
+    help="Make any LLM do raw text continuation.",
+    cls=_DefaultToRun,
+)
+
+
+@app.command()
+def run(
     ctx: typer.Context,
     prefix: Annotated[str | None, typer.Argument(help="Text to continue (or pipe via stdin)")] = None,
     model: Annotated[str, typer.Option("-m", "--model")] = "gpt-4o-mini",
@@ -40,15 +49,14 @@ def main(
     strategy: Annotated[str | None, typer.Option("-s", "--strategy")] = None,
     show_strategy: Annotated[bool, typer.Option("--show-strategy")] = False,
 ) -> None:
-    if ctx.invoked_subcommand is not None:
-        return
-
-    text = _read_prefix(prefix)
-    if text is None:
+    """Continue text with an LLM (default command)."""
+    if prefix is None and not sys.stdin.isatty():
+        prefix = sys.stdin.read()
+    if prefix is None:
         console.print(ctx.get_help())
         return
 
-    prefix = text.rstrip("\n")
+    prefix = prefix.rstrip("\n")
 
     if show_strategy:
         strat = detect_strategy(normalize_model(model), strategy)
@@ -134,3 +142,54 @@ def info(model: Annotated[str, typer.Argument(help="Model name to inspect")]) ->
     """Show which strategy would be used for a given model."""
     strat = detect_strategy(model)
     console.print(f"[bold]{model}[/bold] → [green]{strat.name}[/green]")
+
+
+@app.command()
+def keys(
+    action: Annotated[str, typer.Argument(help="Action: set | list | get")],
+    provider: Annotated[str | None, typer.Argument(help="Provider name (e.g. openai, anthropic)")] = None,
+    value: Annotated[str | None, typer.Argument(help="API key value (set only; prompted if omitted)")] = None,
+) -> None:
+    """Manage API keys stored in ~/.config/basemode/auth.json.
+
+    Examples:
+
+      basemode keys set openai
+
+      basemode keys list
+
+      basemode keys get anthropic
+    """
+    if action == "set":
+        if not provider:
+            console.print("[red]Provider required. E.g.: basemode keys set openai[/red]")
+            raise typer.Exit(1)
+        if value is None:
+            value = typer.prompt(f"{provider} API key", hide_input=True)
+        set_key(provider, value)
+        console.print(f"[green]✓[/green] Saved [bold]{provider}[/bold] key to ~/.config/basemode/auth.json")
+
+    elif action == "list":
+        stored = list_keys()
+        if not stored:
+            console.print("[yellow]No keys stored. Use: basemode keys set <provider>[/yellow]")
+            return
+        table = Table("Provider", "Key", "Env var", show_header=True, header_style="bold")
+        for name, masked in stored.items():
+            env_var = KEY_ALIASES.get(name, name.upper() + "_API_KEY")
+            table.add_row(name, masked, env_var)
+        console.print(table)
+
+    elif action == "get":
+        if not provider:
+            console.print("[red]Provider required. E.g.: basemode keys get openai[/red]")
+            raise typer.Exit(1)
+        val = get_key(provider)
+        if val is None:
+            console.print(f"[yellow]No key stored for {provider!r}.[/yellow]")
+            raise typer.Exit(1)
+        console.print(val)
+
+    else:
+        console.print(f"[red]Unknown action {action!r}. Use: set | list | get[/red]")
+        raise typer.Exit(1)

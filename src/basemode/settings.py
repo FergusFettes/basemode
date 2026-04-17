@@ -4,6 +4,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from .keys import load_into_environ
+
 
 def _find_env() -> Path | None:
     for p in [Path(".env"), Path(__file__).parent.parent.parent / ".env"]:
@@ -12,7 +14,11 @@ def _find_env() -> Path | None:
     return None
 
 
-# Load into os.environ so litellm can pick up keys directly.
+# Load order (later sources win):
+#   1. ~/.config/basemode/auth.json  — persistent key store
+#   2. .env file                     — project/dev override
+#   3. existing os.environ           — runtime override (never overwritten)
+load_into_environ()
 _env_path = _find_env()
 if _env_path:
     load_dotenv(_env_path, override=False)
