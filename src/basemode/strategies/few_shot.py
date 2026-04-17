@@ -5,7 +5,7 @@ import litellm
 
 from ..params import GenerationParams
 from .base import ContinuationStrategy
-from .utils import normalize_prefix
+from .utils import needs_leading_space, normalize_prefix
 
 # Varied examples: fiction, technical, poetry, dialogue
 _EXAMPLES = [
@@ -58,7 +58,12 @@ class FewShotStrategy(ContinuationStrategy):
             stream=True,
             **params.extra,
         )
+        first = True
         async for chunk in response:
             token = chunk.choices[0].delta.content or ""
-            if token:
-                yield token
+            if not token:
+                continue
+            if first and needs_leading_space(prefix, token):
+                token = " " + token
+            first = False
+            yield token

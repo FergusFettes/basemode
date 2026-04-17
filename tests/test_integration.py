@@ -34,7 +34,7 @@ def assert_clean(result: str) -> None:
     ("anthropic/claude-3-haiku-20240307",             "prefill"),
     ("groq/llama-3.3-70b-versatile",                 None),
     ("together_ai/meta-llama/Llama-3.3-70B-Instruct-Turbo", None),
-    ("gemini/gemini-2.5-flash",                      None),
+    ("gemini/gemini-2.5-flash",                      "system"),  # thinking model: needs thinking budget
     ("openrouter/openai/gpt-4o-mini",                None),
 ])
 async def test_continue_text(prefix: str, model: str, strategy: str | None) -> None:
@@ -46,14 +46,15 @@ async def test_continue_text(prefix: str, model: str, strategy: str | None) -> N
 
 @pytest.mark.parametrize("model", ["gpt-4o-mini", "groq/llama-3.3-70b-versatile"])
 async def test_no_smashed_words(model: str) -> None:
-    """Continuation must not smash into the last word of the prefix."""
+    """First continuation token must not smash into the last word of the prefix."""
     prefix = "The ship rounded the headland and"
     result = await collect(continue_text(prefix, model, max_tokens=SHORT))
-    joined = prefix + result
-    # "and" followed immediately by a letter = smashed word
-    assert "and" + result[0] not in joined or result[0] in (" ", "\n"), (
-        f"word boundary broken: {joined!r}"
-    )
+    assert result, "empty continuation"
+    # The raw result either starts with whitespace (prefill/completion strategy adds it)
+    # or the system strategy consumed the trailing space and result starts cleanly.
+    # Either way: prefix[-1] is 'd' + result[0] must not BOTH be word chars.
+    smashed = prefix[-1].isalpha() and result[0].isalpha()
+    assert not smashed, f"word boundary broken: {prefix!r} + {result!r}"
 
 
 # ── multi-branch ──────────────────────────────────────────────────────────────

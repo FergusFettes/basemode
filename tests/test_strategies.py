@@ -17,8 +17,8 @@ async def _collect(gen) -> str:
     ("gpt-4o-mini", None),
     ("gpt-4o-mini", "system"),
     ("gpt-4o-mini", "few_shot"),
-    ("claude-3-5-haiku-latest", None),
-    ("claude-3-5-haiku-latest", "prefill"),
+    ("anthropic/claude-3-haiku-20240307", None),
+    ("anthropic/claude-3-haiku-20240307", "prefill"),
 ])
 async def test_continue_text(prefix: str, model: str, strategy: str | None) -> None:
     result = await _collect(continue_text(prefix, model, max_tokens=50, strategy=strategy))

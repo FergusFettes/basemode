@@ -1,7 +1,7 @@
 """Unit tests for prefix normalization edge cases."""
 import pytest
 
-from basemode.strategies.utils import normalize_prefix
+from basemode.strategies.utils import needs_leading_space, normalize_prefix
 
 
 @pytest.mark.parametrize("inp,expected", [
@@ -61,3 +61,30 @@ def test_normalize_prefix_newline_then_space() -> None:
     result = normalize_prefix("text\n  ")
     assert result.endswith(" ")
     assert not result.endswith("  ")
+
+
+# ── needs_leading_space ───────────────────────────────────────────────────────
+
+@pytest.mark.parametrize("prefix,token,expected", [
+    # Needs space: prefix ends with word char, token starts with word char
+    ("The ship rounded the headland and", "suddenly", True),
+    ("Hello world", "foo", True),
+    ("end", "start", True),
+    # No space needed: prefix ends with space
+    ("ends with space ", "word", False),
+    ("ends with space ", " word", False),
+    # No space needed: token starts with space
+    ("no trailing space", " word", False),
+    # Punctuation: trailing punctuation + word token still smashes
+    ("She said:", "hello", True),   # "She said:hello" is wrong
+    ("She said:", " hello", False), # space in token is fine
+    # No space needed: empty inputs
+    ("", "word", False),
+    ("prefix", "", False),
+    ("", "", False),
+    # No space needed: prefix ends with newline
+    ("line one\n", "line two", False),
+    ("line one\n", " line two", False),
+])
+def test_needs_leading_space(prefix: str, token: str, expected: bool) -> None:
+    assert needs_leading_space(prefix, token) == expected
