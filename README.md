@@ -123,65 +123,69 @@ Tested results from the integration suite. Reliability is assessed on two axes: 
 
 | Model | Strategy | Reliability | Notes |
 |-------|----------|-------------|-------|
-| `gpt-4o` | `system` | ⭐⭐⭐⭐⭐ | Excellent continuation quality, zero preamble |
-| `gpt-4o-mini` | `system` | ⭐⭐⭐⭐⭐ | Fast, cheap, reliable. Recommended default |
+| `gpt-5.4` | `system` | ⭐⭐⭐⭐⭐ | Frontier quality, exceptional prose continuation |
+| `gpt-5.4-mini` | `system` | ⭐⭐⭐⭐⭐ | Fast, cheap, excellent. **Recommended default** |
+| `gpt-5.4-nano` | `system` | ⭐⭐⭐⭐ | Ultra-cheap, good for high-volume branching |
+| `gpt-4o-mini` | `system` | ⭐⭐⭐⭐⭐ | Solid legacy option |
 | `gpt-3.5-turbo-instruct` | `completion` | ⭐⭐⭐⭐⭐ | Native completions endpoint, no coercion needed |
-| `davinci-002` | `completion` | ⭐⭐⭐⭐⭐ | True base model, best raw continuation behavior |
+| `davinci-002` | `completion` | ⭐⭐⭐⭐⭐ | True base model |
 
 ### Anthropic
 
 | Model | Strategy | Reliability | Notes |
 |-------|----------|-------------|-------|
-| `anthropic/claude-3-opus-20240229` | `prefill` | ⭐⭐⭐⭐⭐ | Superb quality, stays in voice perfectly |
-| `anthropic/claude-3-5-sonnet-20241022` | `prefill` | ⭐⭐⭐⭐⭐ | Best balance of quality and speed |
-| `anthropic/claude-3-haiku-20240307` | `prefill` | ⭐⭐⭐⭐⭐ | Fast and reliable, tested extensively here |
-| `anthropic/claude-3-5-haiku-20241022` | `prefill` | ⭐⭐⭐⭐ | Use dated model ID; `claude-3-5-haiku-latest` alias not supported by all API tiers |
+| `anthropic/claude-opus-4-7` | `system` | ⭐⭐⭐⭐⭐ | Best available. **Prefill and temperature deprecated** — auto-routed to system strategy |
+| `anthropic/claude-sonnet-4-6` | `prefill` | ⭐⭐⭐⭐⭐ | Excellent balance of quality and speed |
+| `anthropic/claude-haiku-4-5-20251001` | `prefill` | ⭐⭐⭐⭐⭐ | Fast, very clean continuation |
+| `anthropic/claude-3-haiku-20240307` | `prefill` | ⭐⭐⭐⭐⭐ | Legacy, rock solid |
 
-> **The prefill trick**: Anthropic's API lets you pre-fill the assistant's response. `basemode` puts the last 50 characters of your prefix into the assistant turn, so Claude is literally mid-sentence before it generates a single new token. This produces the cleanest continuation of any strategy tested.
+> **The prefill trick**: The full prefix goes in the system prompt for context, then the last 20 characters seed the assistant turn. Claude is mid-sentence before generating a single new token — the cleanest strategy for models that support it. Opus 4.7 dropped prefill support; `basemode` auto-detects this and uses the system strategy instead.
 
 ### Groq
 
 | Model | Strategy | Reliability | Notes |
 |-------|----------|-------------|-------|
-| `groq/llama-3.3-70b-versatile` | `system` | ⭐⭐⭐⭐⭐ | Very fast inference, high-quality output, no preamble |
-| `groq/llama-3.1-70b-versatile` | `system` | ⭐⭐⭐⭐ | Slightly older, still reliable |
-| `groq/mixtral-8x7b-32768` | `system` | ⭐⭐⭐⭐ | Good for longer context continuations |
-
-Groq's speed (often under 1s for short continuations) makes it excellent for interactive loom exploration.
+| `groq/llama-3.3-70b-versatile` | `system` | ⭐⭐⭐⭐⭐ | Sub-second inference, excellent quality |
+| `groq/meta-llama/llama-4-scout-17b-16e-instruct` | `system` | ⭐⭐⭐⭐ | Llama 4 Scout, very fast |
 
 ### Google Gemini
 
 | Model | Strategy | Reliability | Notes |
 |-------|----------|-------------|-------|
-| `gemini/gemini-2.5-flash` | `system` | ⭐⭐⭐⭐ | **Thinking model** — `basemode` automatically allocates a thinking token budget. Do not use `max_tokens < 1536` |
-| `gemini/gemini-2.5-pro` | `system` | ⭐⭐⭐⭐ | Same thinking model caveat |
-| `gemini/gemini-flash-latest` | `system` | ⭐⭐⭐ | Non-thinking, faster, but output sometimes truncates at low token counts |
+| `gemini/gemini-2.5-flash` | `system` | ⭐⭐⭐⭐⭐ | **Thinking model** — `basemode` auto-allocates thinking budget |
+| `gemini/gemini-2.5-pro` | `system` | ⭐⭐⭐⭐⭐ | Same |
+| `gemini/gemini-3-flash-preview` | `system` | ⭐⭐⭐⭐ | Latest flash, very fast |
 
-> **Gemini 2.5 thinking models**: These models spend tokens on internal reasoning before producing visible output. `basemode` detects Gemini 2.5 models and automatically sets a `thinking` budget, ensuring the visible output isn't starved. If you're passing `max_tokens` directly, use at least `1536`.
+> **Gemini thinking models**: Spend tokens on internal reasoning before producing visible output. `basemode` auto-detects Gemini 2.5 models and allocates a thinking budget, so `max_tokens` isn't exhausted before visible output begins.
 
 ### Together AI
 
 | Model | Strategy | Reliability | Notes |
 |-------|----------|-------------|-------|
-| `together_ai/meta-llama/Llama-3.3-70B-Instruct-Turbo` | `system` | ⭐⭐⭐⭐⭐ | Excellent quality and speed, well-behaved with system prompt |
-| `together_ai/meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo` | `system` | ⭐⭐⭐⭐⭐ | Best open-weight quality available |
-| `together_ai/mistralai/Mixtral-8x22B-Instruct-v0.1` | `system` | ⭐⭐⭐⭐ | Strong multilingual continuation |
+| `together_ai/meta-llama/Llama-3.3-70B-Instruct-Turbo` | `system` | ⭐⭐⭐⭐⭐ | Reliable and fast |
+| `together_ai/meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo` | `system` | ⭐⭐⭐⭐⭐ | Highest open-weight quality |
 
 ### OpenRouter
 
 OpenRouter routes to many providers. Any model available there works via `openrouter/<provider>/<model>`:
 
 ```bash
-basemode "text" --model openrouter/openai/gpt-4o
-basemode "text" --model openrouter/anthropic/claude-3-5-sonnet
-basemode "text" --model openrouter/mistralai/mistral-large
+basemode "text" --model openrouter/moonshotai/kimi-k2.5
+basemode "text" --model openrouter/deepseek/deepseek-v3.2
+basemode "text" --model openrouter/meta-llama/llama-4-maverick
+basemode "text" --model openrouter/qwen/qwen3-235b-a22b
 ```
 
-| Reliability | Notes |
-|-------------|-------|
-| ⭐⭐⭐⭐ | Model availability varies; use `basemode models --provider openrouter` to check |
+| Model | Reliability | Notes |
+|-------|-------------|-------|
+| `openrouter/moonshotai/kimi-k2.5` | ⭐⭐⭐⭐⭐ | **Thinking model** — spectacular prose quality, auto thinking budget |
+| `openrouter/moonshotai/kimi-k2` | ⭐⭐⭐⭐⭐ | Non-thinking variant, faster |
+| `openrouter/deepseek/deepseek-v3.2` | ⭐⭐⭐⭐⭐ | Excellent continuation, very cost-effective |
+| `openrouter/meta-llama/llama-4-maverick` | ⭐⭐⭐⭐⭐ | Llama 4 Maverick, strong quality |
+| `openrouter/qwen/qwen3-235b-a22b` | ⭐⭐⭐⭐ | Qwen 3 flagship |
+| `openrouter/z-ai/glm-5-turbo` | ⭐⭐ | GLM-5 Turbo — provider errors intermittently |
 
-OpenRouter is particularly useful for accessing base model variants (e.g. `openrouter/mistralai/mistral-7b`) which don't require any coercion.
+> OpenRouter is also useful for accessing base model variants (e.g. `openrouter/mistralai/mistral-7b`) which don't require any coercion.
 
 ---
 

@@ -5,39 +5,41 @@ import litellm
 
 from ..params import GenerationParams
 from .base import ContinuationStrategy
+from .compat import build_kwargs
 
-# How many trailing chars of the prefix to use as the assistant seed.
-# Long enough that the model clearly understands it's mid-sentence.
-SEED_LEN = 50
+# Chars of the prefix to use as the assistant seed.
+# This forces Claude to continue from exactly that point.
+SEED_LEN = 20
 
 
 class PrefillStrategy(ContinuationStrategy):
     """
-    Works by splitting the prefix: the first part goes in the user turn,
-    the last SEED_LEN characters become the start of the assistant turn.
-    The model is forced to continue from exactly where the prefix ends.
+    Places the full prefix in the system prompt for context, then seeds the
+    assistant turn with the last SEED_LEN characters. Claude is forced to
+    continue from exactly where the prefix ends, with complete context.
     """
 
     name = "prefill"
 
     async def stream(self, prefix: str, params: GenerationParams) -> AsyncGenerator[str, None]:
-        if len(prefix) <= SEED_LEN:
-            user_content = "Continue:"
-            assistant_seed = prefix
-        else:
-            user_content = prefix[:-SEED_LEN]
-            assistant_seed = prefix[-SEED_LEN:]
+        seed = prefix[-SEED_LEN:] if len(prefix) > SEED_LEN else prefix
 
         response = await litellm.acompletion(
             model=params.model,
             messages=[
-                {"role": "user", "content": user_content},
-                {"role": "assistant", "content": assistant_seed},
+                {
+                    "role": "system",
+                    "content": (
+                        "You are continuing the following text. "
+                        "Output only the continuation — no preamble, no commentary.\n\n"
+                        f"Text to continue:\n{prefix}"
+                    ),
+                },
+                {"role": "user", "content": "[continue]"},
+                {"role": "assistant", "content": seed},
             ],
-            max_tokens=params.max_tokens,
-            temperature=params.temperature,
             stream=True,
-            **params.extra,
+            **build_kwargs(params),
         )
         async for chunk in response:
             token = chunk.choices[0].delta.content or ""

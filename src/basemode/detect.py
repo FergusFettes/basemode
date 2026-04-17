@@ -8,12 +8,15 @@ from .strategies import (
     PrefillStrategy,
     SystemPromptStrategy,
 )
+from .strategies.compat import NO_PREFILL_MODELS
 
 # Models that use the native completions API
 _COMPLETION_MODELS = {
     "gpt-3.5-turbo-instruct",
     "davinci-002",
     "babbage-002",
+    "gpt-oss-120b",
+    "gpt-oss-20b",
 }
 _COMPLETION_SUBSTRINGS = ["text-davinci", "text-curie", "text-babbage", "text-ada"]
 
@@ -51,8 +54,11 @@ def detect_strategy(model: str, override: str | None = None) -> ContinuationStra
         return REGISTRY[override]()
 
     m = model.lower()
+    stem = m.split("/")[-1]
 
     if "claude" in m:
+        if stem in NO_PREFILL_MODELS:
+            return SystemPromptStrategy()
         return PrefillStrategy()
 
     if model in _COMPLETION_MODELS or any(s in m for s in _COMPLETION_SUBSTRINGS):

@@ -5,6 +5,7 @@ import litellm
 
 from ..params import GenerationParams
 from .base import ContinuationStrategy
+from .compat import build_kwargs
 
 
 class CompletionStrategy(ContinuationStrategy):
@@ -16,10 +17,8 @@ class CompletionStrategy(ContinuationStrategy):
         response = await litellm.atext_completion(
             model=params.model,
             prompt=prefix,
-            max_tokens=params.max_tokens,
-            temperature=params.temperature,
             stream=True,
-            **params.extra,
+            **build_kwargs(params),
         )
         async for chunk in response:
             token = chunk.choices[0].text or ""

@@ -5,6 +5,7 @@ import litellm
 
 from ..params import GenerationParams
 from .base import ContinuationStrategy
+from .compat import build_kwargs
 from .utils import needs_leading_space, normalize_prefix
 
 # Varied examples: fiction, technical, poetry, dialogue
@@ -53,10 +54,8 @@ class FewShotStrategy(ContinuationStrategy):
                 {"role": "system", "content": _SYSTEM_PROMPT},
                 {"role": "user", "content": normalize_prefix(prefix)},
             ],
-            max_tokens=params.max_tokens,
-            temperature=params.temperature,
             stream=True,
-            **params.extra,
+            **build_kwargs(params),
         )
         first = True
         async for chunk in response:
