@@ -23,6 +23,12 @@ from .keys import (
 )
 from .models import list_models, list_providers
 from .strategies import REGISTRY
+from .strategies.few_shot import _SYSTEM_PROMPT as FEW_SHOT_SYSTEM_PROMPT
+from .strategies.fim import _fim_prompt
+from .strategies.prefill import SEED_LEN
+from .strategies.system import SYSTEM_PROMPT
+from .strategies.utils import normalize_prefix
+from .usage import estimate_usage, format_per_million, format_usd, get_price_info
 
 console = Console()
 _BRANCH_COLORS = ["green", "blue", "yellow", "magenta", "cyan"]
@@ -63,6 +69,8 @@ def run(
     temperature: Annotated[float, typer.Option("-t", "--temperature")] = 0.9,
     strategy: Annotated[str | None, typer.Option("-s", "--strategy")] = None,
     show_strategy: Annotated[bool, typer.Option("--show-strategy")] = False,
+    show_usage: Annotated[bool, typer.Option("--show-usage", help="Show estimated token usage after generation")] = False,
+    show_cost: Annotated[bool, typer.Option("--show-cost", help="Show estimated cost after generation")] = False,
 ) -> None:
     """Continue text with an LLM (default command)."""
     if prefix is None and not sys.stdin.isatty():
@@ -81,21 +89,28 @@ def run(
         console.print(f"[dim]strategy: {strat.name}[/dim]")
 
     if n == 1:
-        asyncio.run(_stream_one(prefix, model, max_tokens, temperature, strategy))
+        completion = asyncio.run(_stream_one(prefix, model, max_tokens, temperature, strategy))
+        if show_usage or show_cost:
+            _print_usage_estimate(model, prefix, completion, strategy, show_cost, prompt_requests=1)
     else:
-        asyncio.run(_stream_branches(prefix, model, n, max_tokens, temperature, strategy))  # noqa: E501
+        completions = asyncio.run(_stream_branches(prefix, model, n, max_tokens, temperature, strategy))  # noqa: E501
+        if show_usage or show_cost:
+            _print_usage_estimate(model, prefix, "".join(completions), strategy, show_cost, prompt_requests=n)
 
 
-async def _stream_one(prefix: str, model: str, max_tokens: int, temperature: float, strategy: str | None) -> None:
+async def _stream_one(prefix: str, model: str, max_tokens: int, temperature: float, strategy: str | None) -> str:
     console.print(f"[dim]{prefix}[/dim]", end="")
+    chunks: list[str] = []
     async for token in continue_text(prefix, model, max_tokens=max_tokens, temperature=temperature, strategy=strategy):
+        chunks.append(token)
         console.print(token, end="")
     console.print()
+    return "".join(chunks)
 
 
 async def _stream_branches(
     prefix: str, model: str, n: int, max_tokens: int, temperature: float, strategy: str | None
-) -> None:
+) -> list[str]:
     buffers: list[list[str]] = [[] for _ in range(n)]
     console.print(f"[dim]{prefix}[/dim]\n")
 
@@ -112,6 +127,61 @@ async def _stream_branches(
         panels.append(Panel(text, title=f"[{color}]Branch {i + 1}[/{color}]"))
 
     console.print(Columns(panels, equal=True))
+    return ["".join(buf) for buf in buffers]
+
+
+def _print_usage_estimate(
+    model: str,
+    prefix: str,
+    completion: str,
+    strategy: str | None,
+    show_cost: bool,
+    prompt_requests: int,
+) -> None:
+    resolved = normalize_model(model)
+    prompt, messages = _usage_prompt(resolved, prefix, strategy)
+    usage = estimate_usage(resolved, prompt, completion, prompt_messages=messages, prompt_requests=prompt_requests)
+    table = Table("Metric", "Value", show_header=False)
+    table.add_row("Model", usage.model)
+    table.add_row("Prompt tokens", str(usage.prompt_tokens))
+    table.add_row("Completion tokens", str(usage.completion_tokens))
+    table.add_row("Total tokens", str(usage.total_tokens))
+    if show_cost:
+        table.add_row("Estimated cost", format_usd(usage.cost_usd))
+        if not usage.pricing_available:
+            table.add_row("Cost note", "pricing unavailable in LiteLLM model map")
+    console.print(table)
+
+
+def _usage_prompt(model: str, prefix: str, strategy: str | None) -> tuple[str, list[dict] | None]:
+    strat = detect_strategy(model, strategy)
+    if strat.name == "system":
+        return "", [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": normalize_prefix(prefix)},
+        ]
+    if strat.name == "few_shot":
+        return "", [
+            {"role": "system", "content": FEW_SHOT_SYSTEM_PROMPT},
+            {"role": "user", "content": normalize_prefix(prefix)},
+        ]
+    if strat.name == "prefill":
+        seed = prefix[-SEED_LEN:] if len(prefix) > SEED_LEN else prefix
+        return "", [
+            {
+                "role": "system",
+                "content": (
+                    "You are continuing the following text. "
+                    "Output only the continuation — no preamble, no commentary.\n\n"
+                    f"Text to continue:\n{prefix}"
+                ),
+            },
+            {"role": "user", "content": "[continue]"},
+            {"role": "assistant", "content": seed},
+        ]
+    if strat.name == "fim":
+        return _fim_prompt(prefix, model), None
+    return prefix, None
 
 
 @app.command()
@@ -157,9 +227,26 @@ def strategies() -> None:
 
 @app.command()
 def info(model: Annotated[str, typer.Argument(help="Model name to inspect")]) -> None:
-    """Show which strategy would be used for a given model."""
-    strat = detect_strategy(model)
-    console.print(f"[bold]{model}[/bold] → [green]{strat.name}[/green]")
+    """Show strategy, provider, limits, and known pricing for a model."""
+    resolved = normalize_model(model)
+    strat = detect_strategy(resolved)
+    price = get_price_info(resolved)
+
+    table = Table("Field", "Value", show_header=True, header_style="bold")
+    table.add_row("Model", model)
+    table.add_row("Resolved", resolved)
+    table.add_row("Strategy", strat.name)
+    table.add_row("Provider", price.provider or "unknown")
+    table.add_row("Input price", format_per_million(price.input_cost_per_token))
+    table.add_row("Output price", format_per_million(price.output_cost_per_token))
+    table.add_row("Cache read price", format_per_million(price.cache_read_input_token_cost))
+    table.add_row("Reasoning output price", format_per_million(price.output_cost_per_reasoning_token))
+    table.add_row("Max input tokens", str(price.max_input_tokens) if price.max_input_tokens else "unknown")
+    table.add_row("Max output tokens", str(price.max_output_tokens) if price.max_output_tokens else "unknown")
+    table.add_row("Supports reasoning", str(price.supports_reasoning) if price.supports_reasoning is not None else "unknown")
+    if not price.pricing_available:
+        table.add_row("Cost note", "pricing unavailable in LiteLLM model map")
+    console.print(table)
 
 
 @app.command()
