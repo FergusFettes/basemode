@@ -45,8 +45,9 @@ known-first-party = ["basemode"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-addopts = "--cov=src/basemode --cov-report=term-missing"
+addopts = "--cov=src/basemode --cov-report=term-missing -m 'not integration'"
 testpaths = ["tests"]
+markers = ["integration: hits real APIs, not run by default"]
 
 [tool.coverage.run]
 source = ["src/basemode"]

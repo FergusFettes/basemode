@@ -11,6 +11,7 @@ from rich.text import Text
 
 from .continue_ import branch_text, continue_text
 from .detect import detect_strategy, normalize_model
+from .strategies.utils import normalize_prefix
 from .models import list_models, list_providers
 from .strategies import REGISTRY
 
@@ -62,7 +63,11 @@ def main(
 
 async def _stream_one(prefix: str, model: str, max_tokens: int, temperature: float, strategy: str | None) -> None:
     console.print(f"[dim]{prefix}[/dim]", end="")
+    first = True
     async for token in continue_text(prefix, model, max_tokens=max_tokens, temperature=temperature, strategy=strategy):
+        if first and prefix and not prefix[-1].isspace() and token and not token[0].isspace():
+            console.print(" ", end="")
+        first = False
         console.print(token, end="")
     console.print()
 

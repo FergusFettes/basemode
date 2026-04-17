@@ -5,6 +5,7 @@ import litellm
 
 from ..params import GenerationParams
 from .base import ContinuationStrategy
+from .utils import normalize_prefix
 
 SYSTEM_PROMPT = """\
 You are a text continuation engine. Your only function is to extend the provided \
@@ -25,7 +26,7 @@ class SystemPromptStrategy(ContinuationStrategy):
             model=params.model,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": prefix},
+                {"role": "user", "content": normalize_prefix(prefix)},
             ],
             max_tokens=params.max_tokens,
             temperature=params.temperature,

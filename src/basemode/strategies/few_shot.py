@@ -5,6 +5,7 @@ import litellm
 
 from ..params import GenerationParams
 from .base import ContinuationStrategy
+from .utils import normalize_prefix
 
 # Varied examples: fiction, technical, poetry, dialogue
 _EXAMPLES = [
@@ -50,7 +51,7 @@ class FewShotStrategy(ContinuationStrategy):
             model=params.model,
             messages=[
                 {"role": "system", "content": _SYSTEM_PROMPT},
-                {"role": "user", "content": prefix},
+                {"role": "user", "content": normalize_prefix(prefix)},
             ],
             max_tokens=params.max_tokens,
             temperature=params.temperature,
