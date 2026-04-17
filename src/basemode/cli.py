@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from typing import Annotated
 
 import typer
@@ -9,7 +10,7 @@ from rich.table import Table
 from rich.text import Text
 
 from .continue_ import branch_text, continue_text
-from .detect import detect_strategy
+from .detect import detect_strategy, normalize_model
 from .models import list_models, list_providers
 from .strategies import REGISTRY
 
@@ -19,10 +20,19 @@ console = Console()
 _BRANCH_COLORS = ["green", "blue", "yellow", "magenta", "cyan"]
 
 
+def _read_prefix(prefix: str | None) -> str | None:
+    """Return prefix from arg, stdin pipe, or None."""
+    if prefix is not None:
+        return prefix
+    if not sys.stdin.isatty():
+        return sys.stdin.read()
+    return None
+
+
 @app.callback(invoke_without_command=True)
 def main(
     ctx: typer.Context,
-    prefix: Annotated[str | None, typer.Argument(help="Text to continue")] = None,
+    prefix: Annotated[str | None, typer.Argument(help="Text to continue (or pipe via stdin)")] = None,
     model: Annotated[str, typer.Option("-m", "--model")] = "gpt-4o-mini",
     n: Annotated[int, typer.Option("-n", "--branches", help="Number of parallel continuations")] = 1,
     max_tokens: Annotated[int, typer.Option("--max-tokens")] = 200,
@@ -32,18 +42,22 @@ def main(
 ) -> None:
     if ctx.invoked_subcommand is not None:
         return
-    if prefix is None:
+
+    text = _read_prefix(prefix)
+    if text is None:
         console.print(ctx.get_help())
         return
 
+    prefix = text.rstrip("\n")
+
     if show_strategy:
-        strat = detect_strategy(model, strategy)
+        strat = detect_strategy(normalize_model(model), strategy)
         console.print(f"[dim]strategy: {strat.name}[/dim]")
 
     if n == 1:
         asyncio.run(_stream_one(prefix, model, max_tokens, temperature, strategy))
     else:
-        asyncio.run(_stream_branches(prefix, model, n, max_tokens, temperature, strategy))
+        asyncio.run(_stream_branches(prefix, model, n, max_tokens, temperature, strategy))  # noqa: E501
 
 
 async def _stream_one(prefix: str, model: str, max_tokens: int, temperature: float, strategy: str | None) -> None:

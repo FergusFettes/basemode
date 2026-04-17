@@ -1,5 +1,7 @@
+import os
 from pathlib import Path
 
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -10,8 +12,14 @@ def _find_env() -> Path | None:
     return None
 
 
+# Load into os.environ so litellm can pick up keys directly.
+_env_path = _find_env()
+if _env_path:
+    load_dotenv(_env_path, override=False)
+
+
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=_find_env(), extra="allow")
+    model_config = SettingsConfigDict(env_file=_env_path, extra="allow")
 
     openai_api_key: str = ""
     anthropic_api_key: str = ""

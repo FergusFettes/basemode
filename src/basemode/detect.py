@@ -1,3 +1,5 @@
+from litellm.litellm_core_utils.get_llm_provider_logic import get_llm_provider
+
 from .strategies import (
     REGISTRY,
     CompletionStrategy,
@@ -17,6 +19,28 @@ _COMPLETION_SUBSTRINGS = ["text-davinci", "text-curie", "text-babbage", "text-ad
 
 # Models where FIM is the right move
 _FIM_SUBSTRINGS = ["deepseek-coder", "starcoder", "codellama", "fim"]
+
+# Provider prefix to add when litellm can't auto-detect from model name alone
+_PREFIX_MAP = {
+    "claude": "anthropic",
+    "gemini": "gemini",
+    "command": "cohere",
+}
+
+
+def normalize_model(model: str) -> str:
+    """Add provider prefix if litellm can't resolve the model name."""
+    if "/" in model:
+        return model
+    try:
+        get_llm_provider(model)
+        return model
+    except Exception:
+        m = model.lower()
+        for fragment, provider in _PREFIX_MAP.items():
+            if fragment in m:
+                return f"{provider}/{model}"
+        return model
 
 
 def detect_strategy(model: str, override: str | None = None) -> ContinuationStrategy:

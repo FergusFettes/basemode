@@ -1,7 +1,7 @@
 import asyncio
 from collections.abc import AsyncGenerator
 
-from .detect import detect_strategy
+from .detect import detect_strategy, normalize_model
 from .params import GenerationParams
 
 
@@ -15,6 +15,7 @@ async def continue_text(
     **extra,
 ) -> AsyncGenerator[str, None]:
     """Stream a single continuation."""
+    model = normalize_model(model)
     params = GenerationParams(model=model, max_tokens=max_tokens, temperature=temperature, extra=extra)
     strat = detect_strategy(model, strategy)
     async for token in strat.stream(prefix, params):
@@ -32,6 +33,7 @@ async def branch_text(
     **extra,
 ) -> AsyncGenerator[tuple[int, str], None]:
     """Stream n parallel continuations as (branch_idx, token) tuples."""
+    model = normalize_model(model)
     params = GenerationParams(model=model, max_tokens=max_tokens, temperature=temperature, extra=extra)
     strat = detect_strategy(model, strategy)
 
