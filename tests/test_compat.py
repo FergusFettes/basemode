@@ -32,3 +32,11 @@ def test_gemini_gemma_4_uses_thinking_level_payload() -> None:
     assert kwargs["max_tokens"] == 4608
     assert kwargs["extra_body"] == {"generationConfig": {"thinkingConfig": {"thinkingLevel": "high"}}}
     assert "thinking" not in kwargs
+
+
+def test_zai_glm_disables_thinking_via_extra_body() -> None:
+    kwargs = build_kwargs(GenerationParams(model="zai/glm-4.7", max_tokens=200))
+
+    assert kwargs["max_tokens"] == 200
+    assert kwargs["extra_body"] == {"thinking": {"type": "disabled"}}
+    assert "thinking" not in kwargs

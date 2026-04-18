@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     together_api_key: str = ""
     moonshot_api_key: str = ""
     xai_api_key: str = ""
+    zai_api_key: str = ""
 
     @property
     def available_providers(self) -> list[str]:
@@ -49,6 +50,7 @@ class Settings(BaseSettings):
                 ("together_ai", self.together_api_key),
                 ("moonshot", self.moonshot_api_key),
                 ("xai", self.xai_api_key),
+                ("zai", self.zai_api_key),
             ]
             if key
         ]

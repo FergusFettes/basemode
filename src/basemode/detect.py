@@ -44,6 +44,7 @@ _PREFIX_MAP = {
     "haiku": "anthropic",
     "gemini": "gemini",
     "gemma": "gemini",
+    "glm": "zai",
     "command": "cohere",
     "grok": "xai",
     "kimi": "moonshot",

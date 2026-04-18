@@ -63,6 +63,11 @@ def test_normalize_gemma_defaults_to_gemini() -> None:
     assert normalize_model("gemma-3-27b-it") == "gemini/gemma-3-27b-it"
 
 
+def test_normalize_glm_defaults_to_zai() -> None:
+    assert normalize_model("glm-4.7") == "zai/glm-4.7"
+    assert normalize_model("glm-5") == "zai/glm-5"
+
+
 def test_normalize_gemma_4_aliases() -> None:
     assert normalize_model("gemma-4") == "gemini/gemma-4-26b-a4b-it"
     assert normalize_model("gemma-4-26b") == "gemini/gemma-4-26b-a4b-it"
@@ -86,3 +91,12 @@ def test_normalize_kimi_does_not_probe_litellm(monkeypatch: pytest.MonkeyPatch) 
     monkeypatch.setattr("basemode.detect.get_llm_provider", fail_probe)
 
     assert normalize_model("kimi-k2-thinking") == "moonshot/kimi-k2-thinking"
+
+
+def test_normalize_glm_does_not_probe_litellm(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fail_probe(model: str) -> None:
+        raise AssertionError(f"unexpected LiteLLM provider probe for {model}")
+
+    monkeypatch.setattr("basemode.detect.get_llm_provider", fail_probe)
+
+    assert normalize_model("glm-4.7") == "zai/glm-4.7"

@@ -56,6 +56,13 @@ _GEMINI_THINKING_LEVEL_MODELS: dict[str, tuple[int, int]] = {
     "gemma-4-31b-it": (1024, 512),
 }
 
+_ZAI_DISABLE_THINKING_PREFIXES = (
+    "glm-4.5",
+    "glm-4.6",
+    "glm-4.7",
+    "glm-5",
+)
+
 
 def _model_stem(model: str) -> str:
     return model.lower().split("/")[-1]
@@ -74,6 +81,9 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
     via_openrouter = lower_model.startswith("openrouter/")
     via_moonshot = lower_model.startswith("moonshot/")
     via_gemini = lower_model.startswith("gemini/")
+    via_zai = lower_model.startswith("zai/")
+    if via_zai and stem.startswith(_ZAI_DISABLE_THINKING_PREFIXES):
+        return {"extra_body": {"thinking": {"type": "disabled"}}}
     for fragment, (budget, min_out) in _GEMINI_THINKING_LEVEL_MODELS.items():
         if via_gemini and fragment in stem:
             return {
