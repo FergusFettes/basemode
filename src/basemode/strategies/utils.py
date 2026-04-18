@@ -1,4 +1,42 @@
+import re
 from collections.abc import AsyncGenerator, AsyncIterable
+
+_LOOKBEHIND_CHARS = 80
+_COMMIT_LAG_CHARS = 32
+
+# High-confidence compounds where the split form is rarely intended in prose.
+_JOINABLE_COMPOUNDS = {
+    "anybody",
+    "anyone",
+    "anything",
+    "anywhere",
+    "cowardice",
+    "everybody",
+    "everyone",
+    "everything",
+    "everywhere",
+    "herself",
+    "himself",
+    "inside",
+    "itself",
+    "myself",
+    "nobody",
+    "nothing",
+    "nowhere",
+    "ourselves",
+    "outside",
+    "somebody",
+    "someone",
+    "something",
+    "somewhere",
+    "themselves",
+    "yourself",
+    "yourselves",
+}
+
+_COMPOUND_RE = re.compile(r"\b([A-Za-z]{2,}) ([A-Za-z]{2,})\b")
+_PREFIX_WORD_RE = re.compile(r"([A-Za-z]{2,})$")
+_LEADING_WORD_RE = re.compile(r"^ ([A-Za-z]{2,})(\b|(?=[^A-Za-z]))")
 
 
 def normalize_prefix(prefix: str) -> str:
@@ -54,13 +92,51 @@ def _should_collapse_single_newline(prefix: str, prev_char: str, next_char: str)
     return True
 
 
+def _join_split_compounds(text: str) -> str:
+    """Join high-confidence compounds in the mutable stream tail."""
+
+    def replace(match: re.Match[str]) -> str:
+        left, right = match.group(1), match.group(2)
+        joined = left + right
+        if joined.lower() not in _JOINABLE_COMPOUNDS:
+            return match.group(0)
+        if left.isupper():
+            return joined.upper()
+        if left[0].isupper():
+            return joined.capitalize()
+        return joined
+
+    return _COMPOUND_RE.sub(replace, text)
+
+
+def _repair_prefix_boundary(prefix: str, text: str) -> str:
+    prefix_match = _PREFIX_WORD_RE.search(prefix)
+    text_match = _LEADING_WORD_RE.match(text)
+    if not prefix_match or not text_match:
+        return text
+
+    joined = prefix_match.group(1) + text_match.group(1)
+    if joined.lower() not in _JOINABLE_COMPOUNDS:
+        return text
+
+    # The prefix already contains the first half, so the continuation should
+    # start with the second half and no inserted boundary space.
+    return text[1:]
+
+
 async def normalize_stream_newlines(
     prefix: str,
     tokens: AsyncIterable[str],
 ) -> AsyncGenerator[str, None]:
-    """Collapse likely hard-wrapped prose newlines while preserving structure."""
+    """Collapse likely hard-wrapped prose newlines and repair split compounds.
+
+    The final few characters are held back briefly so the next token can repair
+    boundaries such as ``coward ice`` -> ``cowardice`` before text is committed
+    to the caller.
+    """
     prev_char = prefix[-1] if prefix else ""
     pending_newlines = 0
+    pending_text = ""
 
     async for token in tokens:
         out: list[str] = []
@@ -83,7 +159,17 @@ async def normalize_stream_newlines(
             prev_char = char
 
         if out:
-            yield "".join(out)
+            pending_text += "".join(out)
+            pending_text = _repair_prefix_boundary(prefix, pending_text)
+            pending_text = _join_split_compounds(pending_text)
+            if len(pending_text) > _LOOKBEHIND_CHARS:
+                emit_len = len(pending_text) - _COMMIT_LAG_CHARS
+                yield pending_text[:emit_len]
+                pending_text = pending_text[emit_len:]
 
     if pending_newlines:
-        yield "\n" * pending_newlines
+        pending_text += "\n" * pending_newlines
+    pending_text = _repair_prefix_boundary(prefix, pending_text)
+    pending_text = _join_split_compounds(pending_text)
+    if pending_text:
+        yield pending_text

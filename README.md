@@ -2,9 +2,11 @@
 
 **Make any LLM do raw text continuation.**
 
-Most language models today are chat-tuned — they want to respond, acknowledge, and help. This is the opposite of what you need for loom-style tree exploration, creative writing, or any workflow that requires the model to simply *continue* text as if it wrote it. Feed a chat model a sentence mid-thought and you'll get "Sure! Here's a continuation:" instead of the next word.
+Most language models today are chat-tuned — they want to respond, acknowledge, and help. This is the opposite of what you need when you want a model to simply *continue* text as if it wrote it. Feed a chat model a sentence mid-thought and you'll get "Sure! Here's a continuation:" instead of the next word.
 
 `basemode` solves this. It wraps any LLM in the right coercion strategy for that provider — native completions API, assistant prefill, or a carefully-tuned system prompt — so you always get a clean continuation back.
+
+For persistent branching exploration, use `basemode loom`. The core `basemode` command stays stateless and does not manage sessions.
 
 ```bash
 basemode "The defendant, who had been sitting quietly throughout the proceedings, suddenly"
@@ -67,6 +69,15 @@ basemode models --search claude
 
 # Check strategy detection for any model
 basemode info mistral-large-latest
+
+# Persistent branching exploration in loom mode
+basemode loom "The ship rounded" --branches 4
+basemode loom continue -b 2
+basemode loom nodes
+basemode loom active
+basemode loom show <node-id>
+basemode loom children <node-id>
+basemode loom select <node-id>
 ```
 
 ---
@@ -96,6 +107,55 @@ async for idx, token in branch_text(
 ```
 
 Token boundaries are handled correctly: `prefix + "".join(tokens)` always produces clean, properly-spaced text regardless of which strategy was used.
+
+---
+
+## Persistence
+
+`basemode loom` can persist generation trees in SQLite. The schema is node-based:
+
+- root nodes contain the starting text
+- child nodes contain only the generated continuation segment
+- branches are siblings with the same parent
+- continuing from a branch adds new child nodes under that branch
+- full text is reconstructed by concatenating a node's ancestors
+
+`loom` is opt-in and does not change `basemode` itself.
+
+```bash
+basemode loom "The ship rounded" --branches 4
+basemode loom continue -b 2
+basemode loom nodes
+basemode loom active
+basemode loom show <child-node-id>
+basemode loom select <node-id>
+```
+
+Node ids can be abbreviated to any unique substring. If the substring matches multiple nodes, `basemode loom` will ask for a more specific id instead of guessing.
+
+`loom nodes` marks the active node with `*`, and `loom active` shows the current cursor directly.
+
+By default the database lives at `~/.local/share/basemode/generations.sqlite`. Override it with `--db /path/to/generations.sqlite` or the `BASEMODE_DB` environment variable.
+
+When a loom tree reaches roughly 500 tokens, `basemode loom` tries to name it with a short slug like `this-is-the-topic`. Naming is best-effort and only runs when an OpenAI or Anthropic key is configured; generated text is still saved normally if naming is unavailable.
+
+If you are embedding loom, you can use the storage API directly:
+
+```python
+from basemode import GenerationStore
+
+store = GenerationStore()
+parent, children = store.save_continuations(
+    "The ship rounded",
+    [" the headland", " into fog"],
+    model="gpt-4o-mini",
+    strategy="system",
+    max_tokens=200,
+    temperature=0.9,
+)
+
+text = store.full_text(children[0].id)
+```
 
 ---
 

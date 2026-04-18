@@ -1,7 +1,12 @@
 """Unit tests for prefix normalization edge cases."""
+
 import pytest
 
-from basemode.strategies.utils import needs_leading_space, normalize_prefix, normalize_stream_newlines
+from basemode.strategies.utils import (
+    needs_leading_space,
+    normalize_prefix,
+    normalize_stream_newlines,
+)
 
 
 @pytest.mark.parametrize("inp,expected", [
@@ -132,3 +137,48 @@ async def test_normalize_stream_newlines_preserves_poetry_like_prefixes() -> Non
     )
 
     assert result == " signal\nand the wires hum"
+
+
+async def test_normalize_stream_repairs_split_compound_across_chunks() -> None:
+    result = await _collect_stream(
+        "It was not",
+        [" coward", " ice but something more like engineering."],
+    )
+
+    assert result == " cowardice but something more like engineering."
+
+
+async def test_normalize_stream_repairs_split_compound_at_prefix_boundary() -> None:
+    result = await _collect_stream(
+        "The recommendation was not born of laziness or coward",
+        [" ice but of a kind of cognitive hygiene."],
+    )
+
+    assert result == "ice but of a kind of cognitive hygiene."
+
+
+async def test_normalize_stream_repairs_split_compound_with_space_in_first_chunk() -> None:
+    result = await _collect_stream(
+        "The wall made the",
+        [" out ", "side feel theoretical."],
+    )
+
+    assert result == " outside feel theoretical."
+
+
+async def test_normalize_stream_does_not_join_unlisted_words() -> None:
+    result = await _collect_stream(
+        "The argument was",
+        [" real", " ice on the page."],
+    )
+
+    assert result == " real ice on the page."
+
+
+async def test_normalize_stream_does_not_repair_unlisted_prefix_boundary() -> None:
+    result = await _collect_stream(
+        "The argument was real",
+        [" ice on the page."],
+    )
+
+    assert result == " ice on the page."
