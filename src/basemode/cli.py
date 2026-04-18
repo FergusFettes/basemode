@@ -1,8 +1,10 @@
 import asyncio
 import curses
 import json as _json
+import queue as _queue
 import sys
 import textwrap
+import threading
 from pathlib import Path
 from typing import Annotated
 
@@ -548,6 +550,7 @@ def _loom_tui(stdscr: "curses._CursesWindow", store: GenerationStore, start_id: 
     child_path: dict[str, int] = {}
     max_tokens = 200
     temperature = 0.9
+    n_branches = 1
 
     while True:
         height, width = stdscr.getmaxyx()
@@ -571,8 +574,8 @@ def _loom_tui(stdscr: "curses._CursesWindow", store: GenerationStore, start_id: 
 
         node = store.get(current_id)
         status = (
-            f" {current_id[:8]}  max_tokens:{max_tokens}"
-            "  hjkl=nav  space=continue  e=editor  w/s=tokens  d=set-tokens  q=quit"
+            f" {current_id[:8]}  tok:{max_tokens}  n:{n_branches}"
+            "  hjkl=nav  spc=gen  e=edit  w/s=±tok  t=set-tok  a/d=branches  q=quit"
         )
         try:
             stdscr.addstr(height - 1, 0, status[:width].ljust(width)[:width], curses.A_REVERSE)
@@ -604,13 +607,17 @@ def _loom_tui(stdscr: "curses._CursesWindow", store: GenerationStore, start_id: 
                 selected_idx = child_path.get(parent_id, 0)
             current_id = parent_id
         elif key == ord("w"):
-            max_tokens = min(max_tokens + 200, 8000)
+            max_tokens = min(max_tokens + 50, 8000)
         elif key == ord("s"):
-            max_tokens = max(max_tokens - 200, 100)
-        elif key == ord("d"):
+            max_tokens = max(max_tokens - 50, 50)
+        elif key == ord("t"):
             result = _loom_ask_int(stdscr, "Max tokens", max_tokens)
             if result is not None and result > 0:
                 max_tokens = result
+        elif key == ord("a"):
+            n_branches = max(n_branches - 1, 1)
+        elif key == ord("d"):
+            n_branches += 1
         elif key == ord("e"):
             text = store.full_text(current_id)
             with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
@@ -622,17 +629,26 @@ def _loom_tui(stdscr: "curses._CursesWindow", store: GenerationStore, start_id: 
             stdscr.refresh()
         elif key == ord(" "):
             model = get_default_model() or "gpt-4o-mini"
-            prefix = store.full_text(current_id)
-            curses.endwin()
-            completion = asyncio.run(_stream_one(prefix, model, max_tokens, temperature, None))
-            _save_loom_run(store, prefix, [completion], model, None, max_tokens, temperature, current_id)
-            new_children = store.children(current_id)
-            if new_children:
-                child_path[current_id] = len(new_children) - 1
-                current_id = new_children[-1].id
-                selected_idx = 0
-            input("\nPress Enter to return to loom...")
-            stdscr.refresh()
+            completions = _loom_stream(stdscr, store, current_id, model, max_tokens, temperature, n_branches)
+            if completions and any(c.strip() for c in completions):
+                resolved = normalize_model(model)
+                strategy_name = detect_strategy(resolved, None).name
+                prefix = store.full_text(current_id)
+                _parent, new_children = store.save_continuations(
+                    prefix,
+                    completions,
+                    model=resolved,
+                    strategy=strategy_name,
+                    max_tokens=max_tokens,
+                    temperature=temperature,
+                    parent_id=current_id,
+                )
+                if new_children:
+                    child_path[current_id] = len(new_children) - 1
+                    if n_branches == 1:
+                        current_id = new_children[0].id
+                        selected_idx = 0
+                    # for multiple branches stay at parent so user can pick
 
 
 def _loom_ask_int(stdscr: "curses._CursesWindow", prompt: str, current: int) -> int | None:
@@ -666,6 +682,145 @@ def _loom_ask_int(stdscr: "curses._CursesWindow", prompt: str, current: int) -> 
         return int(raw)
     except ValueError:
         return None
+
+
+def _loom_wrap(text: str, width: int) -> list[str]:
+    """Word-wrap plain text to width, preserving blank lines."""
+    lines: list[str] = []
+    for segment in text.split("\n"):
+        if segment:
+            lines.extend(textwrap.wrap(segment, width) or [""])
+        else:
+            lines.append("")
+    return lines or [""]
+
+
+def _loom_stream(
+    stdscr: "curses._CursesWindow",
+    store: "GenerationStore",
+    current_id: str,
+    model: str,
+    max_tokens: int,
+    temperature: float,
+    n_branches: int,
+) -> list[str]:
+    """Stream n_branches continuations directly in curses. Returns completed texts."""
+    prefix = store.full_text(current_id)
+    token_q: "_queue.Queue[tuple[int, str | None]]" = _queue.Queue()
+    buffers: list[list[str]] = [[] for _ in range(n_branches)]
+    cancelled = threading.Event()
+
+    async def _gen_one(idx: int) -> None:
+        async for tok in continue_text(prefix, model, max_tokens=max_tokens, temperature=temperature):
+            if cancelled.is_set():
+                break
+            token_q.put((idx, tok))
+        token_q.put((idx, None))
+
+    async def _gen_all() -> None:
+        await asyncio.gather(*[_gen_one(i) for i in range(n_branches)])
+
+    threading.Thread(target=lambda: asyncio.run(_gen_all()), daemon=True).start()
+
+    done_count = 0
+    stdscr.nodelay(True)
+    try:
+        while done_count < n_branches:
+            # Drain all available tokens
+            while True:
+                try:
+                    idx, tok = token_q.get_nowait()
+                    if tok is None:
+                        done_count += 1
+                    else:
+                        buffers[idx].append(tok)
+                except _queue.Empty:
+                    break
+
+            height, width = stdscr.getmaxyx()
+            _draw_loom_streaming(stdscr, prefix, buffers, n_branches, width, height)
+
+            key = stdscr.getch()
+            if key == 27:  # Esc cancels
+                cancelled.set()
+                break
+
+            curses.napms(30)
+    finally:
+        stdscr.nodelay(False)
+
+    # Drain remaining tokens after cancellation/completion
+    while True:
+        try:
+            idx, tok = token_q.get_nowait()
+            if tok is not None:
+                buffers[idx].append(tok)
+        except _queue.Empty:
+            break
+
+    return ["".join(buf) for buf in buffers]
+
+
+def _draw_loom_streaming(
+    stdscr: "curses._CursesWindow",
+    prefix: str,
+    buffers: list[list[str]],
+    n_branches: int,
+    width: int,
+    height: int,
+) -> None:
+    stdscr.clear()
+    if n_branches == 1:
+        full = prefix + "".join(buffers[0]) + "▋"
+        lines = _loom_wrap(full, width)
+        start = max(0, len(lines) - (height - 1))
+        for row, line in enumerate(lines[start:]):
+            if row >= height - 1:
+                break
+            try:
+                stdscr.addstr(row, 0, line.ljust(width)[:width])
+            except curses.error:
+                pass
+        chars = sum(len(b) for b in buffers[0])
+        status = f" Generating…  {chars} chars  Esc=cancel"
+    else:
+        # Top half: parent text; bottom half: branch columns
+        split = max(3, height // 2)
+        prefix_lines = _loom_wrap(prefix, width)
+        p_start = max(0, len(prefix_lines) - split)
+        for row, line in enumerate(prefix_lines[p_start:]):
+            if row >= split:
+                break
+            try:
+                stdscr.addstr(row, 0, line.ljust(width)[:width], curses.A_DIM)
+            except curses.error:
+                pass
+        try:
+            stdscr.addstr(split, 0, "─" * width, curses.A_DIM)
+        except curses.error:
+            pass
+        col_w = max(10, width // n_branches)
+        branch_rows = height - split - 2
+        for i, buf in enumerate(buffers):
+            x = i * col_w
+            branch_text = "".join(buf) + "▋"
+            b_lines = _loom_wrap(branch_text, col_w - 1)
+            b_start = max(0, len(b_lines) - branch_rows)
+            for row, line in enumerate(b_lines[b_start:]):
+                if row >= branch_rows:
+                    break
+                try:
+                    stdscr.addstr(split + 1 + row, x, line[:col_w - 1])
+                except curses.error:
+                    pass
+        chars = sum(len(b) for b in buffers[0])
+        status = f" Generating {n_branches} branches…  Esc=cancel"
+
+    try:
+        stdscr.addstr(height - 1, 0, status[:width].ljust(width)[:width], curses.A_REVERSE)
+    except curses.error:
+        pass
+    stdscr.refresh()
 
 
 def _loom_word_wrap(text: str, first_width: int, full_width: int) -> list[str]:
