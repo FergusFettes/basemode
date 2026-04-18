@@ -625,14 +625,19 @@ def _loom_tui(stdscr: "curses._CursesWindow", store: GenerationStore, start_id: 
         elif key == ord("d"):
             n_branches += 1
         elif key == ord("e"):
-            text = store.full_text(current_id)
+            original = store.full_text(current_id)
             with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
-                f.write(text)
+                f.write(original)
                 tmpfile = f.name
             curses.endwin()
             subprocess.run([os.environ.get("EDITOR", "vim"), tmpfile])
+            edited = Path(tmpfile).read_text()
             os.unlink(tmpfile)
             stdscr.refresh()
+            new_node = _apply_editor_diff(store, current_id, original, edited)
+            if new_node is not None:
+                current_id = new_node.id
+                selected_idx = 0
         elif key == ord(" "):
             completions = _loom_stream(stdscr, store, current_id, model, max_tokens, temperature, n_branches)
             if completions and any(c.strip() for c in completions):
@@ -776,6 +781,50 @@ def _loom_model_picker(stdscr: "curses._CursesWindow", current: str) -> "str | N
         elif 32 <= key < 127:
             query += chr(key)
             cursor = 0; scroll = 0
+
+
+def _apply_editor_diff(
+    store: "GenerationStore", current_id: str, original: str, edited: str
+) -> "Node | None":
+    """
+    Find the first differing character between original and edited, identify
+    which node in the lineage owns that position, and create a sibling of that
+    node whose text is everything from that node's start in the edited version.
+    Returns the new node, or None if the text was unchanged.
+    """
+    if original == edited:
+        return None
+
+    # First position where the texts diverge
+    diff_pos = next(
+        (i for i, (a, b) in enumerate(zip(original, edited)) if a != b),
+        min(len(original), len(edited)),
+    )
+
+    lineage = store.lineage(current_id)
+    pos = 0
+    for node in lineage:
+        node_end = pos + len(node.text)
+        if diff_pos < node_end or node is lineage[-1]:
+            new_text = edited[pos:]
+            if not new_text:
+                return None
+            if node.parent_id is None:
+                new_node = store.create_root(new_text, metadata={"source": "edited"})
+            else:
+                new_node = store.add_child(
+                    node.parent_id,
+                    new_text,
+                    model=node.model or "manual",
+                    strategy=node.strategy or "manual",
+                    max_tokens=node.max_tokens or 200,
+                    temperature=node.temperature or 0.9,
+                )
+            store.set_active_node(new_node.id)
+            return new_node
+        pos = node_end
+
+    return None
 
 
 def _loom_wrap(text: str, width: int) -> list[str]:
