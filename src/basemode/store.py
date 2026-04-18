@@ -255,6 +255,65 @@ class GenerationStore:
             ).fetchall()
         return [self._node(row) for row in rows]
 
+    def tree(self, root_id: str) -> list[Node]:
+        """Return all nodes in the tree rooted at root_id, ordered by creation time."""
+        resolved = self.resolve_node_id(root_id)
+        if resolved is None:
+            return []
+        with closing(self.connect()) as conn:
+            rows = conn.execute(
+                "SELECT * FROM nodes WHERE root_id = ? ORDER BY created_at, id",
+                (resolved,),
+            ).fetchall()
+        return [self._node(row) for row in rows]
+
+    def find_root_by_text(self, text: str) -> "Node | None":
+        """Return the root node whose text exactly matches, or None."""
+        with closing(self.connect()) as conn:
+            row = conn.execute(
+                "SELECT * FROM nodes WHERE parent_id IS NULL AND text = ?",
+                (text,),
+            ).fetchone()
+        return self._node(row) if row else None
+
+    def import_nodes(self, nodes: "list[Node]") -> int:
+        """Insert nodes in topological order, skipping existing ids. Returns count inserted."""
+        # Topological sort: parents before children
+        by_id = {n.id: n for n in nodes}
+        ordered: list[Node] = []
+        seen: set[str] = set()
+
+        def visit(node: "Node") -> None:
+            if node.id in seen:
+                return
+            if node.parent_id and node.parent_id in by_id:
+                visit(by_id[node.parent_id])
+            seen.add(node.id)
+            ordered.append(node)
+
+        for n in nodes:
+            visit(n)
+
+        inserted = 0
+        with closing(self.connect()) as conn, conn:
+            for node in ordered:
+                result = conn.execute(
+                    """
+                    INSERT OR IGNORE INTO nodes (
+                        id, parent_id, root_id, text, model, strategy, max_tokens,
+                        temperature, branch_index, created_at, metadata_json
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        node.id, node.parent_id, node.root_id, node.text,
+                        node.model, node.strategy, node.max_tokens, node.temperature,
+                        node.branch_index, node.created_at,
+                        json.dumps(node.metadata, sort_keys=True),
+                    ),
+                )
+                inserted += result.rowcount
+        return inserted
+
     def roots(self) -> list[Node]:
         with closing(self.connect()) as conn:
             rows = conn.execute(

@@ -1,5 +1,6 @@
 import asyncio
 import curses
+import json as _json
 import sys
 import textwrap
 from pathlib import Path
@@ -399,26 +400,139 @@ def loom_roots(
 
 @loom_app.command("view")
 def loom_view(
-    node_id: Annotated[str | None, typer.Argument(help="Node id to start at (defaults to active)")] = None,
+    source: Annotated[str | None, typer.Argument(help="Node id, .txt file (use as root), or .json export to import")] = None,
     db: Annotated[Path | None, typer.Option("--db", help="SQLite generation database path")] = None,
 ) -> None:
     """Interactive loom viewer. hjkl: parent/child/prev-sibling/next-sibling. q: quit."""
     store = GenerationStore(db)
-    if node_id is None:
-        start = store.get_active_node()
-        if start is None:
+    start = _resolve_loom_source(store, source)
+    if start is None:
+        return
+    curses.wrapper(_loom_tui, store, start.id)
+
+
+def _resolve_loom_source(store: "GenerationStore", source: "str | None") -> "Node | None":
+    """Resolve a source argument to a Node: None→active, file→import/create, str→node id."""
+    if source is None:
+        node = store.get_active_node()
+        if node is None:
             console.print("[yellow]No active node.[/yellow]")
-            return
-    else:
+        return node
+
+    p = Path(source)
+    if p.suffix == ".json" and p.exists():
+        return _import_loom_json(store, p)
+
+    if p.exists() and p.is_file():
+        text = p.read_text()
+        existing = store.find_root_by_text(text)
+        if existing:
+            console.print(f"[dim]Found existing root {existing.id[:8]}[/dim]")
+            return existing
+        root = store.create_root(text, metadata={"source_file": str(p)})
+        store.set_active_node(root.id)
+        console.print(f"[dim]Created root {root.id[:8]} from {p.name}[/dim]")
+        return root
+
+    try:
+        node = store.get(source)
+    except AmbiguousNodeReference as exc:
+        console.print(f"[red]{exc}[/red]")
+        return None
+    if node is None:
+        console.print(f"[red]Unknown node or file not found: {source}[/red]")
+    return node
+
+
+def _import_loom_json(store: "GenerationStore", path: Path) -> "Node | None":
+    try:
+        data = _json.loads(path.read_text())
+    except Exception as exc:
+        console.print(f"[red]Failed to read {path}: {exc}[/red]")
+        return None
+    raw_nodes = data.get("nodes", [])
+    if not raw_nodes:
+        console.print("[red]No nodes found in export.[/red]")
+        return None
+    from .store import Node as _Node
+    nodes = [
+        _Node(
+            id=n["id"],
+            parent_id=n.get("parent_id"),
+            root_id=n["root_id"],
+            text=n["text"],
+            model=n.get("model"),
+            strategy=n.get("strategy"),
+            max_tokens=n.get("max_tokens"),
+            temperature=n.get("temperature"),
+            branch_index=n.get("branch_index"),
+            created_at=n["created_at"],
+            metadata=n.get("metadata", {}),
+        )
+        for n in raw_nodes
+    ]
+    inserted = store.import_nodes(nodes)
+    skipped = len(nodes) - inserted
+    console.print(f"[dim]Imported {inserted} nodes, skipped {skipped} duplicates[/dim]")
+    root_id = next((n.root_id for n in nodes if n.parent_id is None), nodes[0].root_id)
+    root = store.get(root_id)
+    if root:
+        store.set_active_node(root.id)
+    return root
+
+
+@loom_app.command("export")
+def loom_export(
+    to: Annotated[str, typer.Option("--to", help="Output file path or 'json' for stdout")] = "json",
+    node_id: Annotated[str | None, typer.Option("--node", help="Any node in the tree (defaults to active)")] = None,
+    db: Annotated[Path | None, typer.Option("--db", help="SQLite generation database path")] = None,
+) -> None:
+    """Export the current generation tree to JSON."""
+    store = GenerationStore(db)
+    if node_id is not None:
         try:
-            start = store.get(node_id)
+            node = store.get(node_id)
         except AmbiguousNodeReference as exc:
             console.print(f"[red]{exc}[/red]")
             raise typer.Exit(1) from None
-        if start is None:
+        if node is None:
             console.print(f"[red]Unknown node: {node_id}[/red]")
             raise typer.Exit(1)
-    curses.wrapper(_loom_tui, store, start.id)
+    else:
+        node = store.get_active_node()
+        if node is None:
+            console.print("[red]No active node. Use --node to specify one.[/red]")
+            raise typer.Exit(1)
+
+    root = store.root(node.id)
+    tree_nodes = store.tree(root.id)
+    data = {
+        "version": 1,
+        "nodes": [
+            {
+                "id": n.id,
+                "parent_id": n.parent_id,
+                "root_id": n.root_id,
+                "text": n.text,
+                "model": n.model,
+                "strategy": n.strategy,
+                "max_tokens": n.max_tokens,
+                "temperature": n.temperature,
+                "branch_index": n.branch_index,
+                "created_at": n.created_at,
+                "metadata": n.metadata,
+            }
+            for n in tree_nodes
+        ],
+    }
+    serialized = _json.dumps(data, indent=2, ensure_ascii=False)
+
+    if to == "json":
+        print(serialized)
+    else:
+        out = Path(to)
+        out.write_text(serialized, encoding="utf-8")
+        console.print(f"[dim]Exported {len(tree_nodes)} nodes → {out}[/dim]")
 
 
 def _loom_tui(stdscr: "curses._CursesWindow", store: GenerationStore, start_id: str) -> None:
