@@ -551,6 +551,7 @@ def _loom_tui(stdscr: "curses._CursesWindow", store: GenerationStore, start_id: 
     max_tokens = 200
     temperature = 0.9
     n_branches = 1
+    model = get_default_model() or "gpt-4o-mini"
 
     while True:
         height, width = stdscr.getmaxyx()
@@ -573,9 +574,10 @@ def _loom_tui(stdscr: "curses._CursesWindow", store: GenerationStore, start_id: 
                 pass
 
         node = store.get(current_id)
+        short_model = model.split("/")[-1]
         status = (
-            f" {current_id[:8]}  tok:{max_tokens}  n:{n_branches}"
-            "  hjkl=nav  spc=gen  e=edit  w/s=±tok  t=set-tok  a/d=branches  q=quit"
+            f" {current_id[:8]}  {short_model}  tok:{max_tokens}  n:{n_branches}"
+            "  hjkl=nav  spc=gen  e=edit  m=model  w/s=±tok  t=tok  a/d=branches  q=quit"
         )
         try:
             stdscr.addstr(height - 1, 0, status[:width].ljust(width)[:width], curses.A_REVERSE)
@@ -614,6 +616,10 @@ def _loom_tui(stdscr: "curses._CursesWindow", store: GenerationStore, start_id: 
             result = _loom_ask_int(stdscr, "Max tokens", max_tokens)
             if result is not None and result > 0:
                 max_tokens = result
+        elif key == ord("m"):
+            picked = _loom_model_picker(stdscr, model)
+            if picked is not None:
+                model = picked
         elif key == ord("a"):
             n_branches = max(n_branches - 1, 1)
         elif key == ord("d"):
@@ -628,7 +634,6 @@ def _loom_tui(stdscr: "curses._CursesWindow", store: GenerationStore, start_id: 
             os.unlink(tmpfile)
             stdscr.refresh()
         elif key == ord(" "):
-            model = get_default_model() or "gpt-4o-mini"
             completions = _loom_stream(stdscr, store, current_id, model, max_tokens, temperature, n_branches)
             if completions and any(c.strip() for c in completions):
                 resolved = normalize_model(model)
@@ -682,6 +687,71 @@ def _loom_ask_int(stdscr: "curses._CursesWindow", prompt: str, current: int) -> 
         return int(raw)
     except ValueError:
         return None
+
+
+def _loom_model_picker(stdscr: "curses._CursesWindow", current: str) -> "str | None":
+    """Scrollable model picker. Returns selected model name or None if cancelled."""
+    models = list_models(available_only=True)
+    if not models:
+        # Fall back to a small hardcoded set if no keys are configured
+        models = [current]
+
+    # Put current model first so it's visible immediately
+    if current in models:
+        models.insert(0, models.pop(models.index(current)))
+
+    cursor = 0
+    scroll = 0
+
+    while True:
+        height, width = stdscr.getmaxyx()
+        popup_h = min(len(models) + 4, height - 4)
+        popup_w = min(max(len(m) for m in models) + 6, width - 4)
+        py = (height - popup_h) // 2
+        px = (width - popup_w) // 2
+        list_rows = popup_h - 3  # rows available for model list
+
+        # Scroll to keep cursor visible
+        if cursor < scroll:
+            scroll = cursor
+        elif cursor >= scroll + list_rows:
+            scroll = cursor - list_rows + 1
+
+        win = curses.newwin(popup_h, popup_w, py, px)
+        win.box()
+        win.addstr(1, 2, "Select model  j/k=move  Enter=pick  Esc=cancel", curses.A_DIM)
+
+        for row in range(list_rows):
+            idx = scroll + row
+            if idx >= len(models):
+                break
+            label = models[idx]
+            if len(label) > popup_w - 4:
+                label = label[:popup_w - 7] + "..."
+            attr = curses.A_REVERSE if idx == cursor else 0
+            try:
+                win.addstr(2 + row, 2, label.ljust(popup_w - 4)[:popup_w - 4], attr)
+            except curses.error:
+                pass
+
+        win.refresh()
+        key = win.getch()
+
+        if key in (ord("q"), 27):
+            del win
+            stdscr.touchwin()
+            stdscr.refresh()
+            return None
+        elif key in (curses.KEY_ENTER, ord("\n"), ord("\r")):
+            chosen = models[cursor]
+            del win
+            stdscr.touchwin()
+            stdscr.refresh()
+            return chosen
+        elif key in (ord("j"), curses.KEY_DOWN) and cursor < len(models) - 1:
+            cursor += 1
+        elif key in (ord("k"), curses.KEY_UP) and cursor > 0:
+            cursor -= 1
 
 
 def _loom_wrap(text: str, width: int) -> list[str]:
