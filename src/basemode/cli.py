@@ -426,7 +426,7 @@ def _resolve_loom_source(store: "GenerationStore", source: "str | None") -> "Nod
         return _import_loom_json(store, p)
 
     if p.exists() and p.is_file():
-        text = p.read_text()
+        text = p.read_text().rstrip("\n")
         existing = store.find_root_by_text(text)
         if existing:
             console.print(f"[dim]Found existing root {existing.id[:8]}[/dim]")
