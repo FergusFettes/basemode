@@ -39,6 +39,9 @@ _MODEL_ALIASES = {
 # Provider prefix to add when litellm can't auto-detect from model name alone
 _PREFIX_MAP = {
     "claude": "anthropic",
+    "opus": "anthropic",
+    "sonnet": "anthropic",
+    "haiku": "anthropic",
     "gemini": "gemini",
     "gemma": "gemini",
     "command": "cohere",
@@ -89,7 +92,7 @@ def normalize_model(model: str) -> str:
     for fragment, provider in _PREFIX_MAP.items():
         if fragment in m:
             if provider == "anthropic":
-                break
+                return f"anthropic/{_normalize_anthropic_name(model)}"
             return f"{provider}/{model}"
 
     # Try litellm's native detection first
