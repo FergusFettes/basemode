@@ -710,45 +710,52 @@ def _loom_model_picker(stdscr: "curses._CursesWindow", current: str) -> "str | N
     if current in all_models:
         all_models.insert(0, all_models.pop(all_models.index(current)))
 
+    height, width = stdscr.getmaxyx()
+    popup_w = min(max(len(m) for m in all_models) + 6, width - 4)
+    popup_h = min(len(all_models) + 5, height - 2)
+    py = (height - popup_h) // 2
+    px = (width - popup_w) // 2
+    list_rows = popup_h - 4  # rows for the model list
+
+    # Create window once at a fixed size so resizing never leaves ghost content
+    win = curses.newwin(popup_h, popup_w, py, px)
+    win.keypad(True)
+
     query = ""
     cursor = 0
     scroll = 0
 
     while True:
         filtered = [m for m in all_models if _fuzzy_match(query, m)]
-
-        height, width = stdscr.getmaxyx()
-        popup_w = min(max((len(m) for m in all_models), default=20) + 6, width - 4)
-        popup_h = min(len(filtered) + 5, height - 2)
-        py = (height - popup_h) // 2
-        px = (width - popup_w) // 2
-        list_rows = popup_h - 4  # box + header + search bar + count
-
         cursor = min(cursor, max(0, len(filtered) - 1))
         if cursor < scroll:
             scroll = cursor
         elif cursor >= scroll + list_rows:
             scroll = cursor - list_rows + 1
 
-        win = curses.newwin(popup_h, popup_w, py, px)
+        win.erase()
         win.box()
         win.addstr(1, 2, "model  j/k=move  Enter=pick  Esc=cancel", curses.A_DIM)
 
-        # Search bar
         search_label = "/ "
-        search_display = (query + "▋")[:popup_w - 4 - len(search_label)]
+        search_display = (query + "▋")[: popup_w - 4 - len(search_label)]
         win.addstr(2, 2, search_label + search_display.ljust(popup_w - 4 - len(search_label)))
 
         for row in range(list_rows):
             idx = scroll + row
+            # Always write the full row width to overwrite any previous content
             if idx >= len(filtered):
-                break
+                try:
+                    win.addstr(3 + row, 2, " " * (popup_w - 4))
+                except curses.error:
+                    pass
+                continue
             label = filtered[idx]
             if len(label) > popup_w - 4:
-                label = label[:popup_w - 7] + "..."
+                label = label[: popup_w - 7] + "..."
             attr = curses.A_REVERSE if idx == cursor else 0
             try:
-                win.addstr(3 + row, 2, label.ljust(popup_w - 4)[:popup_w - 4], attr)
+                win.addstr(3 + row, 2, label.ljust(popup_w - 4)[: popup_w - 4], attr)
             except curses.error:
                 pass
 
@@ -760,21 +767,20 @@ def _loom_model_picker(stdscr: "curses._CursesWindow", current: str) -> "str | N
 
         win.refresh()
         key = win.getch()
-        del win
 
-        if key == 27:  # Esc
+        if key == 27:
+            del win
             stdscr.touchwin(); stdscr.refresh()
             return None
         elif key in (curses.KEY_ENTER, ord("\n"), ord("\r")):
             chosen = filtered[cursor] if filtered else None
+            del win
             stdscr.touchwin(); stdscr.refresh()
             return chosen
-        elif key in (ord("j"), curses.KEY_DOWN):
-            if cursor < len(filtered) - 1:
-                cursor += 1
-        elif key in (ord("k"), curses.KEY_UP):
-            if cursor > 0:
-                cursor -= 1
+        elif key in (ord("j"), curses.KEY_DOWN) and cursor < len(filtered) - 1:
+            cursor += 1
+        elif key in (ord("k"), curses.KEY_UP) and cursor > 0:
+            cursor -= 1
         elif key in (curses.KEY_BACKSPACE, 127, 8):
             query = query[:-1]
             cursor = 0; scroll = 0
