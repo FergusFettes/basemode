@@ -787,44 +787,84 @@ def _apply_editor_diff(
     store: "GenerationStore", current_id: str, original: str, edited: str
 ) -> "Node | None":
     """
-    Find the first differing character between original and edited, identify
-    which node in the lineage owns that position, and create a sibling of that
-    node whose text is everything from that node's start in the edited version.
-    Returns the new node, or None if the text was unchanged.
+    Diff original vs edited, map segment boundaries to their edited positions,
+    fork at the first changed node, and rebuild the path from there — changed
+    nodes get new text, unchanged intermediate nodes become copies with the new
+    parent. Returns the tip of the new path, or None if nothing changed.
     """
+    import difflib
+
     if original == edited:
         return None
 
-    # First position where the texts diverge
-    diff_pos = next(
-        (i for i, (a, b) in enumerate(zip(original, edited)) if a != b),
-        min(len(original), len(edited)),
-    )
-
     lineage = store.lineage(current_id)
+
+    # Segment boundary positions in the original text
+    seg_starts: list[int] = []
     pos = 0
     for node in lineage:
-        node_end = pos + len(node.text)
-        if diff_pos < node_end or node is lineage[-1]:
-            new_text = edited[pos:]
-            if not new_text:
-                return None
-            if node.parent_id is None:
-                new_node = store.create_root(new_text, metadata={"source": "edited"})
-            else:
-                new_node = store.add_child(
-                    node.parent_id,
-                    new_text,
-                    model=node.model or "manual",
-                    strategy=node.strategy or "manual",
-                    max_tokens=node.max_tokens or 200,
-                    temperature=node.temperature or 0.9,
-                )
-            store.set_active_node(new_node.id)
-            return new_node
-        pos = node_end
+        seg_starts.append(pos)
+        pos += len(node.text)
+    seg_starts.append(pos)  # sentinel = len(original)
 
-    return None
+    opcodes = difflib.SequenceMatcher(None, original, edited, autojunk=False).get_opcodes()
+    changes = [op for op in opcodes if op[0] != "equal"]
+    if not changes:
+        return None
+
+    # Fork node: first node whose segment contains the first change
+    first_change = changes[0][1]
+    fork_idx = len(lineage) - 1
+    for idx in range(len(lineage)):
+        if first_change < seg_starts[idx + 1]:
+            fork_idx = idx
+            break
+
+    # Map every segment boundary from fork_idx onwards to its edited-text position.
+    # Boundaries in 'equal' regions map directly; boundaries inside a changed region
+    # map to the end of that change (conservative: the edit consumed up to there).
+    boundaries = set(seg_starts[fork_idx:])
+    edit_pos_of: dict[int, int] = {}
+    for tag, i1, i2, j1, j2 in opcodes:
+        for b in boundaries:
+            if b in edit_pos_of:
+                continue
+            if tag == "equal" and i1 <= b <= i2:
+                edit_pos_of[b] = j1 + (b - i1)
+            elif tag in ("replace", "delete"):
+                if b == i1:
+                    edit_pos_of[b] = j1
+                elif i1 < b <= i2:
+                    edit_pos_of[b] = j2
+    edit_pos_of[len(original)] = len(edited)
+    for b in boundaries:  # fallback (shouldn't trigger)
+        edit_pos_of.setdefault(b, b)
+
+    # Rebuild the path from fork_idx, creating new nodes for each segment.
+    prev_parent_id: "str | None" = lineage[fork_idx].parent_id
+    last_new_node: "Node | None" = None
+
+    for idx in range(fork_idx, len(lineage)):
+        node = lineage[idx]
+        new_seg = edited[edit_pos_of[seg_starts[idx]]: edit_pos_of[seg_starts[idx + 1]]]
+
+        if node.parent_id is None:
+            new_node = store.create_root(new_seg, metadata={"source": "edited"})
+        else:
+            new_node = store.add_child(
+                prev_parent_id,  # type: ignore[arg-type]
+                new_seg,
+                model=node.model or "manual",
+                strategy=node.strategy or "manual",
+                max_tokens=node.max_tokens or 200,
+                temperature=node.temperature or 0.9,
+            )
+        prev_parent_id = new_node.id
+        last_new_node = new_node
+
+    if last_new_node:
+        store.set_active_node(last_new_node.id)
+    return last_new_node
 
 
 def _loom_wrap(text: str, width: int) -> list[str]:
