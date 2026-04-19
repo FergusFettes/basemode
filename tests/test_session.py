@@ -138,6 +138,74 @@ def test_select_sibling_no_children_is_noop(branched_store):
     assert state.selected_child_idx == 0
 
 
+def test_toggle_tree_view_adds_tree_nodes(branched_store):
+    store, ab, _ = branched_store
+    session = LoomSession(store, ab[0].id)
+    state = session.toggle_tree_view()
+    assert state.view_mode == "tree"
+    assert state.tree_nodes is not None
+    assert len(state.tree_nodes) == 4
+
+
+def test_toggle_hoist_uses_current_node(branched_store):
+    store, ab, _ = branched_store
+    session = LoomSession(store, ab[0].id)
+    session.toggle_tree_view()
+    state = session.toggle_hoist()
+    assert state.hoisted_node_id == ab[0].id
+    state = session.toggle_hoist()
+    assert state.hoisted_node_id is None
+
+
+def test_toggle_bookmark_persists_on_current_node(branched_store):
+    store, ab, _ = branched_store
+    session = LoomSession(store, ab[0].id)
+    assert session.toggle_bookmark() is True
+    node = store.get(ab[0].id)
+    assert node is not None
+    assert node.metadata["bookmarked"] is True
+    assert session.toggle_bookmark() is False
+    node = store.get(ab[0].id)
+    assert node is not None
+    assert node.metadata["bookmarked"] is False
+
+
+def test_next_bookmark_moves_to_next_marked_node(branched_store):
+    store, ab, _ = branched_store
+    session = LoomSession(store, ab[0].id)
+    store.update_metadata(ab[1].id, {"bookmarked": True})
+    state = session.next_bookmark()
+    assert state.current_node_id == ab[1].id
+
+
+def test_navigate_tree_row_moves_through_visible_tree(branched_store):
+    store, ab, c = branched_store
+    session = LoomSession(store, ab[0].id)
+    session.toggle_tree_view()
+
+    state = session.navigate_tree_row(+1)
+    assert state.current_node_id == c[0].id
+
+    state = session.navigate_tree_row(+1)
+    assert state.current_node_id == ab[1].id
+
+    state = session.navigate_tree_row(-1)
+    assert state.current_node_id == c[0].id
+
+
+def test_navigate_tree_row_respects_hoist(branched_store):
+    store, ab, c = branched_store
+    session = LoomSession(store, ab[0].id)
+    session.toggle_tree_view()
+    session.toggle_hoist()
+
+    state = session.navigate_tree_row(+1)
+    assert state.current_node_id == c[0].id
+
+    state = session.navigate_tree_row(+1)
+    assert state.current_node_id == c[0].id
+
+
 # --- Params ---
 
 

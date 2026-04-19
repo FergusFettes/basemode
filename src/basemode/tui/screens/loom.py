@@ -38,6 +38,10 @@ class LoomScreen(Screen):
         Binding("t", "set_tokens", "Tokens"),
         Binding("a", "branches_down", "-n", show=False),
         Binding("d", "branches_up", "+n", show=False),
+        Binding("v", "toggle_tree_view", "Tree"),
+        Binding("H", "toggle_hoist", "Hoist", show=False),
+        Binding("b", "toggle_bookmark", "Bookmark", show=False),
+        Binding("B", "next_bookmark", "Next mark", show=False),
         Binding("tab", "open_picker", "Trees"),
         Binding("q", "quit", "Quit"),
         Binding("escape", "cancel_or_quit", "Cancel", show=False),
@@ -64,7 +68,8 @@ class LoomScreen(Screen):
         info = (
             f"{s._current_id[:8]} {short_model}  "
             f"tokens:{s.max_tokens} branches:{s.n_branches}  "
-            "hjkl nav  space gen  e edit  c ctx  m model  t tokens  a/d branches  tab trees  q quit"
+            f"view:{s.view_mode}{' hoist' if s._hoisted_id else ''}  "
+            "hjkl nav  space gen  e edit  v view  b mark  tab trees  q quit"
         )
         self.sub_title = info
         self.query_one("#status-bar", Static).update(info)
@@ -92,6 +97,10 @@ class LoomScreen(Screen):
         self._refresh()
 
     def action_nav_next(self) -> None:
+        if self.session.view_mode == "tree":
+            self.session.navigate_tree_row(+1)
+            self._refresh()
+            return
         state = self.session.get_state()
         if not state.children or state.selected_child_idx >= len(state.children) - 1:
             return
@@ -99,10 +108,35 @@ class LoomScreen(Screen):
         self._refresh()
 
     def action_nav_prev(self) -> None:
+        if self.session.view_mode == "tree":
+            self.session.navigate_tree_row(-1)
+            self._refresh()
+            return
         state = self.session.get_state()
         if not state.children or state.selected_child_idx == 0:
             return
         self.session.select_sibling(-1)
+        self._refresh()
+
+    def action_toggle_tree_view(self) -> None:
+        self.session.toggle_tree_view()
+        self._refresh()
+
+    def action_toggle_hoist(self) -> None:
+        self.session.toggle_hoist()
+        self._refresh()
+
+    def action_toggle_bookmark(self) -> None:
+        bookmarked = self.session.toggle_bookmark()
+        self.notify("Bookmarked" if bookmarked else "Bookmark removed", timeout=1)
+        self._refresh()
+
+    def action_next_bookmark(self) -> None:
+        before = self.session.get_state().current_node_id
+        self.session.next_bookmark()
+        after = self.session.get_state().current_node_id
+        if after == before:
+            self.notify("No bookmarks", timeout=1)
         self._refresh()
 
     # --- Params ---

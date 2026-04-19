@@ -7,13 +7,15 @@ from textual.app import ComposeResult
 from textual.containers import VerticalScroll
 from textual.widgets import Static
 
-from ...display import build_loom_display
+from ...display import build_loom_display, build_tree_display
 from ...session import SessionState
 
 _STYLES = {
     "normal": Style(),
     "bold": Style(bold=True),
     "dim": Style(dim=True),
+    "path": Style(color="cyan", bold=True),
+    "current": Style(color="black", bgcolor="cyan", bold=True),
 }
 
 
@@ -42,7 +44,10 @@ class LoomView(VerticalScroll):
         if state is None:
             return
         width = self._content_width()
-        lines = build_loom_display(state, width)
+        if state.view_mode == "tree":
+            lines = build_tree_display(state, width)
+        else:
+            lines = build_loom_display(state, width)
         result = Text(no_wrap=True, overflow="fold")
         for line in lines:
             result.append(line.text + "\n", style=_STYLES[line.style])

@@ -11,14 +11,14 @@ import asyncio
 import difflib
 from collections.abc import AsyncGenerator
 from dataclasses import dataclass
+from typing import Literal
 
 from .continue_ import continue_text
 from .detect import detect_strategy, normalize_model
 from .keys import get_default_model
 from .naming import generate_name, should_name
-from .strategies.utils import normalize_completion_segment
 from .store import GenerationStore, Node
-
+from .strategies.utils import normalize_completion_segment
 
 # ---------------------------------------------------------------------------
 # Events emitted during generate()
@@ -70,6 +70,9 @@ class SessionState:
     n_branches: int
     context: str
     root_id: str
+    view_mode: Literal["branch", "tree"] = "branch"
+    hoisted_node_id: str | None = None
+    tree_nodes: list[Node] | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -97,6 +100,8 @@ class LoomSession:
         self.max_tokens: int = int(meta.get("max_tokens", 200))
         self.temperature: float = float(meta.get("temperature", 0.9))
         self.n_branches: int = int(meta.get("n_branches", 1))
+        self.view_mode: Literal["branch", "tree"] = "branch"
+        self._hoisted_id: str | None = None
 
     # --- State snapshot ---
 
@@ -109,6 +114,7 @@ class LoomSession:
         counts = store.descendant_counts([c.id for c in children]) if children else {}
         root = store.root(self._current_id)
         continuation = self._get_continuation_text(children[selected_idx]) if children else ""
+        tree_nodes = store.tree(root.id) if self.view_mode == "tree" else None
         return SessionState(
             current_node_id=self._current_id,
             current_node=node,
@@ -123,6 +129,9 @@ class LoomSession:
             n_branches=self.n_branches,
             context=root.metadata.get("context", ""),
             root_id=root.id,
+            view_mode=self.view_mode,
+            hoisted_node_id=self._hoisted_id,
+            tree_nodes=tree_nodes,
         )
 
     def _get_continuation_text(self, selected_child: Node) -> str:
@@ -173,6 +182,52 @@ class LoomSession:
             self._selected_idx = new_idx
             self._store.set_checked_out_child(self._current_id, children[new_idx].id)
             self._child_path[self._current_id] = new_idx
+        return self.get_state()
+
+    def navigate_tree_row(self, delta: int) -> SessionState:
+        ids = self._visible_tree_ids()
+        if not ids:
+            return self.get_state()
+        try:
+            current_idx = ids.index(self._current_id)
+        except ValueError:
+            current_idx = 0
+        next_idx = max(0, min(current_idx + delta, len(ids) - 1))
+        self._checkout_node(ids[next_idx])
+        return self.get_state()
+
+    def toggle_tree_view(self) -> SessionState:
+        self.view_mode = "tree" if self.view_mode == "branch" else "branch"
+        return self.get_state()
+
+    def toggle_hoist(self) -> SessionState:
+        self._hoisted_id = None if self._hoisted_id else self._current_id
+        return self.get_state()
+
+    def toggle_bookmark(self) -> bool:
+        node = self._store.get(self._current_id)
+        if node is None:
+            return False
+        bookmarked = not bool(node.metadata.get("bookmarked"))
+        self._store.update_metadata(node.id, {"bookmarked": bookmarked})
+        return bookmarked
+
+    def next_bookmark(self) -> SessionState:
+        root = self._store.root(self._current_id)
+        nodes = self._store.tree(root.id)
+        bookmarked = [node for node in nodes if node.metadata.get("bookmarked")]
+        if not bookmarked:
+            return self.get_state()
+
+        ids = [node.id for node in nodes]
+        try:
+            current_pos = ids.index(self._current_id)
+        except ValueError:
+            current_pos = -1
+
+        ordered = [node for node in bookmarked if ids.index(node.id) > current_pos]
+        ordered.extend(node for node in bookmarked if ids.index(node.id) <= current_pos)
+        self._checkout_node(ordered[0].id)
         return self.get_state()
 
     # --- Generation ---
@@ -408,3 +463,48 @@ class LoomSession:
             child_path[node_id] = idx
             node_id = children[idx].id
         return child_path
+
+    def _checkout_node(self, node_id: str) -> None:
+        node = self._store.get(node_id)
+        if node is None:
+            return
+        if node.parent_id:
+            siblings = self._store.children(node.parent_id)
+            for index, sibling in enumerate(siblings):
+                if sibling.id == node.id:
+                    self._store.set_checked_out_child(node.parent_id, node.id)
+                    self._child_path[node.parent_id] = index
+                    break
+        self._store.set_active_node(node.id)
+        self._current_id = node.id
+        self._child_path.update(self._load_child_path(self._current_id))
+        self._selected_idx = self._child_path.get(self._current_id, 0)
+
+    def _visible_tree_ids(self) -> list[str]:
+        root = self._store.root(self._current_id)
+        nodes = self._store.tree(root.id)
+        by_id = {node.id: node for node in nodes}
+        start = self._hoisted_id if self._hoisted_id in by_id else root.id
+
+        children_by_parent: dict[str | None, list[Node]] = {}
+        for node in nodes:
+            children_by_parent.setdefault(node.parent_id, []).append(node)
+        for children in children_by_parent.values():
+            children.sort(
+                key=lambda node: (
+                    node.branch_index is None,
+                    node.branch_index if node.branch_index is not None else 0,
+                    node.created_at,
+                    node.id,
+                )
+            )
+
+        ids: list[str] = []
+
+        def visit(node_id: str) -> None:
+            ids.append(node_id)
+            for child in children_by_parent.get(node_id, []):
+                visit(child.id)
+
+        visit(start)
+        return ids

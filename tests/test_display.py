@@ -4,6 +4,7 @@ from basemode.display import (
     DisplayLine,
     build_loom_display,
     build_stream_display,
+    build_tree_display,
     word_wrap_inline,
     wrap_text,
 )
@@ -190,6 +191,108 @@ def test_build_loom_display_narrow_terminal_falls_back():
     state = _state(full_text=very_long_parent, children=[child])
     lines = build_loom_display(state, 80)
     assert lines  # should not crash
+
+
+# --- build_tree_display ---
+
+
+def test_build_tree_display_shows_full_tree():
+    root = _node("root", text="Root")
+    c1 = _node("c1", parent_id="root", root_id="root", text=" first")
+    c2 = _node("c2", parent_id="root", root_id="root", text=" second")
+    state = _state(full_text="Root", children=[c1], selected_idx=0)
+    state = SessionState(
+        **{**state.__dict__, "view_mode": "tree", "tree_nodes": [root, c1, c2]}
+    )
+    lines = build_tree_display(state, 80)
+    text = "\n".join(line.text for line in lines)
+    assert "first" in text
+    assert "second" in text
+
+
+def test_build_tree_display_marks_current_and_bookmark():
+    root = _node("root", text="Root")
+    c1 = _node("c1", parent_id="root", root_id="root", text=" first")
+    c2 = _node("c2", parent_id="root", root_id="root", text=" second")
+    c2 = Node(**{**c2.__dict__, "metadata": {"bookmarked": True}})
+    state = SessionState(
+        current_node_id="c2",
+        current_node=c2,
+        full_text="Root second",
+        children=[],
+        selected_child_idx=0,
+        descendant_counts={},
+        continuation_text="",
+        model="gpt-4o-mini",
+        max_tokens=200,
+        temperature=0.9,
+        n_branches=1,
+        context="",
+        root_id="root",
+        view_mode="tree",
+        tree_nodes=[root, c1, c2],
+    )
+    lines = build_tree_display(state, 80)
+    text = "\n".join(line.text for line in lines)
+    assert ">b c2" in text
+    assert any(line.style == "current" and "c2" in line.text for line in lines)
+
+
+def test_build_tree_display_marks_checked_out_path():
+    root = _node("root", text="Root")
+    c1 = _node("c1", parent_id="root", root_id="root", text=" first")
+    gc = _node("gc", parent_id="c1", root_id="root", text=" deeper")
+    state = SessionState(
+        current_node_id="gc",
+        current_node=gc,
+        full_text="Root first deeper",
+        children=[],
+        selected_child_idx=0,
+        descendant_counts={},
+        continuation_text="",
+        model="gpt-4o-mini",
+        max_tokens=200,
+        temperature=0.9,
+        n_branches=1,
+        context="",
+        root_id="root",
+        view_mode="tree",
+        tree_nodes=[root, c1, gc],
+    )
+    lines = build_tree_display(state, 80)
+    assert any(line.style == "path" and "root" in line.text for line in lines)
+    assert any(line.style == "path" and "c1" in line.text for line in lines)
+    assert any(line.style == "current" and "gc" in line.text for line in lines)
+
+
+def test_build_tree_display_hoists_subtree():
+    root = _node("root", text="Root")
+    c1 = _node("c1", parent_id="root", root_id="root", text=" first")
+    c2 = _node("c2", parent_id="root", root_id="root", text=" second")
+    gc = _node("gc", parent_id="c1", root_id="root", text=" deeper")
+    state = SessionState(
+        current_node_id="gc",
+        current_node=gc,
+        full_text="Root first deeper",
+        children=[],
+        selected_child_idx=0,
+        descendant_counts={},
+        continuation_text="",
+        model="gpt-4o-mini",
+        max_tokens=200,
+        temperature=0.9,
+        n_branches=1,
+        context="",
+        root_id="root",
+        view_mode="tree",
+        hoisted_node_id="c1",
+        tree_nodes=[root, c1, c2, gc],
+    )
+    lines = build_tree_display(state, 80)
+    text = "\n".join(line.text for line in lines)
+    assert "[hoist c1]" in text
+    assert "deeper" in text
+    assert "second" not in text
 
 
 # --- build_stream_display ---

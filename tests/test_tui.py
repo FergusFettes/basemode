@@ -153,6 +153,68 @@ async def test_j_k_round_trip(store, tree):
         assert session._selected_idx == 0
 
 
+@pytest.mark.asyncio
+async def test_v_toggles_tree_view(store, tree):
+    ab, _ = tree
+    session = LoomSession(store, ab[0].id)
+    app = BasemodeApp(session)
+    async with app.run_test(headless=True) as pilot:
+        await pilot.press("v")
+        assert session.view_mode == "tree"
+        await pilot.press("v")
+        assert session.view_mode == "branch"
+
+
+@pytest.mark.asyncio
+async def test_j_k_move_current_node_in_tree_view(store, tree):
+    ab, c = tree
+    session = LoomSession(store, ab[0].id)
+    app = BasemodeApp(session)
+    async with app.run_test(headless=True) as pilot:
+        await pilot.press("v")
+        await pilot.press("j")
+        assert session.get_state().current_node_id == c[0].id
+        await pilot.press("j")
+        assert session.get_state().current_node_id == ab[1].id
+        await pilot.press("k")
+        assert session.get_state().current_node_id == c[0].id
+
+
+@pytest.mark.asyncio
+async def test_upper_h_toggles_hoist(store, tree):
+    ab, _ = tree
+    session = LoomSession(store, ab[0].id)
+    app = BasemodeApp(session)
+    async with app.run_test(headless=True) as pilot:
+        await pilot.press("H")
+        assert session.get_state().hoisted_node_id == ab[0].id
+        await pilot.press("H")
+        assert session.get_state().hoisted_node_id is None
+
+
+@pytest.mark.asyncio
+async def test_b_toggles_bookmark(store, tree):
+    ab, _ = tree
+    session = LoomSession(store, ab[0].id)
+    app = BasemodeApp(session)
+    async with app.run_test(headless=True) as pilot:
+        await pilot.press("b")
+        node = store.get(ab[0].id)
+        assert node is not None
+        assert node.metadata["bookmarked"] is True
+
+
+@pytest.mark.asyncio
+async def test_upper_b_jumps_to_bookmark(store, tree):
+    ab, _ = tree
+    store.update_metadata(ab[1].id, {"bookmarked": True})
+    session = LoomSession(store, ab[0].id)
+    app = BasemodeApp(session)
+    async with app.run_test(headless=True) as pilot:
+        await pilot.press("B")
+        assert session.get_state().current_node_id == ab[1].id
+
+
 # --- Params ---
 
 
