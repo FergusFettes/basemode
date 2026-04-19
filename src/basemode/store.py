@@ -199,7 +199,7 @@ class GenerationStore:
 
             rows = conn.execute(
                 "SELECT id FROM nodes WHERE id LIKE ? ORDER BY created_at DESC, id DESC",
-                (f"%{reference}%",),
+                (f"{reference}%",),
             ).fetchall()
 
         matches = [str(row["id"]) for row in rows]

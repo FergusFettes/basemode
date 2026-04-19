@@ -112,7 +112,7 @@ def test_get_resolves_unique_id_substrings(tmp_path) -> None:
     )
 
     assert store.get(child.id[:12]).id == child.id
-    assert store.full_text(child.id[8:20]) == "root child"
+    assert store.full_text(child.id[:12]) == "root child"
 
 
 def test_children_resolves_unique_id_substrings(tmp_path) -> None:
@@ -130,15 +130,15 @@ def test_children_resolves_unique_id_substrings(tmp_path) -> None:
     assert store.children(parent.id[:10]) == [child]
 
 
-def test_ambiguous_node_substring_raises(tmp_path) -> None:
+def test_ambiguous_node_prefix_raises(tmp_path) -> None:
     store = GenerationStore(tmp_path / "generations.sqlite")
-    _insert_test_node(store, "aaa-shared-one")
-    _insert_test_node(store, "bbb-shared-two")
+    _insert_test_node(store, "shared-aaa-one")
+    _insert_test_node(store, "shared-bbb-two")
 
     with pytest.raises(AmbiguousNodeReference) as exc:
         store.get("shared")
 
-    assert exc.value.matches == ["bbb-shared-two", "aaa-shared-one"]
+    assert exc.value.matches == ["shared-bbb-two", "shared-aaa-one"]
 
 
 def test_active_node_state_persists(tmp_path) -> None:

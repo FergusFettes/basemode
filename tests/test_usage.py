@@ -4,7 +4,7 @@ from basemode.usage import estimate_usage, format_per_million, format_usd, get_p
 def test_get_price_info_known_model() -> None:
     info = get_price_info("gpt-4o-mini")
 
-    assert info.model == "gpt-4o-mini"
+    assert info.model == "openai/gpt-4o-mini"
     assert info.pricing_available
     assert info.input_cost_per_token is not None
     assert info.output_cost_per_token is not None

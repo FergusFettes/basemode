@@ -409,6 +409,8 @@ def loom_view(
     db: Annotated[Path | None, typer.Option("--db", help="SQLite generation database path")] = None,
 ) -> None:
     """Interactive loom viewer. hjkl: parent/child/prev-sibling/next-sibling. q: quit."""
+    if source is None and not sys.stdin.isatty():
+        source = sys.stdin.read().rstrip("\n")
     store = GenerationStore(db)
     start = _resolve_loom_source(store, source)
     if start is None:
@@ -444,9 +446,18 @@ def _resolve_loom_source(store: "GenerationStore", source: "str | None") -> "Nod
     except AmbiguousNodeReference as exc:
         console.print(f"[red]{exc}[/red]")
         return None
-    if node is None:
-        console.print(f"[red]Unknown node or file not found: {source}[/red]")
-    return node
+    if node is not None:
+        return node
+
+    # Treat as literal text: find existing root or create new one
+    existing = store.find_root_by_text(source)
+    if existing:
+        console.print(f"[dim]Found existing root {existing.id[:8]}[/dim]")
+        return existing
+    root = store.create_root(source)
+    store.set_active_node(root.id)
+    console.print(f"[dim]Created root {root.id[:8]}[/dim]")
+    return root
 
 
 def _import_loom_json(store: "GenerationStore", path: Path) -> "Node | None":
