@@ -72,18 +72,32 @@ class LoomScreen(Screen):
     # --- Navigation ---
 
     def action_nav_child(self) -> None:
+        state = self.session.get_state()
+        if not state.children:
+            self.notify("No continuations yet \u2014 press space to generate", timeout=2)
+            return
         self.session.navigate_child()
         self._refresh()
 
     def action_nav_parent(self) -> None:
+        state = self.session.get_state()
+        if state.current_node.parent_id is None:
+            self.notify("Already at root", timeout=1)
+            return
         self.session.navigate_parent()
         self._refresh()
 
     def action_nav_next(self) -> None:
+        state = self.session.get_state()
+        if not state.children or state.selected_child_idx >= len(state.children) - 1:
+            return
         self.session.select_sibling(+1)
         self._refresh()
 
     def action_nav_prev(self) -> None:
+        state = self.session.get_state()
+        if not state.children or state.selected_child_idx == 0:
+            return
         self.session.select_sibling(-1)
         self._refresh()
 
@@ -105,23 +119,25 @@ class LoomScreen(Screen):
         self.session.set_n_branches(self.session.n_branches - 1)
         self._update_subtitle()
 
-    async def action_set_tokens(self) -> None:
+    def action_set_tokens(self) -> None:
         from ..screens.int_input import IntInputScreen
 
-        result = await self.app.push_screen_wait(
-            IntInputScreen("Max tokens", self.session.max_tokens)
-        )
-        if result is not None and result > 0:
-            self.session.set_max_tokens(result)
-            self._update_subtitle()
+        def apply(result: int | None) -> None:
+            if result is not None and result > 0:
+                self.session.set_max_tokens(result)
+                self._update_subtitle()
 
-    async def action_pick_model(self) -> None:
+        self.app.push_screen(IntInputScreen("Max tokens", self.session.max_tokens), apply)
+
+    def action_pick_model(self) -> None:
         from ..screens.model_picker import ModelPickerScreen
 
-        result = await self.app.push_screen_wait(ModelPickerScreen(self.session.model))
-        if result is not None:
-            self.session.set_model(result)
-            self._update_subtitle()
+        def apply(result: str | None) -> None:
+            if result is not None:
+                self.session.set_model(result)
+                self._update_subtitle()
+
+        self.app.push_screen(ModelPickerScreen(self.session.model), apply)
 
     # --- Edit / context ---
 
