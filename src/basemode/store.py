@@ -321,6 +321,48 @@ class GenerationStore:
             ).fetchall()
         return [self._node(row) for row in rows]
 
+    def descendant_count(self, node_id: str) -> int:
+        """Return the total number of descendants (not including the node itself)."""
+        resolved = self.resolve_node_id(node_id)
+        if resolved is None:
+            return 0
+        with closing(self.connect()) as conn:
+            row = conn.execute(
+                """
+                WITH RECURSIVE desc(id) AS (
+                    SELECT id FROM nodes WHERE parent_id = ?
+                    UNION ALL
+                    SELECT n.id FROM nodes n JOIN desc d ON n.parent_id = d.id
+                )
+                SELECT COUNT(*) FROM desc
+                """,
+                (resolved,),
+            ).fetchone()
+        return int(row[0]) if row else 0
+
+    def descendant_counts(self, node_ids: list[str]) -> dict[str, int]:
+        """Return descendant counts for multiple nodes in a single query."""
+        if not node_ids:
+            return {}
+        placeholders = ",".join("?" * len(node_ids))
+        with closing(self.connect()) as conn:
+            rows = conn.execute(
+                f"""
+                WITH RECURSIVE desc(id, root_id) AS (
+                    SELECT id, parent_id FROM nodes WHERE parent_id IN ({placeholders})
+                    UNION ALL
+                    SELECT n.id, d.root_id FROM nodes n JOIN desc d ON n.parent_id = d.id
+                )
+                SELECT root_id, COUNT(*) FROM desc GROUP BY root_id
+                """,
+                node_ids,
+            ).fetchall()
+        counts = {nid: 0 for nid in node_ids}
+        for row in rows:
+            if row[0] in counts:
+                counts[row[0]] = int(row[1])
+        return counts
+
     def recent(self, limit: int = 20) -> list[Node]:
         with closing(self.connect()) as conn:
             rows = conn.execute(
@@ -344,6 +386,12 @@ class GenerationStore:
         with closing(self.connect()) as conn:
             row = conn.execute("SELECT value FROM state WHERE key = ?", (key,)).fetchone()
         return None if row is None else str(row["value"])
+
+    def set_checked_out_child(self, parent_id: str, child_id: str) -> None:
+        self.set_state(f"checked_out:{parent_id}", child_id)
+
+    def get_checked_out_child_id(self, parent_id: str) -> str | None:
+        return self.get_state(f"checked_out:{parent_id}")
 
     def set_active_node(self, node_id: str) -> None:
         self.set_state("active_node_id", node_id)

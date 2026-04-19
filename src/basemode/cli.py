@@ -1,12 +1,15 @@
 import asyncio
 import curses
 import json as _json
+import logging
 import queue as _queue
 import sys
 import textwrap
 import threading
 from pathlib import Path
 from typing import Annotated
+
+log = logging.getLogger(__name__)
 
 import click
 import typer
@@ -537,6 +540,26 @@ def loom_export(
         console.print(f"[dim]Exported {len(tree_nodes)} nodes → {out}[/dim]")
 
 
+def _load_child_path(store: GenerationStore, current_id: str) -> dict[str, int]:
+    """Reconstruct child_path by following stored checked-out children from current_id."""
+    child_path: dict[str, int] = {}
+    node_id = current_id
+    while True:
+        children = store.children(node_id)
+        if not children:
+            break
+        checked_id = store.get_checked_out_child_id(node_id)
+        idx = 0
+        if checked_id:
+            for i, c in enumerate(children):
+                if c.id == checked_id:
+                    idx = i
+                    break
+        child_path[node_id] = idx
+        node_id = children[idx].id
+    return child_path
+
+
 def _loom_tui(stdscr: "curses._CursesWindow", store: GenerationStore, start_id: str) -> None:
     import os
     import subprocess
@@ -545,13 +568,20 @@ def _loom_tui(stdscr: "curses._CursesWindow", store: GenerationStore, start_id: 
     curses.curs_set(0)
     stdscr.nodelay(False)
 
-    current_id = start_id
-    selected_idx = 0
-    child_path: dict[str, int] = {}
-    max_tokens = 200
-    temperature = 0.9
-    n_branches = 1
-    model = get_default_model() or "gpt-4o-mini"
+    # Restore last position within this tree if available
+    root_node = store.root(start_id)
+    meta = root_node.metadata
+    saved_id = meta.get("last_node_id")
+    if saved_id and store.get(saved_id) is not None:
+        current_id = saved_id
+    else:
+        current_id = start_id
+    child_path = _load_child_path(store, current_id)
+    selected_idx = child_path.get(current_id, 0)
+    max_tokens = int(meta.get("max_tokens", 200))
+    temperature = float(meta.get("temperature", 0.9))
+    n_branches = int(meta.get("n_branches", 1))
+    model = str(meta.get("model", get_default_model() or "gpt-4o-mini"))
 
     while True:
         height, width = stdscr.getmaxyx()
@@ -577,7 +607,7 @@ def _loom_tui(stdscr: "curses._CursesWindow", store: GenerationStore, start_id: 
         short_model = model.split("/")[-1]
         status = (
             f" {current_id[:8]}  {short_model}  tok:{max_tokens}  n:{n_branches}"
-            "  hjkl=nav  spc=gen  e=edit  m=model  w/s=±tok  t=tok  a/d=branches  q=quit"
+            "  hjkl=nav  spc=gen  e=edit  c=context  m=model  w/s=±tok  t=tok  a/d=branches  q=quit"
         )
         try:
             stdscr.addstr(height - 1, 0, status[:width].ljust(width)[:width], curses.A_REVERSE)
@@ -589,12 +619,23 @@ def _loom_tui(stdscr: "curses._CursesWindow", store: GenerationStore, start_id: 
 
         if key in (ord("q"), 27):
             store.set_active_node(current_id)
+            store.update_metadata(root_node.id, {
+                "last_node_id": current_id,
+                "model": model,
+                "max_tokens": max_tokens,
+                "n_branches": n_branches,
+            })
             break
         elif key == ord("j") and children and selected_idx < len(children) - 1:
             selected_idx += 1
+            store.set_checked_out_child(current_id, children[selected_idx].id)
+            child_path[current_id] = selected_idx
         elif key == ord("k") and children and selected_idx > 0:
             selected_idx -= 1
+            store.set_checked_out_child(current_id, children[selected_idx].id)
+            child_path[current_id] = selected_idx
         elif key == ord("l") and children:
+            store.set_checked_out_child(current_id, children[selected_idx].id)
             child_path[current_id] = selected_idx
             current_id = children[selected_idx].id
             selected_idx = child_path.get(current_id, 0)
@@ -631,15 +672,28 @@ def _loom_tui(stdscr: "curses._CursesWindow", store: GenerationStore, start_id: 
                 tmpfile = f.name
             curses.endwin()
             subprocess.run([os.environ.get("EDITOR", "vim"), tmpfile])
-            edited = Path(tmpfile).read_text()
+            edited = Path(tmpfile).read_text().rstrip("\n")
             os.unlink(tmpfile)
             stdscr.refresh()
             new_node = _apply_editor_diff(store, current_id, original, edited)
             if new_node is not None:
                 current_id = new_node.id
                 selected_idx = 0
+        elif key == ord("c"):
+            root = store.root(current_id)
+            current_context = root.metadata.get("context", "")
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+                f.write(current_context)
+                tmpfile = f.name
+            curses.endwin()
+            subprocess.run([os.environ.get("EDITOR", "vim"), tmpfile])
+            new_context = Path(tmpfile).read_text().rstrip("\n")
+            os.unlink(tmpfile)
+            stdscr.refresh()
+            store.update_metadata(root.id, {"context": new_context})
         elif key == ord(" "):
-            completions = _loom_stream(stdscr, store, current_id, model, max_tokens, temperature, n_branches)
+            _context = store.root(current_id).metadata.get("context", "")
+            completions = _loom_stream(stdscr, store, current_id, model, max_tokens, temperature, n_branches, context=_context)
             if completions and any(c.strip() for c in completions):
                 resolved = normalize_model(model)
                 strategy_name = detect_strategy(resolved, None).name
@@ -655,6 +709,7 @@ def _loom_tui(stdscr: "curses._CursesWindow", store: GenerationStore, start_id: 
                 )
                 if new_children:
                     child_path[current_id] = len(new_children) - 1
+                    store.set_checked_out_child(current_id, new_children[-1].id)
                     if n_branches == 1:
                         current_id = new_children[0].id
                         selected_idx = 0
@@ -892,6 +947,7 @@ def _loom_stream(
     max_tokens: int,
     temperature: float,
     n_branches: int,
+    context: str = "",
 ) -> list[str]:
     """Stream n_branches continuations directly in curses. Returns completed texts."""
     prefix = store.full_text(current_id)
@@ -899,12 +955,23 @@ def _loom_stream(
     buffers: list[list[str]] = [[] for _ in range(n_branches)]
     cancelled = threading.Event()
 
+    error_q: "_queue.Queue[Exception | None]" = _queue.Queue()
+    log.info("loom_stream: start model=%s max_tokens=%d n=%d prefix_len=%d context_len=%d",
+             model, max_tokens, n_branches, len(prefix), len(context))
+
     async def _gen_one(idx: int) -> None:
-        async for tok in continue_text(prefix, model, max_tokens=max_tokens, temperature=temperature):
-            if cancelled.is_set():
-                break
-            token_q.put((idx, tok))
-        token_q.put((idx, None))
+        log.debug("loom_stream: branch %d starting", idx)
+        try:
+            async for tok in continue_text(prefix, model, max_tokens=max_tokens, temperature=temperature, context=context):
+                if cancelled.is_set():
+                    break
+                token_q.put((idx, tok))
+            log.debug("loom_stream: branch %d done", idx)
+        except Exception as exc:
+            log.exception("loom_stream: branch %d error: %s", idx, exc)
+            error_q.put(exc)
+        finally:
+            token_q.put((idx, None))
 
     async def _gen_all() -> None:
         await asyncio.gather(*[_gen_one(i) for i in range(n_branches)])
@@ -947,6 +1014,16 @@ def _loom_stream(
         except _queue.Empty:
             break
 
+    # Surface any generation error
+    try:
+        exc = error_q.get_nowait()
+        if exc is not None:
+            log.error("loom_stream: surfacing generation error: %s", exc)
+            raise exc
+    except _queue.Empty:
+        pass
+    log.info("loom_stream: complete, results=%d", len([b for b in buffers if b]))
+
     return ["".join(buf) for buf in buffers]
 
 
@@ -958,53 +1035,56 @@ def _draw_loom_streaming(
     width: int,
     height: int,
 ) -> None:
+    ARROW = " -> "
     stdscr.clear()
-    if n_branches == 1:
-        full = prefix + "".join(buffers[0]) + "▋"
-        lines = _loom_wrap(full, width)
-        start = max(0, len(lines) - (height - 1))
-        for row, line in enumerate(lines[start:]):
-            if row >= height - 1:
-                break
-            try:
-                stdscr.addstr(row, 0, line.ljust(width)[:width])
-            except curses.error:
-                pass
-        chars = sum(len(b) for b in buffers[0])
-        status = f" Generating…  {chars} chars  Esc=cancel"
-    else:
-        # Top half: parent text; bottom half: branch columns
-        split = max(3, height // 2)
-        prefix_lines = _loom_wrap(prefix, width)
-        p_start = max(0, len(prefix_lines) - split)
-        for row, line in enumerate(prefix_lines[p_start:]):
-            if row >= split:
-                break
-            try:
-                stdscr.addstr(row, 0, line.ljust(width)[:width], curses.A_DIM)
-            except curses.error:
-                pass
+
+    # Wrap the parent prefix to find last line and indent column
+    prefix_lines = _loom_wrap(prefix, width) if prefix else [""]
+    last_line = prefix_lines[-1]
+    indent = len(last_line)
+    available = width - indent - len(ARROW)
+    if available < 10:
+        indent = 0
+        available = width - len(ARROW)
+        last_line = ""
+
+    # Build display lines: parent lines (except last), then branches inline
+    display: list[tuple[str, int]] = [(line, 0) for line in prefix_lines[:-1]]
+
+    header_written = False
+    for i, buf in enumerate(buffers):
+        segment = "".join(buf) + "▋"
+        seg_lines = _loom_word_wrap(segment, available, width)
+        first = seg_lines[0]
+        rest = seg_lines[1:]
+        if i == 0:
+            row_prefix = (last_line + ARROW) if last_line else ARROW
+            display.append((row_prefix + first, curses.A_BOLD))
+            header_written = True
+        else:
+            display.append((" " * indent + ARROW + first, curses.A_DIM))
+        for sl in rest:
+            display.append((sl, curses.A_BOLD if i == 0 else curses.A_DIM))
+
+    if not header_written:
+        display.append((last_line, 0))
+
+    # Scroll to keep the last content visible
+    visible_rows = height - 1
+    start = max(0, len(display) - visible_rows)
+    for row, (line, attr) in enumerate(display[start:]):
+        if row >= visible_rows:
+            break
         try:
-            stdscr.addstr(split, 0, "─" * width, curses.A_DIM)
+            stdscr.addstr(row, 0, line.ljust(width)[:width], attr)
         except curses.error:
             pass
-        col_w = max(10, width // n_branches)
-        branch_rows = height - split - 2
-        for i, buf in enumerate(buffers):
-            x = i * col_w
-            branch_text = "".join(buf) + "▋"
-            b_lines = _loom_wrap(branch_text, col_w - 1)
-            b_start = max(0, len(b_lines) - branch_rows)
-            for row, line in enumerate(b_lines[b_start:]):
-                if row >= branch_rows:
-                    break
-                try:
-                    stdscr.addstr(split + 1 + row, x, line[:col_w - 1])
-                except curses.error:
-                    pass
-        chars = sum(len(b) for b in buffers[0])
-        status = f" Generating {n_branches} branches…  Esc=cancel"
 
+    chars = sum(len(b) for b in buffers[0])
+    if n_branches == 1:
+        status = f" Generating…  {chars} chars  Esc=cancel"
+    else:
+        status = f" Generating {n_branches} branches…  {chars} chars  Esc=cancel"
     try:
         stdscr.addstr(height - 1, 0, status[:width].ljust(width)[:width], curses.A_REVERSE)
     except curses.error:
@@ -1041,18 +1121,74 @@ def _loom_word_wrap(text: str, first_width: int, full_width: int) -> list[str]:
     return lines or [""]
 
 
+def _render_loom_level(
+    store: "GenerationStore",
+    children: "list[Node]",
+    selected_idx: int,
+    child_path: "dict[str, int]",
+    last_line: str,
+    width: int,
+    counts: "dict[str, int]",
+) -> "list[tuple[str, int]]":
+    """Render siblings at the current level, then follow the checked-out path linearly."""
+    ARROW = " -> "
+    indent = len(last_line)
+    available = width - indent - len(ARROW)
+
+    if available < 10:
+        indent = 0
+        available = width - len(ARROW)
+        last_line = ""
+
+    def marker(node: "Node") -> str:
+        c = counts.get(node.id, 0)
+        return f" ({c})" if c > 0 else ""
+
+    lines: list[tuple[str, int]] = []
+    selected = children[selected_idx]
+
+    sel_segment = selected.text + marker(selected)
+    sel_lines = _loom_word_wrap(sel_segment, available, width)
+    row_prefix = (last_line + ARROW) if last_line else ARROW
+    lines.append((row_prefix + sel_lines[0], curses.A_BOLD))
+    for sl in sel_lines[1:]:
+        lines.append((sl, curses.A_BOLD))
+
+    for i, child in enumerate(children):
+        if i == selected_idx:
+            continue
+        sib_segment = child.text + marker(child)
+        sib_lines = _loom_word_wrap(sib_segment, available, width)
+        for j, sl in enumerate(sib_lines):
+            lines.append((" " * indent + ARROW + sl if j == 0 else sl, curses.A_DIM))
+
+    # Follow the checked-out path linearly — join as plain flowing text, no markers
+    path_text = ""
+    node = selected
+    while True:
+        deeper = store.children(node.id)
+        if not deeper:
+            break
+        node = deeper[min(child_path.get(node.id, 0), len(deeper) - 1)]
+        path_text += node.text
+    if path_text:
+        for line in _loom_wrap(path_text, width):
+            lines.append((line, 0))
+
+    return lines
+
+
 def _build_loom_display(
-    store: GenerationStore,
+    store: "GenerationStore",
     current_id: str,
     selected_idx: int,
-    child_path: dict[str, int],
+    child_path: "dict[str, int]",
     width: int,
-) -> list[tuple[str, int]]:
+) -> "list[tuple[str, int]]":
     """Build display lines for the loom TUI as (text, curses_attr) pairs."""
     parent_text = store.full_text(current_id)
     children = store.children(current_id)
 
-    # Word-wrap the parent text to terminal width
     parent_lines: list[str] = []
     for segment in parent_text.split("\n"):
         if segment:
@@ -1065,88 +1201,18 @@ def _build_loom_display(
     if not children:
         return [(line, 0) for line in parent_lines]
 
-    ARROW = " -> "
+    # Fetch all descendant counts in a single query
+    counts = store.descendant_counts([c.id for c in children])
+
+    lines: list[tuple[str, int]] = [(line, 0) for line in parent_lines[:-1]]
     last_line = parent_lines[-1]
-    indent = len(last_line)
-    available = width - indent - len(ARROW)
 
-    if available < 10:
-        # Parent's last line is too long; put children on a fresh line
-        lines: list[tuple[str, int]] = [(line, 0) for line in parent_lines]
-        indent = 0
-        available = width - len(ARROW)
+    ARROW = " -> "
+    if width - len(last_line) - len(ARROW) < 10:
+        lines.append((last_line, 0))
         last_line = ""
-    else:
-        lines = [(line, 0) for line in parent_lines[:-1]]
 
-    selected_child = children[selected_idx]
-    sel_grandchildren = store.children(selected_child.id)
-    sel_marker = "**" if sel_grandchildren else ""
-    child_segment = selected_child.text + sel_marker
-
-    def sibling_marker(child: Node) -> str:
-        return "*" if store.children(child.id) else ""
-
-    child_fits = len(child_segment) <= available
-
-    if child_fits and sel_grandchildren:
-        # Grandchild joins the stream on the same first line
-        gc_idx = min(child_path.get(selected_child.id, 0), len(sel_grandchildren) - 1)
-        grandchild = sel_grandchildren[gc_idx]
-        gc_marker = "**" if store.children(grandchild.id) else ""
-        stream = child_segment + " " + grandchild.text + gc_marker
-    else:
-        stream = child_segment
-
-    stream_lines = _loom_word_wrap(stream, available, width)
-    first_stream = stream_lines[0]
-    rest_stream = stream_lines[1:]
-
-    prefix = (last_line + ARROW) if last_line else ARROW
-    lines.append((prefix + first_stream, curses.A_BOLD))
-
-    inline = child_fits and sel_grandchildren
-
-    if inline:
-        # Siblings appear after the first line; grandchild continuation follows siblings
-        for i, child in enumerate(children):
-            if i == selected_idx:
-                continue
-            sib_segment = child.text + sibling_marker(child)
-            sib_lines = _loom_word_wrap(sib_segment, available, width)
-            for j, sl in enumerate(sib_lines):
-                if j == 0:
-                    lines.append((" " * indent + ARROW + sl, curses.A_DIM))
-                else:
-                    lines.append((sl, curses.A_DIM))
-        for sl in rest_stream:
-            lines.append((sl, curses.A_BOLD))
-    else:
-        # Child wraps: show all child lines first, then siblings, then grandchild
-        for sl in rest_stream:
-            lines.append((sl, curses.A_BOLD))
-        for i, child in enumerate(children):
-            if i == selected_idx:
-                continue
-            sib_segment = child.text + sibling_marker(child)
-            sib_lines = _loom_word_wrap(sib_segment, available, width)
-            for j, sl in enumerate(sib_lines):
-                if j == 0:
-                    lines.append((" " * indent + ARROW + sl, curses.A_DIM))
-                else:
-                    lines.append((sl, curses.A_DIM))
-        if sel_grandchildren:
-            gc_idx = min(child_path.get(selected_child.id, 0), len(sel_grandchildren) - 1)
-            grandchild = sel_grandchildren[gc_idx]
-            gc_marker = "**" if store.children(grandchild.id) else ""
-            gc_segment = grandchild.text + gc_marker
-            gc_lines = _loom_word_wrap(gc_segment, available, width)
-            for j, gl in enumerate(gc_lines):
-                if j == 0:
-                    lines.append((" " * indent + gl, 0))
-                else:
-                    lines.append((gl, 0))
-
+    lines += _render_loom_level(store, children, selected_idx, child_path, last_line, width, counts)
     return lines
 
 

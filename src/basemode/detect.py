@@ -48,6 +48,10 @@ _PREFIX_MAP = {
     "command": "cohere",
     "grok": "xai",
     "kimi": "moonshot",
+    "gpt": "openai",
+    "o1": "openai",
+    "o3": "openai",
+    "o4": "openai",
 }
 
 

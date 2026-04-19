@@ -1,7 +1,10 @@
 """System prompt coercion — works on any chat model."""
+import logging
 from collections.abc import AsyncGenerator
 
 import litellm
+
+log = logging.getLogger(__name__)
 
 from ..params import GenerationParams
 from .base import ContinuationStrategy
@@ -23,10 +26,14 @@ class SystemPromptStrategy(ContinuationStrategy):
     name = "system"
 
     async def stream(self, prefix: str, params: GenerationParams) -> AsyncGenerator[str, None]:
+        system = SYSTEM_PROMPT
+        if params.context:
+            system += f"\n\n<CONTEXT>\n{params.context}\n</CONTEXT>"
+        log.debug("SystemPromptStrategy.stream: model=%s", params.model)
         response = await litellm.acompletion(
             model=params.model,
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": system},
                 {"role": "user", "content": normalize_prefix(prefix)},
             ],
             stream=True,

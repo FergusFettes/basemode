@@ -1,7 +1,10 @@
 """Few-shot coercion — for stubborn models that ignore system prompts."""
+import logging
 from collections.abc import AsyncGenerator
 
 import litellm
+
+log = logging.getLogger(__name__)
 
 from ..params import GenerationParams
 from .base import ContinuationStrategy
@@ -48,10 +51,14 @@ class FewShotStrategy(ContinuationStrategy):
     name = "few_shot"
 
     async def stream(self, prefix: str, params: GenerationParams) -> AsyncGenerator[str, None]:
+        system = _SYSTEM_PROMPT
+        if params.context:
+            system += f"\n\n<CONTEXT>\n{params.context}\n</CONTEXT>"
+        log.debug("FewShotStrategy.stream: model=%s", params.model)
         response = await litellm.acompletion(
             model=params.model,
             messages=[
-                {"role": "system", "content": _SYSTEM_PROMPT},
+                {"role": "system", "content": system},
                 {"role": "user", "content": normalize_prefix(prefix)},
             ],
             stream=True,

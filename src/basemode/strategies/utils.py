@@ -1,38 +1,27 @@
 import re
 from collections.abc import AsyncGenerator, AsyncIterable
+from pathlib import Path
 
 _LOOKBEHIND_CHARS = 80
 _COMMIT_LAG_CHARS = 32
 
-# High-confidence compounds where the split form is rarely intended in prose.
-_JOINABLE_COMPOUNDS = {
-    "anybody",
-    "anyone",
-    "anything",
-    "anywhere",
-    "cowardice",
-    "everybody",
-    "everyone",
-    "everything",
-    "everywhere",
-    "herself",
-    "himself",
-    "inside",
-    "itself",
-    "myself",
-    "nobody",
-    "nothing",
-    "nowhere",
-    "ourselves",
-    "outside",
-    "somebody",
-    "someone",
-    "something",
-    "somewhere",
-    "themselves",
-    "yourself",
-    "yourselves",
-}
+_DICT_PATH = Path("/usr/share/dict/words")
+_SYSTEM_WORDS: frozenset[str] | None = None
+
+
+def _system_words() -> frozenset[str]:
+    global _SYSTEM_WORDS
+    if _SYSTEM_WORDS is None:
+        if _DICT_PATH.exists():
+            _SYSTEM_WORDS = frozenset(_DICT_PATH.read_text().lower().split())
+        else:
+            _SYSTEM_WORDS = frozenset()
+    return _SYSTEM_WORDS
+
+
+def _is_word(s: str) -> bool:
+    return s.lower() in _system_words()
+
 
 _COMPOUND_RE = re.compile(r"\b([A-Za-z]{2,}) ([A-Za-z]{2,})\b")
 _PREFIX_WORD_RE = re.compile(r"([A-Za-z]{2,})$")
@@ -92,6 +81,18 @@ def _should_collapse_single_newline(prefix: str, prev_char: str, next_char: str)
     return True
 
 
+_JOINABLE_COMPOUNDS = {
+    "anybody", "anyone", "anything", "anywhere",
+    "cowardice",
+    "everybody", "everyone", "everything", "everywhere",
+    "herself", "himself", "inside", "itself", "myself",
+    "nobody", "nothing", "nowhere",
+    "ourselves", "outside",
+    "somebody", "someone", "something", "somewhere",
+    "themselves", "yourself", "yourselves",
+}
+
+
 def _join_split_compounds(text: str) -> str:
     """Join high-confidence compounds in the mutable stream tail."""
 
@@ -109,19 +110,43 @@ def _join_split_compounds(text: str) -> str:
     return _COMPOUND_RE.sub(replace, text)
 
 
+_SPACE_PUNCT_RE = re.compile(r"(?<=\w) ([,\.;:!?])")
+_SPACE_CONTRACTION_RE = re.compile(r"(?<=\w) ('(?:s|t|re|ve|ll|d|m))\b", re.IGNORECASE)
+_LEADING_PUNCT_RE = re.compile(r"^ ([,\.;:!?])")
+_LEADING_CONTRACTION_RE = re.compile(r"^ ('(?:s|t|re|ve|ll|d|m))\b", re.IGNORECASE)
+
+
+def _fix_space_before_punctuation(text: str) -> str:
+    text = _SPACE_PUNCT_RE.sub(r"\1", text)
+    text = _SPACE_CONTRACTION_RE.sub(r"\1", text)
+    return text
+
+
 def _repair_prefix_boundary(prefix: str, text: str) -> str:
     prefix_match = _PREFIX_WORD_RE.search(prefix)
+
+    # Space injected before punctuation or contraction at the boundary
+    if prefix_match:
+        if _LEADING_PUNCT_RE.match(text) or _LEADING_CONTRACTION_RE.match(text):
+            return text[1:]
+
     text_match = _LEADING_WORD_RE.match(text)
     if not prefix_match or not text_match:
         return text
 
-    joined = prefix_match.group(1) + text_match.group(1)
-    if joined.lower() not in _JOINABLE_COMPOUNDS:
-        return text
+    left = prefix_match.group(1)
+    right = text_match.group(1)
+    joined = left + right
 
-    # The prefix already contains the first half, so the continuation should
-    # start with the second half and no inserted boundary space.
-    return text[1:]
+    # Whitelist: high-confidence compounds where both halves may be real words
+    if joined.lower() in _JOINABLE_COMPOUNDS:
+        return text[1:]
+
+    # Dictionary: join if combined form is a word and the fragment alone is not
+    if _is_word(joined) and not _is_word(right):
+        return text[1:]
+
+    return text
 
 
 async def normalize_stream_newlines(
@@ -162,6 +187,7 @@ async def normalize_stream_newlines(
             pending_text += "".join(out)
             pending_text = _repair_prefix_boundary(prefix, pending_text)
             pending_text = _join_split_compounds(pending_text)
+            pending_text = _fix_space_before_punctuation(pending_text)
             if len(pending_text) > _LOOKBEHIND_CHARS:
                 emit_len = len(pending_text) - _COMMIT_LAG_CHARS
                 yield pending_text[:emit_len]
@@ -171,5 +197,6 @@ async def normalize_stream_newlines(
         pending_text += "\n" * pending_newlines
     pending_text = _repair_prefix_boundary(prefix, pending_text)
     pending_text = _join_split_compounds(pending_text)
+    pending_text = _fix_space_before_punctuation(pending_text)
     if pending_text:
         yield pending_text
