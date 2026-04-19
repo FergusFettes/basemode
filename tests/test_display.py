@@ -265,6 +265,31 @@ def test_build_tree_display_marks_checked_out_path():
     assert any(line.style == "current" and "gc" in line.text for line in lines)
 
 
+def test_build_tree_display_marks_selected_child():
+    root = _node("root", text="Root")
+    c1 = _node("c1", parent_id="root", root_id="root", text=" first")
+    c2 = _node("c2", parent_id="root", root_id="root", text=" second")
+    state = SessionState(
+        current_node_id="root",
+        current_node=root,
+        full_text="Root",
+        children=[c1, c2],
+        selected_child_idx=1,
+        descendant_counts={},
+        continuation_text="",
+        model="gpt-4o-mini",
+        max_tokens=200,
+        temperature=0.9,
+        n_branches=1,
+        context="",
+        root_id="root",
+        view_mode="tree",
+        tree_nodes=[root, c1, c2],
+    )
+    lines = build_tree_display(state, 80)
+    assert any(line.style == "selected" and "*  c2" in line.text for line in lines)
+
+
 def test_build_tree_display_hoists_subtree():
     root = _node("root", text="Root")
     c1 = _node("c1", parent_id="root", root_id="root", text=" first")

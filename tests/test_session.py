@@ -178,34 +178,6 @@ def test_next_bookmark_moves_to_next_marked_node(branched_store):
     assert state.current_node_id == ab[1].id
 
 
-def test_navigate_tree_row_moves_through_visible_tree(branched_store):
-    store, ab, c = branched_store
-    session = LoomSession(store, ab[0].id)
-    session.toggle_tree_view()
-
-    state = session.navigate_tree_row(+1)
-    assert state.current_node_id == c[0].id
-
-    state = session.navigate_tree_row(+1)
-    assert state.current_node_id == ab[1].id
-
-    state = session.navigate_tree_row(-1)
-    assert state.current_node_id == c[0].id
-
-
-def test_navigate_tree_row_respects_hoist(branched_store):
-    store, ab, c = branched_store
-    session = LoomSession(store, ab[0].id)
-    session.toggle_tree_view()
-    session.toggle_hoist()
-
-    state = session.navigate_tree_row(+1)
-    assert state.current_node_id == c[0].id
-
-    state = session.navigate_tree_row(+1)
-    assert state.current_node_id == c[0].id
-
-
 # --- Params ---
 
 

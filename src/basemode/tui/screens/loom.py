@@ -97,10 +97,6 @@ class LoomScreen(Screen):
         self._refresh()
 
     def action_nav_next(self) -> None:
-        if self.session.view_mode == "tree":
-            self.session.navigate_tree_row(+1)
-            self._refresh()
-            return
         state = self.session.get_state()
         if not state.children or state.selected_child_idx >= len(state.children) - 1:
             return
@@ -108,10 +104,6 @@ class LoomScreen(Screen):
         self._refresh()
 
     def action_nav_prev(self) -> None:
-        if self.session.view_mode == "tree":
-            self.session.navigate_tree_row(-1)
-            self._refresh()
-            return
         state = self.session.get_state()
         if not state.children or state.selected_child_idx == 0:
             return

@@ -166,18 +166,21 @@ async def test_v_toggles_tree_view(store, tree):
 
 
 @pytest.mark.asyncio
-async def test_j_k_move_current_node_in_tree_view(store, tree):
-    ab, c = tree
+async def test_j_k_select_children_in_tree_view(store, tree):
+    ab, _ = tree
     session = LoomSession(store, ab[0].id)
+    session.navigate_parent()
     app = BasemodeApp(session)
     async with app.run_test(headless=True) as pilot:
         await pilot.press("v")
         await pilot.press("j")
-        assert session.get_state().current_node_id == c[0].id
-        await pilot.press("j")
-        assert session.get_state().current_node_id == ab[1].id
+        state = session.get_state()
+        assert state.current_node_id == ab[0].parent_id
+        assert state.selected_child_idx == 1
         await pilot.press("k")
-        assert session.get_state().current_node_id == c[0].id
+        state = session.get_state()
+        assert state.current_node_id == ab[0].parent_id
+        assert state.selected_child_idx == 0
 
 
 @pytest.mark.asyncio

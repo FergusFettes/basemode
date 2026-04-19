@@ -184,18 +184,6 @@ class LoomSession:
             self._child_path[self._current_id] = new_idx
         return self.get_state()
 
-    def navigate_tree_row(self, delta: int) -> SessionState:
-        ids = self._visible_tree_ids()
-        if not ids:
-            return self.get_state()
-        try:
-            current_idx = ids.index(self._current_id)
-        except ValueError:
-            current_idx = 0
-        next_idx = max(0, min(current_idx + delta, len(ids) - 1))
-        self._checkout_node(ids[next_idx])
-        return self.get_state()
-
     def toggle_tree_view(self) -> SessionState:
         self.view_mode = "tree" if self.view_mode == "branch" else "branch"
         return self.get_state()
@@ -479,32 +467,3 @@ class LoomSession:
         self._current_id = node.id
         self._child_path.update(self._load_child_path(self._current_id))
         self._selected_idx = self._child_path.get(self._current_id, 0)
-
-    def _visible_tree_ids(self) -> list[str]:
-        root = self._store.root(self._current_id)
-        nodes = self._store.tree(root.id)
-        by_id = {node.id: node for node in nodes}
-        start = self._hoisted_id if self._hoisted_id in by_id else root.id
-
-        children_by_parent: dict[str | None, list[Node]] = {}
-        for node in nodes:
-            children_by_parent.setdefault(node.parent_id, []).append(node)
-        for children in children_by_parent.values():
-            children.sort(
-                key=lambda node: (
-                    node.branch_index is None,
-                    node.branch_index if node.branch_index is not None else 0,
-                    node.created_at,
-                    node.id,
-                )
-            )
-
-        ids: list[str] = []
-
-        def visit(node_id: str) -> None:
-            ids.append(node_id)
-            for child in children_by_parent.get(node_id, []):
-                visit(child.id)
-
-        visit(start)
-        return ids

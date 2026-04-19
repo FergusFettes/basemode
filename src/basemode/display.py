@@ -25,7 +25,7 @@ TREE_BLANK = "   "
 @dataclass(frozen=True)
 class DisplayLine:
     text: str
-    style: Literal["normal", "bold", "dim", "path", "current"] = "normal"
+    style: Literal["normal", "bold", "dim", "path", "current", "selected"] = "normal"
 
 
 def wrap_text(text: str, width: int) -> list[str]:
@@ -118,6 +118,11 @@ def build_tree_display(state: SessionState, width: int) -> list[DisplayLine]:
         )
 
     path = _path_ids(by_id, state.current_node_id)
+    selected_child_id = (
+        state.children[state.selected_child_idx].id
+        if state.children
+        else None
+    )
     descendant_counts = _descendant_counts(children_by_parent, root.id)
 
     lines: list[DisplayLine] = []
@@ -130,14 +135,17 @@ def build_tree_display(state: SessionState, width: int) -> list[DisplayLine]:
         label = _tree_node_label(
             node,
             current=node.id == state.current_node_id,
+            selected=node.id == selected_child_id,
             bookmarked=bool(node.metadata.get("bookmarked")),
             descendants=descendant_counts.get(node.id, 0),
             width=max(10, width - len(line_prefix)),
         )
         if node.id == state.current_node_id:
-            style: Literal["normal", "bold", "dim", "path", "current"] = "current"
+            style: Literal["normal", "bold", "dim", "path", "current", "selected"] = "current"
         elif node.id in path:
             style = "path"
+        elif node.id == selected_child_id:
+            style = "selected"
         else:
             style = "normal"
         lines.append(DisplayLine((line_prefix + label)[:width], style))
@@ -185,11 +193,12 @@ def _tree_node_label(
     node: Node,
     *,
     current: bool,
+    selected: bool,
     bookmarked: bool,
     descendants: int,
     width: int,
 ) -> str:
-    cursor = ">" if current else " "
+    cursor = ">" if current else "*" if selected else " "
     bookmark = "b" if bookmarked else " "
     count = f" +{descendants}" if descendants else ""
     model = f" {node.model.split('/')[-1]}" if node.model else ""

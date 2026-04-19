@@ -16,6 +16,7 @@ _STYLES = {
     "dim": Style(dim=True),
     "path": Style(color="cyan", bold=True),
     "current": Style(color="black", bgcolor="cyan", bold=True),
+    "selected": Style(color="yellow", bold=True),
 }
 
 
