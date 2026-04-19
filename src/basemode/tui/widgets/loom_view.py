@@ -3,7 +3,9 @@ from __future__ import annotations
 from rich.style import Style
 from rich.text import Text
 from textual import events
-from textual.widget import Widget
+from textual.app import ComposeResult
+from textual.containers import VerticalScroll
+from textual.widgets import Static
 
 from ...display import build_loom_display
 from ...session import SessionState
@@ -15,34 +17,30 @@ _STYLES = {
 }
 
 
-class LoomView(Widget):
+class LoomView(VerticalScroll):
     """Renders the loom tree: parent text, selected child (bold), siblings (dim),
     and the continuation path below the selection."""
 
     DEFAULT_CSS = """
     LoomView {
         height: 1fr;
-        overflow-y: auto;
+    }
+    LoomView Static {
+        width: 100%;
     }
     """
 
-    def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
-        self._state: SessionState | None = None
+    def compose(self) -> ComposeResult:
+        yield Static("", id="loom-content")
 
     def update_state(self, state: SessionState) -> None:
-        self._state = state
-        self.refresh()
-
-    def render(self) -> Text:
-        if self._state is None:
-            return Text("")
         width = self.size.width or 80
-        lines = build_loom_display(self._state, width)
+        lines = build_loom_display(state, width)
         result = Text(no_wrap=True, overflow="fold")
         for line in lines:
             result.append(line.text + "\n", style=_STYLES[line.style])
-        return result
+        self.query_one("#loom-content", Static).update(result)
+        self.scroll_end(animate=False)
 
     def on_resize(self, event: events.Resize) -> None:
-        self.refresh()
+        pass  # state refresh handles re-render
