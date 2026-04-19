@@ -48,3 +48,13 @@ IntInputScreen > Vertical {
 IntInputScreen Label {
     margin-bottom: 1;
 }
+
+TreePickerScreen {
+    background: $background;
+}
+
+TreePickerScreen TreePickerView {
+    height: 1fr;
+    overflow-y: auto;
+    padding: 0 1;
+}

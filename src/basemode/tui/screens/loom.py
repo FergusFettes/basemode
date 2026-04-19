@@ -37,6 +37,7 @@ class LoomScreen(Screen):
         Binding("t", "set_tokens", "Tokens"),
         Binding("a", "branches_down", "-n", show=False),
         Binding("d", "branches_up", "+n", show=False),
+        Binding("tab", "open_picker", "Trees"),
         Binding("q", "quit", "Quit"),
         Binding("escape", "cancel_or_quit", "Cancel", show=False),
     ]
@@ -164,6 +165,24 @@ class LoomScreen(Screen):
         new_context = Path(tmpfile).read_text().rstrip("\n")
         Path(tmpfile).unlink(missing_ok=True)
         self.session.update_context(new_context)
+
+    # --- Tree picker ---
+
+    def action_open_picker(self) -> None:
+        if self._generating:
+            return
+        from ..screens.tree_picker import TreePickerScreen
+
+        state = self.session.get_state()
+
+        def on_selected(root_id: str | None) -> None:
+            if root_id is None or root_id == state.root_id:
+                return
+            self.session.save()
+            self.session = LoomSession(self.session.store, root_id)
+            self._refresh()
+
+        self.app.push_screen(TreePickerScreen(self.session.store, state.root_id), on_selected)
 
     # --- Quit / cancel ---
 

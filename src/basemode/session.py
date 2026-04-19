@@ -384,6 +384,10 @@ class LoomSession:
             },
         )
 
+    @property
+    def store(self) -> GenerationStore:
+        return self._store
+
     # --- Internal helpers ---
 
     def _load_child_path(self, current_id: str) -> dict[str, int]:
