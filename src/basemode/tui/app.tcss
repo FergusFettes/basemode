@@ -8,6 +8,20 @@ LoomView, StreamView {
     padding: 0;
 }
 
+#loom-switcher {
+    height: 1fr;
+    overflow: hidden;
+}
+
+#status-bar {
+    dock: bottom;
+    height: 1;
+    padding: 0 1;
+    background: $surface;
+    color: $text-muted;
+    text-style: bold;
+}
+
 ModelPickerScreen {
     align: center middle;
 }
@@ -47,4 +61,39 @@ IntInputScreen > Vertical {
 
 IntInputScreen Label {
     margin-bottom: 1;
+}
+
+ConfirmScreen {
+    align: center middle;
+}
+
+ConfirmScreen > Vertical {
+    width: 56;
+    height: auto;
+    border: round $error;
+    background: $surface;
+    padding: 1 2;
+}
+
+ConfirmScreen #confirm-title {
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+ConfirmScreen #confirm-message {
+    margin-bottom: 1;
+}
+
+ConfirmScreen #confirm-help {
+    color: $text-muted;
+}
+
+TreePickerScreen {
+    background: $background;
+}
+
+TreePickerScreen TreePickerView {
+    height: 1fr;
+    overflow-y: auto;
+    padding: 0 1;
 }

@@ -321,6 +321,30 @@ class GenerationStore:
             ).fetchall()
         return [self._node(row) for row in rows]
 
+    def delete_tree(self, root_id: str) -> int:
+        """Delete a root and every node in its tree. Returns deleted node count."""
+        root = self.root(root_id)
+        nodes = self.tree(root.id)
+        node_ids = [node.id for node in nodes]
+        if not node_ids:
+            return 0
+
+        placeholders = ",".join("?" * len(node_ids))
+        checked_out_keys = [f"checked_out:{node_id}" for node_id in node_ids]
+        key_placeholders = ",".join("?" * len(checked_out_keys))
+
+        with closing(self.connect()) as conn, conn:
+            result = conn.execute("DELETE FROM nodes WHERE id = ?", (root.id,))
+            conn.execute(
+                f"DELETE FROM state WHERE value IN ({placeholders})",
+                node_ids,
+            )
+            conn.execute(
+                f"DELETE FROM state WHERE key IN ({key_placeholders})",
+                checked_out_keys,
+            )
+        return result.rowcount + len(node_ids) - 1
+
     def descendant_count(self, node_id: str) -> int:
         """Return the total number of descendants (not including the node itself)."""
         resolved = self.resolve_node_id(node_id)

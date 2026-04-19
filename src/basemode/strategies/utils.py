@@ -25,7 +25,9 @@ def _is_word(s: str) -> bool:
 
 _COMPOUND_RE = re.compile(r"\b([A-Za-z]{2,}) ([A-Za-z]{2,})\b")
 _PREFIX_WORD_RE = re.compile(r"([A-Za-z]{2,})$")
+_PREFIX_HYPHEN_FRAGMENT_RE = re.compile(r"([A-Za-z]+-[A-Za-z]{0,2})$")
 _LEADING_WORD_RE = re.compile(r"^ ([A-Za-z]{2,})(\b|(?=[^A-Za-z]))")
+_DANGLING_HYPHENATED_TAIL_RE = re.compile(r"\b[A-Za-z]{2,}-(?:[A-Za-z]{0,2})$")
 
 
 def normalize_prefix(prefix: str) -> str:
@@ -92,6 +94,14 @@ _JOINABLE_COMPOUNDS = {
     "themselves", "yourself", "yourselves",
 }
 
+_COMMON_SHORT_WORDS = {
+    "a", "am", "an", "and", "are", "as", "at", "be", "but", "by",
+    "can", "did", "do", "for", "had", "has", "he", "her", "him", "his",
+    "i", "if", "in", "is", "it", "its", "may", "me", "not", "now", "of",
+    "on", "one", "or", "our", "out", "own", "she", "so", "the", "to",
+    "too", "two", "up", "us", "was", "we", "who", "why", "you",
+}
+
 
 def _join_split_compounds(text: str) -> str:
     """Join high-confidence compounds in the mutable stream tail."""
@@ -131,6 +141,10 @@ def _repair_prefix_boundary(prefix: str, text: str) -> str:
             return text[1:]
 
     text_match = _LEADING_WORD_RE.match(text)
+    hyphen_match = _PREFIX_HYPHEN_FRAGMENT_RE.search(prefix)
+    if hyphen_match and text_match:
+        return text[1:]
+
     if not prefix_match or not text_match:
         return text
 
@@ -142,11 +156,39 @@ def _repair_prefix_boundary(prefix: str, text: str) -> str:
     if joined.lower() in _JOINABLE_COMPOUNDS:
         return text[1:]
 
+    # If the existing prefix ends in a short non-word fragment, the next segment
+    # probably starts with the rest of that same word: "fl" + " anks".
+    if len(left) <= 3 and left.lower() not in _COMMON_SHORT_WORDS and len(right) >= 2:
+        return text[1:]
+
     # Dictionary: join if combined form is a word and the fragment alone is not
     if _is_word(joined) and not _is_word(right):
         return text[1:]
 
     return text
+
+
+def _trim_dangling_short_tail(text: str) -> str:
+    match = re.search(r"\b([A-Za-z]{1,3})$", text)
+    if not match:
+        return text
+    tail = match.group(1)
+    if tail.lower() in _COMMON_SHORT_WORDS or _is_word(tail):
+        return text
+    return text[: match.start(1)].rstrip()
+
+
+def normalize_completion_segment(prefix: str, completion: str) -> str:
+    """Repair a generated segment before persisting it as a child node.
+
+    Stream normalization can repair most boundaries while tokens arrive, but
+    persistence is the last line of defense: no node should be born with an
+    avoidable leading split-word fragment or an obvious dangling hyphenated tail
+    caused by a token limit.
+    """
+    completion = _repair_prefix_boundary(prefix, completion)
+    completion = _DANGLING_HYPHENATED_TAIL_RE.sub("", completion).rstrip()
+    return _trim_dangling_short_tail(completion)
 
 
 async def normalize_stream_newlines(

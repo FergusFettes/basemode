@@ -297,6 +297,32 @@ async def test_generate_saves_completions(store, monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_generate_saves_normalized_completion_segments(store, monkeypatch):
+    async def fake_continue(prefix, model, **kwargs):
+        yield " itsu, Capoeira, and Fandango."
+
+    monkeypatch.setattr("basemode.session.continue_text", fake_continue)
+    _, ch = store.save_continuations(
+        "Prompt",
+        ["some impossible marriage of Jiu-J"],
+        model="m",
+        strategy="s",
+        max_tokens=10,
+        temperature=0.9,
+    )
+    session = LoomSession(store, ch[0].id)
+    session.n_branches = 1
+
+    async for event in session.generate():
+        if isinstance(event, GenerationComplete):
+            assert event.new_nodes[0].text == "itsu, Capoeira, and Fandango."
+
+    new_children = store.children(ch[0].id)
+    assert new_children[0].text == "itsu, Capoeira, and Fandango."
+    assert store.full_text(new_children[0].id).endswith("Jiu-Jitsu, Capoeira, and Fandango.")
+
+
+@pytest.mark.asyncio
 async def test_generate_cancel(store, monkeypatch):
     import asyncio
 

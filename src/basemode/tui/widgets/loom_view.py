@@ -34,7 +34,14 @@ class LoomView(VerticalScroll):
         yield Static("", id="loom-content")
 
     def update_state(self, state: SessionState) -> None:
-        width = self.size.width or 80
+        self._state = state
+        self._render_state()
+
+    def _render_state(self) -> None:
+        state = getattr(self, "_state", None)
+        if state is None:
+            return
+        width = self._content_width()
         lines = build_loom_display(state, width)
         result = Text(no_wrap=True, overflow="fold")
         for line in lines:
@@ -42,5 +49,18 @@ class LoomView(VerticalScroll):
         self.query_one("#loom-content", Static).update(result)
         self.scroll_end(animate=False)
 
+    def _content_width(self) -> int:
+        width = self.scrollable_content_region.width
+        if width >= 20:
+            return width
+        width = self.scrollable_size.width
+        if width >= 20:
+            return width
+        try:
+            app_width = self.app.size.width
+        except Exception:
+            app_width = 0
+        return app_width if app_width >= 20 else 80
+
     def on_resize(self, event: events.Resize) -> None:
-        pass  # state refresh handles re-render
+        self._render_state()

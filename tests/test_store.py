@@ -153,6 +153,40 @@ def test_active_node_state_persists(tmp_path) -> None:
     assert reopened.get_active_node().id == root.id
 
 
+def test_delete_tree_removes_nodes_and_related_state(tmp_path) -> None:
+    store = GenerationStore(tmp_path / "generations.sqlite")
+    root = store.create_root("root")
+    child = store.add_child(
+        root.id,
+        " child",
+        model="gpt-4o-mini",
+        strategy="system",
+        max_tokens=5,
+        temperature=0.7,
+    )
+    grandchild = store.add_child(
+        child.id,
+        " grandchild",
+        model="gpt-4o-mini",
+        strategy="system",
+        max_tokens=5,
+        temperature=0.7,
+    )
+    other_root = store.create_root("other")
+    store.set_active_node(grandchild.id)
+    store.set_checked_out_child(root.id, child.id)
+
+    deleted = store.delete_tree(root.id)
+
+    assert deleted == 3
+    assert store.get(root.id) is None
+    assert store.get(child.id) is None
+    assert store.get(grandchild.id) is None
+    assert store.roots() == [other_root]
+    assert store.get_active_node_id() is None
+    assert store.get_checked_out_child_id(root.id) is None
+
+
 def test_select_branch_is_one_based(tmp_path) -> None:
     store = GenerationStore(tmp_path / "generations.sqlite")
     parent = store.create_root("root")

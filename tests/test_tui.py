@@ -52,6 +52,25 @@ async def test_app_mounts_stream_view_hidden(store, tree):
         assert app.screen.query_one(ContentSwitcher).current == "loom"
 
 
+@pytest.mark.asyncio
+async def test_info_bar_shows_tokens_and_branches(store, tree):
+    from textual.widgets import Static
+
+    ab, _ = tree
+    session = LoomSession(store, ab[0].id)
+    app = BasemodeApp(session)
+    async with app.run_test(headless=True) as pilot:
+        info_bar = app.screen.query_one("#status-bar", Static)
+        assert "tokens:200" in str(info_bar.render())
+        assert "branches:1" in str(info_bar.render())
+
+        await pilot.press("w")
+        await pilot.press("d")
+
+        assert "tokens:250" in str(info_bar.render())
+        assert "branches:2" in str(info_bar.render())
+
+
 # --- Navigation ---
 
 
@@ -90,7 +109,7 @@ async def test_l_navigates_into_child(store, tree):
 
 @pytest.mark.asyncio
 async def test_l_at_leaf_stays_put(store, tree):
-    ab, c = tree
+    _ab, c = tree
     session = LoomSession(store, c[0].id)
     app = BasemodeApp(session)
     async with app.run_test(headless=True) as pilot:
@@ -261,6 +280,19 @@ async def test_q_exits_app(store, tree):
     # If we get here, app exited cleanly
 
 
+@pytest.mark.asyncio
+async def test_quit_message_includes_rejoin_info(store, tree):
+    ab, _ = tree
+    session = LoomSession(store, ab[0].id)
+    root_id = session.get_state().root_id
+    app = BasemodeApp(session)
+    async with app.run_test(headless=True):
+        message = app.screen._quit_message()
+
+    assert f"Quit tree: {root_id[:8]} ({root_id})" in message
+    assert f"basemode loom view {root_id}" in message
+
+
 # --- StreamView widget ---
 
 
@@ -287,6 +319,27 @@ def test_stream_view_reset_clears_buffers():
     assert sv._buffers == [[], [], []]
 
 
+def test_stream_view_uses_sane_width_before_layout():
+    sv = StreamView()
+    assert sv._content_width() == 80
+
+
+@pytest.mark.asyncio
+async def test_stream_view_uses_scrollable_width_with_scrollbar(store, tree):
+    from textual.widgets import ContentSwitcher
+
+    ab, _ = tree
+    session = LoomSession(store, ab[0].id)
+    app = BasemodeApp(session)
+    async with app.run_test(headless=True, size=(120, 10)) as pilot:
+        sv = app.screen.query_one(StreamView)
+        app.screen.query_one(ContentSwitcher).current = "stream"
+        sv.reset(1, "word " * 1000)
+        await pilot.pause()
+        assert sv.scrollbar_size_vertical == 2
+        assert sv._content_width() == 118
+
+
 # --- LoomView widget ---
 
 
@@ -297,3 +350,26 @@ def test_loom_view_update_state_does_not_raise_unmounted(store, tree):
     state = session.get_state()  # noqa: F841
     lv = LoomView()
     assert lv is not None
+
+
+def test_loom_view_uses_sane_width_before_layout():
+    lv = LoomView()
+    assert lv._content_width() == 80
+
+
+@pytest.mark.asyncio
+async def test_loom_view_uses_scrollable_width_with_scrollbar(store):
+    _, children = store.save_continuations(
+        "word " * 1000,
+        [" child"],
+        model="gpt-4o-mini",
+        strategy="system",
+        max_tokens=20,
+        temperature=0.9,
+    )
+    session = LoomSession(store, children[0].id)
+    app = BasemodeApp(session)
+    async with app.run_test(headless=True, size=(120, 10)):
+        lv = app.screen.query_one(LoomView)
+        assert lv.scrollbar_size_vertical == 2
+        assert lv._content_width() == 118

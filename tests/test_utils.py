@@ -4,6 +4,7 @@ import pytest
 
 from basemode.strategies.utils import (
     needs_leading_space,
+    normalize_completion_segment,
     normalize_prefix,
     normalize_stream_newlines,
 )
@@ -157,6 +158,33 @@ async def test_normalize_stream_repairs_split_compound_at_prefix_boundary() -> N
     assert result == "ice but of a kind of cognitive hygiene."
 
 
+async def test_normalize_stream_repairs_hyphenated_word_at_prefix_boundary() -> None:
+    result = await _collect_stream(
+        "some impossible marriage of Jiu-J",
+        [" itsu, Capoeira, and Fandango."],
+    )
+
+    assert result == "itsu, Capoeira, and Fandango."
+
+
+async def test_normalize_stream_repairs_short_fragment_at_prefix_boundary() -> None:
+    result = await _collect_stream(
+        "muscle and motion across their fl",
+        [" anks, abdomens, thighs."],
+    )
+
+    assert result == "anks, abdomens, thighs."
+
+
+async def test_normalize_stream_leaves_no_space_hyphenated_boundary_alone() -> None:
+    result = await _collect_stream(
+        "some impossible marriage of Jiu-J",
+        ["itsu, Capoeira, and Fandango."],
+    )
+
+    assert result == "itsu, Capoeira, and Fandango."
+
+
 async def test_normalize_stream_repairs_split_compound_with_space_in_first_chunk() -> None:
     result = await _collect_stream(
         "The wall made the",
@@ -182,3 +210,48 @@ async def test_normalize_stream_does_not_repair_unlisted_prefix_boundary() -> No
     )
 
     assert result == " ice on the page."
+
+
+def test_normalize_completion_segment_repairs_hyphenated_prefix_boundary() -> None:
+    result = normalize_completion_segment(
+        "some impossible marriage of Jiu-J",
+        " itsu, Capoeira, and Fandango.",
+    )
+
+    assert result == "itsu, Capoeira, and Fandango."
+
+
+def test_normalize_completion_segment_trims_dangling_hyphenated_tail() -> None:
+    result = normalize_completion_segment(
+        "They learned",
+        " a form assembled out of Jiu-J",
+    )
+
+    assert result == " a form assembled out of"
+
+
+def test_normalize_completion_segment_trims_dangling_short_tail() -> None:
+    result = normalize_completion_segment(
+        "Under the lights",
+        " their bodies seemed less illuminated than sm",
+    )
+
+    assert result == " their bodies seemed less illuminated than"
+
+
+def test_normalize_completion_segment_keeps_common_short_final_word() -> None:
+    result = normalize_completion_segment(
+        "The comparison failed.",
+        " The aim was",
+    )
+
+    assert result == " The aim was"
+
+
+def test_normalize_completion_segment_keeps_finished_hyphenated_word() -> None:
+    result = normalize_completion_segment(
+        "They learned",
+        " a form assembled out of Jiu-Jitsu",
+    )
+
+    assert result == " a form assembled out of Jiu-Jitsu"

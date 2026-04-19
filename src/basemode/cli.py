@@ -5,8 +5,6 @@ import sys
 from pathlib import Path
 from typing import Annotated
 
-log = logging.getLogger(__name__)
-
 import click
 import typer
 import typer.core
@@ -18,8 +16,6 @@ from rich.rule import Rule
 from rich.table import Table
 from rich.text import Text
 
-from .continue_ import branch_text, continue_text
-from .detect import detect_strategy, normalize_model
 from .keys import (
     KEY_ALIASES,
     get_default_model,
@@ -28,22 +24,26 @@ from .keys import (
     set_default_model,
     set_key,
 )
-from .models import list_models, list_providers
-from .naming import generate_name, should_name
 from .store import AmbiguousNodeReference, GenerationStore, Node
-from .strategies import REGISTRY
-from .strategies.few_shot import _SYSTEM_PROMPT as FEW_SHOT_SYSTEM_PROMPT
-from .strategies.fim import _fim_prompt
-from .strategies.prefill import SEED_LEN
-from .strategies.system import SYSTEM_PROMPT
-from .strategies.utils import normalize_prefix
-from .usage import estimate_usage, format_per_million, format_usd, get_price_info
 
+log = logging.getLogger(__name__)
 console = Console()
 _BRANCH_COLORS = ["green", "blue", "yellow", "magenta", "cyan"]
 
 
 _GROUP_FLAGS = {"--help", "-h", "--install-completion", "--show-completion"}
+
+
+def should_name(text: str) -> bool:
+    from .naming import should_name as _should_name
+
+    return _should_name(text)
+
+
+def generate_name(text: str) -> str | None:
+    from .naming import generate_name as _generate_name
+
+    return _generate_name(text)
 
 
 def _default_to(command: str) -> type:
@@ -98,6 +98,8 @@ def run(
 
 
 async def _stream_one(prefix: str, model: str, max_tokens: int, temperature: float, strategy: str | None) -> str:
+    from .continue_ import continue_text
+
     console.print(f"[dim]{prefix}[/dim]", end="")
     chunks: list[str] = []
     async for token in continue_text(prefix, model, max_tokens=max_tokens, temperature=temperature, strategy=strategy):
@@ -110,6 +112,8 @@ async def _stream_one(prefix: str, model: str, max_tokens: int, temperature: flo
 async def _stream_branches(
     prefix: str, model: str, n: int, max_tokens: int, temperature: float, strategy: str | None
 ) -> list[str]:
+    from .continue_ import branch_text
+
     buffers: list[list[str]] = [[] for _ in range(n)]
 
     with Live(
@@ -163,6 +167,8 @@ def _run_text(
     prefix = prefix.rstrip("\n")
 
     if show_strategy:
+        from .detect import detect_strategy, normalize_model
+
         strat = detect_strategy(normalize_model(model), strategy)
         console.print(f"[dim]strategy: {strat.name}[/dim]")
 
@@ -499,11 +505,11 @@ def _import_loom_json(store: "GenerationStore", path: Path) -> "Node | None":
 
 @loom_app.command("export")
 def loom_export(
-    to: Annotated[str, typer.Option("--to", help="Output file path or 'json' for stdout")] = "json",
+    to: Annotated[str, typer.Option("--to", help="Output file path, 'json' for JSON stdout, or 'md' for Markdown stdout")] = "json",
     node_id: Annotated[str | None, typer.Option("--node", help="Any node in the tree (defaults to active)")] = None,
     db: Annotated[Path | None, typer.Option("--db", help="SQLite generation database path")] = None,
 ) -> None:
-    """Export the current generation tree to JSON."""
+    """Export a loom tree as JSON or the checked-out path as Markdown."""
     store = GenerationStore(db)
     if node_id is not None:
         try:
@@ -522,6 +528,56 @@ def loom_export(
 
     root = store.root(node.id)
     tree_nodes = store.tree(root.id)
+
+    if _export_format(to) == "md":
+        checked_out = _checked_out_node(store, root, node)
+        serialized = store.full_text(checked_out.id)
+        if not serialized.endswith("\n"):
+            serialized += "\n"
+    else:
+        serialized = _serialize_loom_json(tree_nodes)
+
+    if to in {"json", "md", "markdown"}:
+        print(serialized, end="" if serialized.endswith("\n") else "\n")
+    else:
+        out = Path(to)
+        out.write_text(serialized, encoding="utf-8")
+        if _export_format(to) == "md":
+            console.print(f"[dim]Exported checked-out path \u2192 {out}[/dim]")
+        else:
+            console.print(f"[dim]Exported {len(tree_nodes)} nodes \u2192 {out}[/dim]")
+
+
+def _export_format(to: str) -> str:
+    if to in {"md", "markdown"}:
+        return "md"
+    if Path(to).suffix.lower() in {".md", ".markdown"}:
+        return "md"
+    return "json"
+
+
+def _checked_out_node(store: GenerationStore, root: Node, fallback: Node) -> Node:
+    last_id = root.metadata.get("last_node_id")
+    if isinstance(last_id, str):
+        last = store.get(last_id)
+        if last is not None and last.root_id == root.id:
+            return last
+
+    node = root
+    while True:
+        checked_id = store.get_checked_out_child_id(node.id)
+        children = store.children(node.id)
+        checked = next((child for child in children if child.id == checked_id), None)
+        if checked is None:
+            break
+        node = checked
+
+    if node.id != root.id:
+        return node
+    return fallback
+
+
+def _serialize_loom_json(tree_nodes: list[Node]) -> str:
     data = {
         "version": 1,
         "nodes": [
@@ -541,14 +597,7 @@ def loom_export(
             for n in tree_nodes
         ],
     }
-    serialized = _json.dumps(data, indent=2, ensure_ascii=False)
-
-    if to == "json":
-        print(serialized)
-    else:
-        out = Path(to)
-        out.write_text(serialized, encoding="utf-8")
-        console.print(f"[dim]Exported {len(tree_nodes)} nodes → {out}[/dim]")
+    return _json.dumps(data, indent=2, ensure_ascii=False)
 
 
 def _resolve_loom_base(store: GenerationStore, active: Node, branch: int | None) -> Node:
@@ -587,6 +636,8 @@ def _run_loom_generation(
         model = get_default_model() or "gpt-4o-mini"
     prefix = prefix.rstrip("\n")
     if show_strategy:
+        from .detect import detect_strategy, normalize_model
+
         strat = detect_strategy(normalize_model(model), strategy)
         console.print(f"[dim]strategy: {strat.name}[/dim]")
     if n == 1:
@@ -638,8 +689,12 @@ def _save_loom_run(
     temperature: float,
     active_node_id: str | None,
 ) -> None:
+    from .detect import detect_strategy, normalize_model
+    from .strategies.utils import normalize_completion_segment
+
     resolved = normalize_model(model or get_default_model() or "gpt-4o-mini")
     strategy_name = detect_strategy(resolved, strategy).name
+    completions = [normalize_completion_segment(prefix, completion) for completion in completions]
     parent, children = store.save_continuations(
         prefix,
         completions,
@@ -685,6 +740,9 @@ def _print_usage_estimate(
     show_cost: bool,
     prompt_requests: int,
 ) -> None:
+    from .detect import normalize_model
+    from .usage import estimate_usage, format_usd
+
     resolved = normalize_model(model)
     prompt, messages = _usage_prompt(resolved, prefix, strategy)
     usage = estimate_usage(resolved, prompt, completion, prompt_messages=messages, prompt_requests=prompt_requests)
@@ -701,6 +759,13 @@ def _print_usage_estimate(
 
 
 def _usage_prompt(model: str, prefix: str, strategy: str | None) -> tuple[str, list[dict] | None]:
+    from .detect import detect_strategy
+    from .strategies.few_shot import _SYSTEM_PROMPT as FEW_SHOT_SYSTEM_PROMPT
+    from .strategies.fim import _fim_prompt
+    from .strategies.prefill import SEED_LEN
+    from .strategies.system import SYSTEM_PROMPT
+    from .strategies.utils import normalize_prefix
+
     strat = detect_strategy(model, strategy)
     if strat.name == "system":
         return "", [
@@ -738,6 +803,8 @@ def models(
     available: Annotated[bool, typer.Option("-a", "--available", help="Only show models with keys set")] = False,
 ) -> None:
     """List available models."""
+    from .models import list_models
+
     results = list_models(provider=provider, search=search, available_only=available)
     if not results:
         console.print("[yellow]No models found.[/yellow]")
@@ -752,6 +819,8 @@ def models(
 @app.command()
 def providers() -> None:
     """List all known providers."""
+    from .models import list_providers
+
     for p in list_providers():
         console.print(p)
 
@@ -767,7 +836,7 @@ def strategies() -> None:
         "few_shot": "Few-shot examples in system prompt — for stubborn models",
         "fim": "Fill-in-the-middle tokens — DeepSeek, StarCoder, CodeLlama",
     }
-    for name in REGISTRY:
+    for name in descriptions:
         table.add_row(name, descriptions.get(name, ""))
     console.print(table)
 
@@ -780,6 +849,9 @@ def _preview(text: str, limit: int = 80) -> str:
 @app.command()
 def info(model: Annotated[str, typer.Argument(help="Model name to inspect")]) -> None:
     """Show strategy, provider, limits, and known pricing for a model."""
+    from .detect import detect_strategy, normalize_model
+    from .usage import format_per_million, get_price_info
+
     resolved = normalize_model(model)
     strat = detect_strategy(resolved)
     price = get_price_info(resolved)
@@ -872,12 +944,16 @@ def default(
         if current is None:
             console.print("[yellow]No default model set. E.g.: basemode default claude-sonnet-4-6[/yellow]")
             return
+        from .detect import normalize_model
+
         resolved = normalize_model(current)
         suffix = f" → [dim]{resolved}[/dim]" if resolved != current else ""
         console.print(f"[bold]{current}[/bold]{suffix}")
         return
 
     set_default_model(model)
+    from .detect import normalize_model
+
     resolved = normalize_model(model)
     suffix = f" → [dim]{resolved}[/dim]" if resolved != model else ""
     console.print(f"[green]✓[/green] Default model set to [bold]{model}[/bold]{suffix}")

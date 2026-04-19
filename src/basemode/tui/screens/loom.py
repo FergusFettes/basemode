@@ -4,12 +4,13 @@ import os
 import subprocess
 import tempfile
 from pathlib import Path
+from typing import ClassVar
 
 from textual import work
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.screen import Screen
-from textual.widgets import ContentSwitcher, Footer
+from textual.widgets import ContentSwitcher, Static
 
 from ...session import (
     GenerationCancelled,
@@ -23,7 +24,7 @@ from ..widgets.stream_view import StreamView
 
 
 class LoomScreen(Screen):
-    BINDINGS = [
+    BINDINGS: ClassVar[list[Binding]] = [
         Binding("h", "nav_parent", "Parent", show=False),
         Binding("l", "nav_child", "Child", show=False),
         Binding("j", "nav_next", "Next", show=False),
@@ -37,6 +38,7 @@ class LoomScreen(Screen):
         Binding("t", "set_tokens", "Tokens"),
         Binding("a", "branches_down", "-n", show=False),
         Binding("d", "branches_up", "+n", show=False),
+        Binding("tab", "open_picker", "Trees"),
         Binding("q", "quit", "Quit"),
         Binding("escape", "cancel_or_quit", "Cancel", show=False),
     ]
@@ -47,10 +49,10 @@ class LoomScreen(Screen):
         self._generating = False
 
     def compose(self) -> ComposeResult:
-        with ContentSwitcher(initial="loom"):
+        with ContentSwitcher(initial="loom", id="loom-switcher"):
             yield LoomView(id="loom")
             yield StreamView(id="stream")
-        yield Footer()
+        yield Static("", id="status-bar")
 
     def on_mount(self) -> None:
         self.query_one(LoomView).update_state(self.session.get_state())
@@ -59,11 +61,13 @@ class LoomScreen(Screen):
     def _update_subtitle(self) -> None:
         s = self.session
         short_model = s.model.split("/")[-1]
-        self.sub_title = (
-            f"{s._current_id[:8]}  {short_model}"
-            f"  tok:{s.max_tokens}  n:{s.n_branches}"
-            "  hjkl=nav  spc=gen  e=edit  c=ctx  m=model  w/s=±tok  a/d=±n"
+        info = (
+            f"{s._current_id[:8]} {short_model}  "
+            f"tokens:{s.max_tokens} branches:{s.n_branches}  "
+            "hjkl nav  space gen  e edit  c ctx  m model  t tokens  a/d branches  tab trees  q quit"
         )
+        self.sub_title = info
+        self.query_one("#status-bar", Static).update(info)
 
     def _refresh(self) -> None:
         self.query_one(LoomView).update_state(self.session.get_state())
@@ -165,16 +169,42 @@ class LoomScreen(Screen):
         Path(tmpfile).unlink(missing_ok=True)
         self.session.update_context(new_context)
 
+    # --- Tree picker ---
+
+    def action_open_picker(self) -> None:
+        if self._generating:
+            return
+        from ..screens.tree_picker import TreePickerScreen
+
+        state = self.session.get_state()
+
+        def on_selected(root_id: str | None) -> None:
+            if root_id is None or root_id == state.root_id:
+                return
+            if self.session.store.get(state.root_id) is not None:
+                self.session.save()
+            self.session = LoomSession(self.session.store, root_id)
+            self.app.session = self.session
+            self._refresh()
+
+        self.app.push_screen(TreePickerScreen(self.session.store, state.root_id), on_selected)
+
     # --- Quit / cancel ---
 
     def action_cancel_or_quit(self) -> None:
         if self._generating:
             self.session.cancel()
         else:
-            self.app.exit()
+            self.app.exit(message=self._quit_message())
 
     def action_quit(self) -> None:
-        self.app.exit()
+        self.app.exit(message=self._quit_message())
+
+    def _quit_message(self) -> str:
+        state = self.session.get_state()
+        root = self.session.store.root(state.root_id)
+        name = root.metadata.get("name") or root.id[:8]
+        return f"Quit tree: {name} ({root.id})\nRejoin: basemode loom view {root.id}"
 
     # --- Generation ---
 

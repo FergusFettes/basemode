@@ -20,11 +20,6 @@ def _setup_logging() -> None:
 
 _setup_logging()
 
-from .continue_ import branch_text, continue_text
-from .detect import detect_strategy
-from .params import GenerationParams
-from .store import GenerationStore, Node, default_db_path
-
 __all__ = [
     "GenerationParams",
     "GenerationStore",
@@ -34,3 +29,27 @@ __all__ = [
     "default_db_path",
     "detect_strategy",
 ]
+
+
+def __getattr__(name: str):
+    if name in {"branch_text", "continue_text"}:
+        from .continue_ import branch_text, continue_text
+
+        return {"branch_text": branch_text, "continue_text": continue_text}[name]
+    if name == "detect_strategy":
+        from .detect import detect_strategy
+
+        return detect_strategy
+    if name == "GenerationParams":
+        from .params import GenerationParams
+
+        return GenerationParams
+    if name in {"GenerationStore", "Node", "default_db_path"}:
+        from .store import GenerationStore, Node, default_db_path
+
+        return {
+            "GenerationStore": GenerationStore,
+            "Node": Node,
+            "default_db_path": default_db_path,
+        }[name]
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

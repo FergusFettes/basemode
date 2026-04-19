@@ -11,12 +11,12 @@ import asyncio
 import difflib
 from collections.abc import AsyncGenerator
 from dataclasses import dataclass
-from typing import Any
 
 from .continue_ import continue_text
 from .detect import detect_strategy, normalize_model
 from .keys import get_default_model
 from .naming import generate_name, should_name
+from .strategies.utils import normalize_completion_segment
 from .store import GenerationStore, Node
 
 
@@ -251,6 +251,7 @@ class LoomSession:
     def _save_completions(self, prefix: str, completions: list[str]) -> list[Node]:
         resolved = normalize_model(self.model)
         strategy_name = detect_strategy(resolved, None).name
+        completions = [normalize_completion_segment(prefix, completion) for completion in completions]
         _parent, new_children = self._store.save_continuations(
             prefix,
             completions,
@@ -383,6 +384,10 @@ class LoomSession:
                 "n_branches": self.n_branches,
             },
         )
+
+    @property
+    def store(self) -> GenerationStore:
+        return self._store
 
     # --- Internal helpers ---
 

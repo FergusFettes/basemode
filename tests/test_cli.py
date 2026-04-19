@@ -90,3 +90,51 @@ def test_loom_select_marks_active(tmp_path) -> None:
     active = GenerationStore(db).get_active_node()
     assert active is not None
     assert active.id == child.id
+
+
+def test_loom_export_md_prints_checked_out_path(tmp_path) -> None:
+    db = tmp_path / "generations.sqlite"
+    store = GenerationStore(db)
+    parent, children = store.save_continuations(
+        "Seed",
+        [" alpha", " beta"],
+        model="gpt-4o-mini",
+        strategy="system",
+        max_tokens=20,
+        temperature=0.9,
+    )
+    grandchild = store.add_child(
+        children[1].id,
+        " gamma",
+        model="gpt-4o-mini",
+        strategy="system",
+        max_tokens=20,
+        temperature=0.9,
+    )
+    store.update_metadata(parent.id, {"last_node_id": grandchild.id})
+    store.set_active_node(parent.id)
+
+    result = runner.invoke(app, ["loom", "export", "--to", "md", "--db", str(db)])
+
+    assert result.exit_code == 0, result.output
+    assert result.output == "Seed beta gamma\n"
+
+
+def test_loom_export_md_file_uses_extension(tmp_path) -> None:
+    db = tmp_path / "generations.sqlite"
+    out = tmp_path / "checked-out.md"
+    store = GenerationStore(db)
+    _parent, children = store.save_continuations(
+        "Seed",
+        [" alpha"],
+        model="gpt-4o-mini",
+        strategy="system",
+        max_tokens=20,
+        temperature=0.9,
+    )
+    store.set_active_node(children[0].id)
+
+    result = runner.invoke(app, ["loom", "export", "--to", str(out), "--db", str(db)])
+
+    assert result.exit_code == 0, result.output
+    assert out.read_text() == "Seed alpha\n"

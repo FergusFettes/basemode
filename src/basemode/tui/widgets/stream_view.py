@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from rich.style import Style
 from rich.text import Text
+from textual import events
 from textual.app import ComposeResult
 from textual.containers import VerticalScroll
 from textual.widgets import Static
@@ -42,7 +43,7 @@ class StreamView(VerticalScroll):
         self._render_content()
 
     def _render_content(self) -> None:
-        width = self.size.width or 80
+        width = self._content_width()
         n = getattr(self, "_n", 1)
         prefix = getattr(self, "_prefix", "")
         buffers = getattr(self, "_buffers", [[]])
@@ -55,3 +56,19 @@ class StreamView(VerticalScroll):
         result.append(f"\n{status}", style=Style(dim=True))
         self.query_one("#stream-content", Static).update(result)
         self.scroll_end(animate=False)
+
+    def _content_width(self) -> int:
+        width = self.scrollable_content_region.width
+        if width >= 20:
+            return width
+        width = self.scrollable_size.width
+        if width >= 20:
+            return width
+        try:
+            app_width = self.app.size.width
+        except Exception:
+            app_width = 0
+        return app_width if app_width >= 20 else 80
+
+    def on_resize(self, event: events.Resize) -> None:
+        self._render_content()
