@@ -177,7 +177,7 @@ class LoomSession:
         children = self._store.children(self._current_id)
         if not children:
             return self.get_state()
-        new_idx = max(0, min(self._selected_idx + delta, len(children) - 1))
+        new_idx = (self._selected_idx + delta) % len(children)
         if new_idx != self._selected_idx:
             self._selected_idx = new_idx
             self._store.set_checked_out_child(self._current_id, children[new_idx].id)

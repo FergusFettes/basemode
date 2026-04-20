@@ -114,21 +114,21 @@ def test_select_sibling_increments(branched_store):
     assert state.selected_child_idx == 1
 
 
-def test_select_sibling_clamps_at_max(branched_store):
+def test_select_sibling_wraps_after_last(branched_store):
     store, ab, _ = branched_store
     session = LoomSession(store, ab[0].id)
     session.navigate_parent()
     session.select_sibling(+1)
-    state = session.select_sibling(+1)  # already at max (len=2)
-    assert state.selected_child_idx == 1
+    state = session.select_sibling(+1)
+    assert state.selected_child_idx == 0
 
 
-def test_select_sibling_clamps_at_zero(branched_store):
+def test_select_sibling_wraps_before_first(branched_store):
     store, ab, _ = branched_store
     session = LoomSession(store, ab[0].id)
     session.navigate_parent()
-    state = session.select_sibling(-1)  # already at 0
-    assert state.selected_child_idx == 0
+    state = session.select_sibling(-1)
+    assert state.selected_child_idx == 1
 
 
 def test_select_sibling_no_children_is_noop(branched_store):

@@ -98,14 +98,14 @@ class LoomScreen(Screen):
 
     def action_nav_next(self) -> None:
         state = self.session.get_state()
-        if not state.children or state.selected_child_idx >= len(state.children) - 1:
+        if not state.children:
             return
         self.session.select_sibling(+1)
         self._refresh()
 
     def action_nav_prev(self) -> None:
         state = self.session.get_state()
-        if not state.children or state.selected_child_idx == 0:
+        if not state.children:
             return
         self.session.select_sibling(-1)
         self._refresh()
