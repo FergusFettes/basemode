@@ -97,3 +97,29 @@ TreePickerScreen TreePickerView {
     overflow-y: auto;
     padding: 0 1;
 }
+
+StatsScreen {
+    align: center middle;
+}
+
+StatsScreen #stats-panel {
+    width: 90%;
+    height: 80%;
+    border: round $primary;
+    background: $surface;
+    padding: 1 2;
+}
+
+StatsScreen #stats-title {
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+StatsScreen #stats-scroll {
+    height: 1fr;
+}
+
+StatsScreen #stats-help {
+    color: $text-muted;
+    margin-top: 1;
+}

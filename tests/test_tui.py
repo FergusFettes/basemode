@@ -267,6 +267,45 @@ async def test_m_escape_dismisses(store, tree):
         assert isinstance(app.screen, LoomScreen)
 
 
+@pytest.mark.asyncio
+async def test_question_mark_opens_stats_screen(store, tree):
+    from basemode.tui.screens.stats import StatsScreen
+
+    ab, _ = tree
+    session = LoomSession(store, ab[0].id)
+    app = BasemodeApp(session)
+    async with app.run_test(headless=True) as pilot:
+        await pilot.press("?")
+        assert isinstance(app.screen, StatsScreen)
+
+
+@pytest.mark.asyncio
+async def test_stats_screen_escape_dismisses(store, tree):
+    ab, _ = tree
+    session = LoomSession(store, ab[0].id)
+    app = BasemodeApp(session)
+    async with app.run_test(headless=True) as pilot:
+        await pilot.press("?")
+        await pilot.press("escape")
+        assert isinstance(app.screen, LoomScreen)
+
+
+@pytest.mark.asyncio
+async def test_question_mark_does_not_open_stats_while_generating(store, tree):
+    ab, _ = tree
+    session = LoomSession(store, ab[0].id)
+    app = BasemodeApp(session)
+    async with app.run_test(headless=True) as pilot:
+        loom_screen = app.screen
+        assert isinstance(loom_screen, LoomScreen)
+        loom_screen._generating = True  # type: ignore[attr-defined]
+        try:
+            await pilot.press("?")
+            assert isinstance(app.screen, LoomScreen)
+        finally:
+            loom_screen._generating = False  # type: ignore[attr-defined]
+
+
 # --- Quit ---
 
 

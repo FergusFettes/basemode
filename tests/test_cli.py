@@ -138,3 +138,83 @@ def test_loom_export_md_file_uses_extension(tmp_path) -> None:
 
     assert result.exit_code == 0, result.output
     assert out.read_text() == "Seed alpha\n"
+
+
+def test_loom_stats_prints_tree_and_model_stats(tmp_path) -> None:
+    db = tmp_path / "generations.sqlite"
+    store = GenerationStore(db)
+    parent, children = store.save_continuations(
+        "Seed",
+        [" alpha", " beta"],
+        model="model-a",
+        strategy="system",
+        max_tokens=20,
+        temperature=0.9,
+    )
+    store.save_continuations(
+        "",
+        [" gamma"],
+        model="model-b",
+        strategy="system",
+        max_tokens=20,
+        temperature=0.9,
+        parent_id=children[0].id,
+    )
+    store.set_active_node(children[0].id)
+
+    result = runner.invoke(app, ["loom", "stats", "--db", str(db)])
+
+    assert result.exit_code == 0, result.output
+    assert "Total nodes" in result.output
+    assert "model-a" in result.output
+    assert "Path model" in result.output
+    assert parent.id in result.output
+
+
+def test_loom_stats_json(tmp_path) -> None:
+    db = tmp_path / "generations.sqlite"
+    store = GenerationStore(db)
+    parent, children = store.save_continuations(
+        "Seed",
+        [" alpha"],
+        model="model-a",
+        strategy="system",
+        max_tokens=20,
+        temperature=0.9,
+    )
+    store.set_active_node(children[0].id)
+
+    result = runner.invoke(app, ["loom", "stats", parent.id, "--json", "--db", str(db)])
+
+    assert result.exit_code == 0, result.output
+    assert '"total_nodes": 2' in result.output
+    assert '"model": "model-a"' in result.output
+
+
+def test_loom_stats_can_analyze_json_file(tmp_path) -> None:
+    path = tmp_path / "tinyloom.json"
+    path.write_text(
+        """
+        {
+          "root": 1,
+          "nodes": {
+            "1": {"id": 1, "parent": null, "type": "root", "timestamp": 1},
+            "2": {
+              "id": 2,
+              "parent": 1,
+              "type": "model-a",
+              "timestamp": 2,
+              "patches": [{"diffs": [[1, " alpha"]]}],
+              "bookmarked": true
+            }
+          }
+        }
+        """
+    )
+
+    result = runner.invoke(app, ["loom", "stats", "--file", str(path), "--json"])
+
+    assert result.exit_code == 0, result.output
+    assert '"source_format"' not in result.output
+    assert '"model": "model-a"' in result.output
+    assert '"bookmarked": true' in result.output
