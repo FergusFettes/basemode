@@ -405,6 +405,99 @@ def loom_roots(
     console.print(table)
 
 
+@loom_app.command("stats")
+def loom_stats(
+    node_id: Annotated[str | None, typer.Argument(help="Node id in the tree to analyze (defaults to active)")] = None,
+    file: Annotated[Path | None, typer.Option("--file", help="Analyze a loom JSON file instead of the SQLite store")] = None,
+    as_json: Annotated[bool, typer.Option("--json", help="Print machine-readable JSON")] = False,
+    db: Annotated[Path | None, typer.Option("--db", help="SQLite generation database path")] = None,
+) -> None:
+    """Show quantitative stats for a loom tree."""
+    from .stats import analyze_analysis_tree, analyze_tree
+
+    if file is not None:
+        from .loom_formats import load_loom_tree
+
+        tree_data = load_loom_tree(file)
+        stats = analyze_analysis_tree(tree_data, path_node_id=node_id)
+        _print_loom_stats(stats, as_json=as_json)
+        return
+
+    store = GenerationStore(db)
+    if node_id is not None:
+        try:
+            node = store.get(node_id)
+        except AmbiguousNodeReference as exc:
+            console.print(f"[red]{exc}[/red]")
+            raise typer.Exit(1) from None
+    else:
+        node = store.get_active_node()
+
+    if node is None:
+        console.print("[red]No node found. Pass a node id or select an active node.[/red]")
+        raise typer.Exit(1)
+
+    root = store.root(node.id)
+    stats = analyze_tree(store, root.id, path_node_id=node.id)
+    _print_loom_stats(stats, as_json=as_json)
+
+
+def _print_loom_stats(stats, *, as_json: bool) -> None:
+    if as_json:
+        print(_json.dumps(stats.as_dict(), indent=2, ensure_ascii=False))
+        return
+
+    tree = Table("Metric", "Value", show_header=False)
+    tree.add_row("Root", stats.root_id)
+    tree.add_row("Total nodes", str(stats.total_nodes))
+    tree.add_row("Generated nodes", str(stats.generated_nodes))
+    tree.add_row("Expanded nodes", str(stats.expanded_nodes))
+    tree.add_row("Leaf nodes", str(stats.leaf_nodes))
+    tree.add_row("Max depth", str(stats.max_depth))
+    if stats.path is not None:
+        tree.add_row("Path depth", str(stats.path.depth))
+        tree.add_row("Path generated nodes", str(stats.path.generated_nodes))
+    console.print(tree)
+
+    models = Table(
+        "Model",
+        "Nodes",
+        "Expanded",
+        "Marked",
+        "Hidden",
+        "Expansion",
+        "Mark %",
+        "Hide %",
+        "Mean NPDS",
+        "Win %",
+        "Mean DS",
+        "Mean DDS",
+        header_style="bold",
+    )
+    for model in stats.model_stats:
+        models.add_row(
+            model.model,
+            str(model.nodes),
+            str(model.expanded),
+            str(model.bookmarked),
+            str(model.hidden),
+            _format_float(model.expansion_rate),
+            _format_float(model.bookmark_rate),
+            _format_float(model.hidden_rate),
+            _format_float(model.normalized_peer_descendant_score.mean),
+            _format_float(model.batch_win_rate.mean),
+            _format_float(model.descendant_score.mean),
+            _format_float(model.discounted_descendant_score.mean),
+        )
+    console.print(models)
+
+    if stats.path and stats.path.models:
+        path = Table("Path model", "Count", header_style="bold")
+        for model, count in stats.path.models.items():
+            path.add_row(model, str(count))
+        console.print(path)
+
+
 @loom_app.command("view")
 def loom_view(
     source: Annotated[str | None, typer.Argument(help="Node id, .txt file (use as root), or .json export to import")] = None,
@@ -844,6 +937,10 @@ def strategies() -> None:
 def _preview(text: str, limit: int = 80) -> str:
     text = " ".join(text.split())
     return text if len(text) <= limit else text[: limit - 3] + "..."
+
+
+def _format_float(value: float) -> str:
+    return f"{value:.2f}"
 
 
 @app.command()

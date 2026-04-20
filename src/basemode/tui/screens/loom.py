@@ -44,6 +44,7 @@ class LoomScreen(Screen):
         Binding("b", "toggle_bookmark", "Bookmark", show=False),
         Binding("B", "next_bookmark", "Next mark", show=False),
         Binding("tab", "open_picker", "Trees"),
+        Binding("?", "open_stats", "Stats"),
         Binding("q", "quit", "Quit"),
         Binding("escape", "cancel_or_quit", "Cancel", show=False),
     ]
@@ -71,7 +72,7 @@ class LoomScreen(Screen):
             f"tokens:{s.max_tokens} branches:{s.n_branches}  "
             f"view:{s.view_mode}{' hoist' if s._hoisted_id else ''} "
             f"names:{'on' if s.show_model_names else 'off'}  "
-            "hjkl nav  space gen  e edit  v view  b mark  tab trees  q quit"
+            "hjkl nav  space gen  e edit  v view  b mark  tab trees  ? stats  q quit"
         )
         self.sub_title = info
         self.query_one("#status-bar", Static).update(info)
@@ -220,6 +221,22 @@ class LoomScreen(Screen):
             self._refresh()
 
         self.app.push_screen(TreePickerScreen(self.session.store, state.root_id), on_selected)
+
+    # --- Stats ---
+
+    def action_open_stats(self) -> None:
+        if self._generating:
+            return
+        from ...stats import analyze_tree
+        from ..screens.stats import StatsScreen
+
+        state = self.session.get_state()
+        stats = analyze_tree(
+            self.session.store,
+            state.root_id,
+            path_node_id=state.current_node_id,
+        )
+        self.app.push_screen(StatsScreen(stats))
 
     # --- Quit / cancel ---
 
