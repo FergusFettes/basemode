@@ -9,7 +9,7 @@ from textual import events
 from textual.widget import Widget
 
 if TYPE_CHECKING:
-    from basemode.store import GenerationStore, Node
+    from basemode_loom.store import GenerationStore, Node
 
 _CURSOR = "▸"
 _ACTIVE = "●"  # marks the currently open tree
@@ -21,8 +21,8 @@ _NONE_LABEL = "(at root)"
 class _TreeEntry:
     root: Node
     node_count: int
-    root_preview: str   # flattened first-paragraph text
-    leaf_preview: str   # text of the checked-out leaf node
+    root_preview: str  # flattened first-paragraph text
+    leaf_preview: str  # text of the checked-out leaf node
 
 
 class TreePickerView(Widget):
@@ -88,7 +88,9 @@ class TreePickerView(Widget):
 
     def render(self) -> Text:
         if not self._entries:
-            return Text("No trees found. Run: basemode loom run <text>", style=Style(dim=True))
+            return Text(
+                "No trees found. Run: basemode-loom run <text>", style=Style(dim=True)
+            )
 
         width = self.size.width or 80
         result = Text(no_wrap=True, overflow="fold")
@@ -125,7 +127,9 @@ class TreePickerView(Widget):
 
             indent = "   "
             preview_width = width - len(indent) - 1
-            result.append(indent + entry.root_preview[:preview_width] + "\n", style=body_style)
+            result.append(
+                indent + entry.root_preview[:preview_width] + "\n", style=body_style
+            )
 
             leaf_line = _LEAF_PREFIX + entry.leaf_preview
             result.append(leaf_line[:width] + "\n", style=body_style)

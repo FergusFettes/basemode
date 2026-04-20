@@ -52,7 +52,11 @@ class StreamView(VerticalScroll):
         for line in lines:
             result.append(line.text + "\n", style=_STYLES[line.style])
         chars = sum(len(t) for t in buffers[0]) if buffers else 0
-        status = f"Generating {n} branches\u2026  {chars} chars  Esc=cancel" if n > 1 else f"Generating\u2026  {chars} chars  Esc=cancel"
+        status = (
+            f"Generating {n} branches\u2026  {chars} chars  Esc=cancel"
+            if n > 1
+            else f"Generating\u2026  {chars} chars  Esc=cancel"
+        )
         result.append(f"\n{status}", style=Style(dim=True))
         self.query_one("#stream-content", Static).update(result)
         self.scroll_end(animate=False)

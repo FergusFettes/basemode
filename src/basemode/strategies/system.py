@@ -1,15 +1,16 @@
 """System prompt coercion — works on any chat model."""
+
 import logging
 from collections.abc import AsyncGenerator
 
 import litellm
 
-log = logging.getLogger(__name__)
-
+from ..healing import needs_leading_space, normalize_prefix
 from ..params import GenerationParams
 from .base import ContinuationStrategy
 from .compat import build_kwargs
-from .utils import needs_leading_space, normalize_prefix
+
+log = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """\
 You are a text continuation engine. Your only function is to extend the provided \
@@ -25,7 +26,9 @@ class SystemPromptStrategy(ContinuationStrategy):
 
     name = "system"
 
-    async def stream(self, prefix: str, params: GenerationParams) -> AsyncGenerator[str, None]:
+    async def stream(
+        self, prefix: str, params: GenerationParams
+    ) -> AsyncGenerator[str, None]:
         system = SYSTEM_PROMPT
         if params.context:
             system += f"\n\n<CONTEXT>\n{params.context}\n</CONTEXT>"

@@ -1,6 +1,6 @@
 import json
 
-from basemode.loom_formats import parse_loom_tree
+from basemode_loom.loom_formats import parse_loom_tree
 
 
 def test_parse_basemode_export() -> None:

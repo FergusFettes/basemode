@@ -1,4 +1,5 @@
 """Fill-in-the-middle — for models that support FIM tokens natively."""
+
 from collections.abc import AsyncGenerator
 
 import litellm
@@ -28,7 +29,9 @@ class FIMStrategy(ContinuationStrategy):
 
     name = "fim"
 
-    async def stream(self, prefix: str, params: GenerationParams) -> AsyncGenerator[str, None]:
+    async def stream(
+        self, prefix: str, params: GenerationParams
+    ) -> AsyncGenerator[str, None]:
         prompt = _fim_prompt(prefix, params.model)
         response = await litellm.atext_completion(
             model=params.model,

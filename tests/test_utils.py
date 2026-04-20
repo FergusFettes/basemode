@@ -2,43 +2,50 @@
 
 import pytest
 
-from basemode.strategies.utils import (
+from basemode.healing import (
     needs_leading_space,
     normalize_completion_segment,
     normalize_prefix,
     normalize_stream_newlines,
+    rewind_prefix_to_word_boundary,
+    strip_rewind_overlap,
 )
 
 
-@pytest.mark.parametrize("inp,expected", [
-    # Normal cases
-    ("The ship rounded the headland and", "The ship rounded the headland and "),
-    ("Hello world", "Hello world "),
-    # Already has trailing space — should have exactly one
-    ("text with space ", "text with space "),
-    ("text with two spaces  ", "text with two spaces "),
-    ("text with tab\t", "text with tab "),
-    # Trailing newline — common when piping text
-    ("line one\nline two\n", "line one\nline two "),
-    ("line one\nline two\n\n", "line one\nline two "),
-    # Mid-word — shouldn't add space inside words
-    ("The quick bro", "The quick bro "),
-    # Punctuation endings
-    ("She said:", "She said: "),
-    ("The end.", "The end. "),
-    ("Wait—", "Wait— "),
-    # Empty string
-    ("", " "),
-    # Only whitespace
-    ("   ", " "),
-    ("\n\n", " "),
-    # Unicode
-    ("café", "café "),
-    ("雨が降る", "雨が降る "),
-    # Poetry — ends mid-line, no trailing space
-    ("the rain falls like static\nbetween stations, the city\nblurs into signal and",
-     "the rain falls like static\nbetween stations, the city\nblurs into signal and "),
-])
+@pytest.mark.parametrize(
+    "inp,expected",
+    [
+        # Normal cases
+        ("The ship rounded the headland and", "The ship rounded the headland and "),
+        ("Hello world", "Hello world "),
+        # Already has trailing space — should have exactly one
+        ("text with space ", "text with space "),
+        ("text with two spaces  ", "text with two spaces "),
+        ("text with tab\t", "text with tab "),
+        # Trailing newline — common when piping text
+        ("line one\nline two\n", "line one\nline two "),
+        ("line one\nline two\n\n", "line one\nline two "),
+        # Mid-word — shouldn't add space inside words
+        ("The quick bro", "The quick bro "),
+        # Punctuation endings
+        ("She said:", "She said: "),
+        ("The end.", "The end. "),
+        ("Wait—", "Wait— "),
+        # Empty string
+        ("", " "),
+        # Only whitespace
+        ("   ", " "),
+        ("\n\n", " "),
+        # Unicode
+        ("café", "café "),
+        ("雨が降る", "雨が降る "),
+        # Poetry — ends mid-line, no trailing space
+        (
+            "the rain falls like static\nbetween stations, the city\nblurs into signal and",
+            "the rain falls like static\nbetween stations, the city\nblurs into signal and ",
+        ),
+    ],
+)
 def test_normalize_prefix(inp: str, expected: str) -> None:
     assert normalize_prefix(inp) == expected
 
@@ -69,29 +76,71 @@ def test_normalize_prefix_newline_then_space() -> None:
     assert not result.endswith("  ")
 
 
+def test_rewind_prefix_to_word_boundary_rewinds_short_fragment() -> None:
+    generation_prefix, fragment = rewind_prefix_to_word_boundary(
+        "twas brilig and the sli"
+    )
+
+    assert generation_prefix == "twas brilig and the "
+    assert fragment == "sli"
+
+
+def test_rewind_prefix_to_word_boundary_keeps_common_word() -> None:
+    generation_prefix, fragment = rewind_prefix_to_word_boundary(
+        "The ship rounded the headland and"
+    )
+
+    assert generation_prefix == "The ship rounded the headland and"
+    assert fragment == ""
+
+
+async def test_strip_rewind_overlap_removes_repeated_fragment() -> None:
+    async def gen():
+        yield "sli"
+        yield "vey toves"
+
+    result = "".join([token async for token in strip_rewind_overlap(gen(), "sli")])
+
+    assert result == "vey toves"
+
+
+async def test_strip_rewind_overlap_removes_spaced_repeated_fragment() -> None:
+    async def gen():
+        yield " slivey"
+        yield " toves"
+
+    result = "".join([token async for token in strip_rewind_overlap(gen(), "sli")])
+
+    assert result == "vey toves"
+
+
 # ── needs_leading_space ───────────────────────────────────────────────────────
 
-@pytest.mark.parametrize("prefix,token,expected", [
-    # Needs space: prefix ends with word char, token starts with word char
-    ("The ship rounded the headland and", "suddenly", True),
-    ("Hello world", "foo", True),
-    ("end", "start", True),
-    # No space needed: prefix ends with space
-    ("ends with space ", "word", False),
-    ("ends with space ", " word", False),
-    # No space needed: token starts with space
-    ("no trailing space", " word", False),
-    # Punctuation: trailing punctuation + word token still smashes
-    ("She said:", "hello", True),   # "She said:hello" is wrong
-    ("She said:", " hello", False), # space in token is fine
-    # No space needed: empty inputs
-    ("", "word", False),
-    ("prefix", "", False),
-    ("", "", False),
-    # No space needed: prefix ends with newline
-    ("line one\n", "line two", False),
-    ("line one\n", " line two", False),
-])
+
+@pytest.mark.parametrize(
+    "prefix,token,expected",
+    [
+        # Needs space: prefix ends with word char, token starts with word char
+        ("The ship rounded the headland and", "suddenly", True),
+        ("Hello world", "foo", True),
+        ("end", "start", True),
+        # No space needed: prefix ends with space
+        ("ends with space ", "word", False),
+        ("ends with space ", " word", False),
+        # No space needed: token starts with space
+        ("no trailing space", " word", False),
+        # Punctuation: trailing punctuation + word token still smashes
+        ("She said:", "hello", True),  # "She said:hello" is wrong
+        ("She said:", " hello", False),  # space in token is fine
+        # No space needed: empty inputs
+        ("", "word", False),
+        ("prefix", "", False),
+        ("", "", False),
+        # No space needed: prefix ends with newline
+        ("line one\n", "line two", False),
+        ("line one\n", " line two", False),
+    ],
+)
 def test_needs_leading_space(prefix: str, token: str, expected: bool) -> None:
     assert needs_leading_space(prefix, token) == expected
 
@@ -185,7 +234,9 @@ async def test_normalize_stream_leaves_no_space_hyphenated_boundary_alone() -> N
     assert result == "itsu, Capoeira, and Fandango."
 
 
-async def test_normalize_stream_repairs_split_compound_with_space_in_first_chunk() -> None:
+async def test_normalize_stream_repairs_split_compound_with_space_in_first_chunk() -> (
+    None
+):
     result = await _collect_stream(
         "The wall made the",
         [" out ", "side feel theoretical."],

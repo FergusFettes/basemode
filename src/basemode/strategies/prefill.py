@@ -1,14 +1,15 @@
 """Anthropic prefill trick — force continuation by seeding the assistant turn."""
+
 import logging
 from collections.abc import AsyncGenerator
 
 import litellm
 
-log = logging.getLogger(__name__)
-
 from ..params import GenerationParams
 from .base import ContinuationStrategy
 from .compat import build_kwargs
+
+log = logging.getLogger(__name__)
 
 # Chars of the prefix to use as the assistant seed.
 # This forces Claude to continue from exactly that point.
@@ -24,7 +25,9 @@ class PrefillStrategy(ContinuationStrategy):
 
     name = "prefill"
 
-    async def stream(self, prefix: str, params: GenerationParams) -> AsyncGenerator[str, None]:
+    async def stream(
+        self, prefix: str, params: GenerationParams
+    ) -> AsyncGenerator[str, None]:
         seed = prefix[-SEED_LEN:] if len(prefix) > SEED_LEN else prefix
 
         system = (
@@ -35,7 +38,9 @@ class PrefillStrategy(ContinuationStrategy):
         if params.context:
             system += f"\n\n<CONTEXT>\n{params.context}\n</CONTEXT>"
 
-        log.debug("PrefillStrategy.stream: model=%s seed_len=%d", params.model, len(seed))
+        log.debug(
+            "PrefillStrategy.stream: model=%s seed_len=%d", params.model, len(seed)
+        )
         response = await litellm.acompletion(
             model=params.model,
             messages=[

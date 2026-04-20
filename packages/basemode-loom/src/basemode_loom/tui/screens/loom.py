@@ -86,7 +86,9 @@ class LoomScreen(Screen):
     def action_nav_child(self) -> None:
         state = self.session.get_state()
         if not state.children:
-            self.notify("No continuations yet \u2014 press space to generate", timeout=2)
+            self.notify(
+                "No continuations yet \u2014 press space to generate", timeout=2
+            )
             return
         self.session.navigate_child()
         self._refresh()
@@ -164,7 +166,9 @@ class LoomScreen(Screen):
                 self.session.set_max_tokens(result)
                 self._update_subtitle()
 
-        self.app.push_screen(IntInputScreen("Max tokens", self.session.max_tokens), apply)
+        self.app.push_screen(
+            IntInputScreen("Max tokens", self.session.max_tokens), apply
+        )
 
     def action_pick_model(self) -> None:
         from ..screens.model_picker import ModelPickerScreen
@@ -220,7 +224,9 @@ class LoomScreen(Screen):
             self.app.session = self.session
             self._refresh()
 
-        self.app.push_screen(TreePickerScreen(self.session.store, state.root_id), on_selected)
+        self.app.push_screen(
+            TreePickerScreen(self.session.store, state.root_id), on_selected
+        )
 
     # --- Stats ---
 
@@ -253,7 +259,7 @@ class LoomScreen(Screen):
         state = self.session.get_state()
         root = self.session.store.root(state.root_id)
         name = root.metadata.get("name") or root.id[:8]
-        return f"Quit tree: {name} ({root.id})\nRejoin: basemode loom view {root.id}"
+        return f"Quit tree: {name} ({root.id})\nRejoin: basemode-loom view {root.id}"
 
     # --- Generation ---
 

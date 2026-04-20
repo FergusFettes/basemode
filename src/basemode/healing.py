@@ -25,6 +25,7 @@ def _is_word(s: str) -> bool:
 
 _COMPOUND_RE = re.compile(r"\b([A-Za-z]{2,}) ([A-Za-z]{2,})\b")
 _PREFIX_WORD_RE = re.compile(r"([A-Za-z]{2,})$")
+_TRAILING_FRAGMENT_RE = re.compile(r"([A-Za-z]{1,3})$")
 _PREFIX_HYPHEN_FRAGMENT_RE = re.compile(r"([A-Za-z]+-[A-Za-z]{0,2})$")
 _LEADING_WORD_RE = re.compile(r"^ ([A-Za-z]{2,})(\b|(?=[^A-Za-z]))")
 _DANGLING_HYPHENATED_TAIL_RE = re.compile(r"\b[A-Za-z]{2,}-(?:[A-Za-z]{0,2})$")
@@ -40,6 +41,72 @@ def normalize_prefix(prefix: str) -> str:
     Not applied to completion/prefill strategies — they handle boundaries natively.
     """
     return prefix.rstrip() + " "
+
+
+def rewind_prefix_to_word_boundary(prefix: str) -> tuple[str, str]:
+    """Return a generation prefix and trailing fragment to remove from output.
+
+    Some chat models behave better when they are asked to continue from the last
+    whitespace instead of from inside a short partial word. For example, given
+    ``"twas brilig and the sli"``, generation can run from
+    ``"twas brilig and the "`` and then strip the model's repeated ``"sli"``
+    from the visible output, yielding ``"vey toves"`` rather than
+    ``"slivey toves"`` or ``" vey toves"``.
+
+    The heuristic is intentionally conservative: only short non-common
+    alphabetic tails are rewound, so complete words like ``and`` stay intact.
+    """
+    match = _TRAILING_FRAGMENT_RE.search(prefix)
+    if not match:
+        return prefix, ""
+
+    fragment = match.group(1)
+    if fragment.lower() in _COMMON_SHORT_WORDS or _is_word(fragment):
+        return prefix, ""
+
+    return prefix[: match.start(1)], fragment
+
+
+async def strip_rewind_overlap(
+    tokens: AsyncIterable[str],
+    fragment: str,
+) -> AsyncGenerator[str, None]:
+    """Remove a rewound trailing fragment if the model repeats it."""
+    if not fragment:
+        async for token in tokens:
+            yield token
+        return
+
+    buffer = ""
+    decided = False
+    target = fragment.lower()
+    max_probe = len(fragment) + 1
+
+    async for token in tokens:
+        if decided:
+            yield token
+            continue
+
+        buffer += token
+        probe = buffer.lower()
+        if probe.startswith(target):
+            yield buffer[len(fragment) :]
+            decided = True
+        elif probe.startswith(" " + target):
+            yield buffer[len(fragment) + 1 :]
+            decided = True
+        elif len(buffer) >= max_probe:
+            yield buffer
+            decided = True
+
+    if not decided and buffer:
+        probe = buffer.lower()
+        if probe.startswith(target):
+            yield buffer[len(fragment) :]
+        elif probe.startswith(" " + target):
+            yield buffer[len(fragment) + 1 :]
+        else:
+            yield buffer
 
 
 def needs_leading_space(prefix: str, first_token: str) -> bool:
@@ -65,13 +132,19 @@ def _looks_line_oriented(text: str) -> bool:
 
     recent = lines[-4:]
     avg_len = sum(len(line.strip()) for line in recent) / len(recent)
-    punctuation_endings = sum(line.rstrip().endswith((".", "!", "?", ":", ";")) for line in recent)
-    markdown_starts = sum(line.lstrip().startswith(("#", ">", "-", "*", "+", "```")) for line in recent)
+    punctuation_endings = sum(
+        line.rstrip().endswith((".", "!", "?", ":", ";")) for line in recent
+    )
+    markdown_starts = sum(
+        line.lstrip().startswith(("#", ">", "-", "*", "+", "```")) for line in recent
+    )
 
     return markdown_starts > 0 or (avg_len < 48 and punctuation_endings <= 1)
 
 
-def _should_collapse_single_newline(prefix: str, prev_char: str, next_char: str) -> bool:
+def _should_collapse_single_newline(
+    prefix: str, prev_char: str, next_char: str
+) -> bool:
     if _looks_line_oriented(prefix):
         return False
     if not prev_char or not next_char:
@@ -84,22 +157,85 @@ def _should_collapse_single_newline(prefix: str, prev_char: str, next_char: str)
 
 
 _JOINABLE_COMPOUNDS = {
-    "anybody", "anyone", "anything", "anywhere",
+    "anybody",
+    "anyone",
+    "anything",
+    "anywhere",
     "cowardice",
-    "everybody", "everyone", "everything", "everywhere",
-    "herself", "himself", "inside", "itself", "myself",
-    "nobody", "nothing", "nowhere",
-    "ourselves", "outside",
-    "somebody", "someone", "something", "somewhere",
-    "themselves", "yourself", "yourselves",
+    "everybody",
+    "everyone",
+    "everything",
+    "everywhere",
+    "herself",
+    "himself",
+    "inside",
+    "itself",
+    "myself",
+    "nobody",
+    "nothing",
+    "nowhere",
+    "ourselves",
+    "outside",
+    "somebody",
+    "someone",
+    "something",
+    "somewhere",
+    "themselves",
+    "yourself",
+    "yourselves",
 }
 
 _COMMON_SHORT_WORDS = {
-    "a", "am", "an", "and", "are", "as", "at", "be", "but", "by",
-    "can", "did", "do", "for", "had", "has", "he", "her", "him", "his",
-    "i", "if", "in", "is", "it", "its", "may", "me", "not", "now", "of",
-    "on", "one", "or", "our", "out", "own", "she", "so", "the", "to",
-    "too", "two", "up", "us", "was", "we", "who", "why", "you",
+    "a",
+    "am",
+    "an",
+    "and",
+    "are",
+    "as",
+    "at",
+    "be",
+    "but",
+    "by",
+    "can",
+    "did",
+    "do",
+    "for",
+    "had",
+    "has",
+    "he",
+    "her",
+    "him",
+    "his",
+    "i",
+    "if",
+    "in",
+    "is",
+    "it",
+    "its",
+    "may",
+    "me",
+    "not",
+    "now",
+    "of",
+    "on",
+    "one",
+    "or",
+    "our",
+    "out",
+    "own",
+    "she",
+    "so",
+    "the",
+    "to",
+    "too",
+    "two",
+    "up",
+    "us",
+    "was",
+    "we",
+    "who",
+    "why",
+    "you",
 }
 
 
@@ -213,7 +349,9 @@ async def normalize_stream_newlines(
                 continue
 
             if pending_newlines:
-                if pending_newlines == 1 and _should_collapse_single_newline(prefix, prev_char, char):
+                if pending_newlines == 1 and _should_collapse_single_newline(
+                    prefix, prev_char, char
+                ):
                     if prev_char != " ":
                         out.append(" ")
                         prev_char = " "

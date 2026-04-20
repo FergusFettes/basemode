@@ -127,9 +127,7 @@ def build_tree_display(state: SessionState, width: int) -> list[DisplayLine]:
 
     path = _path_ids(by_id, state.current_node_id)
     selected_child_id = (
-        state.children[state.selected_child_idx].id
-        if state.children
-        else None
+        state.children[state.selected_child_idx].id if state.children else None
     )
     descendant_counts = _descendant_counts(children_by_parent, root.id)
 
@@ -150,7 +148,9 @@ def build_tree_display(state: SessionState, width: int) -> list[DisplayLine]:
             width=max(10, width - len(line_prefix)),
         )
         if node.id == state.current_node_id:
-            style: Literal["normal", "bold", "dim", "path", "current", "selected"] = "current"
+            style: Literal["normal", "bold", "dim", "path", "current", "selected"] = (
+                "current"
+            )
         elif node.id in path:
             style = "path"
         elif node.id == selected_child_id:
@@ -169,7 +169,9 @@ def build_tree_display(state: SessionState, width: int) -> list[DisplayLine]:
         )
         lines.append(DisplayLine(text, style, spans))
 
-        child_prefix = prefix if is_root else prefix + (TREE_BLANK if is_last else TREE_PIPE)
+        child_prefix = (
+            prefix if is_root else prefix + (TREE_BLANK if is_last else TREE_PIPE)
+        )
         children = children_by_parent.get(node.id, [])
         for index, child in enumerate(children):
             visit(child, child_prefix, index == len(children) - 1)
@@ -247,7 +249,9 @@ def _flatten_preview(text: str, width: int) -> str:
     return text[: max(0, width - 1)].rstrip() + "…"
 
 
-def _render_siblings(state: SessionState, last_line: str, width: int) -> list[DisplayLine]:
+def _render_siblings(
+    state: SessionState, last_line: str, width: int
+) -> list[DisplayLine]:
     children = state.children
     selected_idx = state.selected_child_idx
     counts = state.descendant_counts
@@ -279,7 +283,9 @@ def _render_siblings(state: SessionState, last_line: str, width: int) -> list[Di
         sib_seg = child.text + marker(child)
         sib_lines = word_wrap_inline(sib_seg, available, width)
         for j, sl in enumerate(sib_lines):
-            lines.append(DisplayLine(" " * indent + ARROW + sl if j == 0 else sl, "dim"))
+            lines.append(
+                DisplayLine(" " * indent + ARROW + sl if j == 0 else sl, "dim")
+            )
 
     if state.continuation_text:
         for line in wrap_text(state.continuation_text, width):
@@ -288,7 +294,9 @@ def _render_siblings(state: SessionState, last_line: str, width: int) -> list[Di
     return lines
 
 
-def build_stream_display(prefix: str, buffers: list[list[str]], width: int) -> list[DisplayLine]:
+def build_stream_display(
+    prefix: str, buffers: list[list[str]], width: int
+) -> list[DisplayLine]:
     """Build display lines for the streaming generation view."""
     prefix_lines = wrap_text(prefix, width) if prefix else [""]
     last_line = prefix_lines[-1]

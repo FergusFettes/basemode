@@ -17,11 +17,11 @@ REGISTRY: dict[str, type[ContinuationStrategy]] = {
 }
 
 __all__ = [
-    "ContinuationStrategy",
+    "REGISTRY",
     "CompletionStrategy",
-    "FewShotStrategy",
+    "ContinuationStrategy",
     "FIMStrategy",
+    "FewShotStrategy",
     "PrefillStrategy",
     "SystemPromptStrategy",
-    "REGISTRY",
 ]

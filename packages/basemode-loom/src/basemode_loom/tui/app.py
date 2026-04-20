@@ -7,7 +7,7 @@ from .screens.loom import LoomScreen
 class BasemodeApp(App[None]):
     """Basemode loom TUI."""
 
-    TITLE = "basemode loom"
+    TITLE = "basemode-loom"
     CSS_PATH = "app.tcss"
 
     def __init__(self, session: LoomSession) -> None:

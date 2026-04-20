@@ -6,6 +6,7 @@ File schema (current):
 Legacy flat schema (auto-migrated on next write):
     {"openai": "sk-...", ...}
 """
+
 import json
 import os
 from pathlib import Path

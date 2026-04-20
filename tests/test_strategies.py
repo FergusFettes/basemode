@@ -1,4 +1,5 @@
 """Integration tests — require real API keys. Run with: pytest -m integration"""
+
 import pytest
 
 from basemode import branch_text, continue_text
@@ -13,17 +14,26 @@ async def _collect(gen) -> str:
     return "".join(tokens)
 
 
-@pytest.mark.parametrize("model,strategy", [
-    ("gpt-4o-mini", None),
-    ("gpt-4o-mini", "system"),
-    ("gpt-4o-mini", "few_shot"),
-    ("anthropic/claude-3-haiku-20240307", None),
-    ("anthropic/claude-3-haiku-20240307", "prefill"),
-])
+@pytest.mark.parametrize(
+    "model,strategy",
+    [
+        ("gpt-4o-mini", None),
+        ("gpt-4o-mini", "system"),
+        ("gpt-4o-mini", "few_shot"),
+        ("anthropic/claude-3-haiku-20240307", None),
+        ("anthropic/claude-3-haiku-20240307", "prefill"),
+    ],
+)
 async def test_continue_text(prefix: str, model: str, strategy: str | None) -> None:
-    result = await _collect(continue_text(prefix, model, max_tokens=50, strategy=strategy))
+    result = await _collect(
+        continue_text(prefix, model, max_tokens=50, strategy=strategy)
+    )
     assert len(result) > 0
-    assert not result.lstrip().lower().startswith(("sure", "of course", "certainly", "i'll"))
+    assert (
+        not result.lstrip()
+        .lower()
+        .startswith(("sure", "of course", "certainly", "i'll"))
+    )
 
 
 async def test_branch_text(prefix: str) -> None:

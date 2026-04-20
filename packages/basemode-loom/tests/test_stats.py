@@ -1,7 +1,7 @@
 import pytest
 
-from basemode.stats import analyze_tree
-from basemode.store import GenerationStore
+from basemode_loom.stats import analyze_tree
+from basemode_loom.store import GenerationStore
 
 
 @pytest.fixture

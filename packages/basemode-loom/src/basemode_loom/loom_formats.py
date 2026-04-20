@@ -94,7 +94,9 @@ def _parse_basemode_export(data: dict[str, Any]) -> AnalysisTree:
         )
         for raw in raw_nodes
     ]
-    root_id = next((node.id for node in nodes if node.parent_id is None), nodes[0].root_id)
+    root_id = next(
+        (node.id for node in nodes if node.parent_id is None), nodes[0].root_id
+    )
     return AnalysisTree(root_id=root_id, nodes=nodes, source_format="basemode-json")
 
 
@@ -134,10 +136,7 @@ def _parse_legacy_mapping(
 
     if root_id is None:
         root_id = nodes[0].id if nodes else ""
-    fixed = [
-        AnalysisNode(**{**node.__dict__, "root_id": root_id})
-        for node in nodes
-    ]
+    fixed = [AnalysisNode(**{**node.__dict__, "root_id": root_id}) for node in nodes]
     return AnalysisTree(root_id=root_id, nodes=fixed, source_format=source_format)
 
 
@@ -173,10 +172,7 @@ def _parse_bonsai(raw_nodes: list[dict[str, Any]]) -> AnalysisTree:
         )
     if root_id is None:
         root_id = nodes[0].id if nodes else ""
-    fixed = [
-        AnalysisNode(**{**node.__dict__, "root_id": root_id})
-        for node in nodes
-    ]
+    fixed = [AnalysisNode(**{**node.__dict__, "root_id": root_id}) for node in nodes]
     return AnalysisTree(root_id=root_id, nodes=fixed, source_format="bonsai")
 
 
@@ -219,7 +215,9 @@ def _legacy_model(raw: dict[str, Any]) -> str | None:
 
 
 def _metadata_from_raw(raw: dict[str, Any]) -> dict[str, Any]:
-    metadata = dict(raw.get("metadata", {})) if isinstance(raw.get("metadata"), dict) else {}
+    metadata = (
+        dict(raw.get("metadata", {})) if isinstance(raw.get("metadata"), dict) else {}
+    )
     for key in ("type", "cache", "score", "_summary"):
         if key in raw:
             metadata[key] = raw[key]

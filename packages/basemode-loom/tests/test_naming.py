@@ -1,14 +1,14 @@
 from types import SimpleNamespace
 
-from basemode.cli import _maybe_name_tree
-from basemode.naming import choose_title_model, generate_name, should_name, slugify
-from basemode.store import GenerationStore
+from basemode_loom.cli import _maybe_name_tree
+from basemode_loom.naming import choose_title_model, generate_name, should_name, slugify
+from basemode_loom.store import GenerationStore
 
 
 def test_choose_title_model_prefers_openai_env(monkeypatch) -> None:
     monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    monkeypatch.setattr("basemode.naming.get_key", lambda provider: None)
+    monkeypatch.setattr("basemode_loom.naming.get_key", lambda provider: None)
 
     assert choose_title_model() == "gpt-4o-mini"
 
@@ -16,7 +16,7 @@ def test_choose_title_model_prefers_openai_env(monkeypatch) -> None:
 def test_choose_title_model_uses_anthropic_when_openai_missing(monkeypatch) -> None:
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
-    monkeypatch.setattr("basemode.naming.get_key", lambda provider: None)
+    monkeypatch.setattr("basemode_loom.naming.get_key", lambda provider: None)
 
     assert choose_title_model() == "anthropic/claude-3-haiku-20240307"
 
@@ -41,9 +41,11 @@ def test_generate_name_sanitizes_model_output(monkeypatch) -> None:
             ]
         )
 
-    monkeypatch.setattr("basemode.naming.litellm.completion", fake_completion)
+    monkeypatch.setattr("basemode_loom.naming.litellm.completion", fake_completion)
 
-    assert generate_name("long text", model="gpt-4o-mini") == "the-topic-a-strange-story"
+    assert (
+        generate_name("long text", model="gpt-4o-mini") == "the-topic-a-strange-story"
+    )
 
 
 def test_maybe_name_tree_updates_root_metadata(tmp_path, monkeypatch) -> None:
@@ -56,8 +58,10 @@ def test_maybe_name_tree_updates_root_metadata(tmp_path, monkeypatch) -> None:
         max_tokens=5,
         temperature=0.7,
     )
-    monkeypatch.setattr("basemode.cli.should_name", lambda text: True)
-    monkeypatch.setattr("basemode.cli.generate_name", lambda text: "this-is-the-topic")
+    monkeypatch.setattr("basemode_loom.cli.should_name", lambda text: True)
+    monkeypatch.setattr(
+        "basemode_loom.cli.generate_name", lambda text: "this-is-the-topic"
+    )
 
     _maybe_name_tree(store, children)
 

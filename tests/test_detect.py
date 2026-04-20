@@ -74,7 +74,9 @@ def test_normalize_gemma_4_aliases() -> None:
     assert normalize_model("gemma-4-31b") == "gemini/gemma-4-31b-it"
 
 
-def test_normalize_anthropic_aliases_before_litellm_probe(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_normalize_anthropic_aliases_before_litellm_probe(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     def fail_probe(model: str) -> None:
         raise AssertionError(f"unexpected LiteLLM provider probe for {model}")
 

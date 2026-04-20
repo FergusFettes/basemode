@@ -1,4 +1,5 @@
 """OpenAI-compatible /completions endpoint — works natively with base models."""
+
 from collections.abc import AsyncGenerator
 
 import litellm
@@ -13,7 +14,9 @@ class CompletionStrategy(ContinuationStrategy):
 
     name = "completion"
 
-    async def stream(self, prefix: str, params: GenerationParams) -> AsyncGenerator[str, None]:
+    async def stream(
+        self, prefix: str, params: GenerationParams
+    ) -> AsyncGenerator[str, None]:
         response = await litellm.atext_completion(
             model=params.model,
             prompt=prefix,

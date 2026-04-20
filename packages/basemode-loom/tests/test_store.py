@@ -1,6 +1,6 @@
 import pytest
 
-from basemode.store import AmbiguousNodeReference, GenerationStore, Node
+from basemode_loom.store import AmbiguousNodeReference, GenerationStore, Node
 
 
 def test_save_continuations_creates_root_and_branch_children(tmp_path) -> None:
@@ -45,7 +45,10 @@ def test_save_continuations_can_continue_from_existing_node(tmp_path) -> None:
     )
 
     assert parent.id == first_children[0].id
-    assert [child.root_id for child in next_children] == [parent.root_id, parent.root_id]
+    assert [child.root_id for child in next_children] == [
+        parent.root_id,
+        parent.root_id,
+    ]
     assert store.full_text(next_children[0].id) == "ABC"
     assert store.full_text(next_children[1].id) == "ABD"
 

@@ -6,7 +6,7 @@ Most language models today are chat-tuned — they want to respond, acknowledge,
 
 `basemode` solves this. It wraps any LLM in the right coercion strategy for that provider — native completions API, assistant prefill, or a carefully-tuned system prompt — so you always get a clean continuation back.
 
-For persistent branching exploration, use `basemode loom`. The core `basemode` command stays stateless and does not manage sessions.
+For persistent branching exploration, use `basemode-loom`. The core `basemode` command stays stateless and does not manage sessions.
 
 ```bash
 basemode "The defendant, who had been sitting quietly throughout the proceedings, suddenly"
@@ -24,6 +24,8 @@ that night," he said, his voice barely above a whisper.
 
 ```bash
 pip install basemode
+# Optional persistent branching UI:
+pip install basemode-loom
 ```
 
 Requires Python 3.11+. Uses [LiteLLM](https://docs.litellm.ai/) under the hood, so any model LiteLLM supports is available.
@@ -71,13 +73,13 @@ basemode models --search claude
 basemode info mistral-large-latest
 
 # Persistent branching exploration in loom mode
-basemode loom "The ship rounded" --branches 4
-basemode loom continue -b 2
-basemode loom nodes
-basemode loom active
-basemode loom show <node-id>
-basemode loom children <node-id>
-basemode loom select <node-id>
+basemode-loom run "The ship rounded" --branches 4
+basemode-loom continue -b 2
+basemode-loom nodes
+basemode-loom active
+basemode-loom show <node-id>
+basemode-loom children <node-id>
+basemode-loom select <node-id>
 ```
 
 ---
@@ -112,7 +114,7 @@ Token boundaries are handled correctly: `prefix + "".join(tokens)` always produc
 
 ## Persistence
 
-`basemode loom` can persist generation trees in SQLite. The schema is node-based:
+`basemode-loom` can persist generation trees in SQLite. The schema is node-based:
 
 - root nodes contain the starting text
 - child nodes contain only the generated continuation segment
@@ -123,26 +125,26 @@ Token boundaries are handled correctly: `prefix + "".join(tokens)` always produc
 `loom` is opt-in and does not change `basemode` itself.
 
 ```bash
-basemode loom "The ship rounded" --branches 4
-basemode loom continue -b 2
-basemode loom nodes
-basemode loom active
-basemode loom show <child-node-id>
-basemode loom select <node-id>
+basemode-loom run "The ship rounded" --branches 4
+basemode-loom continue -b 2
+basemode-loom nodes
+basemode-loom active
+basemode-loom show <child-node-id>
+basemode-loom select <node-id>
 ```
 
-Node ids can be abbreviated to any unique substring. If the substring matches multiple nodes, `basemode loom` will ask for a more specific id instead of guessing.
+Node ids can be abbreviated to any unique substring. If the substring matches multiple nodes, `basemode-loom` will ask for a more specific id instead of guessing.
 
-`loom nodes` marks the active node with `*`, and `loom active` shows the current cursor directly.
+`basemode-loom nodes` marks the active node with `*`, and `basemode-loom active` shows the current cursor directly.
 
 By default the database lives at `~/.local/share/basemode/generations.sqlite`. Override it with `--db /path/to/generations.sqlite` or the `BASEMODE_DB` environment variable.
 
-When a loom tree reaches roughly 500 tokens, `basemode loom` tries to name it with a short slug like `this-is-the-topic`. Naming is best-effort and only runs when an OpenAI or Anthropic key is configured; generated text is still saved normally if naming is unavailable.
+When a loom tree reaches roughly 500 tokens, `basemode-loom` tries to name it with a short slug like `this-is-the-topic`. Naming is best-effort and only runs when an OpenAI or Anthropic key is configured; generated text is still saved normally if naming is unavailable.
 
 If you are embedding loom, you can use the storage API directly:
 
 ```python
-from basemode import GenerationStore
+from basemode_loom import GenerationStore
 
 store = GenerationStore()
 parent, children = store.save_continuations(

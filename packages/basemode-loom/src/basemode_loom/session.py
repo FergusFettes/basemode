@@ -13,12 +13,13 @@ from collections.abc import AsyncGenerator
 from dataclasses import dataclass
 from typing import Literal
 
-from .continue_ import continue_text
-from .detect import detect_strategy, normalize_model
-from .keys import get_default_model
+from basemode.continue_ import continue_text
+from basemode.detect import detect_strategy, normalize_model
+from basemode.healing import normalize_completion_segment
+from basemode.keys import get_default_model
+
 from .naming import generate_name, should_name
 from .store import GenerationStore, Node
-from .strategies.utils import normalize_completion_segment
 
 # ---------------------------------------------------------------------------
 # Events emitted during generate()
@@ -47,7 +48,9 @@ class GenerationCancelled:
     pass
 
 
-GenerationEvent = TokenReceived | GenerationComplete | GenerationError | GenerationCancelled
+GenerationEvent = (
+    TokenReceived | GenerationComplete | GenerationError | GenerationCancelled
+)
 
 
 # ---------------------------------------------------------------------------
@@ -115,7 +118,9 @@ class LoomSession:
         selected_idx = min(self._selected_idx, max(0, len(children) - 1))
         counts = store.descendant_counts([c.id for c in children]) if children else {}
         root = store.root(self._current_id)
-        continuation = self._get_continuation_text(children[selected_idx]) if children else ""
+        continuation = (
+            self._get_continuation_text(children[selected_idx]) if children else ""
+        )
         tree_nodes = store.tree(root.id) if self.view_mode == "tree" else None
         return SessionState(
             current_node_id=self._current_id,
@@ -301,7 +306,10 @@ class LoomSession:
     def _save_completions(self, prefix: str, completions: list[str]) -> list[Node]:
         resolved = normalize_model(self.model)
         strategy_name = detect_strategy(resolved, None).name
-        completions = [normalize_completion_segment(prefix, completion) for completion in completions]
+        completions = [
+            normalize_completion_segment(prefix, completion)
+            for completion in completions
+        ]
         _parent, new_children = self._store.save_continuations(
             prefix,
             completions,
@@ -349,7 +357,9 @@ class LoomSession:
             pos += len(node.text)
         seg_starts.append(pos)
 
-        opcodes = difflib.SequenceMatcher(None, original, edited, autojunk=False).get_opcodes()
+        opcodes = difflib.SequenceMatcher(
+            None, original, edited, autojunk=False
+        ).get_opcodes()
         changes = [op for op in opcodes if op[0] != "equal"]
         if not changes:
             return None
@@ -383,9 +393,13 @@ class LoomSession:
 
         for idx in range(fork_idx, len(lineage)):
             node = lineage[idx]
-            new_seg = edited[edit_pos_of[seg_starts[idx]] : edit_pos_of[seg_starts[idx + 1]]]
+            new_seg = edited[
+                edit_pos_of[seg_starts[idx]] : edit_pos_of[seg_starts[idx + 1]]
+            ]
             if node.parent_id is None:
-                new_node = self._store.create_root(new_seg, metadata={"source": "edited"})
+                new_node = self._store.create_root(
+                    new_seg, metadata={"source": "edited"}
+                )
             else:
                 new_node = self._store.add_child(
                     prev_parent_id,  # type: ignore[arg-type]

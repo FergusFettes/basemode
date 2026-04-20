@@ -52,9 +52,13 @@ class TreePickerScreen(ModalScreen[str | None]):
         if root_id is None:
             return
 
-        remaining_root_ids = [candidate for candidate in view.root_ids() if candidate != root_id]
+        remaining_root_ids = [
+            candidate for candidate in view.root_ids() if candidate != root_id
+        ]
         if root_id == self._current_root_id and not remaining_root_ids:
-            self.notify("Cannot delete the only open tree", severity="warning", timeout=2)
+            self.notify(
+                "Cannot delete the only open tree", severity="warning", timeout=2
+            )
             return
 
         from ..screens.confirm import ConfirmScreen
@@ -73,7 +77,9 @@ class TreePickerScreen(ModalScreen[str | None]):
 
     def _delete_root(self, root_id: str, remaining_root_ids: list[str]) -> None:
         view = self.query_one(TreePickerView)
-        replacement_root_id = remaining_root_ids[0] if root_id == self._current_root_id else None
+        replacement_root_id = (
+            remaining_root_ids[0] if root_id == self._current_root_id else None
+        )
         self._store.delete_tree(root_id)
 
         if replacement_root_id is not None:

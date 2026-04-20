@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import ClassVar
+
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Vertical
@@ -8,7 +10,7 @@ from textual.widgets import Input, Label
 
 
 class IntInputScreen(ModalScreen[int | None]):
-    BINDINGS = [Binding("escape", "dismiss_none", "Cancel")]
+    BINDINGS: ClassVar[list[Binding]] = [Binding("escape", "dismiss_none", "Cancel")]
 
     def __init__(self, label: str, current: int) -> None:
         super().__init__()

@@ -6,9 +6,8 @@ import os
 import re
 
 import litellm
-
-from .keys import get_key
-from .usage import _count_tokens
+from basemode.keys import get_key
+from basemode.usage import _count_tokens
 
 TITLE_TOKEN_THRESHOLD = 500
 _MAX_TITLE_CONTEXT_CHARS = 6000

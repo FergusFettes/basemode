@@ -1,4 +1,9 @@
-from basemode.usage import estimate_usage, format_per_million, format_usd, get_price_info
+from basemode.usage import (
+    estimate_usage,
+    format_per_million,
+    format_usd,
+    get_price_info,
+)
 
 
 def test_get_price_info_known_model() -> None:

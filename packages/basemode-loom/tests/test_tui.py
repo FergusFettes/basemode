@@ -1,12 +1,12 @@
 import pytest
 
-from basemode.display import DisplayLine
-from basemode.session import LoomSession
-from basemode.store import GenerationStore
-from basemode.tui.app import BasemodeApp
-from basemode.tui.screens.loom import LoomScreen
-from basemode.tui.widgets.loom_view import LoomView
-from basemode.tui.widgets.stream_view import StreamView
+from basemode_loom.display import DisplayLine
+from basemode_loom.session import LoomSession
+from basemode_loom.store import GenerationStore
+from basemode_loom.tui.app import BasemodeApp
+from basemode_loom.tui.screens.loom import LoomScreen
+from basemode_loom.tui.widgets.loom_view import LoomView
+from basemode_loom.tui.widgets.stream_view import StreamView
 
 
 @pytest.fixture
@@ -18,12 +18,20 @@ def store(tmp_path):
 def tree(store):
     """Root → [A, B]; A → [C]"""
     _, ab = store.save_continuations(
-        "Root text", ["A", "B"],
-        model="gpt-4o-mini", strategy="system", max_tokens=20, temperature=0.9,
+        "Root text",
+        ["A", "B"],
+        model="gpt-4o-mini",
+        strategy="system",
+        max_tokens=20,
+        temperature=0.9,
     )
     _, c = store.save_continuations(
-        "", ["C"],
-        model="gpt-4o-mini", strategy="system", max_tokens=20, temperature=0.9,
+        "",
+        ["C"],
+        model="gpt-4o-mini",
+        strategy="system",
+        max_tokens=20,
+        temperature=0.9,
         parent_id=ab[0].id,
     )
     return ab, c
@@ -50,6 +58,7 @@ async def test_app_mounts_stream_view_hidden(store, tree):
         sw = app.screen.query_one(StreamView)
         assert sw is not None
         from textual.widgets import ContentSwitcher
+
         assert app.screen.query_one(ContentSwitcher).current == "loom"
 
 
@@ -319,7 +328,7 @@ async def test_a_decreases_branches_min_one(store, tree):
 
 @pytest.mark.asyncio
 async def test_t_opens_int_input_screen(store, tree):
-    from basemode.tui.screens.int_input import IntInputScreen
+    from basemode_loom.tui.screens.int_input import IntInputScreen
 
     ab, _ = tree
     session = LoomSession(store, ab[0].id)
@@ -360,7 +369,7 @@ async def test_t_submit_updates_tokens(store, tree):
 
 @pytest.mark.asyncio
 async def test_m_opens_model_picker(store, tree):
-    from basemode.tui.screens.model_picker import ModelPickerScreen
+    from basemode_loom.tui.screens.model_picker import ModelPickerScreen
 
     ab, _ = tree
     session = LoomSession(store, ab[0].id)
@@ -385,7 +394,7 @@ async def test_m_escape_dismisses(store, tree):
 
 @pytest.mark.asyncio
 async def test_question_mark_opens_stats_screen(store, tree):
-    from basemode.tui.screens.stats import StatsScreen
+    from basemode_loom.tui.screens.stats import StatsScreen
 
     ab, _ = tree
     session = LoomSession(store, ab[0].id)
@@ -445,7 +454,7 @@ async def test_quit_message_includes_rejoin_info(store, tree):
         message = app.screen._quit_message()
 
     assert f"Quit tree: {root_id[:8]} ({root_id})" in message
-    assert f"basemode loom view {root_id}" in message
+    assert f"basemode-loom view {root_id}" in message
 
 
 # --- StreamView widget ---

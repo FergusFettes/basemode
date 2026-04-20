@@ -120,7 +120,9 @@ def analyze_analysis_tree(
         if node.parent_id is not None:
             children_by_parent[node.parent_id].append(node)
 
-    root = by_id.get(tree.root_id) or next((n for n in nodes if n.parent_id is None), None)
+    root = by_id.get(tree.root_id) or next(
+        (n for n in nodes if n.parent_id is None), None
+    )
     if root is None:
         return LoomStats(
             root_id=tree.root_id,
@@ -180,7 +182,8 @@ def analyze_analysis_tree(
                 )
         max_score = max(descendant_score[child.id] for child in siblings)
         winners = [
-            child for child in siblings
+            child
+            for child in siblings
             if descendant_score[child.id] == max_score and max_score > 0
         ]
         for child in siblings:
@@ -281,11 +284,8 @@ def _model_stats(node_scores: list[NodeScores]) -> list[ModelStats]:
                 / len(scores),
                 bookmark_rate=sum(1 for score in scores if score.bookmarked)
                 / len(scores),
-                hidden_rate=sum(1 for score in scores if score.hidden)
-                / len(scores),
-                descendant_score=_summary(
-                    [score.descendant_score for score in scores]
-                ),
+                hidden_rate=sum(1 for score in scores if score.hidden) / len(scores),
+                descendant_score=_summary([score.descendant_score for score in scores]),
                 discounted_descendant_score=_summary(
                     [score.discounted_descendant_score for score in scores]
                 ),

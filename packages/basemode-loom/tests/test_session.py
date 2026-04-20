@@ -1,14 +1,13 @@
 import pytest
 
-from basemode.session import (
+from basemode_loom.session import (
     GenerationCancelled,
     GenerationComplete,
     GenerationError,
     LoomSession,
-    SessionState,
     TokenReceived,
 )
-from basemode.store import GenerationStore
+from basemode_loom.store import GenerationStore
 
 
 @pytest.fixture
@@ -24,7 +23,12 @@ def branched_store(tmp_path):
         "Root", ["A", "B"], model="m", strategy="system", max_tokens=10, temperature=0.9
     )
     _, c = store.save_continuations(
-        "", ["C"], model="m", strategy="system", max_tokens=10, temperature=0.9,
+        "",
+        ["C"],
+        model="m",
+        strategy="system",
+        max_tokens=10,
+        temperature=0.9,
         parent_id=ab[0].id,
     )
     return store, ab, c
@@ -101,7 +105,7 @@ def test_navigate_parent_restores_sibling_index(branched_store):
     session = LoomSession(store, ab[0].id)
     session.navigate_parent()
     session.select_sibling(+1)  # select B
-    session.navigate_child()    # go into B
+    session.navigate_child()  # go into B
     state = session.navigate_parent()
     assert state.selected_child_idx == 1  # should remember B was selected
 
@@ -191,21 +195,27 @@ def test_next_bookmark_moves_to_next_marked_node(branched_store):
 
 
 def test_set_max_tokens_clamps_high(store):
-    _, ch = store.save_continuations("X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9)
+    _, ch = store.save_continuations(
+        "X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9
+    )
     session = LoomSession(store, ch[0].id)
     session.set_max_tokens(99999)
     assert session.max_tokens == 8000
 
 
 def test_set_max_tokens_clamps_low(store):
-    _, ch = store.save_continuations("X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9)
+    _, ch = store.save_continuations(
+        "X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9
+    )
     session = LoomSession(store, ch[0].id)
     session.set_max_tokens(0)
     assert session.max_tokens == 50
 
 
 def test_set_n_branches_minimum_one(store):
-    _, ch = store.save_continuations("X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9)
+    _, ch = store.save_continuations(
+        "X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9
+    )
     session = LoomSession(store, ch[0].id)
     session.set_n_branches(0)
     assert session.n_branches == 1
@@ -217,7 +227,9 @@ def test_set_n_branches_minimum_one(store):
 
 
 def test_apply_edit_single_node(store):
-    _, ch = store.save_continuations("Hello", [" world"], model="m", strategy="s", max_tokens=10, temperature=0.9)
+    _, ch = store.save_continuations(
+        "Hello", [" world"], model="m", strategy="s", max_tokens=10, temperature=0.9
+    )
     session = LoomSession(store, ch[0].id)
     original = store.full_text(session._current_id)
     assert original == "Hello world"
@@ -227,14 +239,18 @@ def test_apply_edit_single_node(store):
 
 
 def test_apply_edit_unchanged_returns_none(store):
-    _, ch = store.save_continuations("Hello", [" world"], model="m", strategy="s", max_tokens=10, temperature=0.9)
+    _, ch = store.save_continuations(
+        "Hello", [" world"], model="m", strategy="s", max_tokens=10, temperature=0.9
+    )
     session = LoomSession(store, ch[0].id)
     original = store.full_text(session._current_id)
     assert session.apply_edit(original, original) is None
 
 
 def test_apply_edit_updates_current_id(store):
-    _, ch = store.save_continuations("Hello", [" world"], model="m", strategy="s", max_tokens=10, temperature=0.9)
+    _, ch = store.save_continuations(
+        "Hello", [" world"], model="m", strategy="s", max_tokens=10, temperature=0.9
+    )
     session = LoomSession(store, ch[0].id)
     original = store.full_text(session._current_id)
     old_id = session._current_id
@@ -243,8 +259,18 @@ def test_apply_edit_updates_current_id(store):
 
 
 def test_apply_edit_forks_at_changed_segment(store):
-    _, ch1 = store.save_continuations("Hello", [" world"], model="m", strategy="s", max_tokens=10, temperature=0.9)
-    _, ch2 = store.save_continuations("", [" again"], model="m", strategy="s", max_tokens=10, temperature=0.9, parent_id=ch1[0].id)
+    _, ch1 = store.save_continuations(
+        "Hello", [" world"], model="m", strategy="s", max_tokens=10, temperature=0.9
+    )
+    _, ch2 = store.save_continuations(
+        "",
+        [" again"],
+        model="m",
+        strategy="s",
+        max_tokens=10,
+        temperature=0.9,
+        parent_id=ch1[0].id,
+    )
     session = LoomSession(store, ch2[0].id)
     original = store.full_text(session._current_id)
     assert original == "Hello world again"
@@ -258,7 +284,9 @@ def test_apply_edit_forks_at_changed_segment(store):
 
 
 def test_update_context_persists(store):
-    _, ch = store.save_continuations("Text", ["more"], model="m", strategy="s", max_tokens=10, temperature=0.9)
+    _, ch = store.save_continuations(
+        "Text", ["more"], model="m", strategy="s", max_tokens=10, temperature=0.9
+    )
     session = LoomSession(store, ch[0].id)
     session.update_context("You are a pirate.")
     root = store.root(ch[0].id)
@@ -266,7 +294,9 @@ def test_update_context_persists(store):
 
 
 def test_update_context_visible_in_state(store):
-    _, ch = store.save_continuations("Text", ["more"], model="m", strategy="s", max_tokens=10, temperature=0.9)
+    _, ch = store.save_continuations(
+        "Text", ["more"], model="m", strategy="s", max_tokens=10, temperature=0.9
+    )
     session = LoomSession(store, ch[0].id)
     session.update_context("fantasy world")
     state = session.get_state()
@@ -277,7 +307,9 @@ def test_update_context_visible_in_state(store):
 
 
 def test_save_persists_model_and_tokens(store):
-    _, ch = store.save_continuations("X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9)
+    _, ch = store.save_continuations(
+        "X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9
+    )
     session = LoomSession(store, ch[0].id)
     session.set_model("claude-3")
     session.set_max_tokens(400)
@@ -291,7 +323,9 @@ def test_save_persists_model_and_tokens(store):
 
 
 def test_save_persists_model_name_visibility(store):
-    _, ch = store.save_continuations("X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9)
+    _, ch = store.save_continuations(
+        "X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9
+    )
     session = LoomSession(store, ch[0].id)
     session.toggle_model_names()
     session.save()
@@ -300,7 +334,9 @@ def test_save_persists_model_name_visibility(store):
 
 
 def test_save_restores_on_reload(store, tmp_path):
-    _, ch = store.save_continuations("X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9)
+    _, ch = store.save_continuations(
+        "X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9
+    )
     session = LoomSession(store, ch[0].id)
     session.set_model("claude-3")
     session.set_max_tokens(400)
@@ -319,8 +355,10 @@ async def test_generate_yields_token_events(store, monkeypatch):
         for tok in ["hello", " world"]:
             yield tok
 
-    monkeypatch.setattr("basemode.session.continue_text", fake_continue)
-    _, ch = store.save_continuations("Prompt", ["start"], model="m", strategy="s", max_tokens=10, temperature=0.9)
+    monkeypatch.setattr("basemode_loom.session.continue_text", fake_continue)
+    _, ch = store.save_continuations(
+        "Prompt", ["start"], model="m", strategy="s", max_tokens=10, temperature=0.9
+    )
     session = LoomSession(store, ch[0].id)
     session.n_branches = 1
 
@@ -340,8 +378,10 @@ async def test_generate_saves_completions(store, monkeypatch):
     async def fake_continue(prefix, model, **kwargs):
         yield "generated"
 
-    monkeypatch.setattr("basemode.session.continue_text", fake_continue)
-    _, ch = store.save_continuations("Prompt", ["seed"], model="m", strategy="s", max_tokens=10, temperature=0.9)
+    monkeypatch.setattr("basemode_loom.session.continue_text", fake_continue)
+    _, ch = store.save_continuations(
+        "Prompt", ["seed"], model="m", strategy="s", max_tokens=10, temperature=0.9
+    )
     session = LoomSession(store, ch[0].id)
     session.n_branches = 1
 
@@ -360,7 +400,7 @@ async def test_generate_saves_normalized_completion_segments(store, monkeypatch)
     async def fake_continue(prefix, model, **kwargs):
         yield " itsu, Capoeira, and Fandango."
 
-    monkeypatch.setattr("basemode.session.continue_text", fake_continue)
+    monkeypatch.setattr("basemode_loom.session.continue_text", fake_continue)
     _, ch = store.save_continuations(
         "Prompt",
         ["some impossible marriage of Jiu-J"],
@@ -378,7 +418,9 @@ async def test_generate_saves_normalized_completion_segments(store, monkeypatch)
 
     new_children = store.children(ch[0].id)
     assert new_children[0].text == "itsu, Capoeira, and Fandango."
-    assert store.full_text(new_children[0].id).endswith("Jiu-Jitsu, Capoeira, and Fandango.")
+    assert store.full_text(new_children[0].id).endswith(
+        "Jiu-Jitsu, Capoeira, and Fandango."
+    )
 
 
 @pytest.mark.asyncio
@@ -390,8 +432,10 @@ async def test_generate_cancel(store, monkeypatch):
             await asyncio.sleep(0.01)
             yield f"t{i}"
 
-    monkeypatch.setattr("basemode.session.continue_text", slow_continue)
-    _, ch = store.save_continuations("X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9)
+    monkeypatch.setattr("basemode_loom.session.continue_text", slow_continue)
+    _, ch = store.save_continuations(
+        "X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9
+    )
     session = LoomSession(store, ch[0].id)
     session.n_branches = 1
 
@@ -412,8 +456,10 @@ async def test_generate_error_propagated(store, monkeypatch):
         yield "before"
         raise RuntimeError("API down")
 
-    monkeypatch.setattr("basemode.session.continue_text", failing_continue)
-    _, ch = store.save_continuations("X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9)
+    monkeypatch.setattr("basemode_loom.session.continue_text", failing_continue)
+    _, ch = store.save_continuations(
+        "X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9
+    )
     session = LoomSession(store, ch[0].id)
     session.n_branches = 1
 
@@ -435,8 +481,10 @@ async def test_generate_multiple_branches(store, monkeypatch):
         call_count += 1
         yield f"branch{call_count}"
 
-    monkeypatch.setattr("basemode.session.continue_text", fake_continue)
-    _, ch = store.save_continuations("X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9)
+    monkeypatch.setattr("basemode_loom.session.continue_text", fake_continue)
+    _, ch = store.save_continuations(
+        "X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9
+    )
     session = LoomSession(store, ch[0].id)
     session.n_branches = 3
 

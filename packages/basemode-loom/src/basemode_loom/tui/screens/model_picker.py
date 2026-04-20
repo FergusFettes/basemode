@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import ClassVar
+
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Vertical
@@ -15,7 +17,7 @@ def _fuzzy_match(query: str, text: str) -> bool:
 
 
 class ModelPickerScreen(ModalScreen[str | None]):
-    BINDINGS = [Binding("escape", "dismiss_none", "Cancel")]
+    BINDINGS: ClassVar[list[Binding]] = [Binding("escape", "dismiss_none", "Cancel")]
 
     def __init__(self, current: str) -> None:
         super().__init__()
@@ -29,7 +31,7 @@ class ModelPickerScreen(ModalScreen[str | None]):
             yield OptionList(id="model-list")
 
     def on_mount(self) -> None:
-        from ...models import list_models
+        from basemode.models import list_models
 
         models = list_models(available_only=True) or [self._current]
         if self._current in models:

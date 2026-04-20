@@ -60,7 +60,9 @@ class GenerationStore:
     """
 
     def __init__(self, path: str | Path | None = None) -> None:
-        self.db_path = Path(path).expanduser() if path is not None else default_db_path()
+        self.db_path = (
+            Path(path).expanduser() if path is not None else default_db_path()
+        )
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_db()
 
@@ -214,7 +216,9 @@ class GenerationStore:
         if resolved is None:
             return None
         with closing(self.connect()) as conn:
-            row = conn.execute("SELECT * FROM nodes WHERE id = ?", (resolved,)).fetchone()
+            row = conn.execute(
+                "SELECT * FROM nodes WHERE id = ?", (resolved,)
+            ).fetchone()
         return self._node(row) if row else None
 
     def root(self, node_id: str) -> Node:
@@ -267,7 +271,7 @@ class GenerationStore:
             ).fetchall()
         return [self._node(row) for row in rows]
 
-    def find_root_by_text(self, text: str) -> "Node | None":
+    def find_root_by_text(self, text: str) -> Node | None:
         """Return the root node whose text exactly matches, or None."""
         with closing(self.connect()) as conn:
             row = conn.execute(
@@ -276,14 +280,14 @@ class GenerationStore:
             ).fetchone()
         return self._node(row) if row else None
 
-    def import_nodes(self, nodes: "list[Node]") -> int:
+    def import_nodes(self, nodes: list[Node]) -> int:
         """Insert nodes in topological order, skipping existing ids. Returns count inserted."""
         # Topological sort: parents before children
         by_id = {n.id: n for n in nodes}
         ordered: list[Node] = []
         seen: set[str] = set()
 
-        def visit(node: "Node") -> None:
+        def visit(node: Node) -> None:
             if node.id in seen:
                 return
             if node.parent_id and node.parent_id in by_id:
@@ -305,9 +309,16 @@ class GenerationStore:
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
-                        node.id, node.parent_id, node.root_id, node.text,
-                        node.model, node.strategy, node.max_tokens, node.temperature,
-                        node.branch_index, node.created_at,
+                        node.id,
+                        node.parent_id,
+                        node.root_id,
+                        node.text,
+                        node.model,
+                        node.strategy,
+                        node.max_tokens,
+                        node.temperature,
+                        node.branch_index,
+                        node.created_at,
                         json.dumps(node.metadata, sort_keys=True),
                     ),
                 )
@@ -408,7 +419,9 @@ class GenerationStore:
 
     def get_state(self, key: str) -> str | None:
         with closing(self.connect()) as conn:
-            row = conn.execute("SELECT value FROM state WHERE key = ?", (key,)).fetchone()
+            row = conn.execute(
+                "SELECT value FROM state WHERE key = ?", (key,)
+            ).fetchone()
         return None if row is None else str(row["value"])
 
     def set_checked_out_child(self, parent_id: str, child_id: str) -> None:

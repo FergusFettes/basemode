@@ -12,7 +12,9 @@ _EXTRA_MODELS_BY_PROVIDER = {
 
 
 def _provider_models(provider: str, by_provider: dict[str, list[str]]) -> list[str]:
-    return list(by_provider.get(provider, [])) + _EXTRA_MODELS_BY_PROVIDER.get(provider, [])
+    return list(by_provider.get(provider, [])) + _EXTRA_MODELS_BY_PROVIDER.get(
+        provider, []
+    )
 
 
 def list_models(

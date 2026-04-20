@@ -1,15 +1,12 @@
-import pytest
-
-from basemode.display import (
-    DisplayLine,
+from basemode_loom.display import (
     build_loom_display,
     build_stream_display,
     build_tree_display,
     word_wrap_inline,
     wrap_text,
 )
-from basemode.session import SessionState
-from basemode.store import Node
+from basemode_loom.session import SessionState
+from basemode_loom.store import Node
 
 
 def _node(id, parent_id=None, root_id=None, text="", model=None):
@@ -157,9 +154,13 @@ def test_build_loom_display_arrow_present():
 
 def test_build_loom_display_continuation_appended_as_normal():
     child = _node("c1", parent_id="root", text=" A")
-    state = _state(full_text="Hello", children=[child], continuation_text=" deeper text")
+    state = _state(
+        full_text="Hello", children=[child], continuation_text=" deeper text"
+    )
     lines = build_loom_display(state, 80)
-    normal_with_deeper = [l for l in lines if l.style == "normal" and "deeper" in l.text]
+    normal_with_deeper = [
+        l for l in lines if l.style == "normal" and "deeper" in l.text
+    ]
     assert len(normal_with_deeper) > 0
 
 
@@ -213,7 +214,13 @@ def test_build_tree_display_shows_full_tree():
 def test_build_tree_display_marks_current_and_bookmark():
     root = _node("root", text="Root")
     c1 = _node("c1", parent_id="root", root_id="root", text=" first")
-    c2 = _node("c2", parent_id="root", root_id="root", text=" second", model="openai/gpt-4o-mini")
+    c2 = _node(
+        "c2",
+        parent_id="root",
+        root_id="root",
+        text=" second",
+        model="openai/gpt-4o-mini",
+    )
     c2 = Node(**{**c2.__dict__, "metadata": {"bookmarked": True}})
     state = SessionState(
         current_node_id="c2",
@@ -271,7 +278,9 @@ def test_build_tree_display_marks_checked_out_path():
 def test_build_tree_display_marks_selected_child():
     root = _node("root", text="Root")
     c1 = _node("c1", parent_id="root", root_id="root", text=" first")
-    c2 = _node("c2", parent_id="root", root_id="root", text=" second", model="anthropic/claude")
+    c2 = _node(
+        "c2", parent_id="root", root_id="root", text=" second", model="anthropic/claude"
+    )
     state = SessionState(
         current_node_id="root",
         current_node=root,

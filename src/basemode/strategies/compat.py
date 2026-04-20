@@ -1,5 +1,8 @@
 """Compatibility helpers for model-specific API quirks."""
+
 import re
+
+from ..params import GenerationParams
 
 # Models with an exact-match temperature lock.
 _NO_TEMPERATURE_MODELS = {
@@ -47,7 +50,7 @@ _THINKING_MODELS: dict[str, tuple[int, int]] = {
     "gemini-2.5-flash": (1024, 512),
     "gemini-2.5-flash-lite": (512, 256),
     "gemini-2.5-pro": (2048, 512),
-    "kimi-k2.5": (4096, 512),   # Kimi K2.5 uses a large reasoning budget
+    "kimi-k2.5": (4096, 512),  # Kimi K2.5 uses a large reasoning budget
     "kimi-k2-thinking": (4096, 512),
 }
 
@@ -88,7 +91,9 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
         if via_gemini and fragment in stem:
             return {
                 "max_tokens": max(max_tokens, budget + min_out),
-                "extra_body": {"generationConfig": {"thinkingConfig": {"thinkingLevel": "high"}}},
+                "extra_body": {
+                    "generationConfig": {"thinkingConfig": {"thinkingLevel": "high"}}
+                },
             }
     for fragment, (budget, min_out) in _THINKING_MODELS.items():
         if fragment in stem:
@@ -108,7 +113,7 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
     return {}
 
 
-def build_kwargs(params: "GenerationParams") -> dict:  # type: ignore[name-defined]
+def build_kwargs(params: GenerationParams) -> dict:
     """Build litellm kwargs with model-specific compatibility applied."""
     kwargs: dict = {"max_tokens": params.max_tokens}
     if not no_temperature(params.model):
