@@ -1,5 +1,6 @@
 import pytest
 
+from basemode.display import DisplayLine
 from basemode.session import LoomSession
 from basemode.store import GenerationStore
 from basemode.tui.app import BasemodeApp
@@ -186,6 +187,18 @@ async def test_v_toggles_tree_view(store, tree):
         assert session.view_mode == "tree"
         await pilot.press("v")
         assert session.view_mode == "branch"
+
+
+@pytest.mark.asyncio
+async def test_n_toggles_model_names(store, tree):
+    ab, _ = tree
+    session = LoomSession(store, ab[0].id)
+    app = BasemodeApp(session)
+    async with app.run_test(headless=True) as pilot:
+        await pilot.press("n")
+        assert session.show_model_names is False
+        await pilot.press("n")
+        assert session.show_model_names is True
 
 
 @pytest.mark.asyncio
@@ -458,6 +471,28 @@ def test_loom_view_update_state_does_not_raise_unmounted(store, tree):
 def test_loom_view_uses_sane_width_before_layout():
     lv = LoomView()
     assert lv._content_width() == 80
+
+
+def test_loom_view_tree_scroll_prefers_selected_line():
+    lv = LoomView()
+    lines = [
+        DisplayLine("root", "current"),
+        DisplayLine("child a"),
+        DisplayLine("child b", "selected"),
+    ]
+    assert lv._tree_scroll_target(lines) == 0
+
+
+def test_loom_view_tree_scroll_falls_back_to_current_line():
+    lv = LoomView()
+    lines = [
+        DisplayLine("root"),
+        DisplayLine("child a"),
+        DisplayLine("child b"),
+        DisplayLine("child c"),
+        DisplayLine("child d", "current"),
+    ]
+    assert lv._tree_scroll_target(lines) == 1
 
 
 @pytest.mark.asyncio

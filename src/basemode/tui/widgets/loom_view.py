@@ -7,7 +7,7 @@ from textual.app import ComposeResult
 from textual.containers import VerticalScroll
 from textual.widgets import Static
 
-from ...display import build_loom_display, build_tree_display
+from ...display import DisplayLine, build_loom_display, build_tree_display
 from ...session import SessionState
 
 _STYLES = {
@@ -17,6 +17,7 @@ _STYLES = {
     "path": Style(color="cyan", bold=True),
     "current": Style(color="black", bgcolor="cyan", bold=True),
     "selected": Style(color="yellow", bold=True),
+    "model": Style(color="magenta", bold=True),
 }
 
 
@@ -51,9 +52,24 @@ class LoomView(VerticalScroll):
             lines = build_loom_display(state, width)
         result = Text(no_wrap=True, overflow="fold")
         for line in lines:
-            result.append(line.text + "\n", style=_STYLES[line.style])
+            text = Text(line.text + "\n", style=_STYLES[line.style])
+            for span in line.spans:
+                text.stylize(_STYLES[span.style], span.start, span.end)
+            result.append_text(text)
         self.query_one("#loom-content", Static).update(result)
-        self.scroll_end(animate=False)
+        if state.view_mode == "tree":
+            self.scroll_to(y=self._tree_scroll_target(lines), animate=False)
+        else:
+            self.scroll_end(animate=False)
+
+    def _tree_scroll_target(self, lines: list[DisplayLine]) -> int:
+        for index, line in enumerate(lines):
+            if line.style == "selected":
+                return max(0, index - 3)
+        for index, line in enumerate(lines):
+            if line.style == "current":
+                return max(0, index - 3)
+        return 0
 
     def _content_width(self) -> int:
         width = self.scrollable_content_region.width

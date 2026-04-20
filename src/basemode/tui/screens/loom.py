@@ -39,6 +39,7 @@ class LoomScreen(Screen):
         Binding("a", "branches_down", "-n", show=False),
         Binding("d", "branches_up", "+n", show=False),
         Binding("v", "toggle_tree_view", "Tree"),
+        Binding("n", "toggle_model_names", "Names", show=False),
         Binding("H", "toggle_hoist", "Hoist", show=False),
         Binding("b", "toggle_bookmark", "Bookmark", show=False),
         Binding("B", "next_bookmark", "Next mark", show=False),
@@ -68,7 +69,8 @@ class LoomScreen(Screen):
         info = (
             f"{s._current_id[:8]} {short_model}  "
             f"tokens:{s.max_tokens} branches:{s.n_branches}  "
-            f"view:{s.view_mode}{' hoist' if s._hoisted_id else ''}  "
+            f"view:{s.view_mode}{' hoist' if s._hoisted_id else ''} "
+            f"names:{'on' if s.show_model_names else 'off'}  "
             "hjkl nav  space gen  e edit  v view  b mark  tab trees  q quit"
         )
         self.sub_title = info
@@ -112,6 +114,10 @@ class LoomScreen(Screen):
 
     def action_toggle_tree_view(self) -> None:
         self.session.toggle_tree_view()
+        self._refresh()
+
+    def action_toggle_model_names(self) -> None:
+        self.session.toggle_model_names()
         self._refresh()
 
     def action_toggle_hoist(self) -> None:

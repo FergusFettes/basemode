@@ -12,13 +12,13 @@ from basemode.session import SessionState
 from basemode.store import Node
 
 
-def _node(id, parent_id=None, root_id=None, text=""):
+def _node(id, parent_id=None, root_id=None, text="", model=None):
     return Node(
         id=id,
         parent_id=parent_id,
         root_id=root_id or id,
         text=text,
-        model=None,
+        model=model,
         strategy=None,
         max_tokens=None,
         temperature=None,
@@ -213,7 +213,7 @@ def test_build_tree_display_shows_full_tree():
 def test_build_tree_display_marks_current_and_bookmark():
     root = _node("root", text="Root")
     c1 = _node("c1", parent_id="root", root_id="root", text=" first")
-    c2 = _node("c2", parent_id="root", root_id="root", text=" second")
+    c2 = _node("c2", parent_id="root", root_id="root", text=" second", model="openai/gpt-4o-mini")
     c2 = Node(**{**c2.__dict__, "metadata": {"bookmarked": True}})
     state = SessionState(
         current_node_id="c2",
@@ -234,8 +234,11 @@ def test_build_tree_display_marks_current_and_bookmark():
     )
     lines = build_tree_display(state, 80)
     text = "\n".join(line.text for line in lines)
-    assert ">b c2" in text
-    assert any(line.style == "current" and "c2" in line.text for line in lines)
+    assert ">b gpt-4o-mini" in text
+    assert "c2" not in text
+    current = next(line for line in lines if line.style == "current")
+    assert current.spans[0].style == "model"
+    assert "second" in current.text
 
 
 def test_build_tree_display_marks_checked_out_path():
@@ -260,15 +263,15 @@ def test_build_tree_display_marks_checked_out_path():
         tree_nodes=[root, c1, gc],
     )
     lines = build_tree_display(state, 80)
-    assert any(line.style == "path" and "root" in line.text for line in lines)
-    assert any(line.style == "path" and "c1" in line.text for line in lines)
-    assert any(line.style == "current" and "gc" in line.text for line in lines)
+    assert any(line.style == "path" and "Root" in line.text for line in lines)
+    assert any(line.style == "path" and "first" in line.text for line in lines)
+    assert any(line.style == "current" and "deeper" in line.text for line in lines)
 
 
 def test_build_tree_display_marks_selected_child():
     root = _node("root", text="Root")
     c1 = _node("c1", parent_id="root", root_id="root", text=" first")
-    c2 = _node("c2", parent_id="root", root_id="root", text=" second")
+    c2 = _node("c2", parent_id="root", root_id="root", text=" second", model="anthropic/claude")
     state = SessionState(
         current_node_id="root",
         current_node=root,
@@ -287,7 +290,39 @@ def test_build_tree_display_marks_selected_child():
         tree_nodes=[root, c1, c2],
     )
     lines = build_tree_display(state, 80)
-    assert any(line.style == "selected" and "*  c2" in line.text for line in lines)
+    assert any(line.style == "selected" and "*  claude" in line.text for line in lines)
+
+
+def test_build_tree_display_can_hide_model_names():
+    root = _node("root", text="Root")
+    child = _node(
+        "child",
+        parent_id="root",
+        root_id="root",
+        text=" child text",
+        model="openai/gpt-4o-mini",
+    )
+    state = SessionState(
+        current_node_id="root",
+        current_node=root,
+        full_text="Root",
+        children=[child],
+        selected_child_idx=0,
+        descendant_counts={},
+        continuation_text="",
+        model="gpt-4o-mini",
+        max_tokens=200,
+        temperature=0.9,
+        n_branches=1,
+        context="",
+        root_id="root",
+        view_mode="tree",
+        tree_nodes=[root, child],
+        show_model_names=False,
+    )
+    text = "\n".join(line.text for line in build_tree_display(state, 80))
+    assert "gpt-4o-mini" not in text
+    assert "child text" in text
 
 
 def test_build_tree_display_hoists_subtree():
@@ -315,7 +350,8 @@ def test_build_tree_display_hoists_subtree():
     )
     lines = build_tree_display(state, 80)
     text = "\n".join(line.text for line in lines)
-    assert "[hoist c1]" in text
+    assert "[hoist]" in text
+    assert "c1" not in text
     assert "deeper" in text
     assert "second" not in text
 

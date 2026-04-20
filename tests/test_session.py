@@ -147,6 +147,15 @@ def test_toggle_tree_view_adds_tree_nodes(branched_store):
     assert len(state.tree_nodes) == 4
 
 
+def test_toggle_model_names_updates_state(branched_store):
+    store, ab, _ = branched_store
+    session = LoomSession(store, ab[0].id)
+    state = session.toggle_model_names()
+    assert state.show_model_names is False
+    state = session.toggle_model_names()
+    assert state.show_model_names is True
+
+
 def test_toggle_hoist_uses_current_node(branched_store):
     store, ab, _ = branched_store
     session = LoomSession(store, ab[0].id)
@@ -278,6 +287,16 @@ def test_save_persists_model_and_tokens(store):
     assert root.metadata["model"] == "claude-3"
     assert root.metadata["max_tokens"] == 400
     assert root.metadata["n_branches"] == 3
+    assert root.metadata["show_model_names"] is True
+
+
+def test_save_persists_model_name_visibility(store):
+    _, ch = store.save_continuations("X", ["Y"], model="m", strategy="s", max_tokens=10, temperature=0.9)
+    session = LoomSession(store, ch[0].id)
+    session.toggle_model_names()
+    session.save()
+    session2 = LoomSession(store, ch[0].id)
+    assert session2.show_model_names is False
 
 
 def test_save_restores_on_reload(store, tmp_path):

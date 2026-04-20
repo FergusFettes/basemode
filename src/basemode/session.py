@@ -73,6 +73,7 @@ class SessionState:
     view_mode: Literal["branch", "tree"] = "branch"
     hoisted_node_id: str | None = None
     tree_nodes: list[Node] | None = None
+    show_model_names: bool = True
 
 
 # ---------------------------------------------------------------------------
@@ -102,6 +103,7 @@ class LoomSession:
         self.n_branches: int = int(meta.get("n_branches", 1))
         self.view_mode: Literal["branch", "tree"] = "branch"
         self._hoisted_id: str | None = None
+        self.show_model_names: bool = bool(meta.get("show_model_names", True))
 
     # --- State snapshot ---
 
@@ -132,6 +134,7 @@ class LoomSession:
             view_mode=self.view_mode,
             hoisted_node_id=self._hoisted_id,
             tree_nodes=tree_nodes,
+            show_model_names=self.show_model_names,
         )
 
     def _get_continuation_text(self, selected_child: Node) -> str:
@@ -186,6 +189,10 @@ class LoomSession:
 
     def toggle_tree_view(self) -> SessionState:
         self.view_mode = "tree" if self.view_mode == "branch" else "branch"
+        return self.get_state()
+
+    def toggle_model_names(self) -> SessionState:
+        self.show_model_names = not self.show_model_names
         return self.get_state()
 
     def toggle_hoist(self) -> SessionState:
@@ -425,6 +432,7 @@ class LoomSession:
                 "model": self.model,
                 "max_tokens": self.max_tokens,
                 "n_branches": self.n_branches,
+                "show_model_names": self.show_model_names,
             },
         )
 

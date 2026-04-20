@@ -23,9 +23,17 @@ TREE_BLANK = "   "
 
 
 @dataclass(frozen=True)
+class DisplaySpan:
+    start: int
+    end: int
+    style: Literal["model"]
+
+
+@dataclass(frozen=True)
 class DisplayLine:
     text: str
     style: Literal["normal", "bold", "dim", "path", "current", "selected"] = "normal"
+    spans: tuple[DisplaySpan, ...] = ()
 
 
 def wrap_text(text: str, width: int) -> list[str]:
@@ -127,7 +135,7 @@ def build_tree_display(state: SessionState, width: int) -> list[DisplayLine]:
 
     lines: list[DisplayLine] = []
     if state.hoisted_node_id:
-        lines.append(DisplayLine(f"[hoist {root.id[:8]}] {root_label(root, width - 17)}", "dim"))
+        lines.append(DisplayLine(f"[hoist] {root_label(root, width - 8)}", "dim"))
 
     def visit(node: Node, prefix: str, is_last: bool, is_root: bool = False) -> None:
         connector = "" if is_root else (TREE_LAST if is_last else TREE_MID)
@@ -138,6 +146,7 @@ def build_tree_display(state: SessionState, width: int) -> list[DisplayLine]:
             selected=node.id == selected_child_id,
             bookmarked=bool(node.metadata.get("bookmarked")),
             descendants=descendant_counts.get(node.id, 0),
+            show_model=state.show_model_names,
             width=max(10, width - len(line_prefix)),
         )
         if node.id == state.current_node_id:
@@ -148,7 +157,17 @@ def build_tree_display(state: SessionState, width: int) -> list[DisplayLine]:
             style = "selected"
         else:
             style = "normal"
-        lines.append(DisplayLine((line_prefix + label)[:width], style))
+        text = (line_prefix + label.text)[:width]
+        spans = tuple(
+            DisplaySpan(
+                span.start + len(line_prefix),
+                min(span.end + len(line_prefix), width),
+                span.style,
+            )
+            for span in label.spans
+            if span.start + len(line_prefix) < width
+        )
+        lines.append(DisplayLine(text, style, spans))
 
         child_prefix = prefix if is_root else prefix + (TREE_BLANK if is_last else TREE_PIPE)
         children = children_by_parent.get(node.id, [])
@@ -196,14 +215,27 @@ def _tree_node_label(
     selected: bool,
     bookmarked: bool,
     descendants: int,
+    show_model: bool,
     width: int,
-) -> str:
+) -> DisplayLine:
     cursor = ">" if current else "*" if selected else " "
     bookmark = "b" if bookmarked else " "
     count = f" +{descendants}" if descendants else ""
-    model = f" {node.model.split('/')[-1]}" if node.model else ""
-    fixed = f"{cursor}{bookmark} {node.id[:8]}{model}{count} "
-    return fixed + _flatten_preview(node.text, width - len(fixed))
+    model = _short_model_name(node.model) if show_model and node.model else ""
+    model_prefix = f"{model} " if model else ""
+    fixed = f"{cursor}{bookmark} {model_prefix}{count} "
+    text = fixed + _flatten_preview(node.text, width - len(fixed))
+    spans: tuple[DisplaySpan, ...] = ()
+    if model:
+        start = len(f"{cursor}{bookmark} ")
+        spans = (DisplaySpan(start, start + len(model), "model"),)
+    return DisplayLine(text, "normal", spans)
+
+
+def _short_model_name(model: str | None) -> str:
+    if not model:
+        return ""
+    return model.split("/")[-1]
 
 
 def _flatten_preview(text: str, width: int) -> str:
