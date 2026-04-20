@@ -104,6 +104,7 @@ class LoomSession:
         self.max_tokens: int = int(meta.get("max_tokens", 200))
         self.temperature: float = float(meta.get("temperature", 0.9))
         self.n_branches: int = int(meta.get("n_branches", 1))
+        self.rewind: bool = bool(meta.get("rewind", False))
         self.view_mode: Literal["branch", "tree"] = "branch"
         self._hoisted_id: str | None = None
         self.show_model_names: bool = bool(meta.get("show_model_names", True))
@@ -259,6 +260,7 @@ class LoomSession:
                     max_tokens=max_tokens,
                     temperature=temperature,
                     context=context,
+                    rewind=self.rewind,
                 ):
                     if self._cancelled.is_set():
                         break
@@ -446,6 +448,7 @@ class LoomSession:
                 "model": self.model,
                 "max_tokens": self.max_tokens,
                 "n_branches": self.n_branches,
+                "rewind": self.rewind,
                 "show_model_names": self.show_model_names,
             },
         )

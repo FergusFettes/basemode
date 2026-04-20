@@ -63,14 +63,24 @@ app = typer.Typer(
 
 
 async def _stream_one(
-    prefix: str, model: str, max_tokens: int, temperature: float, strategy: str | None
+    prefix: str,
+    model: str,
+    max_tokens: int,
+    temperature: float,
+    strategy: str | None,
+    rewind: bool = False,
 ) -> str:
     from basemode.continue_ import continue_text
 
     console.print(f"[dim]{prefix}[/dim]", end="")
     chunks: list[str] = []
     async for token in continue_text(
-        prefix, model, max_tokens=max_tokens, temperature=temperature, strategy=strategy
+        prefix,
+        model,
+        max_tokens=max_tokens,
+        temperature=temperature,
+        strategy=strategy,
+        rewind=rewind,
     ):
         chunks.append(token)
         console.print(token, end="")
@@ -85,6 +95,7 @@ async def _stream_branches(
     max_tokens: int,
     temperature: float,
     strategy: str | None,
+    rewind: bool = False,
 ) -> list[str]:
     from basemode.continue_ import branch_text
 
@@ -102,6 +113,7 @@ async def _stream_branches(
             max_tokens=max_tokens,
             temperature=temperature,
             strategy=strategy,
+            rewind=rewind,
         ):
             buffers[idx].append(token)
             live.update(_branches_panel(prefix, buffers))
@@ -142,6 +154,13 @@ def loom_run(
     max_tokens: Annotated[int, typer.Option("-M", "--max-tokens")] = 200,
     temperature: Annotated[float, typer.Option("-t", "--temperature")] = 0.9,
     strategy: Annotated[str | None, typer.Option("-s", "--strategy")] = None,
+    rewind: Annotated[
+        bool,
+        typer.Option(
+            "--rewind",
+            help="Rewind short trailing word fragments before generation.",
+        ),
+    ] = False,
     show_strategy: Annotated[bool, typer.Option("--show-strategy")] = False,
     show_usage: Annotated[
         bool,
@@ -172,6 +191,7 @@ def loom_run(
         max_tokens,
         temperature,
         strategy,
+        rewind,
         show_strategy,
         show_usage,
         show_cost,
@@ -194,6 +214,13 @@ def loom_continue(
     max_tokens: Annotated[int, typer.Option("-M", "--max-tokens")] = 200,
     temperature: Annotated[float, typer.Option("-t", "--temperature")] = 0.9,
     strategy: Annotated[str | None, typer.Option("-s", "--strategy")] = None,
+    rewind: Annotated[
+        bool,
+        typer.Option(
+            "--rewind",
+            help="Rewind short trailing word fragments before generation.",
+        ),
+    ] = False,
     show_strategy: Annotated[bool, typer.Option("--show-strategy")] = False,
     show_usage: Annotated[
         bool,
@@ -225,6 +252,7 @@ def loom_continue(
         max_tokens,
         temperature,
         strategy,
+        rewind,
         show_strategy,
         show_usage,
         show_cost,
@@ -764,6 +792,7 @@ def _run_loom_generation(
     max_tokens: int,
     temperature: float,
     strategy: str | None,
+    rewind: bool,
     show_strategy: bool,
     show_usage: bool,
     show_cost: bool,
@@ -778,7 +807,7 @@ def _run_loom_generation(
         console.print(f"[dim]strategy: {strat.name}[/dim]")
     if n == 1:
         completion = asyncio.run(
-            _stream_one(prefix, model, max_tokens, temperature, strategy)
+            _stream_one(prefix, model, max_tokens, temperature, strategy, rewind)
         )
         _save_loom_run(
             store,
@@ -796,7 +825,9 @@ def _run_loom_generation(
             )
     else:
         completions = asyncio.run(
-            _stream_branches(prefix, model, n, max_tokens, temperature, strategy)
+            _stream_branches(
+                prefix, model, n, max_tokens, temperature, strategy, rewind
+            )
         )
         _save_loom_run(
             store,

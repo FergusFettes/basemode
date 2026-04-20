@@ -21,6 +21,7 @@ async def continue_text(
     temperature: float = 0.9,
     context: str = "",
     strategy: str | None = None,
+    rewind: bool = False,
     **extra,
 ) -> AsyncGenerator[str, None]:
     """Stream a single continuation."""
@@ -42,7 +43,7 @@ async def continue_text(
         len(prefix),
     )
     token_count = 0
-    generation_prefix, rewind_fragment = _generation_prefix(prefix, strat.name)
+    generation_prefix, rewind_fragment = _generation_prefix(prefix, strat.name, rewind)
     try:
         raw_tokens = strat.stream(generation_prefix, params)
         healed_tokens = strip_rewind_overlap(raw_tokens, rewind_fragment)
@@ -63,6 +64,7 @@ async def branch_text(
     max_tokens: int = 200,
     temperature: float = 0.9,
     strategy: str | None = None,
+    rewind: bool = False,
     **extra,
 ) -> AsyncGenerator[tuple[int, str], None]:
     """Stream n parallel continuations as (branch_idx, token) tuples."""
@@ -73,7 +75,7 @@ async def branch_text(
     strat = detect_strategy(model, strategy)
 
     queue: asyncio.Queue[tuple[int, str] | None] = asyncio.Queue()
-    generation_prefix, rewind_fragment = _generation_prefix(prefix, strat.name)
+    generation_prefix, rewind_fragment = _generation_prefix(prefix, strat.name, rewind)
 
     async def run_branch(idx: int) -> None:
         raw_tokens = strat.stream(generation_prefix, params)
@@ -94,7 +96,9 @@ async def branch_text(
     await asyncio.gather(*tasks)
 
 
-def _generation_prefix(prefix: str, strategy_name: str) -> tuple[str, str]:
-    if strategy_name in {"system", "few_shot"}:
+def _generation_prefix(
+    prefix: str, strategy_name: str, rewind: bool
+) -> tuple[str, str]:
+    if rewind and strategy_name in {"system", "few_shot"}:
         return rewind_prefix_to_word_boundary(prefix)
     return prefix, ""

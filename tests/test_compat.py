@@ -2,6 +2,24 @@ from basemode.params import GenerationParams
 from basemode.strategies.compat import build_kwargs
 
 
+def test_generation_prefix_does_not_rewind_by_default() -> None:
+    from basemode.continue_ import _generation_prefix
+
+    assert _generation_prefix("twas brilig and the sli", "system", False) == (
+        "twas brilig and the sli",
+        "",
+    )
+
+
+def test_generation_prefix_rewinds_when_requested() -> None:
+    from basemode.continue_ import _generation_prefix
+
+    assert _generation_prefix("twas brilig and the sli", "system", True) == (
+        "twas brilig and the ",
+        "sli",
+    )
+
+
 def test_moonshot_kimi_does_not_send_thinking_param() -> None:
     kwargs = build_kwargs(GenerationParams(model="moonshot/kimi-k2.5", max_tokens=200))
 
