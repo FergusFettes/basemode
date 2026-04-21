@@ -11,7 +11,7 @@ Requires Python 3.11+.
 ## From source
 
 ```bash
-git clone https://github.com/fergus/basemode
+git clone https://github.com/FergusFettes/basemode
 cd basemode
 uv sync
 ```
