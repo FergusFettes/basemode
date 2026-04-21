@@ -1,0 +1,83 @@
+name: Integration provider health
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "35 6 * * 3"
+
+jobs:
+  integration-health:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Sync deps
+        run: uv sync --all-groups
+
+      - name: Run integration tests
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
+          MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          ZAI_API_KEY: ${{ secrets.ZAI_API_KEY }}
+        run: uv run pytest -m integration tests/test_integration.py -q
+
+      - name: Append health summary
+        if: always()
+        run: |
+          if [ -f dist/integration/provider_health.json ]; then
+            echo "## Provider health" >> "$GITHUB_STEP_SUMMARY"
+            uv run python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+import json
+from collections import defaultdict
+from pathlib import Path
+p = Path('dist/integration/provider_health.json')
+rows = json.loads(p.read_text()).get('rows', [])
+agg = defaultdict(lambda: {'ok': 0, 'error': 0, 'xfail': 0, 'cost': 0.0})
+total_cost = 0.0
+for r in rows:
+    provider = r['provider']
+    status = r.get('status', 'error')
+    if status == 'ok':
+        agg[provider]['ok'] += 1
+    elif status == 'xfail_retired_model':
+        agg[provider]['xfail'] += 1
+    else:
+        agg[provider]['error'] += 1
+    cost = r.get('estimated_cost_usd')
+    if isinstance(cost, (int, float)):
+        agg[provider]['cost'] += float(cost)
+        total_cost += float(cost)
+
+print('| Provider | OK | Error | XFail | Est. cost |')
+print('|---|---:|---:|---:|---:|')
+for provider in sorted(agg):
+    v = agg[provider]
+    print(f"| {provider} | {v['ok']} | {v['error']} | {v['xfail']} | ${v['cost']:.6f} |")
+print()
+print(f"Estimated total test cost: ${total_cost:.6f}")
+PY
+          else
+            echo "No health report generated." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload provider health artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: provider-health-report
+          path: dist/integration/provider_health.json
+          if-no-files-found: warn
