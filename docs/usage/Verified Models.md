@@ -1,44 +1,4 @@
-# basemode
-
-Make any LLM do raw text continuation.
-
-## Install
-
-```bash
-pip install basemode
-```
-
-## CLI
-
-```bash
-basemode --help
-```
-
-## Docs
-
-Full documentation is in `docs/` and can be served with MkDocs:
-
-```bash
-mkdocs serve
-```
-
-## Integration Health Checks
-
-Run live provider checks (real APIs, key-aware skips):
-
-```bash
-uv run pytest -m integration tests/test_integration.py -q
-```
-
-This writes a machine-readable health report to:
-
-`dist/integration/provider_health.json`
-
-Report rows include latency, token estimates, and estimated USD cost per test call.
-
-<!-- verified-models:start -->
-
-## Verified Models
+# Verified Models
 
 Single generated table, refreshed by CI.
 
@@ -66,5 +26,3 @@ Single generated table, refreshed by CI.
 | `zai/glm-5` | $1.00 | $3.20 | 2026-02-11 | `system` | ✓ |
 
 Legend: `✓` = LiteLLM pricing present and release date available; `⚠` = missing/approximate field or known issue.
-
-<!-- verified-models:end -->

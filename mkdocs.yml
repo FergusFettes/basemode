@@ -1,0 +1,54 @@
+site_name: basemode
+site_description: Make any LLM do raw text continuation
+repo_url: https://github.com/fergus/basemode
+repo_name: basemode
+
+theme:
+  name: material
+  palette:
+    scheme: slate
+    primary: indigo
+    accent: indigo
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+    - toc.integrate
+
+plugins:
+  - search
+  - roamlinks
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Models: usage/Verified Models.md
+  - Getting Started:
+    - Installation: getting-started/Installation.md
+    - Quickstart: getting-started/Quickstart.md
+  - Concepts:
+    - How It Works: concepts/How It Works.md
+    - Strategies: concepts/Strategies.md
+    - Model Normalization: concepts/Model Normalization.md
+  - Usage:
+    - CLI Reference: usage/CLI Reference.md
+    - Python API: usage/Python API.md
+    - Keys and Defaults: usage/Keys and Defaults.md
+  - Reference:
+    - continue_text: reference/continue_text.md
+    - branch_text: reference/branch_text.md
+    - GenerationParams: reference/GenerationParams.md
+    - detect_strategy: reference/detect_strategy.md
