@@ -342,7 +342,9 @@ def models(
 
     results = list_models(provider=provider, search=search, available_only=available)
     if verified:
-        verified_models = {e["model"] for e in list_model_picker_entries(verified_only=True)}
+        verified_models = {
+            e["model"] for e in list_model_picker_entries(verified_only=True)
+        }
         results = [m for m in results if m in verified_models]
     if not results:
         console.print("[yellow]No models found.[/yellow]")

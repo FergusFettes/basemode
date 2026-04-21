@@ -62,7 +62,9 @@ def test_model_picker_verified_only_filters_results() -> None:
 
 def test_build_model_picker_state_supports_multi_select() -> None:
     selected = ["openai/gpt-4o-mini", "openai/gpt-5.4-mini", "zai/glm-5"]
-    state = build_model_picker_state(selected=selected, max_models=3, verified_only=True)
+    state = build_model_picker_state(
+        selected=selected, max_models=3, verified_only=True
+    )
     assert state["max_models"] == 3
     assert state["selected"] == selected
     assert state["too_many_selected"] is False
