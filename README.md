@@ -2,25 +2,81 @@
 
 Make any LLM do raw text continuation.
 
+`basemode` coerces chat-tuned models into clean next-token continuation mode (instead of assistant-style replies), with strategy selection handled per model/provider.
+
 ## Install
 
 ```bash
 pip install basemode
 ```
 
+Set provider keys via environment variables or `.env` (for example `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `OPENROUTER_API_KEY`, `GEMINI_API_KEY`, `GROQ_API_KEY`, `TOGETHER_API_KEY`).
+
+## Quickstart
+
+```bash
+# Single continuation (default model if configured, else fallback)
+basemode "The ship rounded the headland and"
+
+# Parallel continuations
+basemode "The ship rounded the headland and" -n 3
+
+# Inspect selected strategy and pricing metadata
+basemode info claude-sonnet-4-6
+
+# Show only key-configured models
+basemode models --available
+```
+
 ## CLI
 
 ```bash
 basemode --help
+basemode run --help
+basemode models --help
+basemode info --help
+basemode strategies --help
+```
+
+Useful commands:
+
+- `basemode run` (default): stream continuation text
+- `basemode models`: list models (supports `--verified` and `--json` for picker UIs)
+- `basemode providers`: list provider IDs
+- `basemode info`: show normalized model + prompt strategy + pricing metadata
+- `basemode default`: get/set your default model
+- `basemode keys`: manage stored API keys
+
+## Python API
+
+```python
+from basemode import continue_text, branch_text
+
+async for token in continue_text(
+    "The ship rounded the headland and",
+    model="gpt-4o-mini",
+    max_tokens=120,
+):
+    print(token, end="", flush=True)
+
+async for idx, token in branch_text(
+    "The ship rounded the headland and",
+    model="gpt-4o-mini",
+    n=3,
+    max_tokens=80,
+):
+    print(idx, token, end="", flush=True)
 ```
 
 ## Docs
 
-Full documentation is in `docs/` and can be served with MkDocs:
+Full docs are in `docs/` and can be served with MkDocs:
 
 ```bash
-mkdocs serve
+make docs-serve
 ```
+
+Then open `http://localhost:8001`.
 
 ## Integration Health Checks
 
@@ -30,11 +86,7 @@ Run live provider checks (real APIs, key-aware skips):
 uv run pytest -m integration tests/test_integration.py -q
 ```
 
-This writes a machine-readable health report to:
-
-`dist/integration/provider_health.json`
-
-Report rows include latency, token estimates, and estimated USD cost per test call.
+This writes a machine-readable report to `dist/integration/provider_health.json` with per-model status, latency, token estimates, and estimated USD cost.
 
 <!-- verified-models:start -->
 
