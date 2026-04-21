@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import sys
 from typing import Annotated
@@ -311,11 +312,38 @@ def models(
     available: Annotated[
         bool, typer.Option("-a", "--available", help="Only show models with keys set")
     ] = False,
+    verified: Annotated[
+        bool,
+        typer.Option(
+            "--verified",
+            help="Only show models in the verified registry table.",
+        ),
+    ] = False,
+    as_json: Annotated[
+        bool,
+        typer.Option(
+            "--json",
+            help="Emit structured JSON for frontend model pickers.",
+        ),
+    ] = False,
 ) -> None:
     """List available models."""
-    from .models import list_models
+    from .models import list_model_picker_entries, list_models
+
+    if as_json:
+        entries = list_model_picker_entries(
+            provider=provider,
+            search=search,
+            available_only=available,
+            verified_only=verified,
+        )
+        console.print(json.dumps(entries, indent=2))
+        return
 
     results = list_models(provider=provider, search=search, available_only=available)
+    if verified:
+        verified_models = {e["model"] for e in list_model_picker_entries(verified_only=True)}
+        results = [m for m in results if m in verified_models]
     if not results:
         console.print("[yellow]No models found.[/yellow]")
         return

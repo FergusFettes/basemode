@@ -28,8 +28,10 @@ _setup_logging()
 __all__ = [
     "GenerationParams",
     "branch_text",
+    "build_model_picker_state",
     "continue_text",
     "detect_strategy",
+    "list_model_picker_entries",
 ]
 
 
@@ -42,6 +44,13 @@ def __getattr__(name: str):
         from .detect import detect_strategy
 
         return detect_strategy
+    if name in {"list_model_picker_entries", "build_model_picker_state"}:
+        from .models import build_model_picker_state, list_model_picker_entries
+
+        return {
+            "list_model_picker_entries": list_model_picker_entries,
+            "build_model_picker_state": build_model_picker_state,
+        }[name]
     if name == "GenerationParams":
         from .params import GenerationParams
 

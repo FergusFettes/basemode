@@ -1,0 +1,303 @@
+{
+  "generated_at_utc": "2026-04-21T17:57:27.299255+00:00",
+  "rows": [
+    {
+      "model": "anthropic/claude-haiku-4-5-20251001",
+      "input_cost_per_token": 1e-06,
+      "output_cost_per_token": 5e-06,
+      "release_date": "2025-10-01",
+      "prompt_method": "prefill",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://docs.anthropic.com/en/docs/about-claude/pricing"
+      ]
+    },
+    {
+      "model": "anthropic/claude-opus-4-1-20250805",
+      "input_cost_per_token": 1.5e-05,
+      "output_cost_per_token": 7.5e-05,
+      "release_date": "2025-08-05",
+      "prompt_method": "prefill",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://docs.anthropic.com/en/docs/about-claude/pricing"
+      ]
+    },
+    {
+      "model": "anthropic/claude-opus-4-20250514",
+      "input_cost_per_token": 1.5e-05,
+      "output_cost_per_token": 7.5e-05,
+      "release_date": "2025-05-22",
+      "prompt_method": "prefill",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://docs.anthropic.com/en/docs/about-claude/pricing"
+      ]
+    },
+    {
+      "model": "anthropic/claude-opus-4-5-20251101",
+      "input_cost_per_token": 5e-06,
+      "output_cost_per_token": 2.5e-05,
+      "release_date": "2025-11-24",
+      "prompt_method": "prefill",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://docs.anthropic.com/en/docs/about-claude/pricing"
+      ]
+    },
+    {
+      "model": "anthropic/claude-opus-4-6",
+      "input_cost_per_token": 5e-06,
+      "output_cost_per_token": 2.5e-05,
+      "release_date": "2026-02-05",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://docs.anthropic.com/en/docs/about-claude/pricing"
+      ]
+    },
+    {
+      "model": "anthropic/claude-opus-4-7",
+      "input_cost_per_token": 5e-06,
+      "output_cost_per_token": 2.5e-05,
+      "release_date": "2026-04-16",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://docs.anthropic.com/en/docs/about-claude/pricing"
+      ]
+    },
+    {
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "input_cost_per_token": 3e-06,
+      "output_cost_per_token": 1.5e-05,
+      "release_date": "2025-05-22",
+      "prompt_method": "prefill",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://docs.anthropic.com/en/docs/about-claude/pricing"
+      ]
+    },
+    {
+      "model": "anthropic/claude-sonnet-4-5-20250929",
+      "input_cost_per_token": 3e-06,
+      "output_cost_per_token": 1.5e-05,
+      "release_date": "2025-09-29",
+      "prompt_method": "prefill",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://docs.anthropic.com/en/docs/about-claude/pricing"
+      ]
+    },
+    {
+      "model": "anthropic/claude-sonnet-4-6",
+      "input_cost_per_token": 3e-06,
+      "output_cost_per_token": 1.5e-05,
+      "release_date": "2026-02-17",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://docs.anthropic.com/en/docs/about-claude/pricing"
+      ]
+    },
+    {
+      "model": "gemini/gemini-2.5-flash",
+      "input_cost_per_token": 3e-07,
+      "output_cost_per_token": 2.5e-06,
+      "release_date": "2025-06-17",
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "release_date_is_openrouter_created"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://ai.google.dev/gemini-api/docs/pricing"
+      ]
+    },
+    {
+      "model": "gemini/gemini-2.5-pro",
+      "input_cost_per_token": 1.25e-06,
+      "output_cost_per_token": 1e-05,
+      "release_date": "2025-06-17",
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "release_date_is_openrouter_created"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://ai.google.dev/gemini-api/docs/pricing"
+      ]
+    },
+    {
+      "model": "gemini/gemma-4-26b-a4b-it",
+      "input_cost_per_token": 7e-08,
+      "output_cost_per_token": 3.5e-07,
+      "release_date": "2026-04-03",
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "litellm_missing_pricing",
+        "price_not_from_litellm"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://ai.google.dev/gemini-api/docs/pricing"
+      ]
+    },
+    {
+      "model": "gemini/gemma-4-31b-it",
+      "input_cost_per_token": 1.3e-07,
+      "output_cost_per_token": 3.8e-07,
+      "release_date": "2026-04-02",
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "litellm_missing_pricing",
+        "price_not_from_litellm"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://ai.google.dev/gemini-api/docs/pricing"
+      ]
+    },
+    {
+      "model": "moonshot/kimi-k2-0905-preview",
+      "input_cost_per_token": 6e-07,
+      "output_cost_per_token": 2.5e-06,
+      "release_date": "2025-07-11",
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "release_date_is_openrouter_created"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://platform.moonshot.ai/docs/pricing/chat"
+      ]
+    },
+    {
+      "model": "moonshot/kimi-k2.5",
+      "input_cost_per_token": 6e-07,
+      "output_cost_per_token": 3e-06,
+      "release_date": "2026-01-27",
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "release_date_is_openrouter_created"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://platform.moonshot.ai/docs/pricing/chat"
+      ]
+    },
+    {
+      "model": "openai/gpt-4o-mini",
+      "input_cost_per_token": 1.5e-07,
+      "output_cost_per_token": 6e-07,
+      "release_date": "2024-07-18",
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "release_date_is_openrouter_created"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-5.4-mini",
+      "input_cost_per_token": 7.5e-07,
+      "output_cost_per_token": 4.5e-06,
+      "release_date": "2026-03-17",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openrouter/moonshotai/kimi-k2.6",
+      "input_cost_per_token": 6e-07,
+      "output_cost_per_token": 2.8e-06,
+      "release_date": "2026-04-20",
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "price_not_from_litellm"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openrouter.ai/moonshotai/kimi-k2.6"
+      ]
+    },
+    {
+      "model": "zai/glm-4.7",
+      "input_cost_per_token": 6e-07,
+      "output_cost_per_token": 2.2e-06,
+      "release_date": "2025-12-22",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://docs.z.ai/guides/overview/pricing"
+      ]
+    },
+    {
+      "model": "zai/glm-5",
+      "input_cost_per_token": 1e-06,
+      "output_cost_per_token": 3.2e-06,
+      "release_date": "2026-02-11",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://docs.z.ai/guides/overview/pricing"
+      ]
+    }
+  ]
+}
