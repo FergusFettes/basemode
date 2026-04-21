@@ -2,6 +2,7 @@ site_name: basemode
 site_description: Make any LLM do raw text continuation
 repo_url: https://github.com/fergus/basemode
 repo_name: basemode
+site_url: https://fergusfettes.github.io/basemode/
 
 theme:
   name: material
