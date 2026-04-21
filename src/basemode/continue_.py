@@ -2,12 +2,15 @@ import asyncio
 import logging
 from collections.abc import AsyncGenerator
 
+import litellm
+
 from .detect import detect_strategy, normalize_model
 from .healing import (
     normalize_stream_newlines,
     rewind_prefix_to_word_boundary,
     strip_rewind_overlap,
 )
+from .keys import load_into_environ
 from .params import GenerationParams
 
 log = logging.getLogger(__name__)
@@ -25,6 +28,8 @@ async def continue_text(
     **extra,
 ) -> AsyncGenerator[str, None]:
     """Stream a single continuation."""
+    litellm.suppress_debug_info = True
+    load_into_environ()
     model = normalize_model(model)
     params = GenerationParams(
         model=model,
@@ -68,6 +73,8 @@ async def branch_text(
     **extra,
 ) -> AsyncGenerator[tuple[int, str], None]:
     """Stream n parallel continuations as (branch_idx, token) tuples."""
+    litellm.suppress_debug_info = True
+    load_into_environ()
     model = normalize_model(model)
     params = GenerationParams(
         model=model, max_tokens=max_tokens, temperature=temperature, extra=extra

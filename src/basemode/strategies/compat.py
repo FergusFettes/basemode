@@ -51,6 +51,7 @@ _THINKING_MODELS: dict[str, tuple[int, int]] = {
     "gemini-2.5-flash-lite": (512, 256),
     "gemini-2.5-pro": (2048, 512),
     "kimi-k2.5": (4096, 512),  # Kimi K2.5 uses a large reasoning budget
+    "kimi-k2.6": (4096, 512),  # Kimi K2.6 exhibits similar long-reasoning behavior
     "kimi-k2-thinking": (4096, 512),
 }
 
@@ -101,9 +102,10 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
             if via_moonshot:
                 return {"max_tokens": adjusted}
             if via_openrouter:
-                # OpenRouter proxied models use extra_body for thinking config
+                # OpenRouter separates visible completion cap from thinking budget.
+                # Preserve the caller's max_tokens instead of inflating it.
                 return {
-                    "max_tokens": adjusted,
+                    "max_tokens": max_tokens,
                     "extra_body": {"thinking": {"budget_tokens": budget}},
                 }
             return {
