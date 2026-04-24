@@ -75,6 +75,13 @@ def run(
             help="Rewind short trailing word fragments before generation.",
         ),
     ] = False,
+    strict_max_tokens: Annotated[
+        bool,
+        typer.Option(
+            "--strict-max-tokens",
+            help="Hard-stop streamed output at max_tokens using client-side token counting.",
+        ),
+    ] = False,
     show_strategy: Annotated[bool, typer.Option("--show-strategy")] = False,
     show_usage: Annotated[
         bool,
@@ -100,6 +107,7 @@ def run(
         temperature,
         strategy,
         rewind,
+        strict_max_tokens,
         show_strategy,
         show_usage,
         show_cost,
@@ -113,6 +121,7 @@ async def _stream_one(
     temperature: float,
     strategy: str | None,
     rewind: bool = False,
+    strict_max_tokens: bool = False,
 ) -> str:
     from .continue_ import continue_text
 
@@ -125,6 +134,7 @@ async def _stream_one(
         temperature=temperature,
         strategy=strategy,
         rewind=rewind,
+        strict_max_tokens=strict_max_tokens,
     ):
         chunks.append(token)
         console.print(token, end="")
@@ -140,6 +150,7 @@ async def _stream_branches(
     temperature: float,
     strategy: str | None,
     rewind: bool = False,
+    strict_max_tokens: bool = False,
 ) -> list[str]:
     from .continue_ import branch_text
 
@@ -158,6 +169,7 @@ async def _stream_branches(
             temperature=temperature,
             strategy=strategy,
             rewind=rewind,
+            strict_max_tokens=strict_max_tokens,
         ):
             buffers[idx].append(token)
             live.update(_branches_panel(prefix, buffers))
@@ -193,6 +205,7 @@ def _run_text(
     temperature: float,
     strategy: str | None,
     rewind: bool,
+    strict_max_tokens: bool,
     show_strategy: bool,
     show_usage: bool,
     show_cost: bool,
@@ -210,7 +223,15 @@ def _run_text(
 
     if n == 1:
         completion = asyncio.run(
-            _stream_one(prefix, model, max_tokens, temperature, strategy, rewind)
+            _stream_one(
+                prefix,
+                model,
+                max_tokens,
+                temperature,
+                strategy,
+                rewind,
+                strict_max_tokens,
+            )
         )
         if show_usage or show_cost:
             _print_usage_estimate(
@@ -219,7 +240,14 @@ def _run_text(
     else:
         completions = asyncio.run(
             _stream_branches(
-                prefix, model, n, max_tokens, temperature, strategy, rewind
+                prefix,
+                model,
+                n,
+                max_tokens,
+                temperature,
+                strategy,
+                rewind,
+                strict_max_tokens,
             )
         )
         if show_usage or show_cost:

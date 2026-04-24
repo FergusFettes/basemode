@@ -28,8 +28,8 @@ NO_PREFILL_MODELS = {
 }
 
 # Known live Anthropic model IDs (from /v1/models, 2026-04-17).
-# Used for best-effort alias resolution — typing `claude-3-haiku` expands to
-# `claude-3-haiku-20240307` when exactly one known model contains that substring.
+# Used for best-effort alias resolution — typing `sonnet-4-5` expands to
+# `claude-sonnet-4-5-20250929` when exactly one known model contains that substring.
 KNOWN_ANTHROPIC_MODELS = {
     "claude-opus-4-7",
     "claude-sonnet-4-6",
@@ -40,7 +40,6 @@ KNOWN_ANTHROPIC_MODELS = {
     "claude-opus-4-1-20250805",
     "claude-opus-4-20250514",
     "claude-sonnet-4-20250514",
-    "claude-3-haiku-20240307",
 }
 
 # Thinking models: consume token budget on internal reasoning before output.
@@ -53,11 +52,6 @@ _THINKING_MODELS: dict[str, tuple[int, int]] = {
     "kimi-k2.5": (4096, 512),  # Kimi K2.5 uses a large reasoning budget
     "kimi-k2.6": (4096, 512),  # Kimi K2.6 exhibits similar long-reasoning behavior
     "kimi-k2-thinking": (4096, 512),
-}
-
-_GEMINI_THINKING_LEVEL_MODELS: dict[str, tuple[int, int]] = {
-    "gemma-4-26b-a4b-it": (4096, 512),
-    "gemma-4-31b-it": (1024, 512),
 }
 
 _ZAI_DISABLE_THINKING_PREFIXES = (
@@ -84,18 +78,9 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
     lower_model = model.lower()
     via_openrouter = lower_model.startswith("openrouter/")
     via_moonshot = lower_model.startswith("moonshot/")
-    via_gemini = lower_model.startswith("gemini/")
     via_zai = lower_model.startswith("zai/")
     if via_zai and stem.startswith(_ZAI_DISABLE_THINKING_PREFIXES):
         return {"extra_body": {"thinking": {"type": "disabled"}}}
-    for fragment, (budget, min_out) in _GEMINI_THINKING_LEVEL_MODELS.items():
-        if via_gemini and fragment in stem:
-            return {
-                "max_tokens": max(max_tokens, budget + min_out),
-                "extra_body": {
-                    "generationConfig": {"thinkingConfig": {"thinkingLevel": "high"}}
-                },
-            }
     for fragment, (budget, min_out) in _THINKING_MODELS.items():
         if fragment in stem:
             adjusted = max(max_tokens, budget + min_out)

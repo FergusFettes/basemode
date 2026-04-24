@@ -20,8 +20,8 @@ async def _collect(gen) -> str:
         ("gpt-4o-mini", None),
         ("gpt-4o-mini", "system"),
         ("gpt-4o-mini", "few_shot"),
-        ("anthropic/claude-3-haiku-20240307", None),
-        ("anthropic/claude-3-haiku-20240307", "prefill"),
+        ("anthropic/claude-haiku-4-5-20251001", None),
+        ("anthropic/claude-haiku-4-5-20251001", "prefill"),
     ],
 )
 async def test_continue_text(prefix: str, model: str, strategy: str | None) -> None:

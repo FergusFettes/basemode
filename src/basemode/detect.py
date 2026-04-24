@@ -63,8 +63,8 @@ def _fix_anthropic_dots(name: str) -> str:
 def _resolve_anthropic_alias(name: str) -> str:
     """Best-effort: if `name` uniquely matches one known Anthropic model, expand it.
 
-    Lets users type `claude-3-haiku` → `claude-3-haiku-20240307`,
-    `sonnet-4-5` → `claude-sonnet-4-5-20250929`, etc. Ambiguous or
+    Lets users type `sonnet-4-5` → `claude-sonnet-4-5-20250929`,
+    `opus-4-7` → `claude-opus-4-7`, etc. Ambiguous or
     unmatched inputs pass through unchanged (provider will 404 if invalid).
     """
     if name in KNOWN_ANTHROPIC_MODELS:

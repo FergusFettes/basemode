@@ -25,6 +25,7 @@ async def continue_text(
     context: str = "",
     strategy: str | None = None,
     rewind: bool = False,
+    strict_max_tokens: bool = False,
     **extra,
 ) -> AsyncGenerator[str, None]:
     """Stream a single continuation."""
@@ -52,7 +53,10 @@ async def continue_text(
     try:
         raw_tokens = strat.stream(generation_prefix, params)
         healed_tokens = strip_rewind_overlap(raw_tokens, rewind_fragment)
-        async for token in normalize_stream_newlines(prefix, healed_tokens):
+        stream = normalize_stream_newlines(prefix, healed_tokens)
+        if strict_max_tokens:
+            stream = _enforce_visible_token_cap(stream, model, max_tokens)
+        async for token in stream:
             token_count += 1
             yield token
     except Exception:
@@ -70,6 +74,7 @@ async def branch_text(
     temperature: float = 0.9,
     strategy: str | None = None,
     rewind: bool = False,
+    strict_max_tokens: bool = False,
     **extra,
 ) -> AsyncGenerator[tuple[int, str], None]:
     """Stream n parallel continuations as (branch_idx, token) tuples."""
@@ -87,7 +92,10 @@ async def branch_text(
     async def run_branch(idx: int) -> None:
         raw_tokens = strat.stream(generation_prefix, params)
         healed_tokens = strip_rewind_overlap(raw_tokens, rewind_fragment)
-        async for token in normalize_stream_newlines(prefix, healed_tokens):
+        stream = normalize_stream_newlines(prefix, healed_tokens)
+        if strict_max_tokens:
+            stream = _enforce_visible_token_cap(stream, model, max_tokens)
+        async for token in stream:
             await queue.put((idx, token))
         await queue.put(None)
 
@@ -109,3 +117,50 @@ def _generation_prefix(
     if rewind and strategy_name in {"system", "few_shot"}:
         return rewind_prefix_to_word_boundary(prefix)
     return prefix, ""
+
+
+def _count_tokens_safe(model: str, text: str) -> int:
+    try:
+        return litellm.token_counter(model=model, text=text)
+    except Exception:
+        return max(1, len(text) // 4)
+
+
+def _clip_chunk_to_token_cap(
+    *,
+    model: str,
+    emitted: str,
+    chunk: str,
+    cap: int,
+) -> str:
+    if cap <= 0 or not chunk:
+        return ""
+    if _count_tokens_safe(model, emitted + chunk) <= cap:
+        return chunk
+
+    lo = 0
+    hi = len(chunk)
+    while lo < hi:
+        mid = (lo + hi + 1) // 2
+        if _count_tokens_safe(model, emitted + chunk[:mid]) <= cap:
+            lo = mid
+        else:
+            hi = mid - 1
+    return chunk[:lo]
+
+
+async def _enforce_visible_token_cap(
+    tokens: AsyncGenerator[str, None],
+    model: str,
+    cap: int,
+) -> AsyncGenerator[str, None]:
+    emitted = ""
+    async for chunk in tokens:
+        clipped = _clip_chunk_to_token_cap(
+            model=model, emitted=emitted, chunk=chunk, cap=cap
+        )
+        if clipped:
+            emitted += clipped
+            yield clipped
+        if clipped != chunk:
+            break

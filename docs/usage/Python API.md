@@ -52,7 +52,7 @@ Get the strategy object that will be used for a model.
 ```python
 from basemode import detect_strategy
 
-strategy = detect_strategy("anthropic/claude-3-haiku-20240307")
+strategy = detect_strategy("anthropic/claude-sonnet-4-6")
 print(strategy.name)  # system
 ```
 
