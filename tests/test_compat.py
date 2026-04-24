@@ -29,6 +29,15 @@ def test_moonshot_kimi_does_not_send_thinking_param() -> None:
     assert "extra_body" not in kwargs
 
 
+def test_moonshot_kimi_k26_does_not_send_temperature_or_thinking_param() -> None:
+    kwargs = build_kwargs(GenerationParams(model="moonshot/kimi-k2.6", max_tokens=200))
+
+    assert kwargs["max_tokens"] == 4608
+    assert "temperature" not in kwargs
+    assert "thinking" not in kwargs
+    assert "extra_body" not in kwargs
+
+
 def test_moonshot_kimi_thinking_keeps_budget_without_control_param() -> None:
     kwargs = build_kwargs(
         GenerationParams(model="moonshot/kimi-k2-thinking", max_tokens=200)

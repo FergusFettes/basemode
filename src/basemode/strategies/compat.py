@@ -8,6 +8,7 @@ from ..params import GenerationParams
 _NO_TEMPERATURE_MODELS = {
     "claude-opus-4-7",
     "kimi-k2.5",
+    "kimi-k2.6",
 }
 
 # Model stems that only accept temperature=1 (probed 2026-04-18):
