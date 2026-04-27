@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-04-21T17:57:27.299255+00:00",
+  "generated_at_utc": "2026-04-27T07:11:58.900184+00:00",
   "rows": [
     {
       "model": "anthropic/claude-haiku-4-5-20251001",
@@ -161,8 +161,8 @@
     },
     {
       "model": "gemini/gemma-4-26b-a4b-it",
-      "input_cost_per_token": 7e-08,
-      "output_cost_per_token": 3.5e-07,
+      "input_cost_per_token": 6e-08,
+      "output_cost_per_token": 3.3e-07,
       "release_date": "2026-04-03",
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -257,8 +257,8 @@
     },
     {
       "model": "openrouter/moonshotai/kimi-k2.6",
-      "input_cost_per_token": 6e-07,
-      "output_cost_per_token": 2.8e-06,
+      "input_cost_per_token": 7.448e-07,
+      "output_cost_per_token": 4.655e-06,
       "release_date": "2026-04-20",
       "prompt_method": "system",
       "reliability": "\u26a0",

@@ -107,13 +107,13 @@ Single generated table, refreshed by CI.
 | `anthropic/claude-sonnet-4-6` | $3.00 | $15.00 | 2026-02-17 | `system` | ✓ |
 | `gemini/gemini-2.5-flash` | $0.30 | $2.50 | 2025-06-17 | `system` | ⚠ |
 | `gemini/gemini-2.5-pro` | $1.25 | $10.00 | 2025-06-17 | `system` | ⚠ |
-| `gemini/gemma-4-26b-a4b-it` | $0.07 | $0.35 | 2026-04-03 | `system` | ⚠ |
+| `gemini/gemma-4-26b-a4b-it` | $0.06 | $0.33 | 2026-04-03 | `system` | ⚠ |
 | `gemini/gemma-4-31b-it` | $0.13 | $0.38 | 2026-04-02 | `system` | ⚠ |
 | `moonshot/kimi-k2-0905-preview` | $0.60 | $2.50 | 2025-07-11 | `system` | ⚠ |
 | `moonshot/kimi-k2.5` | $0.60 | $3.00 | 2026-01-27 | `system` | ⚠ |
 | `openai/gpt-4o-mini` | $0.15 | $0.60 | 2024-07-18 | `system` | ⚠ |
 | `openai/gpt-5.4-mini` | $0.75 | $4.50 | 2026-03-17 | `system` | ✓ |
-| `openrouter/moonshotai/kimi-k2.6` | $0.60 | $2.80 | 2026-04-20 | `system` | ⚠ |
+| `openrouter/moonshotai/kimi-k2.6` | $0.74 | $4.66 | 2026-04-20 | `system` | ⚠ |
 | `zai/glm-4.7` | $0.60 | $2.20 | 2025-12-22 | `system` | ✓ |
 | `zai/glm-5` | $1.00 | $3.20 | 2026-02-11 | `system` | ✓ |
 
