@@ -1,0 +1,37 @@
+name: Publish to PyPI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "pyproject.toml"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+
+      - name: Compare local vs published version
+        id: check
+        run: |
+          local_version=$(grep -m1 '^version = ' pyproject.toml | sed -E 's/version = "(.*)"/\1/')
+          remote_version=$(curl -s https://pypi.org/pypi/basemode/json | uv run python -c "import json, sys; print(json.load(sys.stdin).get('info', {}).get('version', ''))")
+          echo "local=$local_version" >> "$GITHUB_OUTPUT"
+          echo "remote=$remote_version" >> "$GITHUB_OUTPUT"
+          echo "pyproject.toml version: $local_version (currently published: ${remote_version:-none})"
+
+      - name: Build and publish
+        if: steps.check.outputs.local != steps.check.outputs.remote
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.UV_PUBLISH_TOKEN }}
+        run: |
+          rm -rf dist/
+          uv build
+          uv publish
