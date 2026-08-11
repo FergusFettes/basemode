@@ -1,6 +1,20 @@
 {
-  "generated_at_utc": "2026-08-09T11:58:39.109167+00:00",
+  "generated_at_utc": "2026-08-11T19:24:33.507060+00:00",
   "rows": [
+    {
+      "model": "anthropic/claude-fable-5",
+      "input_cost_per_token": 1e-05,
+      "output_cost_per_token": 5e-05,
+      "release_date": "2026-06-09",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://docs.anthropic.com/en/docs/about-claude/pricing"
+      ]
+    },
     {
       "model": "anthropic/claude-haiku-4-5-20251001",
       "input_cost_per_token": 1e-06,
@@ -86,6 +100,34 @@
       ]
     },
     {
+      "model": "anthropic/claude-opus-4-8",
+      "input_cost_per_token": 5e-06,
+      "output_cost_per_token": 2.5e-05,
+      "release_date": "2026-05-28",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://docs.anthropic.com/en/docs/about-claude/pricing"
+      ]
+    },
+    {
+      "model": "anthropic/claude-opus-5",
+      "input_cost_per_token": 5e-06,
+      "output_cost_per_token": 2.5e-05,
+      "release_date": "2026-07-23",
+      "prompt_method": "few_shot",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://docs.anthropic.com/en/docs/about-claude/pricing"
+      ]
+    },
+    {
       "model": "anthropic/claude-sonnet-4-20250514",
       "input_cost_per_token": 3e-06,
       "output_cost_per_token": 1.5e-05,
@@ -118,6 +160,20 @@
       "input_cost_per_token": 3e-06,
       "output_cost_per_token": 1.5e-05,
       "release_date": "2026-02-17",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://docs.anthropic.com/en/docs/about-claude/pricing"
+      ]
+    },
+    {
+      "model": "anthropic/claude-sonnet-5",
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 1e-05,
+      "release_date": "2026-06-30",
       "prompt_method": "system",
       "reliability": "\u2713",
       "issues": [],
@@ -161,8 +217,8 @@
     },
     {
       "model": "gemini/gemma-4-26b-a4b-it",
-      "input_cost_per_token": 7e-08,
-      "output_cost_per_token": 3.4e-07,
+      "input_cost_per_token": 1.2e-07,
+      "output_cost_per_token": 4e-07,
       "release_date": "2026-04-03",
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -246,6 +302,48 @@
       "input_cost_per_token": 7.5e-07,
       "output_cost_per_token": 4.5e-06,
       "release_date": "2026-03-17",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-5.5-2026-04-23",
+      "input_cost_per_token": 5e-06,
+      "output_cost_per_token": 3e-05,
+      "release_date": "2026-04-23",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-5.6-sol",
+      "input_cost_per_token": 5e-06,
+      "output_cost_per_token": 3e-05,
+      "release_date": "2026-07-09",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-5.6-terra",
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 1.2e-05,
+      "release_date": "2026-07-09",
       "prompt_method": "system",
       "reliability": "\u2713",
       "issues": [],
