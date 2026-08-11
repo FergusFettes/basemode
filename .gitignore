@@ -12,5 +12,6 @@ data/*
 !data/verified_models_registry.json
 !data/verified_models_details.json
 !data/verified_models_rejected.json
+!data/provider_health_history.jsonl
 
 site/
