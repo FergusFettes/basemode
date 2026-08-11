@@ -47,6 +47,17 @@ Useful commands:
 - `basemode default`: get/set your default model
 - `basemode keys`: manage stored API keys
 
+## Server
+
+`basemode serve` exposes an OpenAI-completions-compatible `POST /v1/completions` endpoint backed by `continue_text`/`branch_text`, so llama.cpp-style clients (e.g. [Tapestry Loom](https://github.com/transkatgirl/Tapestry-Loom)) can drive basemode's model-coerced continuations as a local backend instead of needing a locally-hosted base model.
+
+```bash
+pip install 'basemode[server]'
+basemode serve --port 8080
+```
+
+Point a client's "OpenAI-style Completions" endpoint at `http://127.0.0.1:8080/v1/completions`. Requests accept `model`, `prompt`, `max_tokens`, `temperature`, `n` (parallel branches), `echo`, and `strategy`; `stream` is not supported (responses are always synchronous JSON). No logprobs are returned, since basemode routes through chat-completion coercion rather than a real base model.
+
 ## Python API
 
 ```python

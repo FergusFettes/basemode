@@ -64,6 +64,18 @@ Show normalized model ID, selected strategy, token limits, and pricing metadata.
 basemode info claude-sonnet-4-6
 ```
 
+## Server
+
+### `serve`
+
+Run an OpenAI-completions-compatible server (`POST /v1/completions`), backed by `continue_text`/`branch_text`. Requires the `server` extra: `pip install 'basemode[server]'`.
+
+```bash
+basemode serve [--host 127.0.0.1] [--port 8080]
+```
+
+Point tools that expect a llama.cpp-style `/v1/completions` endpoint (e.g. [Tapestry Loom](https://github.com/transkatgirl/Tapestry-Loom)) at `http://<host>:<port>/v1/completions`. Also exposes `GET /v1/models`. `stream` requests are always answered synchronously (no SSE); no logprobs are returned, since this coerces chat models rather than serving a real base model.
+
 ## Configuration
 
 ### `keys`

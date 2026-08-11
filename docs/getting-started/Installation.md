@@ -8,6 +8,12 @@ pip install basemode
 
 Requires Python 3.11+.
 
+For the OpenAI-completions-compatible server (`basemode serve`), install the `server` extra instead:
+
+```bash
+pip install 'basemode[server]'
+```
+
 ## From source
 
 ```bash
