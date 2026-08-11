@@ -28,6 +28,14 @@ jobs:
       - name: Regenerate verified model table
         run: uv run python scripts/generate_verified_models_table.py
 
+      - name: Bump patch version if there's anything to publish
+        run: |
+          if git diff --quiet -- README.md data/ docs/; then
+            echo "No content changes; leaving version as-is."
+          else
+            uv run python scripts/bump_patch_version.py
+          fi
+
       - name: Create pull request
         uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6
         with:
@@ -38,4 +46,6 @@ jobs:
             Automated refresh of:
             - README verified model table
             - data/verified_models_details.json
+
+            Includes a patch version bump — merging this triggers `publish.yml` to release it.
           labels: documentation
