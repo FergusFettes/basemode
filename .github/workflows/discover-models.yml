@@ -7,8 +7,9 @@ on:
         description: "Max candidates to probe per provider"
         required: false
         default: "6"
-  schedule:
-    - cron: "17 6 * * 4"
+  workflow_run:
+    workflows: ["Refresh verified models table"]
+    types: [completed]
 
 jobs:
   discover:
@@ -16,6 +17,9 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    # Run after "Refresh verified models table" finishes (any Friday-3am
+    # sequencing lives there), or on-demand via workflow_dispatch.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - uses: actions/checkout@v4

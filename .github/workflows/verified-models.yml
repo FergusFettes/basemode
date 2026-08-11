@@ -3,7 +3,7 @@ name: Refresh verified models table
 on:
   workflow_dispatch:
   schedule:
-    - cron: "17 6 * * 1"
+    - cron: "0 3 * * 5"
 
 jobs:
   refresh:

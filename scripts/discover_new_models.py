@@ -389,7 +389,7 @@ def main() -> int:
     parser.add_argument(
         "--limit",
         type=int,
-        default=int(os.environ.get("DISCOVER_MODELS_LIMIT", DEFAULT_LIMIT)),
+        default=int(os.environ.get("DISCOVER_MODELS_LIMIT") or DEFAULT_LIMIT),
         help="Max candidates to probe per provider (default: %(default)s)",
     )
     args = parser.parse_args()
