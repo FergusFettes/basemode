@@ -1,38 +1,14 @@
 {
   "models": [
     {
-      "model": "openai/gpt-5.4-mini",
-      "openrouter_id": "openai/gpt-5.4-mini",
-      "pricing_url": "https://openai.com/api/pricing/"
-    },
-    {
-      "model": "openai/gpt-4o-mini",
-      "openrouter_id": "openai/gpt-4o-mini",
-      "pricing_url": "https://openai.com/api/pricing/"
-    },
-    {
-      "model": "anthropic/claude-sonnet-4-6",
-      "openrouter_id": "anthropic/claude-sonnet-4.6",
-      "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing"
-    },
-    {
-      "model": "anthropic/claude-opus-4-6",
-      "openrouter_id": "anthropic/claude-opus-4.6",
-      "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing"
-    },
-    {
-      "model": "anthropic/claude-opus-4-5-20251101",
-      "openrouter_id": "anthropic/claude-opus-4.5",
-      "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing"
+      "model": "anthropic/claude-fable-5",
+      "openrouter_id": "anthropic/claude-fable-5",
+      "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing",
+      "prompt_method": "system"
     },
     {
       "model": "anthropic/claude-haiku-4-5-20251001",
       "openrouter_id": "anthropic/claude-haiku-4.5",
-      "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing"
-    },
-    {
-      "model": "anthropic/claude-sonnet-4-5-20250929",
-      "openrouter_id": "anthropic/claude-sonnet-4.5",
       "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing"
     },
     {
@@ -46,14 +22,52 @@
       "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing"
     },
     {
-      "model": "anthropic/claude-sonnet-4-20250514",
-      "openrouter_id": "anthropic/claude-sonnet-4",
+      "model": "anthropic/claude-opus-4-5-20251101",
+      "openrouter_id": "anthropic/claude-opus-4.5",
+      "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing"
+    },
+    {
+      "model": "anthropic/claude-opus-4-6",
+      "openrouter_id": "anthropic/claude-opus-4.6",
       "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing"
     },
     {
       "model": "anthropic/claude-opus-4-7",
       "openrouter_id": "anthropic/claude-opus-4.7",
       "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing"
+    },
+    {
+      "model": "anthropic/claude-opus-4-8",
+      "openrouter_id": "anthropic/claude-opus-4.8-fast",
+      "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing",
+      "prompt_method": "system"
+    },
+    {
+      "model": "anthropic/claude-opus-5",
+      "openrouter_id": "anthropic/claude-opus-5-fast",
+      "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing",
+      "prompt_method": "few_shot"
+    },
+    {
+      "model": "anthropic/claude-sonnet-4-20250514",
+      "openrouter_id": "anthropic/claude-sonnet-4",
+      "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing"
+    },
+    {
+      "model": "anthropic/claude-sonnet-4-5-20250929",
+      "openrouter_id": "anthropic/claude-sonnet-4.5",
+      "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing"
+    },
+    {
+      "model": "anthropic/claude-sonnet-4-6",
+      "openrouter_id": "anthropic/claude-sonnet-4.6",
+      "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing"
+    },
+    {
+      "model": "anthropic/claude-sonnet-5",
+      "openrouter_id": "anthropic/claude-sonnet-5",
+      "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing",
+      "prompt_method": "system"
     },
     {
       "model": "gemini/gemini-2.5-flash",
@@ -78,19 +92,44 @@
       "known_issues": ["litellm_missing_pricing"]
     },
     {
+      "model": "moonshot/kimi-k2-0905-preview",
+      "openrouter_id": "moonshotai/kimi-k2",
+      "pricing_url": "https://platform.moonshot.ai/docs/pricing/chat"
+    },
+    {
       "model": "moonshot/kimi-k2.5",
       "openrouter_id": "moonshotai/kimi-k2.5",
       "pricing_url": "https://platform.moonshot.ai/docs/pricing/chat"
     },
     {
+      "model": "openai/gpt-4o-mini",
+      "openrouter_id": "openai/gpt-4o-mini",
+      "pricing_url": "https://openai.com/api/pricing/"
+    },
+    {
+      "model": "openai/gpt-5.4-mini",
+      "openrouter_id": "openai/gpt-5.4-mini",
+      "pricing_url": "https://openai.com/api/pricing/"
+    },
+    {
+      "model": "openai/gpt-5.5-2026-04-23",
+      "openrouter_id": "openai/gpt-5.5",
+      "pricing_url": "https://openai.com/api/pricing/"
+    },
+    {
+      "model": "openai/gpt-5.6-sol",
+      "openrouter_id": "openai/gpt-5.6-sol-pro",
+      "pricing_url": "https://openai.com/api/pricing/"
+    },
+    {
+      "model": "openai/gpt-5.6-terra",
+      "openrouter_id": "openai/gpt-5.6-terra-pro",
+      "pricing_url": "https://openai.com/api/pricing/"
+    },
+    {
       "model": "openrouter/moonshotai/kimi-k2.6",
       "openrouter_id": "moonshotai/kimi-k2.6",
       "pricing_url": "https://openrouter.ai/moonshotai/kimi-k2.6"
-    },
-    {
-      "model": "moonshot/kimi-k2-0905-preview",
-      "openrouter_id": "moonshotai/kimi-k2",
-      "pricing_url": "https://platform.moonshot.ai/docs/pricing/chat"
     },
     {
       "model": "zai/glm-4.7",
