@@ -566,3 +566,28 @@ def default(
     resolved = normalize_model(model)
     suffix = f" → [dim]{resolved}[/dim]" if resolved != model else ""
     console.print(f"[green]✓[/green] Default model set to [bold]{model}[/bold]{suffix}")
+
+
+@app.command()
+def serve(
+    host: Annotated[str, typer.Option("--host", help="Bind address")] = "127.0.0.1",
+    port: Annotated[int, typer.Option("--port", help="Bind port")] = 8080,
+) -> None:
+    """Run an OpenAI-completions-compatible server (POST /v1/completions).
+
+    Point tools that expect a llama.cpp-style /v1/completions endpoint
+    (e.g. Tapestry Loom) at http://<host>:<port>/v1/completions.
+    """
+    try:
+        from .server import serve as run_server
+    except ImportError as exc:
+        console.print(
+            "[red]Missing server dependencies.[/red] Install with: "
+            "pip install 'basemode[server]'"
+        )
+        raise typer.Exit(1) from exc
+
+    console.print(
+        f"[green]Serving[/green] http://{host}:{port}/v1/completions (Ctrl+C to stop)"
+    )
+    run_server(host=host, port=port)
