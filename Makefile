@@ -1,4 +1,4 @@
-.PHONY: publish test test-core test-integration lint lint-core models-table docs-serve
+.PHONY: publish test test-core test-integration lint lint-core models-table discover-models docs-serve
 
 publish:
 	rm -rf dist/
@@ -23,6 +23,9 @@ lint-core:
 
 models-table:
 	uv run python scripts/generate_verified_models_table.py
+
+discover-models:
+	uv run python scripts/discover_new_models.py
 
 docs-serve:
 	uv run mkdocs serve -a localhost:8001

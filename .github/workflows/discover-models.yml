@@ -1,0 +1,50 @@
+name: Discover new provider models
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Max candidates to probe per provider"
+        required: false
+        default: "6"
+  schedule:
+    - cron: "17 6 * * 4"
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Sync deps
+        run: uv sync --all-groups
+
+      - name: Discover + probe new OpenAI/Anthropic models
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DISCOVER_MODELS_LIMIT: ${{ inputs.limit }}
+        run: uv run python scripts/discover_new_models.py
+
+      - name: Refresh verified model table
+        run: uv run python scripts/generate_verified_models_table.py
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore(models): discover new OpenAI/Anthropic models"
+          branch: "chore/discover-new-models"
+          title: "chore(models): discover new OpenAI/Anthropic models"
+          body-path: dist/model-discovery/summary.md
+          labels: documentation

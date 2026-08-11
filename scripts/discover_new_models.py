@@ -1,0 +1,400 @@
+#!/usr/bin/env python3
+"""Discover new OpenAI/Anthropic models, probe them, and register the ones that work.
+
+For each provider with an API key available:
+1. List models from the provider's own /v1/models endpoint (the source of truth
+   for "latest", ahead of LiteLLM's/OpenRouter's baked-in metadata).
+2. Drop anything already in the verified-models registry or previously rejected.
+3. Sort remaining candidates newest-first and cap how many get probed (network +
+   token spend), via --limit / DISCOVER_MODELS_LIMIT.
+4. Actually run a short continuation through basemode against each candidate.
+   If it returns clean, non-empty, non-chatty text, it's added to the registry
+   (data/verified_models_registry.json). If it errors or reads like an assistant
+   reply, it's recorded in data/verified_models_rejected.json so we don't keep
+   re-paying to re-discover the same dead end every week.
+
+Run `scripts/generate_verified_models_table.py` afterwards to refresh the
+README table from the updated registry.
+"""
+
+from __future__ import annotations
+
+import argparse
+import asyncio
+import json
+import os
+import re
+import sys
+import urllib.error
+import urllib.request
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT / "src") not in sys.path:
+    sys.path.insert(0, str(ROOT / "src"))
+
+from basemode.continue_ import continue_text  # noqa: E402
+from basemode.detect import normalize_model  # noqa: E402
+from basemode.keys import load_into_environ  # noqa: E402
+
+REGISTRY_PATH = ROOT / "data" / "verified_models_registry.json"
+REJECTED_PATH = ROOT / "data" / "verified_models_rejected.json"
+SUMMARY_PATH = ROOT / "dist" / "model-discovery" / "summary.md"
+
+OPENAI_MODELS_URL = "https://api.openai.com/v1/models"
+ANTHROPIC_MODELS_URL = "https://api.anthropic.com/v1/models"
+ANTHROPIC_VERSION = "2023-06-01"
+
+DEFAULT_LIMIT = 6
+PROBE_PREFIX = "The quick brown fox jumps over the lazy"
+PROBE_MAX_TOKENS = (
+    40  # generous enough that reasoning-token overhead doesn't starve visible output
+)
+# 1.0 is the one value every provider's default-sampling API accepts,
+# including newer models that reject any other explicit temperature.
+PROBE_TEMPERATURE = 1.0
+
+BAD_STARTS = (
+    "sure",
+    "of course",
+    "certainly",
+    "i'll",
+    "i will",
+    "here",
+    "this",
+    "i'm",
+    "i am",
+    "as an ai",
+)
+
+_OPENAI_BLACKLIST_SUBSTRINGS = [
+    "embedding",
+    "whisper",
+    "tts",
+    "dall-e",
+    "moderation",
+    "image",
+    "audio",
+    "realtime",
+    "transcribe",
+    "search",
+    "computer-use",
+    "text-similarity",
+    "text-search",
+    "text-edit",
+    "code-search",
+]
+
+_PRICING_URLS = {
+    "openai": "https://openai.com/api/pricing/",
+    "anthropic": "https://docs.anthropic.com/en/docs/about-claude/pricing",
+}
+
+
+@dataclass(frozen=True)
+class Candidate:
+    provider: str
+    raw_id: str
+    normalized_id: str
+    created: float
+
+
+def _load_json(path: Path, default: dict) -> dict:
+    if not path.exists():
+        return default
+    return json.loads(path.read_text())
+
+
+_INLINE_ARRAY_RE = re.compile(
+    r"\[\n\s+("
+    r'"(?:[^"\\]|\\.)*"(?:,\n\s+"(?:[^"\\]|\\.)*")*'
+    r")\n\s*\]"
+)
+
+
+def _compact_scalar_arrays(rendered: str) -> str:
+    """Collapse arrays of strings back onto one line (matches this repo's
+    existing hand-formatted style, e.g. `"known_issues": ["foo"]`), so a
+    single new entry doesn't reformat every other array in the file."""
+
+    def _collapse(match: re.Match[str]) -> str:
+        items = re.findall(r'"(?:[^"\\]|\\.)*"', match.group(1))
+        return "[" + ", ".join(items) + "]"
+
+    return _INLINE_ARRAY_RE.sub(_collapse, rendered)
+
+
+def _save_json(path: Path, data: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    rendered = _compact_scalar_arrays(json.dumps(data, indent=2))
+    path.write_text(rendered + "\n")
+
+
+def _known_models(registry: dict) -> set[str]:
+    return {entry["model"] for entry in registry.get("models", [])}
+
+
+def _rejected_models(rejected: dict) -> set[str]:
+    return {entry["model"] for entry in rejected.get("models", [])}
+
+
+def _is_openai_blacklisted(model_id: str) -> bool:
+    lowered = model_id.lower()
+    return any(substr in lowered for substr in _OPENAI_BLACKLIST_SUBSTRINGS)
+
+
+def _fetch_openai_models(api_key: str) -> list[dict]:
+    req = urllib.request.Request(
+        OPENAI_MODELS_URL,
+        headers={"Authorization": f"Bearer {api_key}"},
+    )
+    with urllib.request.urlopen(req, timeout=25) as resp:
+        payload = json.loads(resp.read().decode("utf-8"))
+    return list(payload.get("data", []))
+
+
+def _fetch_anthropic_models(api_key: str) -> list[dict]:
+    req = urllib.request.Request(
+        ANTHROPIC_MODELS_URL,
+        headers={
+            "x-api-key": api_key,
+            "anthropic-version": ANTHROPIC_VERSION,
+        },
+    )
+    with urllib.request.urlopen(req, timeout=25) as resp:
+        payload = json.loads(resp.read().decode("utf-8"))
+    return list(payload.get("data", []))
+
+
+def _openai_created(entry: dict) -> float:
+    return float(entry.get("created") or 0)
+
+
+def _anthropic_created(entry: dict) -> float:
+    created_at = entry.get("created_at")
+    if not created_at:
+        return 0.0
+    try:
+        return datetime.fromisoformat(created_at.replace("Z", "+00:00")).timestamp()
+    except ValueError:
+        return 0.0
+
+
+def select_candidates(
+    *,
+    provider: str,
+    raw_models: list[dict],
+    known: set[str],
+    rejected: set[str],
+    limit: int,
+) -> list[Candidate]:
+    """Pure filtering/dedup/sort/cap logic, kept separate from network calls."""
+    candidates: list[Candidate] = []
+
+    for entry in raw_models:
+        raw_id = str(entry.get("id") or "")
+        if not raw_id:
+            continue
+        if provider == "openai" and _is_openai_blacklisted(raw_id):
+            continue
+
+        normalized_id = normalize_model(raw_id)
+        if not normalized_id.startswith(f"{provider}/"):
+            # normalize_model didn't recognize it as belonging to this
+            # provider (e.g. a stray non-chat id) — skip rather than guess.
+            continue
+        if normalized_id in known or normalized_id in rejected:
+            continue
+
+        created = (
+            _openai_created(entry)
+            if provider == "openai"
+            else _anthropic_created(entry)
+        )
+        candidates.append(
+            Candidate(
+                provider=provider,
+                raw_id=raw_id,
+                normalized_id=normalized_id,
+                created=created,
+            )
+        )
+
+    candidates.sort(key=lambda c: c.created, reverse=True)
+    return candidates[:limit]
+
+
+def _looks_clean(text: str) -> tuple[bool, str | None]:
+    if not text.strip():
+        return False, "empty continuation"
+    if text.lstrip().lower().startswith(BAD_STARTS):
+        return False, f"chatbot preamble detected: {text!r}"
+    return True, None
+
+
+async def _probe(candidate: Candidate) -> tuple[bool, str, str]:
+    """Returns (worked, detail, sample_text)."""
+    try:
+        chunks = [
+            token
+            async for token in continue_text(
+                PROBE_PREFIX,
+                model=candidate.normalized_id,
+                max_tokens=PROBE_MAX_TOKENS,
+                temperature=PROBE_TEMPERATURE,
+            )
+        ]
+    except Exception as exc:  # provider/strategy error
+        return False, f"{type(exc).__name__}: {exc}", ""
+
+    text = "".join(chunks)
+    ok, reason = _looks_clean(text)
+    return ok, (reason or "ok"), text
+
+
+def _dashed(text: str) -> str:
+    return text.lower().replace(".", "-").replace("_", "-")
+
+
+def _guess_openrouter_id(
+    normalized_id: str, openrouter_index: dict[str, dict]
+) -> str | None:
+    stem = _dashed(normalized_id.split("/")[-1])
+    for or_id in openrouter_index:
+        or_stem = _dashed(or_id.split("/")[-1])
+        if stem == or_stem or stem in or_stem or or_stem in stem:
+            return or_id
+    return None
+
+
+def _fetch_openrouter_index() -> dict[str, dict]:
+    try:
+        req = urllib.request.Request(
+            "https://openrouter.ai/api/v1/models",
+            headers={"User-Agent": "basemode-model-discovery/1"},
+        )
+        with urllib.request.urlopen(req, timeout=25) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+        return {m["id"]: m for m in payload.get("data", []) if "id" in m}
+    except (TimeoutError, urllib.error.URLError, json.JSONDecodeError):
+        return {}
+
+
+async def _run(limit: int) -> int:
+    load_into_environ()  # pull persisted keys (~/.config/basemode/auth.json) in, if any
+    registry = _load_json(REGISTRY_PATH, {"models": []})
+    rejected = _load_json(REJECTED_PATH, {"models": []})
+    known = _known_models(registry)
+    already_rejected = _rejected_models(rejected)
+
+    provider_keys = {
+        "openai": os.environ.get("OPENAI_API_KEY"),
+        "anthropic": os.environ.get("ANTHROPIC_API_KEY"),
+    }
+    fetchers = {
+        "openai": _fetch_openai_models,
+        "anthropic": _fetch_anthropic_models,
+    }
+
+    all_candidates: list[Candidate] = []
+    for provider, api_key in provider_keys.items():
+        if not api_key:
+            print(f"skip {provider}: no API key configured")
+            continue
+        try:
+            raw_models = fetchers[provider](api_key)
+        except (urllib.error.URLError, json.JSONDecodeError) as exc:
+            print(f"skip {provider}: failed to list models ({exc})")
+            continue
+
+        candidates = select_candidates(
+            provider=provider,
+            raw_models=raw_models,
+            known=known,
+            rejected=already_rejected,
+            limit=limit,
+        )
+        print(f"{provider}: {len(candidates)} candidate(s) to probe")
+        all_candidates.extend(candidates)
+
+    if not all_candidates:
+        _write_summary(added=[], rejected_now=[])
+        print("No new candidates to probe.")
+        return 0
+
+    openrouter_index = _fetch_openrouter_index()
+
+    added: list[tuple[Candidate, str]] = []
+    rejected_now: list[tuple[Candidate, str]] = []
+
+    for candidate in all_candidates:
+        worked, detail, _sample = await _probe(candidate)
+        if worked:
+            print(f"  + {candidate.normalized_id}: works")
+            entry = {"model": candidate.normalized_id}
+            or_id = _guess_openrouter_id(candidate.normalized_id, openrouter_index)
+            if or_id:
+                entry["openrouter_id"] = or_id
+            entry["pricing_url"] = _PRICING_URLS[candidate.provider]
+            registry.setdefault("models", []).append(entry)
+            known.add(candidate.normalized_id)
+            added.append((candidate, detail))
+        else:
+            print(f"  - {candidate.normalized_id}: {detail}")
+            rejected.setdefault("models", []).append(
+                {
+                    "model": candidate.normalized_id,
+                    "reason": detail,
+                    "checked_at_utc": datetime.now(tz=UTC).isoformat(),
+                }
+            )
+            already_rejected.add(candidate.normalized_id)
+            rejected_now.append((candidate, detail))
+
+    if added:
+        registry["models"] = sorted(registry["models"], key=lambda e: e["model"])
+        _save_json(REGISTRY_PATH, registry)
+    if rejected_now:
+        rejected["models"] = sorted(rejected["models"], key=lambda e: e["model"])
+        _save_json(REJECTED_PATH, rejected)
+    _write_summary(added=added, rejected_now=rejected_now)
+
+    return 0
+
+
+def _write_summary(
+    *,
+    added: list[tuple[Candidate, str]],
+    rejected_now: list[tuple[Candidate, str]],
+) -> None:
+    lines = ["# Model discovery run", ""]
+    if added:
+        lines.append("## Added")
+        lines.extend(f"- `{c.normalized_id}`" for c, _ in added)
+        lines.append("")
+    if rejected_now:
+        lines.append("## Rejected")
+        lines.extend(f"- `{c.normalized_id}`: {detail}" for c, detail in rejected_now)
+        lines.append("")
+    if not added and not rejected_now:
+        lines.append("No new candidate models found this run.")
+    SUMMARY_PATH.parent.mkdir(parents=True, exist_ok=True)
+    SUMMARY_PATH.write_text("\n".join(lines) + "\n")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=int(os.environ.get("DISCOVER_MODELS_LIMIT", DEFAULT_LIMIT)),
+        help="Max candidates to probe per provider (default: %(default)s)",
+    )
+    args = parser.parse_args()
+    return asyncio.run(_run(args.limit))
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
