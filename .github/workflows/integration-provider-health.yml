@@ -92,7 +92,7 @@ jobs:
       - name: Commit reliability history
         if: always()
         run: |
-          if git diff --quiet -- data/provider_health_history.jsonl; then
+          if [ -z "$(git status --porcelain -- data/provider_health_history.jsonl)" ]; then
             echo "No history changes to commit."
             exit 0
           fi

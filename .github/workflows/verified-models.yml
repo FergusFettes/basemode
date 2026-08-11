@@ -30,7 +30,7 @@ jobs:
 
       - name: Bump patch version if there's anything to publish
         run: |
-          if git diff --quiet -- README.md data/ docs/; then
+          if [ -z "$(git status --porcelain -- README.md data/ docs/)" ]; then
             echo "No content changes; leaving version as-is."
           else
             uv run python scripts/bump_patch_version.py
