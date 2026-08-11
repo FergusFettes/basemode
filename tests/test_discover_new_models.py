@@ -1,6 +1,7 @@
 import json
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT / "scripts") not in sys.path:
@@ -108,8 +109,8 @@ async def test_run_adds_working_and_rejects_broken_models(
 
     async def fake_probe(candidate):
         if candidate.normalized_id == "openai/gpt-9-good":
-            return True, "ok", " a fine continuation"
-        return False, "empty continuation", ""
+            return True, "system", "ok", {"prefill": "empty continuation"}
+        return False, None, "empty continuation", {"system": "empty continuation"}
 
     monkeypatch.setattr(dnm, "_probe", fake_probe)
 
@@ -118,10 +119,62 @@ async def test_run_adds_working_and_rejects_broken_models(
 
     registry = json.loads((tmp_path / "registry.json").read_text())
     assert [m["model"] for m in registry["models"]] == ["openai/gpt-9-good"]
+    assert registry["models"][0]["prompt_method"] == "system"
 
     rejected = json.loads((tmp_path / "rejected.json").read_text())
     assert [m["model"] for m in rejected["models"]] == ["openai/gpt-9-bad"]
+    assert rejected["models"][0]["attempted_strategies"] == {
+        "system": "empty continuation"
+    }
 
     summary = (tmp_path / "summary.md").read_text()
     assert "openai/gpt-9-good" in summary
     assert "openai/gpt-9-bad" in summary
+
+
+async def test_probe_falls_back_through_strategies(monkeypatch) -> None:
+    candidate = dnm.Candidate("anthropic", "claude-x", "anthropic/claude-x", 0)
+    monkeypatch.setattr(
+        dnm, "detect_strategy", lambda model: SimpleNamespace(name="prefill")
+    )
+
+    attempted: list[str | None] = []
+
+    async def fake_probe_strategy(candidate, strategy):
+        attempted.append(strategy)
+        if strategy == "system":
+            return True, "ok", " it worked"
+        return False, "BadRequestError: no prefill support", ""
+
+    monkeypatch.setattr(dnm, "_probe_strategy", fake_probe_strategy)
+
+    worked, strategy_used, detail, attempts = await dnm._probe(candidate)
+
+    assert worked is True
+    assert strategy_used == "system"
+    assert detail == "ok"
+    # Auto attempt (None) plus "system" fallback; "prefill" fallback skipped
+    # because detect_strategy already resolved to "prefill".
+    assert attempted == [None, "system"]
+    assert attempts == {"prefill": "BadRequestError: no prefill support"}
+
+
+async def test_probe_reports_all_failures_when_every_strategy_fails(
+    monkeypatch,
+) -> None:
+    candidate = dnm.Candidate("anthropic", "claude-x", "anthropic/claude-x", 0)
+    monkeypatch.setattr(
+        dnm, "detect_strategy", lambda model: SimpleNamespace(name="prefill")
+    )
+
+    async def fake_probe_strategy(candidate, strategy):
+        return False, f"failed for {strategy}", ""
+
+    monkeypatch.setattr(dnm, "_probe_strategy", fake_probe_strategy)
+
+    worked, strategy_used, detail, attempts = await dnm._probe(candidate)
+
+    assert worked is False
+    assert strategy_used is None
+    assert detail == "failed for None"
+    assert set(attempts) == {"prefill", "system", "few_shot"}

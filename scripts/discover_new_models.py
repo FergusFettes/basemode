@@ -7,11 +7,15 @@ For each provider with an API key available:
 2. Drop anything already in the verified-models registry or previously rejected.
 3. Sort remaining candidates newest-first and cap how many get probed (network +
    token spend), via --limit / DISCOVER_MODELS_LIMIT.
-4. Actually run a short continuation through basemode against each candidate.
-   If it returns clean, non-empty, non-chatty text, it's added to the registry
-   (data/verified_models_registry.json). If it errors or reads like an assistant
-   reply, it's recorded in data/verified_models_rejected.json so we don't keep
-   re-paying to re-discover the same dead end every week.
+4. Actually run a short continuation through basemode against each candidate,
+   trying basemode's auto-detected strategy first and falling back through
+   STRATEGY_FALLBACKS if that one doesn't work — a wrong default guess in
+   detect.py shouldn't get a genuinely-working model rejected. If any
+   strategy returns clean, non-empty, non-chatty text, the model is added to
+   the registry (data/verified_models_registry.json) tagged with whichever
+   strategy actually worked. If every strategy fails, it's recorded in
+   data/verified_models_rejected.json (with all attempted errors) so we
+   don't keep re-paying to re-discover the same dead end every week.
 
 Run `scripts/generate_verified_models_table.py` afterwards to refresh the
 README table from the updated registry.
@@ -36,7 +40,7 @@ if str(ROOT / "src") not in sys.path:
     sys.path.insert(0, str(ROOT / "src"))
 
 from basemode.continue_ import continue_text  # noqa: E402
-from basemode.detect import normalize_model  # noqa: E402
+from basemode.detect import detect_strategy, normalize_model  # noqa: E402
 from basemode.keys import load_into_environ  # noqa: E402
 
 REGISTRY_PATH = ROOT / "data" / "verified_models_registry.json"
@@ -55,6 +59,12 @@ PROBE_MAX_TOKENS = (
 # 1.0 is the one value every provider's default-sampling API accepts,
 # including newer models that reject any other explicit temperature.
 PROBE_TEMPERATURE = 1.0
+
+# Tried in order, after basemode's own auto-detected strategy, until one
+# works. Covers the realistic chat-completion-coercion space; deliberately
+# excludes completion/fim, which only apply to literal base/code models that
+# provider /v1/models listings for chat models won't surface.
+STRATEGY_FALLBACKS = ["system", "prefill", "few_shot"]
 
 BAD_STARTS = (
     "sure",
@@ -234,8 +244,10 @@ def _looks_clean(text: str) -> tuple[bool, str | None]:
     return True, None
 
 
-async def _probe(candidate: Candidate) -> tuple[bool, str, str]:
-    """Returns (worked, detail, sample_text)."""
+async def _probe_strategy(
+    candidate: Candidate, strategy: str | None
+) -> tuple[bool, str, str]:
+    """Returns (worked, detail, sample_text) for a single strategy attempt."""
     try:
         chunks = [
             token
@@ -244,6 +256,7 @@ async def _probe(candidate: Candidate) -> tuple[bool, str, str]:
                 model=candidate.normalized_id,
                 max_tokens=PROBE_MAX_TOKENS,
                 temperature=PROBE_TEMPERATURE,
+                strategy=strategy,
             )
         ]
     except Exception as exc:  # provider/strategy error
@@ -252,6 +265,32 @@ async def _probe(candidate: Candidate) -> tuple[bool, str, str]:
     text = "".join(chunks)
     ok, reason = _looks_clean(text)
     return ok, (reason or "ok"), text
+
+
+async def _probe(candidate: Candidate) -> tuple[bool, str | None, str, dict[str, str]]:
+    """Try the auto-detected strategy, then STRATEGY_FALLBACKS, until one works.
+
+    Returns (worked, strategy_used, detail, attempts) where `attempts` maps
+    every strategy name tried to its failure detail (empty on success on the
+    first try). `strategy_used` is None when the auto-detected default won.
+    """
+    auto_name = detect_strategy(candidate.normalized_id).name
+    attempts: dict[str, str] = {}
+
+    ok, detail, _sample = await _probe_strategy(candidate, None)
+    if ok:
+        return True, None, detail, attempts
+    attempts[auto_name] = detail
+
+    for strategy in STRATEGY_FALLBACKS:
+        if strategy in attempts:
+            continue  # already tried as the auto-detected default
+        ok, detail, _sample = await _probe_strategy(candidate, strategy)
+        if ok:
+            return True, strategy, detail, attempts
+        attempts[strategy] = detail
+
+    return False, None, attempts[auto_name], attempts
 
 
 def _dashed(text: str) -> str:
@@ -330,23 +369,27 @@ async def _run(limit: int) -> int:
     rejected_now: list[tuple[Candidate, str]] = []
 
     for candidate in all_candidates:
-        worked, detail, _sample = await _probe(candidate)
+        worked, strategy_used, detail, attempts = await _probe(candidate)
         if worked:
-            print(f"  + {candidate.normalized_id}: works")
+            label = f"strategy={strategy_used}" if strategy_used else "auto strategy"
+            print(f"  + {candidate.normalized_id}: works ({label})")
             entry = {"model": candidate.normalized_id}
             or_id = _guess_openrouter_id(candidate.normalized_id, openrouter_index)
             if or_id:
                 entry["openrouter_id"] = or_id
             entry["pricing_url"] = _PRICING_URLS[candidate.provider]
+            if strategy_used:
+                entry["prompt_method"] = strategy_used
             registry.setdefault("models", []).append(entry)
             known.add(candidate.normalized_id)
-            added.append((candidate, detail))
+            added.append((candidate, label))
         else:
-            print(f"  - {candidate.normalized_id}: {detail}")
+            print(f"  - {candidate.normalized_id}: all strategies failed ({detail})")
             rejected.setdefault("models", []).append(
                 {
                     "model": candidate.normalized_id,
                     "reason": detail,
+                    "attempted_strategies": attempts,
                     "checked_at_utc": datetime.now(tz=UTC).isoformat(),
                 }
             )

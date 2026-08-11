@@ -138,7 +138,10 @@ def _build_rows() -> list[Row]:
     for entry in _load_registry():
         model = normalize_model(str(entry["model"]))
         price = get_price_info(model)
-        prompt_method = detect_strategy(model).name
+        # A registry entry can pin the strategy that was actually verified to
+        # work (see scripts/discover_new_models.py) — trust that over
+        # detect.py's heuristic, which may not have caught up to this model.
+        prompt_method = entry.get("prompt_method") or detect_strategy(model).name
 
         or_meta = openrouter.get(entry.get("openrouter_id", ""))
         release_date, release_source = _parse_release_date(or_meta)
