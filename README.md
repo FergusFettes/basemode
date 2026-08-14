@@ -131,7 +131,7 @@ Single generated table, refreshed by CI.
 | `openai/gpt-5.5-2026-04-23` | $5.00 | $30.00 | 2026-04-23 | `system` | ✓ |
 | `openai/gpt-5.6-sol` | $5.00 | $30.00 | 2026-07-09 | `system` | ✓ |
 | `openai/gpt-5.6-terra` | $2.00 | $12.00 | 2026-07-09 | `system` | ✓ |
-| `openrouter/moonshotai/kimi-k2.6` | $0.58 | $2.44 | 2026-04-20 | `system` | ⚠ |
+| `openrouter/moonshotai/kimi-k2.6` | $0.95 | $4.00 | 2026-04-20 | `system` | ⚠ |
 | `zai/glm-4.7` | $0.60 | $2.20 | 2025-12-22 | `system` | ✓ |
 | `zai/glm-5` | $1.00 | $3.20 | 2026-02-11 | `system` | ✓ |
 
