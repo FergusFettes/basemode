@@ -24,11 +24,16 @@ Single generated table, refreshed by CI.
 | `moonshot/kimi-k2-0905-preview` | $0.60 | $2.50 | 2025-07-11 | `system` | ⚠ |
 | `moonshot/kimi-k2.5` | $0.60 | $3.00 | 2026-01-27 | `system` | ⚠ |
 | `openai/gpt-4o-mini` | $0.15 | $0.60 | 2024-07-18 | `system` | ⚠ |
+| `openai/gpt-5.4` | $2.50 | $15.00 | 2026-04-21 | `system` | ✓ |
 | `openai/gpt-5.4-mini` | $0.75 | $4.50 | 2026-03-17 | `system` | ✓ |
+| `openai/gpt-5.4-mini-2026-03-17` | $0.75 | $4.50 | 2026-03-17 | `system` | ✓ |
+| `openai/gpt-5.4-nano` | $0.20 | $1.25 | 2026-03-17 | `system` | ✓ |
+| `openai/gpt-5.4-nano-2026-03-17` | $0.20 | $1.25 | 2026-03-17 | `system` | ✓ |
+| `openai/gpt-5.5` | $5.00 | $30.00 | 2026-04-23 | `system` | ✓ |
 | `openai/gpt-5.5-2026-04-23` | $5.00 | $30.00 | 2026-04-23 | `system` | ✓ |
 | `openai/gpt-5.6-sol` | $5.00 | $30.00 | 2026-07-09 | `system` | ✓ |
 | `openai/gpt-5.6-terra` | $2.00 | $12.00 | 2026-07-09 | `system` | ✓ |
-| `openrouter/moonshotai/kimi-k2.6` | $0.58 | $2.44 | 2026-04-20 | `system` | ⚠ |
+| `openrouter/moonshotai/kimi-k2.6` | $0.95 | $4.00 | 2026-04-20 | `system` | ⚠ |
 | `zai/glm-4.7` | $0.60 | $2.20 | 2025-12-22 | `system` | ✓ |
 | `zai/glm-5` | $1.00 | $3.20 | 2026-02-11 | `system` | ✓ |
 
