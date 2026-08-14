@@ -1,6 +1,16 @@
 {
   "models": [
     {
+      "model": "openai/gpt-5.4-pro-2026-03-05",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-14T04:47:52.085497+00:00"
+    },
+    {
       "model": "openai/gpt-5.5-pro",
       "reason": "empty continuation",
       "attempted_strategies": {
