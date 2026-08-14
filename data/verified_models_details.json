@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-08-11T19:24:33.507060+00:00",
+  "generated_at_utc": "2026-08-14T04:46:37.272323+00:00",
   "rows": [
     {
       "model": "anthropic/claude-fable-5",
@@ -355,8 +355,8 @@
     },
     {
       "model": "openrouter/moonshotai/kimi-k2.6",
-      "input_cost_per_token": 5.795e-07,
-      "output_cost_per_token": 2.44e-06,
+      "input_cost_per_token": 9.5e-07,
+      "output_cost_per_token": 4e-06,
       "release_date": "2026-04-20",
       "prompt_method": "system",
       "reliability": "\u26a0",
