@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "basemode"
-version = "0.1.8"
+version = "0.1.9"
 description = "Make any LLM do raw text continuation"
 readme = "README.md"
 license = "Apache-2.0"
