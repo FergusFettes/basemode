@@ -28,6 +28,19 @@ jobs:
       - name: Regenerate verified model table
         run: uv run python scripts/generate_verified_models_table.py
 
+      - name: Refresh live models cache
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
+          MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          ZAI_API_KEY: ${{ secrets.ZAI_API_KEY }}
+        run: uv run python scripts/refresh_live_models.py
+
       - name: Bump patch version if there's anything to publish
         run: |
           if [ -z "$(git status --porcelain -- README.md data/ docs/)" ]; then
@@ -46,6 +59,8 @@ jobs:
             Automated refresh of:
             - README verified model table
             - data/verified_models_details.json
+            - data/live_models_cache.json (new model ids + release dates
+              pulled directly from each provider's own /v1/models)
 
             Includes a patch version bump — merging this triggers `publish.yml` to release it.
           labels: documentation

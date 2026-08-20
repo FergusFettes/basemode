@@ -333,6 +333,68 @@ def _usage_prompt(
     return prefix, None
 
 
+def _print_live_models(provider: str | None, search: str | None) -> None:
+    from .live_models import (
+        PROVIDER_ENDPOINTS,
+        LiveModelsError,
+        dates_look_trustworthy,
+        fetch_live_models,
+    )
+    from .models import list_models
+    from .settings import settings
+
+    if not provider:
+        console.print("[red]--live requires --provider (one of: "
+                       f"{', '.join(sorted(PROVIDER_ENDPOINTS))})[/red]")
+        raise typer.Exit(1)
+
+    api_key = settings.api_key_for(provider)
+    if not api_key:
+        console.print(f"[red]no API key configured for provider {provider!r}[/red]")
+        raise typer.Exit(1)
+
+    try:
+        live = fetch_live_models(provider, api_key)
+    except LiveModelsError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+
+    if search:
+        needle = search.lower()
+        live = [m for m in live if needle in m.id.lower()]
+
+    known = set(list_models(provider=provider))
+    known_display = {_display_id(provider, m) for m in known}
+    reliable_dates = dates_look_trustworthy(live)
+
+    table = Table("Model", "Release Date", "In litellm?", show_header=True, header_style="bold")
+    for m in live:
+        in_litellm = m.id in known_display or m.id in known
+        release_date = m.release_date if reliable_dates else None
+        table.add_row(
+            m.id,
+            release_date or ("unknown" if m.release_date_confidence != "unknown" else ""),
+            "" if in_litellm else "[bold yellow]NEW[/bold yellow]",
+        )
+    console.print(table)
+    new_count = sum(
+        1 for m in live if m.id not in known_display and m.id not in known
+    )
+    console.print(f"[dim]{len(live)} models from {provider}'s live API"
+                  f"{f', {new_count} not in litellm yet' if new_count else ''}[/dim]")
+    if not reliable_dates:
+        console.print(
+            f"[yellow]{provider}'s release dates look bogus (most models share "
+            "the same timestamp — likely a list-refresh time, not a per-model "
+            "release date) — hidden above.[/yellow]"
+        )
+
+
+def _display_id(provider: str, model: str) -> str:
+    prefix = f"{provider}/"
+    return model[len(prefix):] if model.startswith(prefix) else model
+
+
 @app.command()
 def models(
     provider: Annotated[str | None, typer.Option("-p", "--provider")] = None,
@@ -376,6 +438,15 @@ def models(
             help="Emit structured JSON for frontend model pickers.",
         ),
     ] = False,
+    live: Annotated[
+        bool,
+        typer.Option(
+            "--live",
+            help="Bypass litellm and query the provider's own /v1/models "
+            "endpoint directly (requires --provider and a configured key). "
+            "Flags models litellm doesn't know about yet as NEW.",
+        ),
+    ] = False,
 ) -> None:
     """List available models, grouped by provider.
 
@@ -391,6 +462,10 @@ def models(
         except ValueError as exc:
             console.print(f"[red]{exc}[/red]")
             raise typer.Exit(1) from exc
+
+    if live:
+        _print_live_models(provider, search)
+        return
 
     entries = list_model_picker_entries(
         provider=provider,
@@ -414,14 +489,22 @@ def models(
     if not full:
         columns.append("Snapshots")
     table = Table(*columns, show_header=True, header_style="bold")
+    inferred_count = 0
     for e in entries:
-        row = [e["provider"], e["display"], e.get("release_date") or ""]
+        release_date = e.get("release_date") or ""
+        if release_date and e.get("release_date_inferred"):
+            release_date = f"~{release_date}"
+            inferred_count += 1
+        row = [e["provider"], e["display"], release_date]
         if not full:
             snapshots = e.get("snapshots") or []
             row.append(str(len(snapshots)) if snapshots else "")
         table.add_row(*row)
     console.print(table)
-    console.print(f"[dim]{len(entries)} models[/dim]")
+    summary = f"[dim]{len(entries)} models"
+    if inferred_count:
+        summary += f" ([yellow]~{inferred_count}[/yellow] dates guessed from another provider's listing of the same model)"
+    console.print(summary + "[/dim]")
 
 
 @app.command()

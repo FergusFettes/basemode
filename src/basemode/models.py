@@ -97,6 +97,23 @@ def _verified_rows_by_model() -> dict[str, dict]:
     }
 
 
+def _live_rows_by_provider() -> dict[str, dict]:
+    """Cached provider-API model listings (see scripts/refresh_live_models.py).
+
+    Patches over litellm's lag: new model ids litellm doesn't know about yet
+    (e.g. a just-released `kimi-k3`) show up here, and providers with a
+    trustworthy `created` field (not `moonshot`, whose API returns the same
+    timestamp for every model) contribute a release date litellm never has.
+    """
+    path = _project_root() / "data" / "live_models_cache.json"
+    try:
+        payload = json.loads(path.read_text())
+    except Exception:
+        return {}
+    providers = payload.get("providers", {})
+    return providers if isinstance(providers, dict) else {}
+
+
 def _provider_models(provider: str, by_provider: dict[str, list[str]]) -> list[str]:
     return list(by_provider.get(provider, [])) + _EXTRA_MODELS_BY_PROVIDER.get(
         provider, []
@@ -129,13 +146,82 @@ def list_providers() -> list[str]:
     return sorted(litellm.models_by_provider.keys())
 
 
+# Vendor tags a re-hosting provider sometimes prepends to a model id that
+# the original provider doesn't use (e.g. azure_ai lists Fireworks-hosted
+# models as "FW-Kimi-K3" where moonshot itself just calls it "kimi-k3").
+_NOISE_PREFIXES = ("fw-",)
+
+
+def _canonical_model_key(display: str) -> str:
+    """Normalize a display id so the same model looks the same across providers.
+
+    `moonshot/kimi-k3`, `openrouter/moonshotai/kimi-k3`,
+    `together_ai/moonshotai/Kimi-K3`, and `azure_ai/FW-Kimi-K3` should all
+    collapse to the same key so a release date known for one can stand in
+    for the others.
+    """
+    tail = display.rsplit("/", 1)[-1].lower()
+    for prefix in _NOISE_PREFIXES:
+        if tail.startswith(prefix):
+            tail = tail[len(prefix) :]
+            break
+    return re.sub(r"[^a-z0-9]", "", tail)
+
+
+def _known_release_date(
+    model_provider: str, model: str, verified: dict, live: dict
+) -> str | None:
+    display = _display_model_id(model_provider, model)
+    v = verified.get(model) or verified.get(f"{model_provider}/{model}", {})
+    _, suffix_date = _strip_date_suffix(display)
+    live_date = live.get(model_provider, {}).get("models", {}).get(display)
+    return v.get("release_date") or suffix_date or live_date
+
+
+def _cross_provider_release_dates(verified: dict, live: dict) -> dict[str, str]:
+    """canonical model key -> earliest known release date across every
+
+    provider/alias we know about, regardless of the current call's provider/
+    search filters. Used to fill in a release date for a model that's blank
+    under its own provider but dated under another (e.g. `moonshot/kimi-k3`
+    has no date yet, but `openrouter/moonshotai/kimi-k3` does).
+    """
+    pairs = _all_provider_pairs()
+    known_display = {(p, _display_model_id(p, m)) for p, m in pairs}
+    for m in verified:
+        v_provider = m.split("/", 1)[0] if "/" in m else "unknown"
+        v_display = _display_model_id(v_provider, m)
+        if (v_provider, v_display) not in known_display:
+            pairs.append((v_provider, m))
+            known_display.add((v_provider, v_display))
+
+    index: dict[str, str] = {}
+    for model_provider, model in set(pairs):
+        date = _known_release_date(model_provider, model, verified, live)
+        if not date:
+            continue
+        key = _canonical_model_key(_display_model_id(model_provider, model))
+        if key not in index or date < index[key]:
+            index[key] = date
+    return index
+
+
 def _all_provider_pairs() -> list[tuple[str, str]]:
-    """(provider, model) pairs straight from litellm, provider always correct."""
+    """(provider, model) pairs from litellm plus anything the live cache
+
+    has that litellm doesn't — provider always correct.
+    """
     by_provider: dict[str, list[str]] = litellm.models_by_provider
     pairs = [(p, m) for p, ms in by_provider.items() for m in ms]
     pairs.extend(
         (p, m) for p, ms in _EXTRA_MODELS_BY_PROVIDER.items() for m in ms
     )
+    known_display = {(p, _display_model_id(p, m)) for p, m in pairs}
+    for provider, row in _live_rows_by_provider().items():
+        for model_id in row.get("models", {}):
+            if (provider, model_id) not in known_display:
+                pairs.append((provider, f"{provider}/{model_id}"))
+                known_display.add((provider, model_id))
     return pairs
 
 
@@ -164,6 +250,8 @@ def list_model_picker_entries(
     `parse_since`; models with no known release date are dropped.
     """
     verified = _verified_rows_by_model()
+    live = _live_rows_by_provider()
+    cross_provider_dates = _cross_provider_release_dates(verified, live)
 
     if verified_only:
         pairs = [(m.split("/", 1)[0] if "/" in m else "unknown", m) for m in verified]
@@ -200,7 +288,12 @@ def list_model_picker_entries(
         if available_only and not available:
             continue
         display = _display_model_id(model_provider, model)
-        _, suffix_date = _strip_date_suffix(display)
+        own_date = _known_release_date(model_provider, model, verified, live)
+        if own_date:
+            release_date, release_date_inferred = own_date, False
+        else:
+            guess = cross_provider_dates.get(_canonical_model_key(display))
+            release_date, release_date_inferred = guess, guess is not None
         entries.append(
             {
                 "model": model,
@@ -211,7 +304,8 @@ def list_model_picker_entries(
                 "verified": bool(v),
                 "prompt_method": v.get("prompt_method"),
                 "reliability": v.get("reliability"),
-                "release_date": v.get("release_date") or suffix_date,
+                "release_date": release_date,
+                "release_date_inferred": release_date_inferred,
                 "input_cost_per_token": v.get("input_cost_per_token"),
                 "output_cost_per_token": v.get("output_cost_per_token"),
                 "issues": list(v.get("issues", [])),

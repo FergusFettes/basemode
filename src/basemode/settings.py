@@ -37,22 +37,25 @@ class Settings(BaseSettings):
     zai_api_key: str = ""
 
     @property
-    def available_providers(self) -> list[str]:
+    def _provider_keys(self) -> list[tuple[str, str]]:
         return [
-            provider
-            for provider, key in [
-                ("openai", self.openai_api_key),
-                ("anthropic", self.anthropic_api_key),
-                ("openrouter", self.openrouter_api_key),
-                ("groq", self.groq_api_key),
-                ("gemini", self.gemini_api_key),
-                ("together_ai", self.together_api_key),
-                ("moonshot", self.moonshot_api_key),
-                ("xai", self.xai_api_key),
-                ("zai", self.zai_api_key),
-            ]
-            if key
+            ("openai", self.openai_api_key),
+            ("anthropic", self.anthropic_api_key),
+            ("openrouter", self.openrouter_api_key),
+            ("groq", self.groq_api_key),
+            ("gemini", self.gemini_api_key),
+            ("together_ai", self.together_api_key),
+            ("moonshot", self.moonshot_api_key),
+            ("xai", self.xai_api_key),
+            ("zai", self.zai_api_key),
         ]
+
+    @property
+    def available_providers(self) -> list[str]:
+        return [provider for provider, key in self._provider_keys if key]
+
+    def api_key_for(self, provider: str) -> str:
+        return dict(self._provider_keys).get(provider, "")
 
 
 settings = Settings()
