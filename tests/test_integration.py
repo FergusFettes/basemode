@@ -106,6 +106,14 @@ def require_provider_access(model: str) -> str:
     return provider or "unknown"
 
 
+def _is_retired_model_error(exc: Exception) -> bool:
+    """Return whether a provider explicitly says the requested model is gone."""
+    message = str(exc).lower()
+    return "model" in message and (
+        "not_found_error" in message or "model not found" in message
+    )
+
+
 def _append_health_row(
     *,
     test_kind: str,
@@ -180,8 +188,13 @@ async def _run_probe(
             assert_fn(result, usage)
         return result, usage
     except Exception as exc:
-        status = "error"
         error = str(exc)
+        if _is_retired_model_error(exc):
+            # A scheduled health probe should retain this observation without
+            # turning an expected provider-side model retirement into a red CI run.
+            status = "xfail_retired_model"
+            pytest.xfail(f"provider reports retired model: {model}")
+        status = "error"
         raise
     finally:
         elapsed = perf_counter() - started
