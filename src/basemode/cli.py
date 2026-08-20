@@ -347,6 +347,28 @@ def models(
             help="Only show models in the verified registry table.",
         ),
     ] = False,
+    full: Annotated[
+        bool,
+        typer.Option(
+            "--full",
+            help="Show every dated snapshot instead of collapsing them into "
+            "their undated alias.",
+        ),
+    ] = False,
+    all_modes: Annotated[
+        bool,
+        typer.Option(
+            "--all-modes",
+            help="Include non-text models too (image, audio, embedding, ...).",
+        ),
+    ] = False,
+    since: Annotated[
+        str | None,
+        typer.Option(
+            "--since",
+            help="Only show models released within this long, e.g. 10d, 4w, 6m, 1y.",
+        ),
+    ] = None,
     as_json: Annotated[
         bool,
         typer.Option(
@@ -355,33 +377,51 @@ def models(
         ),
     ] = False,
 ) -> None:
-    """List available models."""
-    from .models import list_model_picker_entries, list_models
+    """List available models, grouped by provider.
+
+    Compact by default: dated snapshots (`gpt-5.4-2026-03-05`) collapse into
+    their undated alias (`gpt-5.4`); non-text models (image/audio/embedding/
+    ...) are hidden. Use --full and --all-modes to see everything.
+    """
+    from .models import list_model_picker_entries, parse_since
+
+    if since:
+        try:
+            parse_since(since)
+        except ValueError as exc:
+            console.print(f"[red]{exc}[/red]")
+            raise typer.Exit(1) from exc
+
+    entries = list_model_picker_entries(
+        provider=provider,
+        search=search,
+        available_only=available,
+        verified_only=verified,
+        text_only=not all_modes,
+        compact=not full,
+        since=since,
+    )
 
     if as_json:
-        entries = list_model_picker_entries(
-            provider=provider,
-            search=search,
-            available_only=available,
-            verified_only=verified,
-        )
         console.print(json.dumps(entries, indent=2))
         return
 
-    results = list_models(provider=provider, search=search, available_only=available)
-    if verified:
-        verified_models = {
-            e["model"] for e in list_model_picker_entries(verified_only=True)
-        }
-        results = [m for m in results if m in verified_models]
-    if not results:
+    if not entries:
         console.print("[yellow]No models found.[/yellow]")
         return
 
-    table = Table("Model", show_header=True, header_style="bold")
-    for m in results:
-        table.add_row(m)
+    columns = ["Provider", "Model", "Release Date"]
+    if not full:
+        columns.append("Snapshots")
+    table = Table(*columns, show_header=True, header_style="bold")
+    for e in entries:
+        row = [e["provider"], e["display"], e.get("release_date") or ""]
+        if not full:
+            snapshots = e.get("snapshots") or []
+            row.append(str(len(snapshots)) if snapshots else "")
+        table.add_row(*row)
     console.print(table)
+    console.print(f"[dim]{len(entries)} models[/dim]")
 
 
 @app.command()

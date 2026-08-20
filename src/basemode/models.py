@@ -1,4 +1,6 @@
+import datetime
 import json
+import re
 from pathlib import Path
 
 import litellm
@@ -12,6 +14,69 @@ _EXTRA_MODELS_BY_PROVIDER = {
         "gemini/gemma-4-31b-it",
     ],
 }
+
+# litellm.model_cost["mode"] values that represent text-generation models,
+# as opposed to image/audio/embedding/rerank/etc. side models.
+TEXT_MODES = {"chat", "responses", "completion"}
+
+# Matches a trailing dated-snapshot suffix, e.g. "-2026-03-05" or "-20251001".
+_DATE_SUFFIX_RE = re.compile(r"-(?:(\d{4})-(\d{2})-(\d{2})|(\d{8}))$")
+
+
+def _strip_date_suffix(model_id: str) -> tuple[str, str | None]:
+    """Split a model id into (base_id, iso_date) if it ends in a dated snapshot."""
+    match = _DATE_SUFFIX_RE.search(model_id)
+    if not match:
+        return model_id, None
+    year, month, day, compact = match.groups()
+    if compact is None:
+        date = f"{year}-{month}-{day}"
+    else:
+        date = f"{compact[0:4]}-{compact[4:6]}-{compact[6:8]}"
+    return model_id[: match.start()], date
+
+
+_SINCE_RE = re.compile(r"^(\d+)([dwmy])$", re.IGNORECASE)
+
+
+def _shift_months(d: datetime.date, delta_months: int) -> datetime.date:
+    month_index = d.month - 1 + delta_months
+    year = d.year + month_index // 12
+    month = month_index % 12 + 1
+    next_month_first = datetime.date(year + (month // 12), month % 12 + 1, 1)
+    days_in_month = (next_month_first - datetime.timedelta(days=1)).day
+    return datetime.date(year, month, min(d.day, days_in_month))
+
+
+def parse_since(spec: str) -> str:
+    """Parse a relative duration like '10d', '4w', '6m', '1y' into an ISO cutoff date."""
+    match = _SINCE_RE.match(spec.strip())
+    if not match:
+        raise ValueError(
+            f"invalid --since value {spec!r}; use e.g. 10d, 4w, 6m, 1y"
+        )
+    amount, unit = int(match.group(1)), match.group(2).lower()
+    today = datetime.date.today()
+    if unit == "d":
+        cutoff = today - datetime.timedelta(days=amount)
+    elif unit == "w":
+        cutoff = today - datetime.timedelta(weeks=amount)
+    elif unit == "m":
+        cutoff = _shift_months(today, -amount)
+    else:
+        cutoff = _shift_months(today, -amount * 12)
+    return cutoff.isoformat()
+
+
+def _model_mode(provider: str, model: str) -> str | None:
+    """Best-effort litellm mode ('chat', 'image_generation', ...) for a model."""
+    info = litellm.model_cost.get(model) or litellm.model_cost.get(f"{provider}/{model}")
+    return info.get("mode") if info else None
+
+
+def _display_model_id(provider: str, model: str) -> str:
+    prefix = f"{provider}/"
+    return model[len(prefix) :] if model.startswith(prefix) else model
 
 
 def _project_root() -> Path:
@@ -64,68 +129,144 @@ def list_providers() -> list[str]:
     return sorted(litellm.models_by_provider.keys())
 
 
+def _all_provider_pairs() -> list[tuple[str, str]]:
+    """(provider, model) pairs straight from litellm, provider always correct."""
+    by_provider: dict[str, list[str]] = litellm.models_by_provider
+    pairs = [(p, m) for p, ms in by_provider.items() for m in ms]
+    pairs.extend(
+        (p, m) for p, ms in _EXTRA_MODELS_BY_PROVIDER.items() for m in ms
+    )
+    return pairs
+
+
 def list_model_picker_entries(
     provider: str | None = None,
     search: str | None = None,
     available_only: bool = False,
     verified_only: bool = False,
+    text_only: bool = False,
+    compact: bool = False,
+    since: str | None = None,
 ) -> list[dict]:
     """Structured model metadata for frontend pickers.
 
     Includes:
     - stable model id (`model`)
     - provider and key-availability
+    - litellm `mode` (chat, image_generation, embedding, ...)
     - verified pricing/reliability/prompt-method when known
+
+    `text_only` drops non text-generation models (image/audio/embedding/...).
+    `compact` collapses dated snapshots (e.g. `gpt-5.4-2026-03-05`) into their
+    undated alias (`gpt-5.4`) when one exists, keeping a `snapshots` list of
+    the dated ids it absorbed.
+    `since` is a relative duration (`10d`, `4w`, `6m`, `1y`) parsed with
+    `parse_since`; models with no known release date are dropped.
     """
     verified = _verified_rows_by_model()
 
     if verified_only:
-        models = sorted(verified.keys())
+        pairs = [(m.split("/", 1)[0] if "/" in m else "unknown", m) for m in verified]
     else:
-        models = list_models(provider=provider, search=search, available_only=False)
+        pairs = _all_provider_pairs()
+        known_display = {(p, _display_model_id(p, m)) for p, m in pairs}
         for m in verified:
-            if m not in models:
-                models.append(m)
+            v_provider = m.split("/", 1)[0] if "/" in m else "unknown"
+            v_display = _display_model_id(v_provider, m)
+            if (v_provider, v_display) not in known_display:
+                pairs.append((v_provider, m))
+                known_display.add((v_provider, v_display))
 
     if provider:
-        models = [m for m in models if m.split("/", 1)[0] == provider]
+        pairs = [(p, m) for p, m in pairs if p == provider]
     if search:
         needle = search.lower()
-        models = [m for m in models if needle in m.lower()]
+        pairs = [(p, m) for p, m in pairs if needle in m.lower()]
 
     available_providers = set(settings.available_providers)
     entries: list[dict] = []
-    for model in sorted(set(models)):
-        model_provider = model.split("/", 1)[0] if "/" in model else "unknown"
-        v = verified.get(model, {})
+    seen: set[tuple[str, str]] = set()
+    for model_provider, model in sorted(set(pairs), key=lambda pm: (pm[0], pm[1])):
+        if (model_provider, model) in seen:
+            continue
+        seen.add((model_provider, model))
+
+        mode = _model_mode(model_provider, model)
+        if text_only and mode is not None and mode not in TEXT_MODES:
+            continue
+
+        v = verified.get(model) or verified.get(f"{model_provider}/{model}", {})
         available = model_provider in available_providers
         if available_only and not available:
             continue
+        display = _display_model_id(model_provider, model)
+        _, suffix_date = _strip_date_suffix(display)
         entries.append(
             {
                 "model": model,
+                "display": display,
                 "provider": model_provider,
+                "mode": mode,
                 "available": available,
                 "verified": bool(v),
                 "prompt_method": v.get("prompt_method"),
                 "reliability": v.get("reliability"),
-                "release_date": v.get("release_date"),
+                "release_date": v.get("release_date") or suffix_date,
                 "input_cost_per_token": v.get("input_cost_per_token"),
                 "output_cost_per_token": v.get("output_cost_per_token"),
                 "issues": list(v.get("issues", [])),
             }
         )
 
-    def sort_key(item: dict) -> tuple[int, int, int, str]:
+    if compact:
+        entries = _compact_entries(entries)
+
+    if since:
+        cutoff = parse_since(since)
+        entries = [e for e in entries if (e.get("release_date") or "") >= cutoff]
+
+    def sort_key(item: dict) -> tuple[int, int, int, str, str]:
         reliability_rank = 0 if item.get("reliability") == "✓" else 1
         return (
             0 if item["available"] else 1,
             0 if item["verified"] else 1,
             reliability_rank,
+            item["provider"],
             item["model"],
         )
 
     return sorted(entries, key=sort_key)
+
+
+def _compact_entries(entries: list[dict]) -> list[dict]:
+    """Collapse dated snapshots of the same base model into one entry."""
+    groups: dict[tuple[str, str], list[dict]] = {}
+    for e in entries:
+        base, date = _strip_date_suffix(e["display"])
+        groups.setdefault((e["provider"], base), []).append({**e, "_date": date})
+
+    compacted: list[dict] = []
+    for _key, group in groups.items():
+        undated = [g for g in group if g["_date"] is None]
+        dated = sorted(
+            (g for g in group if g["_date"] is not None),
+            key=lambda g: g["_date"],
+        )
+        representative = undated[0] if undated else dated[-1]
+        snapshots = sorted(
+            {g["model"] for g in group if g["model"] != representative["model"]}
+        )
+        release_date = representative.get("release_date") or (
+            dated[-1]["_date"] if dated else None
+        )
+        compacted.append(
+            {
+                **{k: v for k, v in representative.items() if k != "_date"},
+                "release_date": release_date,
+                "snapshots": snapshots,
+            }
+        )
+    return compacted
 
 
 def build_model_picker_state(
@@ -136,6 +277,8 @@ def build_model_picker_state(
     search: str | None = None,
     available_only: bool = False,
     verified_only: bool = False,
+    text_only: bool = False,
+    compact: bool = False,
 ) -> dict:
     """Frontend-friendly state blob for single- or multi-model picker UIs."""
     entries = list_model_picker_entries(
@@ -143,6 +286,8 @@ def build_model_picker_state(
         search=search,
         available_only=available_only,
         verified_only=verified_only,
+        text_only=text_only,
+        compact=compact,
     )
     selected = selected or []
     selected_set = set(selected)
