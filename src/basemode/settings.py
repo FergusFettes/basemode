@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     moonshot_api_key: str = ""
     xai_api_key: str = ""
     zai_api_key: str = ""
+    deepseek_api_key: str = ""
 
     @property
     def _provider_keys(self) -> list[tuple[str, str]]:
@@ -48,6 +49,7 @@ class Settings(BaseSettings):
             ("moonshot", self.moonshot_api_key),
             ("xai", self.xai_api_key),
             ("zai", self.zai_api_key),
+            ("deepseek", self.deepseek_api_key),
         ]
 
     @property

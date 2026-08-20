@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-08-20T23:11:00.021490+00:00",
+  "generated_at_utc": "2026-08-20T23:19:47.540965+00:00",
   "providers": {
     "anthropic": {
       "models": {
@@ -13,6 +13,13 @@
         "claude-sonnet-4-5-20250929": "2025-09-29",
         "claude-sonnet-4-6": "2026-02-17",
         "claude-sonnet-5": "2026-06-29"
+      },
+      "reliable_dates": true
+    },
+    "deepseek": {
+      "models": {
+        "deepseek-v4-flash": null,
+        "deepseek-v4-pro": null
       },
       "reliable_dates": true
     },
@@ -68,6 +75,24 @@
         "veo-3.1-fast-generate-preview": null,
         "veo-3.1-generate-preview": null,
         "veo-3.1-lite-generate-preview": null
+      },
+      "reliable_dates": true
+    },
+    "groq": {
+      "models": {
+        "allam-2-7b": "2025-01-23",
+        "canopylabs/orpheus-arabic-saudi": "2025-12-16",
+        "canopylabs/orpheus-v1-english": "2025-12-19",
+        "groq/compound": "2025-09-04",
+        "groq/compound-mini": "2025-09-04",
+        "meta-llama/llama-prompt-guard-2-22m": "2025-05-30",
+        "meta-llama/llama-prompt-guard-2-86m": "2025-05-30",
+        "openai/gpt-oss-120b": "2025-08-05",
+        "openai/gpt-oss-20b": "2025-08-05",
+        "openai/gpt-oss-safeguard-20b": "2025-10-29",
+        "qwen/qwen3.6-27b": "2026-05-09",
+        "whisper-large-v3": "2023-09-03",
+        "whisper-large-v3-turbo": "2024-10-08"
       },
       "reliable_dates": true
     },

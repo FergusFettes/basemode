@@ -116,6 +116,7 @@ PROVIDER_ENDPOINTS: dict[str, _Endpoint] = {
     "moonshot": _Endpoint("https://api.moonshot.ai/v1/models", _bearer_headers, _parse_openai_style),
     "xai": _Endpoint("https://api.x.ai/v1/models", _bearer_headers, _parse_openai_style),
     "zai": _Endpoint("https://api.z.ai/api/paas/v4/models", _bearer_headers, _parse_openai_style),
+    "deepseek": _Endpoint("https://api.deepseek.com/v1/models", _bearer_headers, _parse_openai_style),
     "gemini": _Endpoint("https://generativelanguage.googleapis.com/v1beta/models", None, _parse_gemini),
 }
 

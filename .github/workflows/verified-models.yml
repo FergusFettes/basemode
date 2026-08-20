@@ -39,6 +39,7 @@ jobs:
           MOONSHOT_API_KEY: ${{ secrets.MOONSHOT_API_KEY }}
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
           ZAI_API_KEY: ${{ secrets.ZAI_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: uv run python scripts/refresh_live_models.py
 
       - name: Bump patch version if there's anything to publish

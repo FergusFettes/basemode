@@ -25,6 +25,7 @@ KEY_ALIASES: dict[str, str] = {
     "moonshot": "MOONSHOT_API_KEY",
     "xai": "XAI_API_KEY",
     "zai": "ZAI_API_KEY",
+    "deepseek": "DEEPSEEK_API_KEY",
 }
 
 
