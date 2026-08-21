@@ -19,7 +19,7 @@ Single generated table, refreshed by CI.
 | `anthropic/claude-sonnet-5` | $2.00 | $10.00 | 2026-06-30 | `system` | ✓ |
 | `gemini/gemini-2.5-flash` | $0.30 | $2.50 | 2025-06-17 | `system` | ⚠ |
 | `gemini/gemini-2.5-pro` | $1.25 | $10.00 | 2025-06-17 | `system` | ⚠ |
-| `gemini/gemma-4-26b-a4b-it` | $0.12 | $0.40 | 2026-04-03 | `system` | ⚠ |
+| `gemini/gemma-4-26b-a4b-it` | $0.07 | $0.34 | 2026-04-03 | `system` | ⚠ |
 | `gemini/gemma-4-31b-it` | $0.10 | $0.34 | 2026-04-02 | `system` | ⚠ |
 | `moonshot/kimi-k2-0905-preview` | $0.60 | $2.50 | 2025-07-11 | `system` | ⚠ |
 | `moonshot/kimi-k2.5` | $0.60 | $3.00 | 2026-01-27 | `system` | ⚠ |
