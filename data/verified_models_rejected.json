@@ -1,6 +1,36 @@
 {
   "models": [
     {
+      "model": "openai/gpt-5.2-chat-latest",
+      "reason": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.2-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.2-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations",
+        "prefill": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.2-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations",
+        "few_shot": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.2-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations"
+      },
+      "checked_at_utc": "2026-08-21T03:48:22.943398+00:00"
+    },
+    {
+      "model": "openai/gpt-5.2-codex",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.2-codex\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.2-codex\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.2-codex\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.2-codex\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}"
+      },
+      "checked_at_utc": "2026-08-21T03:48:22.739293+00:00"
+    },
+    {
+      "model": "openai/gpt-5.3-chat-latest",
+      "reason": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.3-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.3-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations",
+        "prefill": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.3-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations",
+        "few_shot": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.3-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations"
+      },
+      "checked_at_utc": "2026-08-21T03:48:20.364307+00:00"
+    },
+    {
       "model": "openai/gpt-5.4-pro-2026-03-05",
       "reason": "empty continuation",
       "attempted_strategies": {

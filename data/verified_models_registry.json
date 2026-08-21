@@ -107,8 +107,18 @@
       "pricing_url": "https://openai.com/api/pricing/"
     },
     {
+      "model": "openai/gpt-5.3-codex",
+      "openrouter_id": "openai/gpt-5.3-codex",
+      "pricing_url": "https://openai.com/api/pricing/"
+    },
+    {
       "model": "openai/gpt-5.4",
       "openrouter_id": "openai/gpt-5.4-image-2",
+      "pricing_url": "https://openai.com/api/pricing/"
+    },
+    {
+      "model": "openai/gpt-5.4-2026-03-05",
+      "openrouter_id": "openai/gpt-5.4",
       "pricing_url": "https://openai.com/api/pricing/"
     },
     {
@@ -129,6 +139,11 @@
     {
       "model": "openai/gpt-5.4-nano-2026-03-17",
       "openrouter_id": "openai/gpt-5.4-nano",
+      "pricing_url": "https://openai.com/api/pricing/"
+    },
+    {
+      "model": "openai/gpt-5.4-pro",
+      "openrouter_id": "openai/gpt-5.4-pro",
       "pricing_url": "https://openai.com/api/pricing/"
     },
     {
