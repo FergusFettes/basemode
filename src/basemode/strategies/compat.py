@@ -113,6 +113,10 @@ _THINKING_MODELS: dict[str, tuple[int, int]] = {
     "kimi-k2.5": (4096, 512),  # Kimi K2.5 uses a large reasoning budget
     "kimi-k2.6": (4096, 512),  # Kimi K2.6 exhibits similar long-reasoning behavior
     "kimi-k2-thinking": (4096, 512),
+    "kimi-k3": (4096, 512),  # same always-on reasoning behavior as k2-thinking
+    "claude-opus-5": (2048, 512),  # extended thinking runs by default
+    "gpt-5.6-sol": (2048, 512),  # o-series-style reasoning, always on
+    "gpt-5.6-terra": (2048, 512),
 }
 
 _ZAI_DISABLE_THINKING_PREFIXES = (
@@ -139,12 +143,17 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
     via_openrouter = lower_model.startswith("openrouter/")
     via_moonshot = lower_model.startswith("moonshot/")
     via_zai = lower_model.startswith("zai/")
+    via_openai = lower_model.startswith("openai/")
     if via_zai and stem.startswith(_ZAI_DISABLE_THINKING_PREFIXES):
         return {"extra_body": {"thinking": {"type": "disabled"}}}
     for fragment, (budget, min_out) in _THINKING_MODELS.items():
         if fragment in stem:
             adjusted = max(max_tokens, budget + min_out)
             if via_moonshot:
+                return {"max_tokens": adjusted}
+            if via_openai:
+                # OpenAI reasoning models don't take an Anthropic-style
+                # `thinking` kwarg — just widen the raw token budget.
                 return {"max_tokens": adjusted}
             if via_openrouter:
                 # OpenRouter separates visible completion cap from thinking budget.

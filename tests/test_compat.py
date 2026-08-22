@@ -46,6 +46,31 @@ def test_moonshot_kimi_k3_does_not_send_temperature() -> None:
     assert "temperature" not in kwargs
 
 
+def test_moonshot_kimi_k3_bumps_max_tokens_for_reasoning_budget() -> None:
+    kwargs = build_kwargs(GenerationParams(model="moonshot/kimi-k3", max_tokens=200))
+
+    assert kwargs["max_tokens"] == 4608
+    assert "thinking" not in kwargs
+    assert "extra_body" not in kwargs
+
+
+def test_claude_opus_5_bumps_max_tokens_for_reasoning_budget() -> None:
+    kwargs = build_kwargs(
+        GenerationParams(model="anthropic/claude-opus-5", max_tokens=200)
+    )
+
+    assert kwargs["max_tokens"] == 2560
+    assert kwargs["thinking"] == {"type": "enabled", "budget_tokens": 2048}
+
+
+def test_openai_gpt_5_6_sol_bumps_max_tokens_without_thinking_param() -> None:
+    kwargs = build_kwargs(GenerationParams(model="openai/gpt-5.6-sol", max_tokens=200))
+
+    assert kwargs["max_tokens"] == 2560
+    assert "thinking" not in kwargs
+    assert "extra_body" not in kwargs
+
+
 @pytest.mark.parametrize(
     "model",
     [
