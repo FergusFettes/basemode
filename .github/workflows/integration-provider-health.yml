@@ -46,6 +46,7 @@ jobs:
           uv run python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import json
           import statistics
+          import sys
           from collections import defaultdict
           from pathlib import Path
 
@@ -95,7 +96,11 @@ jobs:
               for r in quota_rows:
                   error = str(r.get("error") or "").replace("|", "\\|")
                   print(f"| {r['provider']} | {r['model']} | {error} |")
-              print("::warning title=Provider credits or quota exhausted::See the Provider health summary for affected models.")
+              print(
+                  "::warning title=Provider credits or quota exhausted::"
+                  "See the Provider health summary for affected models.",
+                  file=sys.stderr,
+              )
           PY
           else
           echo "No health report generated." >> "$GITHUB_STEP_SUMMARY"
