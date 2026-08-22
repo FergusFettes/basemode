@@ -18,7 +18,16 @@ For each provider with an API key configured (see `PROVIDER_ENDPOINTS` in
    model is added to the registry (data/verified_models_registry.json)
    tagged with whichever
    strategy actually worked — which `detect.py` then honours at runtime via
-   the registry's `prompt_method`. If every strategy fails, it's recorded in
+   the registry's `prompt_method`. A strategy attempt that comes back
+   completely empty (as opposed to an outright error) is retried once with a
+   much larger `REASONING_RETRY_MAX_TOKENS` before being counted as a
+   failure — a reasoning model can burn the whole probe budget on hidden
+   chain-of-thought and never reach visible output, which looks identical to
+   a strategy that plain doesn't work. If that retry is what made it pass,
+   the registry entry is tagged with the generic `reasoning_budget` quirk
+   (see `basemode.strategies.compat.thinking_kwargs`) instead of either
+   rejecting a working model or leaving it perpetually starved for output.
+   If every strategy fails outright, it's recorded in
    data/verified_models_rejected.json (with all attempted errors) so we
    don't keep re-paying to re-discover the same dead end every week.
 
@@ -199,13 +208,25 @@ def select_candidates(
 PROBE_TIMEOUT = 60  # seconds; a stalled provider stream shouldn't hang the whole run
 
 
-async def _collect_chunks(candidate: Candidate, strategy: str | None) -> list[str]:
+# A reasoning model can burn its entire PROBE_MAX_TOKENS on hidden
+# chain-of-thought and never reach visible output, which looks identical to
+# a strategy that plain doesn't work. Before rejecting a candidate whose
+# attempt came back completely empty, retry once with a much larger budget;
+# if that's all it needed, register it with a `reasoning_budget` quirk
+# (see `basemode.strategies.compat.thinking_kwargs`) instead of either
+# rejecting a working model or silently under-provisioning it forever.
+REASONING_RETRY_MAX_TOKENS = 5120
+
+
+async def _collect_chunks(
+    candidate: Candidate, strategy: str | None, *, max_tokens: int = PROBE_MAX_TOKENS
+) -> list[str]:
     return [
         token
         async for token in continue_text(
             PROBE_PREFIX,
             model=candidate.normalized_id,
-            max_tokens=PROBE_MAX_TOKENS,
+            max_tokens=max_tokens,
             temperature=PROBE_TEMPERATURE,
             strategy=strategy,
         )
@@ -214,46 +235,65 @@ async def _collect_chunks(candidate: Candidate, strategy: str | None) -> list[st
 
 async def _probe_strategy(
     candidate: Candidate, strategy: str | None
-) -> tuple[bool, str, str]:
-    """Returns (worked, detail, sample_text) for a single strategy attempt."""
+) -> tuple[bool, str, str, bool]:
+    """Returns (worked, detail, sample_text, needs_reasoning_budget)."""
     try:
         chunks = await asyncio.wait_for(
             _collect_chunks(candidate, strategy), timeout=PROBE_TIMEOUT
         )
     except TimeoutError:
-        return False, f"timed out after {PROBE_TIMEOUT}s", ""
+        return False, f"timed out after {PROBE_TIMEOUT}s", "", False
     except Exception as exc:  # provider/strategy error
-        return False, f"{type(exc).__name__}: {exc}", ""
+        return False, f"{type(exc).__name__}: {exc}", "", False
 
     text = "".join(chunks)
+    if not text.strip():
+        try:
+            wide_chunks = await asyncio.wait_for(
+                _collect_chunks(
+                    candidate, strategy, max_tokens=REASONING_RETRY_MAX_TOKENS
+                ),
+                timeout=PROBE_TIMEOUT,
+            )
+        except Exception:
+            wide_chunks = []
+        wide_text = "".join(wide_chunks)
+        if wide_text.strip():
+            wide_ok, _wide_reason = looks_clean(PROBE_PREFIX, wide_text)
+            if wide_ok:
+                return True, "ok (needed a reasoning budget)", wide_text, True
+
     ok, reason = looks_clean(PROBE_PREFIX, text)
-    return ok, (reason or "ok"), text
+    return ok, (reason or "ok"), text, False
 
 
-async def _probe(candidate: Candidate) -> tuple[bool, str | None, str, dict[str, str]]:
+async def _probe(
+    candidate: Candidate,
+) -> tuple[bool, str | None, str, dict[str, str], bool]:
     """Try the auto-detected strategy, then STRATEGY_FALLBACKS, until one works.
 
-    Returns (worked, strategy_used, detail, attempts) where `attempts` maps
-    every strategy name tried to its failure detail (empty on success on the
-    first try). `strategy_used` is None when the auto-detected default won.
+    Returns (worked, strategy_used, detail, attempts, needs_reasoning_budget)
+    where `attempts` maps every strategy name tried to its failure detail
+    (empty on success on the first try). `strategy_used` is None when the
+    auto-detected default won.
     """
     auto_name = detect_strategy(candidate.normalized_id).name
     attempts: dict[str, str] = {}
 
-    ok, detail, _sample = await _probe_strategy(candidate, None)
+    ok, detail, _sample, needs_budget = await _probe_strategy(candidate, None)
     if ok:
-        return True, None, detail, attempts
+        return True, None, detail, attempts, needs_budget
     attempts[auto_name] = detail
 
     for strategy in STRATEGY_FALLBACKS:
         if strategy in attempts:
             continue  # already tried as the auto-detected default
-        ok, detail, _sample = await _probe_strategy(candidate, strategy)
+        ok, detail, _sample, needs_budget = await _probe_strategy(candidate, strategy)
         if ok:
-            return True, strategy, detail, attempts
+            return True, strategy, detail, attempts, needs_budget
         attempts[strategy] = detail
 
-    return False, None, attempts[auto_name], attempts
+    return False, None, attempts[auto_name], attempts, False
 
 
 def _dashed(text: str) -> str:
@@ -324,9 +364,11 @@ async def _run(limit: int, providers: set[str] | None = None) -> int:
     rejected_now: list[tuple[Candidate, str]] = []
 
     for candidate in all_candidates:
-        worked, strategy_used, detail, attempts = await _probe(candidate)
+        worked, strategy_used, detail, attempts, needs_budget = await _probe(candidate)
         if worked:
             label = f"strategy={strategy_used}" if strategy_used else "auto strategy"
+            if needs_budget:
+                label += ", reasoning_budget"
             print(f"  + {candidate.normalized_id}: works ({label})")
             entry = {"model": candidate.normalized_id}
             or_id = _guess_openrouter_id(candidate.normalized_id, openrouter_index)
@@ -337,6 +379,8 @@ async def _run(limit: int, providers: set[str] | None = None) -> int:
                 entry["pricing_url"] = pricing_url
             if strategy_used:
                 entry["prompt_method"] = strategy_used
+            if needs_budget:
+                entry["quirks"] = ["reasoning_budget"]
             registry.setdefault("models", []).append(entry)
             known.add(candidate.normalized_id)
             added.append((candidate, label))

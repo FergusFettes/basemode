@@ -109,8 +109,14 @@ async def test_run_adds_working_and_rejects_broken_models(
 
     async def fake_probe(candidate):
         if candidate.normalized_id == "openai/gpt-9-good":
-            return True, "system", "ok", {"prefill": "empty continuation"}
-        return False, None, "empty continuation", {"system": "empty continuation"}
+            return True, "system", "ok", {"prefill": "empty continuation"}, False
+        return (
+            False,
+            None,
+            "empty continuation",
+            {"system": "empty continuation"},
+            False,
+        )
 
     monkeypatch.setattr(dnm, "_probe", fake_probe)
 
@@ -143,16 +149,17 @@ async def test_probe_falls_back_through_strategies(monkeypatch) -> None:
     async def fake_probe_strategy(candidate, strategy):
         attempted.append(strategy)
         if strategy == "system":
-            return True, "ok", " it worked"
-        return False, "BadRequestError: no prefill support", ""
+            return True, "ok", " it worked", False
+        return False, "BadRequestError: no prefill support", "", False
 
     monkeypatch.setattr(dnm, "_probe_strategy", fake_probe_strategy)
 
-    worked, strategy_used, detail, attempts = await dnm._probe(candidate)
+    worked, strategy_used, detail, attempts, needs_budget = await dnm._probe(candidate)
 
     assert worked is True
     assert strategy_used == "system"
     assert detail == "ok"
+    assert needs_budget is False
     # Auto attempt (None) plus "system" fallback; "prefill" fallback skipped
     # because detect_strategy already resolved to "prefill".
     assert attempted == [None, "system"]
@@ -168,13 +175,87 @@ async def test_probe_reports_all_failures_when_every_strategy_fails(
     )
 
     async def fake_probe_strategy(candidate, strategy):
-        return False, f"failed for {strategy}", ""
+        return False, f"failed for {strategy}", "", False
 
     monkeypatch.setattr(dnm, "_probe_strategy", fake_probe_strategy)
 
-    worked, strategy_used, detail, attempts = await dnm._probe(candidate)
+    worked, strategy_used, detail, attempts, needs_budget = await dnm._probe(candidate)
 
     assert worked is False
     assert strategy_used is None
     assert detail == "failed for None"
+    assert needs_budget is False
     assert set(attempts) == {"prefill", "system", "few_shot"}
+
+
+async def test_probe_strategy_retries_empty_output_with_wider_reasoning_budget(
+    monkeypatch,
+) -> None:
+    """A reasoning model that only produces text once given a bigger budget
+    should be accepted and flagged, not rejected as broken."""
+    candidate = dnm.Candidate("anthropic", "claude-x", "anthropic/claude-x", 0)
+
+    calls: list[int] = []
+
+    async def fake_collect_chunks(
+        candidate, strategy, *, max_tokens=dnm.PROBE_MAX_TOKENS
+    ):
+        calls.append(max_tokens)
+        if max_tokens == dnm.PROBE_MAX_TOKENS:
+            return []  # starved by hidden reasoning tokens
+        return [" a clean continuation."]
+
+    monkeypatch.setattr(dnm, "_collect_chunks", fake_collect_chunks)
+
+    worked, _detail, text, needs_budget = await dnm._probe_strategy(candidate, None)
+
+    assert worked is True
+    assert needs_budget is True
+    assert text.strip() == "a clean continuation."
+    assert calls == [dnm.PROBE_MAX_TOKENS, dnm.REASONING_RETRY_MAX_TOKENS]
+
+
+async def test_probe_strategy_stays_rejected_when_wider_budget_still_empty(
+    monkeypatch,
+) -> None:
+    candidate = dnm.Candidate("anthropic", "claude-x", "anthropic/claude-x", 0)
+
+    async def fake_collect_chunks(
+        candidate, strategy, *, max_tokens=dnm.PROBE_MAX_TOKENS
+    ):
+        return []
+
+    monkeypatch.setattr(dnm, "_collect_chunks", fake_collect_chunks)
+
+    worked, detail, _text, needs_budget = await dnm._probe_strategy(candidate, None)
+
+    assert worked is False
+    assert needs_budget is False
+    assert "empty" in detail
+
+
+async def test_run_tags_reasoning_budget_quirk(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr(dnm, "REGISTRY_PATH", tmp_path / "registry.json")
+    monkeypatch.setattr(dnm, "REJECTED_PATH", tmp_path / "rejected.json")
+    monkeypatch.setattr(dnm, "SUMMARY_PATH", tmp_path / "summary.md")
+    monkeypatch.setattr(dnm, "load_into_environ", lambda: None)
+    monkeypatch.setattr(dnm.settings, "api_key_for", lambda provider: "test-key")
+
+    def fake_fetch_live_models(provider, api_key):
+        if provider != "openai":
+            raise dnm.LiveModelsError(f"skip {provider}")
+        return [_live("gpt-9-thinker", "2026-02-01")]
+
+    monkeypatch.setattr(dnm, "fetch_live_models", fake_fetch_live_models)
+    monkeypatch.setattr(dnm, "_fetch_openrouter_index", lambda: {})
+
+    async def fake_probe(candidate):
+        return True, None, "ok (needed a reasoning budget)", {}, True
+
+    monkeypatch.setattr(dnm, "_probe", fake_probe)
+
+    result = await dnm._run(limit=10, providers={"openai"})
+    assert result == 0
+
+    registry = json.loads((tmp_path / "registry.json").read_text())
+    assert registry["models"][0]["quirks"] == ["reasoning_budget"]

@@ -137,6 +137,41 @@ def no_prefill(model: str) -> bool:
     return "no_prefill" in model_quirks(model)
 
 
+# Fallback budget for models tagged with the registry's generic
+# `reasoning_budget` quirk (see `scripts/discover_new_models.py` and
+# `scripts/probe_model_quirks.py`, which detect and add it automatically).
+# Deliberately more generous than any tuned entry in `_THINKING_MODELS`,
+# since it's applied without knowing how much a given model actually needs.
+_GENERIC_REASONING_BUDGET = (4096, 1024)
+
+
+def _reasoning_budget_kwargs(
+    *,
+    budget: int,
+    min_out: int,
+    max_tokens: int,
+    via_moonshot: bool,
+    via_openai: bool,
+    via_openrouter: bool,
+) -> dict:
+    adjusted = max(max_tokens, budget + min_out)
+    if via_moonshot or via_openai:
+        # Neither takes an Anthropic-style `thinking` kwarg — just widen the
+        # raw token budget so there's room left after hidden reasoning.
+        return {"max_tokens": adjusted}
+    if via_openrouter:
+        # OpenRouter separates visible completion cap from thinking budget.
+        # Preserve the caller's max_tokens instead of inflating it.
+        return {
+            "max_tokens": max_tokens,
+            "extra_body": {"thinking": {"budget_tokens": budget}},
+        }
+    return {
+        "thinking": {"type": "enabled", "budget_tokens": budget},
+        "max_tokens": adjusted,
+    }
+
+
 def thinking_kwargs(model: str, max_tokens: int) -> dict:
     stem = _model_stem(model)
     lower_model = model.lower()
@@ -148,24 +183,24 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
         return {"extra_body": {"thinking": {"type": "disabled"}}}
     for fragment, (budget, min_out) in _THINKING_MODELS.items():
         if fragment in stem:
-            adjusted = max(max_tokens, budget + min_out)
-            if via_moonshot:
-                return {"max_tokens": adjusted}
-            if via_openai:
-                # OpenAI reasoning models don't take an Anthropic-style
-                # `thinking` kwarg — just widen the raw token budget.
-                return {"max_tokens": adjusted}
-            if via_openrouter:
-                # OpenRouter separates visible completion cap from thinking budget.
-                # Preserve the caller's max_tokens instead of inflating it.
-                return {
-                    "max_tokens": max_tokens,
-                    "extra_body": {"thinking": {"budget_tokens": budget}},
-                }
-            return {
-                "thinking": {"type": "enabled", "budget_tokens": budget},
-                "max_tokens": adjusted,
-            }
+            return _reasoning_budget_kwargs(
+                budget=budget,
+                min_out=min_out,
+                max_tokens=max_tokens,
+                via_moonshot=via_moonshot,
+                via_openai=via_openai,
+                via_openrouter=via_openrouter,
+            )
+    if "reasoning_budget" in model_quirks(model):
+        budget, min_out = _GENERIC_REASONING_BUDGET
+        return _reasoning_budget_kwargs(
+            budget=budget,
+            min_out=min_out,
+            max_tokens=max_tokens,
+            via_moonshot=via_moonshot,
+            via_openai=via_openai,
+            via_openrouter=via_openrouter,
+        )
     return {}
 
 

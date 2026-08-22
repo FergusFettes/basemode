@@ -71,6 +71,38 @@ def test_openai_gpt_5_6_sol_bumps_max_tokens_without_thinking_param() -> None:
     assert "extra_body" not in kwargs
 
 
+def test_registry_reasoning_budget_quirk_applies_generic_bump(monkeypatch) -> None:
+    """A model with no tuned _THINKING_MODELS entry, but tagged with the
+    registry's generic `reasoning_budget` quirk (auto-added by
+    scripts/discover_new_models.py or scripts/probe_model_quirks.py), still
+    gets a budget bump instead of silently going empty."""
+    import basemode.strategies.compat as compat
+
+    monkeypatch.setattr(
+        compat, "model_quirks", lambda model: frozenset({"reasoning_budget"})
+    )
+
+    kwargs = build_kwargs(
+        GenerationParams(model="anthropic/claude-some-new-reasoner", max_tokens=200)
+    )
+
+    assert kwargs["max_tokens"] == 5120
+    assert kwargs["thinking"] == {"type": "enabled", "budget_tokens": 4096}
+
+
+def test_registry_reasoning_budget_quirk_ignored_without_quirk(monkeypatch) -> None:
+    import basemode.strategies.compat as compat
+
+    monkeypatch.setattr(compat, "model_quirks", lambda model: frozenset())
+
+    kwargs = build_kwargs(
+        GenerationParams(model="anthropic/claude-some-new-model", max_tokens=200)
+    )
+
+    assert kwargs["max_tokens"] == 200
+    assert "thinking" not in kwargs
+
+
 @pytest.mark.parametrize(
     "model",
     [

@@ -17,10 +17,18 @@ as if the quirk didn't exist:
   currently claims `no_temperature`, the quirk has healed and is removed.
 - prefill probe (Claude models only): pick `strategy="prefill"` directly,
   bypassing `detect.py`'s own `no_prefill` check. Same add/heal logic.
+- reasoning-budget probe: runs only when the baseline itself comes back
+  completely empty (not an error) and the model isn't already tagged. Retries
+  once with a much larger `max_tokens`; if that produces clean output, the
+  model was starving on hidden reasoning tokens and gets the generic
+  `reasoning_budget` quirk (see `compat.thinking_kwargs`) instead of being
+  left silently broken. No heal check for this one — once a model needs
+  headroom for reasoning it isn't expected to stop needing it.
 
-Cost is tiny — each probe is capped at ~60 tokens, and only verified models
-with a configured key are probed (see `make probe-quirks`). A full weekly
-sweep across every verified model costs a fraction of a cent.
+Cost is tiny — each probe is capped at ~60 tokens (the reasoning-budget
+retry, when it fires, uses a larger `REASONING_PROBE_MAX_TOKENS`), and only
+verified models with a configured key are probed (see `make probe-quirks`).
+A full weekly sweep across every verified model costs a fraction of a cent.
 
 Run `scripts/generate_verified_models_table.py` afterwards (or via `make
 models-table`) to propagate any change into the packaged data file that
@@ -65,6 +73,11 @@ PROBE_TEMPERATURE = 0.3
 
 _TEMPERATURE_ERROR_RE = re.compile(r"temperature", re.IGNORECASE)
 _PREFILL_ERROR_RE = re.compile(r"prefill|assistant message", re.IGNORECASE)
+
+# Retry budget for the reasoning-budget probe below — generous enough that a
+# model burning most of PROBE_MAX_TOKENS on hidden chain-of-thought still has
+# room left to write something visible.
+REASONING_PROBE_MAX_TOKENS = 5120
 
 
 @dataclass(frozen=True)
@@ -116,7 +129,11 @@ async def _collect_normal(model: str) -> str:
 
 
 async def _collect_forced(
-    model: str, *, strategy_override: str | None, forced_temperature: float | None
+    model: str,
+    *,
+    strategy_override: str | None,
+    forced_temperature: float | None,
+    forced_max_tokens: int = PROBE_MAX_TOKENS,
 ) -> str:
     """Stream a probe continuation that bypasses compat.py's own suppression.
 
@@ -128,7 +145,8 @@ async def _collect_forced(
     instead would silently bind to its own named `temperature` parameter and
     get suppressed exactly like a normal call, defeating the point of a
     probe that must test what the *provider* accepts regardless of what the
-    registry currently believes.
+    registry currently believes. `forced_max_tokens` widens the raw budget
+    directly — used by the reasoning-budget probe below.
     """
     normalized = normalize_model(model)
     strat = detect_strategy(normalized, strategy_override)
@@ -137,7 +155,7 @@ async def _collect_forced(
     )
     params = GenerationParams(
         model=normalized,
-        max_tokens=PROBE_MAX_TOKENS,
+        max_tokens=forced_max_tokens,
         temperature=BASELINE_TEMPERATURE,
         extra=extra,
     )
@@ -164,8 +182,31 @@ async def _probe_model(entry: dict) -> list[QuirkChange]:
     # Baseline: does the model work at all right now, through the normal
     # (quirk-aware) path? If not, this is a discovery/health problem, not a
     # quirk to record — skip further probing.
-    baseline_ok, _baseline_detail = await _try(_collect_normal(model))
+    baseline_ok, baseline_detail = await _try(_collect_normal(model))
     if not baseline_ok:
+        # Empty (as opposed to an outright provider error) looks like a
+        # reasoning model starved of visible-output room. Retry once with a
+        # much larger budget before giving up on this model entirely.
+        has_reasoning_quirk = "reasoning_budget" in current_quirks
+        if baseline_detail == "empty continuation" and not has_reasoning_quirk:
+            wide_ok, wide_detail = await _try(
+                _collect_forced(
+                    model,
+                    strategy_override=None,
+                    forced_temperature=None,
+                    forced_max_tokens=REASONING_PROBE_MAX_TOKENS,
+                )
+            )
+            if wide_ok:
+                changes.append(
+                    QuirkChange(
+                        model,
+                        "reasoning_budget",
+                        "added",
+                        f"empty at {PROBE_MAX_TOKENS} max_tokens, ok at "
+                        f"{REASONING_PROBE_MAX_TOKENS} ({wide_detail})",
+                    )
+                )
         return changes
 
     # Temperature probe: force a non-default temperature through, bypassing
