@@ -24,7 +24,17 @@ basemode strategies
 basemode info claude-sonnet-4-6
 ```
 
-## 4. Save your default model
+## 4. Find the best strategy for a model
+
+```bash
+basemode bench claude-opus-5 --samples
+basemode bench claude-opus-5 --save
+```
+
+`bench` runs each coercion strategy against the model, scores how cleanly each
+one continues text, and can pin the winner. See [[Strategies]].
+
+## 5. Save your default model
 
 ```bash
 basemode default claude-sonnet-4-6
@@ -33,7 +43,7 @@ basemode default
 
 You can now omit `--model`.
 
-## 5. Pipe text from stdin
+## 6. Pipe text from stdin
 
 ```bash
 cat chapter1.txt | basemode --model groq/llama-3.3-70b-versatile

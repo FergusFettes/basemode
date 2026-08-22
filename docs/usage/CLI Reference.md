@@ -51,18 +51,56 @@ basemode providers
 
 ### `strategies`
 
-List supported continuation strategies.
+List supported continuation strategies, followed by any per-model strategy
+pins stored on this machine.
 
 ```bash
 basemode strategies
+basemode strategies --unpin claude-opus-5
 ```
 
 ### `info`
 
-Show normalized model ID, selected strategy, token limits, and pricing metadata.
+Show normalized model ID, selected strategy and where that choice came from
+(`verified models registry`, `model-name heuristic`, or a local pin), quirks,
+token limits, and pricing metadata.
 
 ```bash
 basemode info claude-sonnet-4-6
+```
+
+## Tuning
+
+### `bench`
+
+Run each candidate strategy against a model and rank them by continuation
+quality. Makes real API calls — four short probes per strategy, a fraction of
+a cent for a full run. See [[Strategies]] for how scoring works.
+
+```bash
+basemode bench claude-opus-5 [OPTIONS]
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `-s`, `--strategies` | `system,prefill,few_shot` | Comma-separated strategies to compare |
+| `-M`, `--max-tokens` | `60` | Max output tokens per probe |
+| `-t`, `--temperature` | `1.0` | Sampling temperature (the one value every provider accepts) |
+| `--samples` | `false` | Print a sample continuation (or the provider error) per strategy |
+| `--save` | `false` | Pin the winning strategy for this model |
+| `--json` | `false` | Emit the ranking as JSON |
+
+Exits `1` when no strategy produced a usable continuation — usually a missing
+key or a model ID the provider doesn't recognize. Run with `--samples` to see
+the underlying errors.
+
+```bash
+# Compare, then pin the winner
+basemode bench kimi-k3 --samples
+basemode bench kimi-k3 --save
+
+# Drop the pin again
+basemode strategies --unpin kimi-k3
 ```
 
 ## Server

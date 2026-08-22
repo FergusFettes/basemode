@@ -49,3 +49,28 @@ basemode default --unset
 ```
 
 When unset, CLI generation defaults to `gpt-4o-mini`.
+
+## Pinned strategies
+
+`basemode bench --save` records the winning strategy for a model in the same
+file, under `strategy_overrides`:
+
+```json
+{
+  "keys": {"anthropic": "sk-..."},
+  "default_model": "claude-sonnet-4-6",
+  "strategy_overrides": {"moonshot/kimi-k3": "few_shot"}
+}
+```
+
+A pin outranks the strategy shipped in the verified-models registry but is
+still overridden by an explicit `--strategy`, and is ignored if the model has
+since gained a quirk that rules it out. Pins are keyed by the normalized model
+ID, so `kimi-k3` and `moonshot/kimi-k3` are the same pin.
+
+```bash
+basemode strategies              # lists pins under the strategy table
+basemode strategies --unpin kimi-k3
+```
+
+See [[Strategies]] for the full precedence order.

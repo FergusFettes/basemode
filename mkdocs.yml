@@ -56,3 +56,5 @@ nav:
     - branch_text: reference/branch_text.md
     - GenerationParams: reference/GenerationParams.md
     - detect_strategy: reference/detect_strategy.md
+    - select_strategy: reference/select_strategy.md
+    - score_continuation: reference/score_continuation.md

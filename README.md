@@ -24,6 +24,9 @@ basemode "The ship rounded the headland and" -n 3
 # Inspect selected strategy and pricing metadata
 basemode info claude-sonnet-4-6
 
+# Rank coercion strategies for a model by how cleanly they continue text
+basemode bench claude-sonnet-4-6
+
 # Show only key-configured models
 basemode models --available
 ```
@@ -43,9 +46,31 @@ Useful commands:
 - `basemode run` (default): stream continuation text
 - `basemode models`: list models (supports `--verified` and `--json` for picker UIs)
 - `basemode providers`: list provider IDs
-- `basemode info`: show normalized model + prompt strategy + pricing metadata
+- `basemode info`: show normalized model + prompt strategy (and where that choice came from) + pricing metadata
+- `basemode bench`: rank coercion strategies for a model, and pin the winner
 - `basemode default`: get/set your default model
 - `basemode keys`: manage stored API keys
+
+## Choosing a strategy
+
+Coercion either works or it doesn't, and `basemode` scores which. `basemode bench` runs each strategy against the model over four probe prefixes — prose, technical, poetry, dialogue — and scores every result for assistant behavior: preamble, refusal, echoed prefix, chat turns, stray formatting.
+
+```bash
+basemode bench claude-opus-5 --samples   # compare
+basemode bench claude-opus-5 --save      # pin the winner for this model
+```
+
+```
+┏━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━┓
+┃ Strategy ┃ Score ┃ Flags / error        ┃ Mean s ┃
+┡━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━┩
+│ few_shot │ 0.93  │ quoted               │ 2.07   │
+│ system   │ 0.75  │ empty                │ 2.24   │
+│ prefill  │ 0.00  │ BadRequestError: ... │ 0.30   │
+└──────────┴───────┴──────────────────────┴────────┘
+```
+
+At runtime the strategy comes from the first of: an explicit `--strategy`, a local pin, the prompt method verified for that model in the table below, then model-name heuristics. `basemode info MODEL` shows which one applied.
 
 ## Server
 

@@ -4,12 +4,17 @@ Public API exports:
 
 ```python
 from basemode import (
+    ContinuationScore,
     GenerationParams,
+    StrategyChoice,
+    bench_model,
     branch_text,
     build_model_picker_state,
     continue_text,
     detect_strategy,
     list_model_picker_entries,
+    score_continuation,
+    select_strategy,
 )
 ```
 
@@ -55,6 +60,47 @@ from basemode import detect_strategy
 strategy = detect_strategy("anthropic/claude-sonnet-4-6")
 print(strategy.name)  # system
 ```
+
+## `select_strategy`
+
+Same resolution, but reporting where the choice came from — `explicit`,
+`user`, `registry`, or `heuristic`. See [[select_strategy]].
+
+```python
+from basemode import select_strategy
+
+choice = select_strategy("moonshot/kimi-k3")
+print(choice.name, choice.source)  # prefill registry
+```
+
+## `score_continuation`
+
+Score a continuation from 0.0 to 1.0 and get the flags explaining it. See
+[[score_continuation]].
+
+```python
+from basemode import score_continuation
+
+result = score_continuation("The ship rounded the headland and", "Sure! Here you go:")
+print(result.score, result.flags)  # 0.4 ('preamble',)
+```
+
+## `bench_model`
+
+Rank strategies for a model by running them. Makes real API calls.
+
+```python
+import asyncio
+
+from basemode import bench_model
+
+results = asyncio.run(bench_model("anthropic/claude-opus-5"))
+for result in results:
+    print(result.strategy, result.score, result.flags)
+```
+
+Returns `StrategyResult` objects, best first. See [[Strategies]] for how the
+probes and scoring work.
 
 ## `GenerationParams`
 

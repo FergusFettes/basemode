@@ -5,9 +5,14 @@
 `basemode` runs a small pipeline:
 
 1. Normalize model name (`normalize_model`)
-2. Detect strategy (`detect_strategy`)
+2. Select a strategy (`select_strategy` / `detect_strategy`)
 3. Stream tokens via that strategy
 4. Heal token boundaries/newlines so `prefix + tokens` is clean text
+
+Step 2 prefers a verified answer to a guess: the strategy recorded for the
+model in the verified-models registry, or one pinned locally by
+`basemode bench --save`, before falling back to model-name heuristics. See
+[[Strategies]].
 
 ## Strategy abstraction
 
@@ -25,6 +30,15 @@ Most chat models default to assistant behavior (acknowledgments, headings, comme
 - Using Anthropic-style prefill where supported
 - Falling back to strict system-prompt coercion
 - Using few-shot coercion for stubborn models
+
+## Scoring coercion
+
+Whether coercion actually worked is measurable, not a matter of taste. The
+recognizable failures — preamble, refusal, echoed prefix, a chat transcript,
+stray markdown — are scored by `basemode.scoring` into a single number per
+continuation. That score is what `basemode bench` ranks strategies with and
+what model discovery uses to accept or reject a newly-listed model, so the
+same definition of "clean" governs both.
 
 ## Token healing
 

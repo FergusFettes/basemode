@@ -33,7 +33,9 @@ print or commit provider credentials; see [[Keys and Defaults]].
 | Prompt coercion | `src/basemode/strategies/` | Adding or adjusting a continuation strategy; see [[Strategies]] |
 | Provider quirks | `src/basemode/strategies/compat.py` | A model rejects a parameter, prefill, or needs thinking-budget handling |
 | Text repair | `src/basemode/healing.py` | Fixing spaces, fragmented words, or streamed-newline behaviour |
-| Model IDs and selection | `src/basemode/detect.py` | Adding aliases or changing strategy detection; see [[Model Normalization]] |
+| Model IDs and selection | `src/basemode/detect.py` | Adding aliases or changing strategy selection; see [[Model Normalization]] |
+| Continuation scoring | `src/basemode/scoring.py` | Tuning what counts as assistant leakage rather than a clean continuation |
+| Strategy bake-off | `src/basemode/bench.py` | Changing how `basemode bench` probes or ranks strategies |
 | Model listing metadata | `src/basemode/models.py`, `src/basemode/live_models.py` | Updating picker data or live-provider discovery |
 | Provider health | `tests/test_integration.py`, `scripts/model_reliability.py` | Maintaining live-provider checks and the [[Provider Health]] dashboard |
 | Interfaces | `src/basemode/cli.py`, `src/basemode/server.py` | Changing CLI or OpenAI-completions-compatible server behaviour |
@@ -45,7 +47,10 @@ For the public contract and examples, see [[Python API]], [[CLI Reference]], and
 ## Model-data workflow
 
 The editable source of verified-model intent is
-`data/verified_models_registry.json`. Generated outputs are:
+`data/verified_models_registry.json`. Its `prompt_method` field is read at
+runtime by `detect.select_strategy`, so an edit there changes which strategy
+ships for that model — the published table and the runtime behaviour are the
+same field. Regenerate the packaged copy after editing it. Generated outputs are:
 
 - `README.md` verified-model table
 - `docs/usage/Verified Models.md`

@@ -26,12 +26,17 @@ def _setup_logging() -> None:
 _setup_logging()
 
 __all__ = [
+    "ContinuationScore",
     "GenerationParams",
+    "StrategyChoice",
+    "bench_model",
     "branch_text",
     "build_model_picker_state",
     "continue_text",
     "detect_strategy",
     "list_model_picker_entries",
+    "score_continuation",
+    "select_strategy",
 ]
 
 
@@ -40,10 +45,25 @@ def __getattr__(name: str):
         from .continue_ import branch_text, continue_text
 
         return {"branch_text": branch_text, "continue_text": continue_text}[name]
-    if name == "detect_strategy":
-        from .detect import detect_strategy
+    if name in {"detect_strategy", "select_strategy", "StrategyChoice"}:
+        from .detect import StrategyChoice, detect_strategy, select_strategy
 
-        return detect_strategy
+        return {
+            "detect_strategy": detect_strategy,
+            "select_strategy": select_strategy,
+            "StrategyChoice": StrategyChoice,
+        }[name]
+    if name in {"score_continuation", "ContinuationScore"}:
+        from .scoring import ContinuationScore, score_continuation
+
+        return {
+            "score_continuation": score_continuation,
+            "ContinuationScore": ContinuationScore,
+        }[name]
+    if name == "bench_model":
+        from .bench import bench_model
+
+        return bench_model
     if name in {"list_model_picker_entries", "build_model_picker_state"}:
         from .models import build_model_picker_state, list_model_picker_entries
 
