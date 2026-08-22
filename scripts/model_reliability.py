@@ -73,11 +73,60 @@ def summarize(rows: list[dict]) -> list[dict]:
     return summary
 
 
+def render_markdown(summary: list[dict]) -> str:
+    """Render the health history as a committed MkDocs page."""
+    lines = [
+        "# Provider Health",
+        "",
+        "Results from the weekly live-provider health check. Models without a "
+        "configured API key are skipped. A quota/credit exhaustion is recorded "
+        "as an expected failure so monitoring remains green; other errors are "
+        "real failures.",
+        "",
+    ]
+    if not summary:
+        return "\n".join([*lines, "No provider-health history recorded yet.", ""])
+
+    latest = max((row.get("last_run_at") or "" for row in summary), default="")
+    lines.extend(
+        [
+            f"Latest recorded run: `{latest}`",
+            "",
+            "| Model | Runs | Success | Last status | Median TTFT | Median tok/s |",
+            "|---|---:|---:|---|---:|---:|",
+        ]
+    )
+    for row in summary:
+        ttft = (
+            f"{row['median_time_to_first_token_s']:.3f}s"
+            if row["median_time_to_first_token_s"] is not None
+            else "—"
+        )
+        throughput = (
+            f"{row['median_output_tokens_per_s']:.1f}"
+            if row["median_output_tokens_per_s"] is not None
+            else "—"
+        )
+        lines.append(
+            f"| `{row['model']}` | {row['runs']} | "
+            f"{row['success_rate'] * 100:.0f}% | {row['last_status']} | "
+            f"{ttft} | {throughput} |"
+        )
+    return "\n".join([*lines, ""])
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", help="Only show models whose name contains this")
-    parser.add_argument(
+    output = parser.add_mutually_exclusive_group()
+    output.add_argument(
         "--json", action="store_true", help="Print JSON instead of a table"
+    )
+    output.add_argument(
+        "--markdown", action="store_true", help="Print a MkDocs health page"
+    )
+    parser.add_argument(
+        "--output", type=Path, help="Write the selected output format to this path"
     )
     args = parser.parse_args()
 
@@ -87,7 +136,18 @@ def main() -> int:
         summary = [s for s in summary if args.model.lower() in s["model"].lower()]
 
     if args.json:
-        print(json.dumps(summary, indent=2))
+        rendered = json.dumps(summary, indent=2) + "\n"
+        if args.output:
+            args.output.write_text(rendered)
+        else:
+            print(rendered, end="")
+        return 0
+    if args.markdown:
+        rendered = render_markdown(summary)
+        if args.output:
+            args.output.write_text(rendered)
+        else:
+            print(rendered, end="")
         return 0
 
     if not summary:

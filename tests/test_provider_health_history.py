@@ -147,6 +147,27 @@ def test_summarize_includes_median_streaming_metrics() -> None:
     assert summary[0]["median_output_tokens_per_s"] == 30.0
 
 
+def test_render_markdown_includes_health_metrics() -> None:
+    page = mr.render_markdown(
+        [
+            {
+                "model": "openai/gpt-4o-mini",
+                "runs": 2,
+                "success_rate": 0.5,
+                "last_run_at": "2026-08-11T00:00:00Z",
+                "last_status": "ok",
+                "median_time_to_first_token_s": 0.3,
+                "median_output_tokens_per_s": 30.0,
+            }
+        ]
+    )
+
+    assert "# Provider Health" in page
+    assert "50%" in page
+    assert "0.300s" in page
+    assert "30.0" in page
+
+
 def test_load_rows_returns_empty_when_no_history_file(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr(mr, "HISTORY_PATH", tmp_path / "missing.jsonl")
     assert mr.load_rows() == []

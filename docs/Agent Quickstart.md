@@ -35,6 +35,7 @@ print or commit provider credentials; see [[Keys and Defaults]].
 | Text repair | `src/basemode/healing.py` | Fixing spaces, fragmented words, or streamed-newline behaviour |
 | Model IDs and selection | `src/basemode/detect.py` | Adding aliases or changing strategy detection; see [[Model Normalization]] |
 | Model listing metadata | `src/basemode/models.py`, `src/basemode/live_models.py` | Updating picker data or live-provider discovery |
+| Provider health | `tests/test_integration.py`, `scripts/model_reliability.py` | Maintaining live-provider checks and the [[Provider Health]] dashboard |
 | Interfaces | `src/basemode/cli.py`, `src/basemode/server.py` | Changing CLI or OpenAI-completions-compatible server behaviour |
 | Tests | `tests/` | Add a regression beside the feature area; real-API coverage is in `test_integration.py` |
 
@@ -54,6 +55,10 @@ Regenerate them with `make models-table`; do not hand-edit generated tables.
 `scripts/refresh_live_models.py` refreshes the packaged live-model cache.
 Scheduled workflows in `.github/workflows/` open pull requests for these
 updates. Read [[Verified Models]] for the user-facing meaning of that data.
+
+The weekly integration workflow records reliability, TTFT, and output throughput
+for every verified model with a configured key. Regenerate its docs view locally
+with `make health-report`.
 
 ## Change checklist
 

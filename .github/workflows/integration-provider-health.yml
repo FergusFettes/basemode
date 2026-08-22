@@ -118,16 +118,20 @@ jobs:
         if: always()
         run: uv run python scripts/record_provider_health.py
 
-      - name: Commit reliability history
+      - name: Refresh provider-health docs page
+        if: always()
+        run: uv run python scripts/model_reliability.py --markdown --output "docs/usage/Provider Health.md"
+
+      - name: Commit provider-health history and docs
         if: always()
         run: |
-          if [ -z "$(git status --porcelain -- data/provider_health_history.jsonl)" ]; then
-            echo "No history changes to commit."
+          if [ -z "$(git status --porcelain -- data/provider_health_history.jsonl docs/usage/Provider\ Health.md)" ]; then
+            echo "No provider-health changes to commit."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/provider_health_history.jsonl
+          git add data/provider_health_history.jsonl "docs/usage/Provider Health.md"
           git commit -m "chore(health): record provider health run $(date -u +%Y-%m-%dT%H:%M:%SZ)"
           git pull --rebase origin main
           git push

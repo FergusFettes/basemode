@@ -1,4 +1,4 @@
-.PHONY: build check publish test test-core test-integration lint lint-core models-table discover-models docs-build docs-serve
+.PHONY: build check publish test test-core test-integration lint lint-core models-table health-report discover-models docs-build docs-serve
 
 build:
 	uv build
@@ -22,6 +22,9 @@ lint lint-core:
 
 models-table:
 	uv run python scripts/generate_verified_models_table.py
+
+health-report:
+	uv run python scripts/model_reliability.py --markdown --output "docs/usage/Provider Health.md"
 
 discover-models:
 	uv run python scripts/discover_new_models.py
