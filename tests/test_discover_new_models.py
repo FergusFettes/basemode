@@ -19,12 +19,18 @@ def test_openai_blacklist_filters_non_text_models() -> None:
     assert not dnm._is_openai_blacklisted("gpt-6-mini")
 
 
-def test_looks_clean_rejects_empty_and_chatty() -> None:
-    assert dnm._looks_clean("") == (False, "empty continuation")
-    ok, reason = dnm._looks_clean("Sure, here's a continuation:")
+def test_probe_judgement_uses_the_shared_continuation_scorer() -> None:
+    prefix = dnm.PROBE_PREFIX
+
+    ok, reason = dnm.looks_clean(prefix, "")
+    assert not ok
+    assert "empty" in reason
+
+    ok, reason = dnm.looks_clean(prefix, "Sure, here's a continuation:")
     assert not ok
     assert "preamble" in reason
-    assert dnm._looks_clean(" dog. It was a sunny day.") == (True, None)
+
+    assert dnm.looks_clean(prefix, " dog. It was a sunny day.") == (True, None)
 
 
 def _live(id_: str, release_date: str | None) -> LiveModel:

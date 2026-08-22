@@ -12,10 +12,13 @@ For each provider with an API key configured (see `PROVIDER_ENDPOINTS` in
 4. Actually run a short continuation through basemode against each candidate,
    trying basemode's auto-detected strategy first and falling back through
    STRATEGY_FALLBACKS if that one doesn't work — a wrong default guess in
-   detect.py shouldn't get a genuinely-working model rejected. If any
-   strategy returns clean, non-empty, non-chatty text, the model is added to
-   the registry (data/verified_models_registry.json) tagged with whichever
-   strategy actually worked. If every strategy fails, it's recorded in
+   detect.py shouldn't get a genuinely-working model rejected. Each attempt
+   is judged by `basemode.scoring`, the same continuation-purity scorer
+   `basemode bench` ranks strategies with. If any strategy scores clean, the
+   model is added to the registry (data/verified_models_registry.json)
+   tagged with whichever
+   strategy actually worked — which `detect.py` then honours at runtime via
+   the registry's `prompt_method`. If every strategy fails, it's recorded in
    data/verified_models_rejected.json (with all attempted errors) so we
    don't keep re-paying to re-discover the same dead end every week.
 
@@ -49,6 +52,7 @@ from basemode.live_models import (  # noqa: E402
     LiveModelsError,
     fetch_live_models,
 )
+from basemode.scoring import looks_clean  # noqa: E402
 from basemode.settings import settings  # noqa: E402
 
 REGISTRY_PATH = ROOT / "data" / "verified_models_registry.json"
@@ -69,19 +73,6 @@ PROBE_TEMPERATURE = 1.0
 # excludes completion/fim, which only apply to literal base/code models that
 # provider /v1/models listings for chat models won't surface.
 STRATEGY_FALLBACKS = ["system", "prefill", "few_shot"]
-
-BAD_STARTS = (
-    "sure",
-    "of course",
-    "certainly",
-    "i'll",
-    "i will",
-    "here",
-    "this",
-    "i'm",
-    "i am",
-    "as an ai",
-)
 
 _OPENAI_BLACKLIST_SUBSTRINGS = [
     "embedding",
@@ -205,14 +196,6 @@ def select_candidates(
     return candidates[:limit]
 
 
-def _looks_clean(text: str) -> tuple[bool, str | None]:
-    if not text.strip():
-        return False, "empty continuation"
-    if text.lstrip().lower().startswith(BAD_STARTS):
-        return False, f"chatbot preamble detected: {text!r}"
-    return True, None
-
-
 PROBE_TIMEOUT = 60  # seconds; a stalled provider stream shouldn't hang the whole run
 
 
@@ -243,7 +226,7 @@ async def _probe_strategy(
         return False, f"{type(exc).__name__}: {exc}", ""
 
     text = "".join(chunks)
-    ok, reason = _looks_clean(text)
+    ok, reason = looks_clean(PROBE_PREFIX, text)
     return ok, (reason or "ok"), text
 
 
