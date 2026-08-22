@@ -1,5 +1,6 @@
 import re
 from collections.abc import AsyncGenerator, AsyncIterable
+from functools import lru_cache
 from pathlib import Path
 
 _LOOKBEHIND_CHARS = 80
@@ -23,11 +24,144 @@ def _is_word(s: str) -> bool:
     return s.lower() in _system_words()
 
 
-_COMPOUND_RE = re.compile(r"\b([A-Za-z]{2,}) ([A-Za-z]{2,})\b")
+_VOCAB_RE = re.compile(r"[A-Za-z]+")
+
+
+@lru_cache(maxsize=4)
+def _document_vocabulary(prefix: str) -> frozenset[str]:
+    """Words that already stand complete in the document.
+
+    The system dictionary is missing most inflected forms and knows nothing of
+    invented or proper nouns, which is exactly the vocabulary loom documents are
+    full of. The text so far is a better dictionary for its own coinages.
+
+    The final token is dropped: when generation resumes mid-word that trailing
+    fragment is the one string we must not treat as an established word.
+    """
+    matches = list(_VOCAB_RE.finditer(prefix))
+    if matches and matches[-1].end() == len(prefix):
+        matches.pop()
+    return frozenset(match.group(0).lower() for match in matches)
+
+
+def _stem_candidates(word: str) -> list[str]:
+    """Plausible stems of an inflected form, for dictionary lookup.
+
+    ``/usr/share/dict/words`` lists ``flank`` but not ``flanks``, ``count`` but
+    not ``counted``. Without this, ordinary plurals and past tenses look like
+    word fragments and get glued onto the preceding word.
+    """
+    stems: list[str] = []
+
+    def add(stem: str) -> None:
+        if len(stem) >= 3:
+            stems.append(stem)
+
+    if word.endswith("ies"):
+        add(word[:-3] + "y")
+    if word.endswith("es"):
+        add(word[:-2])
+    if word.endswith("s") and not word.endswith("ss"):
+        add(word[:-1])
+    if word.endswith("ed"):
+        add(word[:-2])
+        add(word[:-1])
+        if len(word) > 4 and word[-3] == word[-4]:
+            add(word[:-3])
+    if word.endswith("ing"):
+        add(word[:-3])
+        add(word[:-3] + "e")
+        if len(word) > 5 and word[-4] == word[-5]:
+            add(word[:-4])
+    if word.endswith("ly"):
+        add(word[:-2])
+    return stems
+
+
+# The only English words spelled with one letter. A lone letter opening a
+# continuation is otherwise the tail of the word before it: "an" + " d".
+_STANDALONE_LETTERS = {"a", "i", "o"}
+
+# The system dictionary lists plenty of two-letter entries that never appear as
+# words in prose ("en", "ad", "ne"), and treating them as words blocks obvious
+# repairs like "be" + " en". Interjections are kept so that dialogue survives:
+# "a moth" + " er, no" must not become "mother, no".
+_TWO_LETTER_WORDS = {
+    "ah",
+    "am",
+    "an",
+    "as",
+    "at",
+    "ax",
+    "be",
+    "by",
+    "do",
+    "eh",
+    "er",
+    "ex",
+    "go",
+    "ha",
+    "he",
+    "hi",
+    "hm",
+    "ho",
+    "id",
+    "if",
+    "in",
+    "is",
+    "it",
+    "lo",
+    "ma",
+    "me",
+    "mm",
+    "my",
+    "no",
+    "of",
+    "oh",
+    "ok",
+    "on",
+    "or",
+    "ow",
+    "ox",
+    "pa",
+    "pi",
+    "so",
+    "to",
+    "uh",
+    "um",
+    "up",
+    "us",
+    "we",
+    "ye",
+    "yo",
+}
+
+
+def _can_stand_alone(word: str, vocab: frozenset[str] = frozenset()) -> bool:
+    """True if ``word`` can open a continuation as a word in its own right."""
+    lowered = word.lower()
+    if lowered in vocab:
+        return True
+    if len(word) == 1:
+        return lowered in _STANDALONE_LETTERS
+    if len(word) == 2:
+        return lowered in _TWO_LETTER_WORDS
+    return _word_like(word, vocab)
+
+
+def _word_like(word: str, vocab: frozenset[str] = frozenset()) -> bool:
+    """True if ``word`` plausibly stands on its own rather than being a fragment."""
+    lowered = word.lower()
+    if lowered in _COMMON_SHORT_WORDS or lowered in vocab or _is_word(lowered):
+        return True
+    return any(stem in vocab or _is_word(stem) for stem in _stem_candidates(lowered))
+
+
+_COMPOUND_RE = re.compile(r"\b([A-Za-z]{2,}) (?=([A-Za-z]{2,})\b)")
 _PREFIX_WORD_RE = re.compile(r"([A-Za-z]+)$")
-_TRAILING_FRAGMENT_RE = re.compile(r"([A-Za-z]{1,3})$")
+_TRAILING_FRAGMENT_RE = re.compile(r"(?:^|(?<=\s))([A-Za-z]{1,3})$")
 _PREFIX_HYPHEN_FRAGMENT_RE = re.compile(r"([A-Za-z]+-[A-Za-z]{0,2})$")
-_LEADING_WORD_RE = re.compile(r"^ ([A-Za-z]{2,})(\b|(?=[^A-Za-z]))")
+_LEADING_WORD_RE = re.compile(r"^ ([A-Za-z]+)(\b|(?=[^A-Za-z]))")
 _DANGLING_HYPHENATED_TAIL_RE = re.compile(r"\b[A-Za-z]{2,}-(?:[A-Za-z]{0,2})$")
 
 
@@ -44,69 +178,58 @@ def normalize_prefix(prefix: str) -> str:
 
 
 def rewind_prefix_to_word_boundary(prefix: str) -> tuple[str, str]:
-    """Return a generation prefix and trailing fragment to remove from output.
+    """Return a generation prefix and the trailing token removed from it.
 
-    Some chat models behave better when they are asked to continue from the last
-    whitespace instead of from inside a short partial word. For example, given
-    ``"twas brilig and the sli"``, generation can run from
-    ``"twas brilig and the "`` and then strip the model's repeated ``"sli"``
-    from the visible output, yielding ``"vey toves"`` rather than
-    ``"slivey toves"`` or ``" vey toves"``.
+    Chat strategies cannot show a model where a word ends without also handing
+    it a trailing space, which is what creates split words at the boundary. The
+    way out is to not send the last short token at all: generate from
+    ``"twas brilig and the "``, and if the model comes back with ``"slithy"``
+    the caller strips the ``"sli"`` it already has and appends ``"thy"``. The
+    join is then exact rather than guessed.
 
-    The heuristic is intentionally conservative: only short non-common
-    alphabetic tails are rewound, so complete words like ``and`` stay intact.
+    Only a short whole token at a whitespace boundary is rewound — long tails
+    are unlikely to be reproduced, and the caller pays for a second request
+    whenever the model declines to re-emit the fragment. Complete words are
+    rewound too: ``"counted, a"`` is precisely the case where the model wants to
+    write ``"and"`` and the injected space lands inside it.
     """
     match = _TRAILING_FRAGMENT_RE.search(prefix)
     if not match:
         return prefix, ""
 
-    fragment = match.group(1)
-    if fragment.lower() in _COMMON_SHORT_WORDS or _is_word(fragment):
-        return prefix, ""
-
-    return prefix[: match.start(1)], fragment
+    return prefix[: match.start(1)], match.group(1)
 
 
-async def strip_rewind_overlap(
+async def probe_rewind_overlap(
     tokens: AsyncIterable[str],
     fragment: str,
-) -> AsyncGenerator[str, None]:
-    """Remove a rewound trailing fragment if the model repeats it."""
+) -> tuple[bool, str]:
+    """Decide whether a rewound generation re-emitted the trailing fragment.
+
+    Returns ``(matched, head)``. When matched, ``head`` is the buffered text
+    with the duplicated fragment removed and the caller can stream the rest.
+    When not matched the generation was conditioned on a prefix the reader never
+    sees, so ``head`` must be discarded rather than shown: the caller retries
+    without the rewind.
+    """
     if not fragment:
-        async for token in tokens:
-            yield token
-        return
+        return True, ""
 
     buffer = ""
-    decided = False
     target = fragment.lower()
     max_probe = len(fragment) + 1
 
     async for token in tokens:
-        if decided:
-            yield token
-            continue
-
         buffer += token
-        probe = buffer.lower()
-        if probe.startswith(target):
-            yield buffer[len(fragment) :]
-            decided = True
-        elif probe.startswith(" " + target):
-            yield buffer[len(fragment) + 1 :]
-            decided = True
-        elif len(buffer) >= max_probe:
-            yield buffer
-            decided = True
+        if len(buffer) >= max_probe:
+            break
 
-    if not decided and buffer:
-        probe = buffer.lower()
-        if probe.startswith(target):
-            yield buffer[len(fragment) :]
-        elif probe.startswith(" " + target):
-            yield buffer[len(fragment) + 1 :]
-        else:
-            yield buffer
+    probe = buffer.lower()
+    if probe.startswith(target):
+        return True, buffer[len(fragment) :]
+    if probe.startswith(" " + target):
+        return True, buffer[len(fragment) + 1 :]
+    return False, buffer
 
 
 def needs_leading_space(prefix: str, first_token: str) -> bool:
@@ -157,12 +280,10 @@ def _should_collapse_single_newline(
 
 
 _JOINABLE_COMPOUNDS = {
-    "anybody",
     "anyone",
     "anything",
     "anywhere",
     "cowardice",
-    "everybody",
     "everyone",
     "everything",
     "everywhere",
@@ -171,12 +292,10 @@ _JOINABLE_COMPOUNDS = {
     "inside",
     "itself",
     "myself",
-    "nobody",
     "nothing",
     "nowhere",
     "ourselves",
     "outside",
-    "somebody",
     "someone",
     "something",
     "somewhere",
@@ -239,19 +358,54 @@ _COMMON_SHORT_WORDS = {
 }
 
 
-def _join_split_compounds(text: str) -> str:
-    """Join high-confidence compounds in the mutable stream tail."""
+# Determiners whose split reading is a real noun phrase: "every one of them",
+# "laid out side by side".
+_COMPOUND_NP_HEADS = {"every", "any", "some", "no", "out", "in"}
+_NP_TAIL_RE = re.compile(r"\s+(?:of|by)\b")
+
+# "in"/"out" are prepositions far more often than they are the head of a split
+# compound, so they are only joined where a determiner makes the pair a noun:
+# "made the out side feel theoretical" but not "cars in side streets".
+_PREPOSITION_HEADS = {"in", "out"}
+_DETERMINER_RE = re.compile(
+    r"\b(?:the|a|an|this|that|these|those|its|his|her|their|our|my|your)\s+$",
+    re.IGNORECASE,
+)
+
+
+def _blocks_compound_join(left: str, before: str, after: str) -> bool:
+    """True if the surrounding text shows the words were meant to stay apart."""
+    if after.startswith("-"):
+        # "her self-esteem" is not "herself-esteem"; "any one-way trip" stands.
+        return True
+    lowered = left.lower()
+    if lowered in _COMPOUND_NP_HEADS and _NP_TAIL_RE.match(after):
+        return True
+    if lowered in _PREPOSITION_HEADS and not _DETERMINER_RE.search(before):
+        return True
+    return False
+
+
+def _join_split_compounds(text: str, *, before: str = "", protect_tail: int = 0) -> str:
+    """Join high-confidence compounds in the mutable stream tail.
+
+    ``before`` is the text immediately preceding ``text`` (the prefix tail, or
+    what has already been emitted) and ``protect_tail`` leaves the last N
+    characters undecided, so a pair at either edge of the buffer is only joined
+    once ``_blocks_compound_join`` can see the words around it.
+    """
+    limit = len(text) - protect_tail
 
     def replace(match: re.Match[str]) -> str:
         left, right = match.group(1), match.group(2)
-        joined = left + right
-        if joined.lower() not in _JOINABLE_COMPOUNDS:
+        end = match.end() + len(right)
+        if end > limit:
             return match.group(0)
-        if left.isupper():
-            return joined.upper()
-        if left[0].isupper():
-            return joined.capitalize()
-        return joined
+        if (left + right).lower() not in _JOINABLE_COMPOUNDS:
+            return match.group(0)
+        if _blocks_compound_join(left, before + text[: match.start()], text[end:]):
+            return match.group(0)
+        return left
 
     return _COMPOUND_RE.sub(replace, text)
 
@@ -268,7 +422,15 @@ def _fix_space_before_punctuation(text: str) -> str:
     return text
 
 
-def _repair_prefix_boundary(prefix: str, text: str) -> str:
+def _repair_prefix_boundary(prefix: str, text: str, *, protect_tail: int = 0) -> str:
+    """Undo a space that landed inside a word straddling the generation boundary.
+
+    Chat strategies must send the prefix with a trailing space and re-insert one
+    before the first token, which destroys the distinction between a model
+    starting a new word and a model finishing the prefix's last one. This puts
+    the boundary back together when the evidence says the two halves are one
+    word.
+    """
     prefix_match = _PREFIX_WORD_RE.search(prefix)
 
     # Space injected before punctuation or contraction at the boundary
@@ -287,35 +449,42 @@ def _repair_prefix_boundary(prefix: str, text: str) -> str:
     left = prefix_match.group(1)
     right = text_match.group(1)
     joined = left + right
+    after = text[text_match.end(1) :]
 
-    # Whitelist: high-confidence compounds where both halves may be real words
+    # Whitelist: high-confidence compounds where both halves are real words
     if joined.lower() in _JOINABLE_COMPOUNDS:
-        return text[1:]
+        if len(after) < protect_tail:
+            return text
+        return text if _blocks_compound_join(left, prefix, after) else text[1:]
 
-    # If the existing prefix ends in a short non-word fragment, the next segment
-    # probably starts with the rest of that same word: "fl" + " anks". Single
-    # letters are excluded — "Section B" + " undefined" is not a split word — so
-    # they are only joined by the dictionary rule below.
-    if (
-        2 <= len(left) <= 3
-        and left.lower() not in _COMMON_SHORT_WORDS
-        and len(right) >= 2
-    ):
-        return text[1:]
+    if after.startswith("-"):
+        # "a" + " re-evaluation": the right half heads a hyphenated compound.
+        return text
 
-    # Dictionary: join if combined form is a word and the fragment alone is not
-    if _is_word(joined) and not _is_word(right):
-        return text[1:]
+    if right[:1].isupper() and left[-1:].islower():
+        # Models do not capitalise mid-word, so this is a proper noun starting a
+        # new word: "his brother" + " Ed", not "brothered".
+        return text
 
-    return text
+    vocab = _document_vocabulary(prefix)
+    right_alone = _can_stand_alone(right, vocab)
+    merged_is_word = _word_like(joined, vocab)
+
+    if not _word_like(left, vocab):
+        # The prefix already ends mid-word, so the fragment completes it unless
+        # it is plainly a word of its own ("recalculat" + " ed", "fl" + " anks").
+        return text[1:] if merged_is_word or not right_alone else text
+
+    # The prefix ends on a real word, so only join when the fragment cannot
+    # stand alone and the merged form is itself a word: "a" + " nd" -> "and".
+    return text[1:] if merged_is_word and not right_alone else text
 
 
-def _trim_dangling_short_tail(text: str) -> str:
+def _trim_dangling_short_tail(text: str, vocab: frozenset[str] = frozenset()) -> str:
     match = re.search(r"\b([A-Za-z]{1,3})$", text)
     if not match:
         return text
-    tail = match.group(1)
-    if tail.lower() in _COMMON_SHORT_WORDS or _is_word(tail):
+    if _word_like(match.group(1), vocab):
         return text
     return text[: match.start(1)].rstrip()
 
@@ -330,7 +499,7 @@ def normalize_completion_segment(prefix: str, completion: str) -> str:
     """
     completion = _repair_prefix_boundary(prefix, completion)
     completion = _DANGLING_HYPHENATED_TAIL_RE.sub("", completion).rstrip()
-    return _trim_dangling_short_tail(completion)
+    return _trim_dangling_short_tail(completion, _document_vocabulary(prefix))
 
 
 async def normalize_stream_newlines(
@@ -347,6 +516,7 @@ async def normalize_stream_newlines(
     pending_newlines = 0
     pending_text = ""
     at_boundary = True
+    recent = prefix[-_COMMIT_LAG_CHARS:]
 
     async for token in tokens:
         out: list[str] = []
@@ -373,12 +543,18 @@ async def normalize_stream_newlines(
         if out:
             pending_text += "".join(out)
             if at_boundary:
-                pending_text = _repair_prefix_boundary(prefix, pending_text)
-            pending_text = _join_split_compounds(pending_text)
+                pending_text = _repair_prefix_boundary(
+                    prefix, pending_text, protect_tail=_COMMIT_LAG_CHARS
+                )
+            pending_text = _join_split_compounds(
+                pending_text, before=recent, protect_tail=_COMMIT_LAG_CHARS
+            )
             pending_text = _fix_space_before_punctuation(pending_text)
             if len(pending_text) > _LOOKBEHIND_CHARS:
                 emit_len = len(pending_text) - _COMMIT_LAG_CHARS
-                yield pending_text[:emit_len]
+                emitted = pending_text[:emit_len]
+                yield emitted
+                recent = (recent + emitted)[-_COMMIT_LAG_CHARS:]
                 pending_text = pending_text[emit_len:]
                 at_boundary = False
 
@@ -386,7 +562,7 @@ async def normalize_stream_newlines(
         pending_text += "\n" * pending_newlines
     if at_boundary:
         pending_text = _repair_prefix_boundary(prefix, pending_text)
-    pending_text = _join_split_compounds(pending_text)
+    pending_text = _join_split_compounds(pending_text, before=recent)
     pending_text = _fix_space_before_punctuation(pending_text)
     if pending_text:
         yield pending_text

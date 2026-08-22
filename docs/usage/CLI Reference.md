@@ -19,7 +19,7 @@ basemode [PREFIX] [OPTIONS]
 | `-M`, `--max-tokens` | `200` | Max output tokens |
 | `-t`, `--temperature` | `0.9` | Sampling temperature (when model allows) |
 | `-s`, `--strategy` | auto | Force strategy selection |
-| `--rewind` | `false` | Rewind short trailing fragments before generation |
+| `--rewind` | `false` | Hold back the last short token so word joins are exact (may reissue the request) |
 | `--strict-max-tokens` | `false` | Enforce the visible output limit client-side |
 | `--show-strategy` | `false` | Print selected strategy |
 | `--show-usage` | `false` | Print token estimate after generation |

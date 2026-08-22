@@ -7,8 +7,8 @@ from basemode.healing import (
     normalize_completion_segment,
     normalize_prefix,
     normalize_stream_newlines,
+    probe_rewind_overlap,
     rewind_prefix_to_word_boundary,
-    strip_rewind_overlap,
 )
 
 
@@ -85,33 +85,71 @@ def test_rewind_prefix_to_word_boundary_rewinds_short_fragment() -> None:
     assert fragment == "sli"
 
 
-def test_rewind_prefix_to_word_boundary_keeps_common_word() -> None:
+def test_rewind_prefix_to_word_boundary_rewinds_common_word() -> None:
+    # "and" is exactly the case that produces "a nd": the model wants to finish
+    # the word, so hold it back and let the model write it whole.
     generation_prefix, fragment = rewind_prefix_to_word_boundary(
         "The ship rounded the headland and"
     )
 
-    assert generation_prefix == "The ship rounded the headland and"
+    assert generation_prefix == "The ship rounded the headland "
+    assert fragment == "and"
+
+
+def test_rewind_prefix_to_word_boundary_keeps_long_tail() -> None:
+    generation_prefix, fragment = rewind_prefix_to_word_boundary(
+        "The ship rounded the headland"
+    )
+
+    assert generation_prefix == "The ship rounded the headland"
     assert fragment == ""
 
 
-async def test_strip_rewind_overlap_removes_repeated_fragment() -> None:
+def test_rewind_prefix_to_word_boundary_needs_whitespace_boundary() -> None:
+    # "nks" is the tail of "flanks", not a token of its own.
+    generation_prefix, fragment = rewind_prefix_to_word_boundary(
+        "muscle across their flanks"
+    )
+
+    assert generation_prefix == "muscle across their flanks"
+    assert fragment == ""
+
+
+async def test_probe_rewind_overlap_removes_repeated_fragment() -> None:
     async def gen():
         yield "sli"
         yield "vey toves"
 
-    result = "".join([token async for token in strip_rewind_overlap(gen(), "sli")])
+    stream = gen()
+    matched, head = await probe_rewind_overlap(stream, "sli")
+    rest = "".join([token async for token in stream])
 
-    assert result == "vey toves"
+    assert matched
+    assert head + rest == "vey toves"
 
 
-async def test_strip_rewind_overlap_removes_spaced_repeated_fragment() -> None:
+async def test_probe_rewind_overlap_removes_spaced_repeated_fragment() -> None:
     async def gen():
         yield " slivey"
         yield " toves"
 
-    result = "".join([token async for token in strip_rewind_overlap(gen(), "sli")])
+    stream = gen()
+    matched, head = await probe_rewind_overlap(stream, "sli")
+    rest = "".join([token async for token in stream])
 
-    assert result == "vey toves"
+    assert matched
+    assert head + rest == "vey toves"
+
+
+async def test_probe_rewind_overlap_reports_mismatch() -> None:
+    async def gen():
+        yield "measured"
+        yield " and maximized"
+
+    matched, head = await probe_rewind_overlap(gen(), "a")
+
+    assert not matched
+    assert head == "measured"  # discarded by the caller, which retries
 
 
 # ── needs_leading_space ───────────────────────────────────────────────────────
@@ -308,33 +346,6 @@ def test_normalize_completion_segment_keeps_finished_hyphenated_word() -> None:
     assert result == " a form assembled out of Jiu-Jitsu"
 
 
-def test_normalize_completion_segment_joins_single_letter_prefix_boundary() -> None:
-    result = normalize_completion_segment(
-        "counted, a",
-        " nd recalculated, measured and maximized.",
-    )
-
-    assert result == "nd recalculated, measured and maximized."
-
-
-def test_normalize_completion_segment_keeps_standalone_single_letter() -> None:
-    result = normalize_completion_segment(
-        "The exercise was labelled Section B",
-        " undefined by the institution.",
-    )
-
-    assert result == " undefined by the institution."
-
-
-def test_normalize_completion_segment_keeps_article_before_real_word() -> None:
-    result = normalize_completion_segment(
-        "welfare was measured a",
-        " way from the ratings.",
-    )
-
-    assert result == " way from the ratings."
-
-
 async def test_normalize_stream_joins_single_letter_prefix_boundary() -> None:
     result = await _collect_stream(
         "welfare was counted, a",
@@ -352,3 +363,173 @@ async def test_normalize_stream_repairs_boundary_only_once() -> None:
     )
 
     assert result == "nd recalculated" + tail + " nd so the ratings held."
+
+
+# ── boundary repair: what joins and what must not ────────────────────────────
+
+
+@pytest.mark.parametrize(
+    "prefix,completion,expected",
+    [
+        # Joined: the injected space landed inside one word
+        ("welfare was counted, a", " nd recalculated", "nd recalculated"),
+        ("the institution kept I", " ts ratings", "ts ratings"),
+        ("they were the", " ir own reward", "ir own reward"),
+        ("motion across their fl", " anks, abdomens", "anks, abdomens"),
+        ("they had recalculat", " ed the sums", "ed the sums"),
+        ("it was the wa", " y out", "y out"),
+        ("she had be", " en waiting", "en waiting"),
+        # Kept apart: the second word stands on its own
+        ("welfare was measured a", " way from the ratings", " way from the ratings"),
+        ("labelled Section B", " undefined by the board", " undefined by the board"),
+        ("a letter from Dr", " Smith arrived", " Smith arrived"),
+        ("she reread Mrs", " Dalloway again", " Dalloway again"),
+        ("the train to St", " Petersburg left", " Petersburg left"),
+        ("a row of TV", " screens flickered", " screens flickered"),
+        ("the institution counted the", " ratings again", " ratings again"),
+        ("they had", " maximized the welfare", " maximized the welfare"),
+        # Invented and proper nouns the dictionary has never heard of
+        ("in the city of", " Vorthal they waited", " Vorthal they waited"),
+        ("she greeted", " Kaal without warmth", " Kaal without warmth"),
+        ("his brother", " Ed said nothing", " Ed said nothing"),
+        # A hyphenated compound is not a split word
+        ("the thing needed a", " re-evaluation", " re-evaluation"),
+    ],
+)
+def test_normalize_completion_segment_boundary_cases(
+    prefix: str, completion: str, expected: str
+) -> None:
+    assert normalize_completion_segment(prefix, completion) == expected
+
+
+def test_normalize_completion_segment_uses_document_vocabulary() -> None:
+    # "Xenosurgery" is in no dictionary, but the document has already used it.
+    result = normalize_completion_segment(
+        "Xenosurgery was routine by then. He had trained in Xenos",
+        " urgery for eleven years.",
+    )
+
+    assert result == "urgery for eleven years."
+
+
+def test_normalize_completion_segment_needs_document_evidence() -> None:
+    result = normalize_completion_segment(
+        "He had trained in Xenos",
+        " urgery for eleven years.",
+    )
+
+    assert result == " urgery for eleven years."
+
+
+# ── compound joining: ambiguous phrases must survive ─────────────────────────
+
+
+@pytest.mark.parametrize(
+    "prefix,chunk,expected",
+    [
+        # Joined
+        (
+            "The wall made",
+            [" the out ", "side feel theoretical."],
+            " the outside feel theoretical.",
+        ),
+        ("He kept", [" every thing in its place."], " everything in its place."),
+        ("There was", [" no where left to go."], " nowhere left to go."),
+        ("He found", [" him self alone."], " himself alone."),
+        # Kept apart: the split reading is the real one
+        (
+            "The institution",
+            [" counted every one of them again."],
+            " counted every one of them again.",
+        ),
+        ("It was", [" some body of water, vast."], " some body of water, vast."),
+        (
+            "They laid the tools",
+            [" out side by side."],
+            " out side by side.",
+        ),
+        (
+            "The review broke",
+            [" her self-esteem."],
+            " her self-esteem.",
+        ),
+        (
+            "The lamps lit",
+            [" the parked cars in side streets."],
+            " the parked cars in side streets.",
+        ),
+        (
+            "The search found",
+            [" no body in the room."],
+            " no body in the room.",
+        ),
+    ],
+)
+async def test_normalize_stream_compound_cases(
+    prefix: str, chunk: list[str], expected: str
+) -> None:
+    assert await _collect_stream(prefix, chunk) == expected
+
+
+async def test_normalize_stream_joins_compound_at_any_alignment() -> None:
+    # The pair used to be missed whenever an earlier pair consumed its left half.
+    result = await _collect_stream(
+        "The recommendation",
+        [" was not coward ice but engineering."],
+    )
+
+    assert result == " was not cowardice but engineering."
+
+
+# ── rewind retry ─────────────────────────────────────────────────────────────
+
+
+class _ScriptedStrategy:
+    """Strategy stub that records the prefixes it is asked to continue."""
+
+    name = "system"
+
+    def __init__(self, *responses: list[str]) -> None:
+        self._responses = list(responses)
+        self.prefixes: list[str] = []
+
+    async def stream(self, prefix, params):
+        self.prefixes.append(prefix)
+        for token in self._responses.pop(0):
+            yield token
+
+
+async def test_stream_tokens_uses_rewound_generation_when_word_completed() -> None:
+    from basemode.continue_ import _stream_tokens
+
+    strat = _ScriptedStrategy(["and", " recalculated"])
+    tokens = _stream_tokens(
+        strat, "welfare was counted, a", "welfare was counted, ", "a", None
+    )
+
+    assert "".join([token async for token in tokens]) == "nd recalculated"
+    assert strat.prefixes == ["welfare was counted, "]
+
+
+async def test_stream_tokens_retries_when_rewind_not_taken_up() -> None:
+    from basemode.continue_ import _stream_tokens
+
+    strat = _ScriptedStrategy(["measured", " again"], [" measured again"])
+    tokens = _stream_tokens(
+        strat, "welfare was counted, a", "welfare was counted, ", "a", None
+    )
+
+    # The rewound text is discarded — it was written to follow "counted, ".
+    assert "".join([token async for token in tokens]) == " measured again"
+    assert strat.prefixes == ["welfare was counted, ", "welfare was counted, a"]
+
+
+def test_normalize_completion_segment_keeps_short_coinage_from_document() -> None:
+    # A three-letter tail that the document has established is a word, not the
+    # stump of one cut off by the token limit.
+    result = normalize_completion_segment(
+        "The Vor had ruled for centuries.",
+        " Their envoys came from Vor",
+    )
+
+    assert result == " Their envoys came from Vor"

@@ -7,8 +7,8 @@ import litellm
 from .detect import detect_strategy, normalize_model
 from .healing import (
     normalize_stream_newlines,
+    probe_rewind_overlap,
     rewind_prefix_to_word_boundary,
-    strip_rewind_overlap,
 )
 from .keys import load_into_environ
 from .params import GenerationParams
@@ -51,9 +51,10 @@ async def continue_text(
     token_count = 0
     generation_prefix, rewind_fragment = _generation_prefix(prefix, strat.name, rewind)
     try:
-        raw_tokens = strat.stream(generation_prefix, params)
-        healed_tokens = strip_rewind_overlap(raw_tokens, rewind_fragment)
-        stream = normalize_stream_newlines(prefix, healed_tokens)
+        raw_tokens = _stream_tokens(
+            strat, prefix, generation_prefix, rewind_fragment, params
+        )
+        stream = normalize_stream_newlines(prefix, raw_tokens)
         if strict_max_tokens:
             stream = _enforce_visible_token_cap(stream, model, max_tokens)
         async for token in stream:
@@ -94,9 +95,10 @@ async def branch_text(
 
     async def run_branch(idx: int) -> None:
         try:
-            raw_tokens = strat.stream(generation_prefix, params)
-            healed_tokens = strip_rewind_overlap(raw_tokens, rewind_fragment)
-            stream = normalize_stream_newlines(prefix, healed_tokens)
+            raw_tokens = _stream_tokens(
+                strat, prefix, generation_prefix, rewind_fragment, params
+            )
+            stream = normalize_stream_newlines(prefix, raw_tokens)
             if strict_max_tokens:
                 stream = _enforce_visible_token_cap(stream, model, max_tokens)
             async for token in stream:
@@ -121,6 +123,38 @@ async def branch_text(
         for task in tasks:
             task.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)
+
+
+async def _stream_tokens(
+    strat, prefix: str, generation_prefix: str, fragment: str, params
+) -> AsyncGenerator[str, None]:
+    """Stream a continuation, undoing a rewind that the model did not take up.
+
+    A rewound request is only usable if the model re-emits the fragment we held
+    back; otherwise its text was written to follow a prefix the reader never
+    sees, and pasting it on would read as a non-sequitur rather than a spacing
+    glitch. Nothing has been yielded at that point, so the request is simply
+    reissued with the full prefix.
+    """
+    if not fragment:
+        async for token in strat.stream(prefix, params):
+            yield token
+        return
+
+    stream = strat.stream(generation_prefix, params)
+    matched, head = await probe_rewind_overlap(stream, fragment)
+    if matched:
+        log.debug("_stream_tokens: rewind of %r matched", fragment)
+        if head:
+            yield head
+        async for token in stream:
+            yield token
+        return
+
+    log.debug("_stream_tokens: rewind of %r not taken up, retrying", fragment)
+    await stream.aclose()
+    async for token in strat.stream(prefix, params):
+        yield token
 
 
 def _generation_prefix(
