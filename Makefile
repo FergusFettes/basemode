@@ -1,31 +1,33 @@
-.PHONY: publish test test-core test-integration lint lint-core models-table discover-models docs-serve
+.PHONY: build check publish test test-core test-integration lint lint-core models-table discover-models docs-build docs-serve
+
+build:
+	uv build
+
+check: lint test docs-build build
 
 publish:
 	rm -rf dist/
-	uv build
+	$(MAKE) build
 	@export $$(grep UV_PUBLISH_TOKEN .env | xargs) && uv publish
 
-test:
-	uv run pytest tests
-
-test-core:
-	uv run pytest tests
+test test-core:
+	uv run pytest
 
 test-integration:
 	uv run pytest -m integration
 
-lint:
-	uv run ruff check src tests
-	uv run ruff format --check src tests
-
-lint-core:
-	uv run ruff check src tests && uv run ruff format --check src tests
+lint lint-core:
+	uv run ruff check src tests scripts
+	uv run ruff format --check src tests scripts
 
 models-table:
 	uv run python scripts/generate_verified_models_table.py
 
 discover-models:
 	uv run python scripts/discover_new_models.py
+
+docs-build:
+	uv run mkdocs build --strict
 
 docs-serve:
 	uv run mkdocs serve -a localhost:8001

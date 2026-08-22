@@ -22,13 +22,7 @@ jobs:
         uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
 
       - name: Install dependencies
-        run: uv sync --group dev --extra server
+        run: uv sync --locked --group dev --extra server
 
-      - name: Lint
-        run: make lint-core
-
-      - name: Test
-        run: make test-core
-
-      - name: Build docs
-        run: uv run mkdocs build --strict
+      - name: Check
+        run: make check

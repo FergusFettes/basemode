@@ -344,8 +344,10 @@ def _print_live_models(provider: str | None, search: str | None) -> None:
     from .settings import settings
 
     if not provider:
-        console.print("[red]--live requires --provider (one of: "
-                       f"{', '.join(sorted(PROVIDER_ENDPOINTS))})[/red]")
+        console.print(
+            "[red]--live requires --provider (one of: "
+            f"{', '.join(sorted(PROVIDER_ENDPOINTS))})[/red]"
+        )
         raise typer.Exit(1)
 
     api_key = settings.api_key_for(provider)
@@ -367,21 +369,24 @@ def _print_live_models(provider: str | None, search: str | None) -> None:
     known_display = {_display_id(provider, m) for m in known}
     reliable_dates = dates_look_trustworthy(live)
 
-    table = Table("Model", "Release Date", "In litellm?", show_header=True, header_style="bold")
+    table = Table(
+        "Model", "Release Date", "In litellm?", show_header=True, header_style="bold"
+    )
     for m in live:
         in_litellm = m.id in known_display or m.id in known
         release_date = m.release_date if reliable_dates else None
         table.add_row(
             m.id,
-            release_date or ("unknown" if m.release_date_confidence != "unknown" else ""),
+            release_date
+            or ("unknown" if m.release_date_confidence != "unknown" else ""),
             "" if in_litellm else "[bold yellow]NEW[/bold yellow]",
         )
     console.print(table)
-    new_count = sum(
-        1 for m in live if m.id not in known_display and m.id not in known
+    new_count = sum(1 for m in live if m.id not in known_display and m.id not in known)
+    console.print(
+        f"[dim]{len(live)} models from {provider}'s live API"
+        f"{f', {new_count} not in litellm yet' if new_count else ''}[/dim]"
     )
-    console.print(f"[dim]{len(live)} models from {provider}'s live API"
-                  f"{f', {new_count} not in litellm yet' if new_count else ''}[/dim]")
     if not reliable_dates:
         console.print(
             f"[yellow]{provider}'s release dates look bogus (most models share "
@@ -392,7 +397,7 @@ def _print_live_models(provider: str | None, search: str | None) -> None:
 
 def _display_id(provider: str, model: str) -> str:
     prefix = f"{provider}/"
-    return model[len(prefix):] if model.startswith(prefix) else model
+    return model[len(prefix) :] if model.startswith(prefix) else model
 
 
 @app.command()

@@ -16,15 +16,11 @@ import urllib.request
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-import sys
-
-ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT / "src") not in sys.path:
-    sys.path.insert(0, str(ROOT / "src"))
 
 from basemode.detect import detect_strategy, normalize_model
 from basemode.usage import get_price_info
 
+ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_PATH = ROOT / "data" / "verified_models_registry.json"
 README_PATH = ROOT / "README.md"
 DETAILS_PATH = ROOT / "src" / "basemode" / "data" / "verified_models_details.json"
@@ -75,7 +71,7 @@ def _parse_release_date(meta: dict | None) -> tuple[str | None, str | None]:
         return f"{yyyy}-{mm}-{dd}", "openrouter_slug"
 
     created = meta.get("created")
-    if isinstance(created, (int, float)) and created > 0:
+    if isinstance(created, int | float) and created > 0:
         dt = datetime.fromtimestamp(created, tz=UTC)
         return dt.date().isoformat(), "openrouter_created"
 

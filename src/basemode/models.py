@@ -52,9 +52,7 @@ def parse_since(spec: str) -> str:
     """Parse a relative duration like '10d', '4w', '6m', '1y' into an ISO cutoff date."""
     match = _SINCE_RE.match(spec.strip())
     if not match:
-        raise ValueError(
-            f"invalid --since value {spec!r}; use e.g. 10d, 4w, 6m, 1y"
-        )
+        raise ValueError(f"invalid --since value {spec!r}; use e.g. 10d, 4w, 6m, 1y")
     amount, unit = int(match.group(1)), match.group(2).lower()
     today = datetime.date.today()
     if unit == "d":
@@ -70,7 +68,9 @@ def parse_since(spec: str) -> str:
 
 def _model_mode(provider: str, model: str) -> str | None:
     """Best-effort litellm mode ('chat', 'image_generation', ...) for a model."""
-    info = litellm.model_cost.get(model) or litellm.model_cost.get(f"{provider}/{model}")
+    info = litellm.model_cost.get(model) or litellm.model_cost.get(
+        f"{provider}/{model}"
+    )
     return info.get("mode") if info else None
 
 
@@ -209,9 +209,7 @@ def _all_provider_pairs() -> list[tuple[str, str]]:
     """
     by_provider: dict[str, list[str]] = litellm.models_by_provider
     pairs = [(p, m) for p, ms in by_provider.items() for m in ms]
-    pairs.extend(
-        (p, m) for p, ms in _EXTRA_MODELS_BY_PROVIDER.items() for m in ms
-    )
+    pairs.extend((p, m) for p, ms in _EXTRA_MODELS_BY_PROVIDER.items() for m in ms)
     known_display = {(p, _display_model_id(p, m)) for p, m in pairs}
     for provider, row in _live_rows_by_provider().items():
         for model_id in row.get("models", {}):

@@ -23,7 +23,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus: int, config) -> None:
     cost = summary.get("estimated_total_cost_usd")
     rows_total = summary.get("rows_total")
     rows_with_errors = summary.get("rows_with_errors")
-    if not isinstance(cost, (int, float)):
+    if not isinstance(cost, int | float):
         return
     terminalreporter.write_sep("-", "integration suite estimated cost")
     terminalreporter.write_line(f"estimated_total_cost_usd={cost:.8f}")

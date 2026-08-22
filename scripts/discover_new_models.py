@@ -122,9 +122,7 @@ def _load_json(path: Path, default: dict) -> dict:
 
 
 _INLINE_ARRAY_RE = re.compile(
-    r"\[\n\s+("
-    r'"(?:[^"\\]|\\.)*"(?:,\n\s+"(?:[^"\\]|\\.)*")*'
-    r")\n\s*\]"
+    r"\[\n\s+(" r'"(?:[^"\\]|\\.)*"(?:,\n\s+"(?:[^"\\]|\\.)*")*' r")\n\s*\]"
 )
 
 

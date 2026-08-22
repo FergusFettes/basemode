@@ -47,7 +47,7 @@ def _anthropic_headers(key: str) -> dict[str, str]:
 
 
 def _unix_to_date(value: object) -> str | None:
-    if not isinstance(value, (int, float)) or value <= 0:
+    if not isinstance(value, int | float) or value <= 0:
         return None
     return datetime.datetime.fromtimestamp(value, tz=datetime.UTC).date().isoformat()
 
@@ -56,7 +56,11 @@ def _iso_to_date(value: object) -> str | None:
     if not isinstance(value, str) or not value:
         return None
     try:
-        return datetime.datetime.fromisoformat(value.replace("Z", "+00:00")).date().isoformat()
+        return (
+            datetime.datetime.fromisoformat(value.replace("Z", "+00:00"))
+            .date()
+            .isoformat()
+        )
     except ValueError:
         return None
 
@@ -108,16 +112,36 @@ class _Endpoint:
 
 
 PROVIDER_ENDPOINTS: dict[str, _Endpoint] = {
-    "openai": _Endpoint("https://api.openai.com/v1/models", _bearer_headers, _parse_openai_style),
-    "anthropic": _Endpoint("https://api.anthropic.com/v1/models", _anthropic_headers, _parse_anthropic),
-    "openrouter": _Endpoint("https://openrouter.ai/api/v1/models", None, _parse_openai_style),
-    "groq": _Endpoint("https://api.groq.com/openai/v1/models", _bearer_headers, _parse_openai_style),
-    "together_ai": _Endpoint("https://api.together.xyz/v1/models", _bearer_headers, _parse_openai_style),
-    "moonshot": _Endpoint("https://api.moonshot.ai/v1/models", _bearer_headers, _parse_openai_style),
-    "xai": _Endpoint("https://api.x.ai/v1/models", _bearer_headers, _parse_openai_style),
-    "zai": _Endpoint("https://api.z.ai/api/paas/v4/models", _bearer_headers, _parse_openai_style),
-    "deepseek": _Endpoint("https://api.deepseek.com/v1/models", _bearer_headers, _parse_openai_style),
-    "gemini": _Endpoint("https://generativelanguage.googleapis.com/v1beta/models", None, _parse_gemini),
+    "openai": _Endpoint(
+        "https://api.openai.com/v1/models", _bearer_headers, _parse_openai_style
+    ),
+    "anthropic": _Endpoint(
+        "https://api.anthropic.com/v1/models", _anthropic_headers, _parse_anthropic
+    ),
+    "openrouter": _Endpoint(
+        "https://openrouter.ai/api/v1/models", None, _parse_openai_style
+    ),
+    "groq": _Endpoint(
+        "https://api.groq.com/openai/v1/models", _bearer_headers, _parse_openai_style
+    ),
+    "together_ai": _Endpoint(
+        "https://api.together.xyz/v1/models", _bearer_headers, _parse_openai_style
+    ),
+    "moonshot": _Endpoint(
+        "https://api.moonshot.ai/v1/models", _bearer_headers, _parse_openai_style
+    ),
+    "xai": _Endpoint(
+        "https://api.x.ai/v1/models", _bearer_headers, _parse_openai_style
+    ),
+    "zai": _Endpoint(
+        "https://api.z.ai/api/paas/v4/models", _bearer_headers, _parse_openai_style
+    ),
+    "deepseek": _Endpoint(
+        "https://api.deepseek.com/v1/models", _bearer_headers, _parse_openai_style
+    ),
+    "gemini": _Endpoint(
+        "https://generativelanguage.googleapis.com/v1beta/models", None, _parse_gemini
+    ),
 }
 
 

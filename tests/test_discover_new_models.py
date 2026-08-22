@@ -28,7 +28,9 @@ def test_looks_clean_rejects_empty_and_chatty() -> None:
 
 
 def _live(id_: str, release_date: str | None) -> LiveModel:
-    return LiveModel(id=id_, release_date=release_date, release_date_confidence="release")
+    return LiveModel(
+        id=id_, release_date=release_date, release_date_confidence="release"
+    )
 
 
 def test_select_candidates_dedupes_sorts_and_caps() -> None:
