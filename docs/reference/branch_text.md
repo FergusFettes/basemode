@@ -12,6 +12,7 @@ async def branch_text(
     temperature: float = 0.9,
     strategy: str | None = None,
     rewind: bool = False,
+    strict_max_tokens: bool = False,
     **extra,
 ) -> AsyncGenerator[tuple[int, str], None]
 ```
@@ -25,3 +26,5 @@ Yields `(branch_idx, token)` tuples until all branches finish.
 - Branches run concurrently with `asyncio` tasks.
 - Stream order is interleaved across branches.
 - `branch_idx` is zero-based.
+- `n` must be at least one; a provider error from any branch is propagated and cancels the rest.
+- `strict_max_tokens=True` stops each visible branch stream at `max_tokens` using client-side token counting.

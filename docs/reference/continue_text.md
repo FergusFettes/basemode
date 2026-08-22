@@ -12,6 +12,7 @@ async def continue_text(
     context: str = "",
     strategy: str | None = None,
     rewind: bool = False,
+    strict_max_tokens: bool = False,
     **extra,
 ) -> AsyncGenerator[str, None]
 ```
@@ -23,4 +24,5 @@ Stream a single continuation token-by-token.
 - Model names are normalized before strategy selection.
 - `strategy` overrides auto-detection.
 - `rewind=True` rewinds short trailing word fragments for `system`/`few_shot` strategies.
+- `strict_max_tokens=True` stops the visible stream at `max_tokens` using client-side token counting.
 - `extra` is forwarded to LiteLLM request kwargs.

@@ -20,6 +20,7 @@ basemode [PREFIX] [OPTIONS]
 | `-t`, `--temperature` | `0.9` | Sampling temperature (when model allows) |
 | `-s`, `--strategy` | auto | Force strategy selection |
 | `--rewind` | `false` | Rewind short trailing fragments before generation |
+| `--strict-max-tokens` | `false` | Enforce the visible output limit client-side |
 | `--show-strategy` | `false` | Print selected strategy |
 | `--show-usage` | `false` | Print token estimate after generation |
 | `--show-cost` | `false` | Print estimated cost after generation |

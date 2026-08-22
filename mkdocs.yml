@@ -40,6 +40,8 @@ nav:
   - Getting Started:
     - Installation: getting-started/Installation.md
     - Quickstart: getting-started/Quickstart.md
+  - Development:
+    - Agent Quickstart: Agent Quickstart.md
   - Concepts:
     - How It Works: concepts/How It Works.md
     - Strategies: concepts/Strategies.md
