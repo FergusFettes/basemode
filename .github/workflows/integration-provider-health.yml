@@ -60,7 +60,7 @@ jobs:
               status = r.get("status", "error")
               if status == "ok":
                   agg[provider]["ok"] += 1
-              elif status == "xfail_retired_model":
+              elif status.startswith("xfail_"):
                   agg[provider]["xfail"] += 1
               else:
                   agg[provider]["error"] += 1
@@ -84,6 +84,18 @@ jobs:
               print(f"| {provider} | {v['ok']} | {v['error']} | {v['xfail']} | {ttft} | {throughput} | ${v['cost']:.6f} |")
           print()
           print(f"Estimated total test cost: ${total_cost:.6f}")
+
+          quota_rows = [r for r in rows if r.get("status") == "xfail_provider_quota"]
+          if quota_rows:
+              print()
+              print("### ⚠ Provider quota / credit alerts")
+              print("These probes are recorded as expected failures so monitoring stays green.")
+              print("| Provider | Model | Error |")
+              print("|---|---|---|")
+              for r in quota_rows:
+                  error = str(r.get("error") or "").replace("|", "\\|")
+                  print(f"| {r['provider']} | {r['model']} | {error} |")
+              print("::warning title=Provider credits or quota exhausted::See the Provider health summary for affected models.")
           PY
           else
           echo "No health report generated." >> "$GITHUB_STEP_SUMMARY"

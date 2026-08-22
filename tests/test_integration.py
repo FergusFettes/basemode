@@ -19,50 +19,27 @@ from basemode.usage import UsageEstimate, estimate_usage
 
 pytestmark = pytest.mark.integration
 
-SHORT = 10  # smoke/depth tests
+SHORT = 10  # verified-model probes
 TOKEN_CAP = 24  # explicit token-limit probes
 
 BAD_STARTS = ("sure", "of course", "certainly", "i'll", "i will", "here", "this")
 
 HEALTH_REPORT_PATH = Path("dist/integration/provider_health.json")
+VERIFIED_MODELS_PATH = Path("data/verified_models_registry.json")
 _HEALTH_ROWS: list[dict] = []
 
 
-# Broad provider smoke coverage + key behavior families
-CORE_SMOKE_CASES: list[tuple[str, str | None]] = [
-    ("openai/gpt-4o-mini", None),
-    ("openai/gpt-5.4-mini", None),
-    ("anthropic/claude-opus-4-7", None),  # no-prefill/system
-    ("anthropic/claude-haiku-4-5-20251001", None),  # prefill-compatible
-    ("gemini/gemini-2.5-flash", "system"),  # thinking model
-    ("moonshot/kimi-k2.5", None),  # native moonshot
-    ("openrouter/moonshotai/kimi-k2.6", None),  # openrouter moonshot
-    ("openrouter/moonshotai/kimi-k2.5", None),  # openrouter moonshot
-    ("openrouter/deepseek/deepseek-v3.2", None),  # openrouter deepseek
-    ("openrouter/minimax/minimax-m2.5", None),  # openrouter minimax
-    ("zai/glm-5", None),
-]
+def _verified_model_cases() -> list[tuple[str, str | None]]:
+    """Load every manually verified model and its known-good prompt method."""
+    rows = json.loads(VERIFIED_MODELS_PATH.read_text()).get("models", [])
+    return sorted(
+        (str(row["model"]), row.get("prompt_method"))
+        for row in rows
+        if isinstance(row, dict) and row.get("model")
+    )
 
-# Older + newer families for regression depth across providers.
-PROVIDER_DEPTH_CASES: list[tuple[str, str | None]] = [
-    # Anthropic older/newer coverage
-    ("anthropic/claude-sonnet-4-20250514", None),
-    ("anthropic/claude-sonnet-4-5-20250929", None),
-    ("anthropic/claude-sonnet-4-6", None),
-    ("anthropic/claude-opus-4-6", None),
-    # OpenAI family
-    ("openai/gpt-4o-mini", "few_shot"),
-    # Gemini depth
-    ("gemini/gemini-2.5-pro", "system"),
-    ("gemini/gemma-4-26b-a4b-it", "system"),
-    # Moonshot depth
-    ("moonshot/kimi-k2-0905-preview", None),
-    ("openrouter/deepseek/deepseek-r1", None),
-    ("openrouter/deepseek/deepseek-chat-v3-0324", None),
-    ("openrouter/minimax/minimax-m2", None),
-    # ZAI depth
-    ("zai/glm-4.7", None),
-]
+
+VERIFIED_MODEL_CASES = _verified_model_cases()
 
 # Focused cap checks for models where caller max_tokens should be preserved.
 TOKEN_LIMIT_GUARDRAILS: list[tuple[str, str | None, int, int]] = [
@@ -112,6 +89,24 @@ def _is_retired_model_error(exc: Exception) -> bool:
     message = str(exc).lower()
     return "model" in message and (
         "not_found_error" in message or "model not found" in message
+    )
+
+
+def _is_provider_quota_error(exc: Exception) -> bool:
+    """Return whether a provider says this key lacks credits or quota."""
+    message = str(exc).lower()
+    return any(
+        marker in message
+        for marker in (
+            "insufficient_quota",
+            "insufficient quota",
+            "insufficient credit",
+            "insufficient balance",
+            "credit balance",
+            "not enough balance",
+            "billing hard limit",
+            "exceeded your current quota",
+        )
     )
 
 
@@ -221,6 +216,12 @@ async def _run_probe(
             # turning an expected provider-side model retirement into a red CI run.
             status = "xfail_retired_model"
             pytest.xfail(f"provider reports retired model: {model}")
+        if _is_provider_quota_error(exc):
+            # Credentials that have exhausted prepaid credit (or a provider quota)
+            # are operationally important, but should not turn this monitoring job
+            # red. The report, history, and Actions summary surface the alert.
+            status = "xfail_provider_quota"
+            pytest.xfail(f"provider quota or credit exhausted: {model}")
         status = "error"
         raise
     finally:
@@ -258,6 +259,9 @@ def write_provider_health_report() -> None:
     total_cost = sum((row.get("estimated_cost_usd") or 0.0) for row in _HEALTH_ROWS)
     priced = sum(1 for row in _HEALTH_ROWS if row.get("pricing_available"))
     errors = sum(1 for row in _HEALTH_ROWS if row.get("status") == "error")
+    quota_errors = sum(
+        1 for row in _HEALTH_ROWS if row.get("status") == "xfail_provider_quota"
+    )
     ttft_values = [
         row["time_to_first_token_s"]
         for row in _HEALTH_ROWS
@@ -273,6 +277,7 @@ def write_provider_health_report() -> None:
         "rows_with_pricing": priced,
         "rows_without_pricing": len(_HEALTH_ROWS) - priced,
         "rows_with_errors": errors,
+        "rows_with_provider_quota": quota_errors,
         "estimated_total_cost_usd": round(total_cost, 8),
         "median_time_to_first_token_s": (
             round(statistics.median(ttft_values), 3) if ttft_values else None
@@ -295,14 +300,14 @@ def write_provider_health_report() -> None:
     )
 
 
-# ── tier 1: broad smoke ───────────────────────────────────────────────────────
+# ── verified-model health ─────────────────────────────────────────────────────
 
 
 @pytest.mark.parametrize(
     "model,strategy",
-    CORE_SMOKE_CASES,
+    VERIFIED_MODEL_CASES,
 )
-async def test_continue_text_core_smoke(
+async def test_continue_text_verified_models(
     prefix: str, model: str, strategy: str | None
 ) -> None:
     await _run_probe(
@@ -310,27 +315,11 @@ async def test_continue_text_core_smoke(
         model=model,
         strategy=strategy,
         max_tokens=SHORT,
-        test_kind="core_smoke",
+        test_kind="verified_model",
     )
 
 
-# ── tier 2: provider depth (older + newer model families) ────────────────────
-
-
-@pytest.mark.parametrize("model,strategy", PROVIDER_DEPTH_CASES)
-async def test_continue_text_provider_depth(
-    prefix: str, model: str, strategy: str | None
-) -> None:
-    await _run_probe(
-        prefix=prefix,
-        model=model,
-        strategy=strategy,
-        max_tokens=SHORT,
-        test_kind="provider_depth",
-    )
-
-
-# ── tier 3: token-limit guardrails ────────────────────────────────────────────
+# ── token-limit guardrails ────────────────────────────────────────────────────
 
 
 @pytest.mark.parametrize(

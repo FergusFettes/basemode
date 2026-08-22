@@ -17,6 +17,12 @@ def test_does_not_treat_unrelated_errors_as_retired() -> None:
     assert not integration._is_retired_model_error(Exception("rate limit exceeded"))
 
 
+def test_detects_provider_quota_or_credit_errors() -> None:
+    assert integration._is_provider_quota_error(Exception("insufficient_quota"))
+    assert integration._is_provider_quota_error(Exception("insufficient balance"))
+    assert not integration._is_provider_quota_error(Exception("rate limit exceeded"))
+
+
 @pytest.mark.asyncio
 async def test_records_retired_model_as_an_expected_health_failure(monkeypatch) -> None:
     async def unavailable(*_args, **_kwargs):
@@ -28,6 +34,9 @@ async def test_records_retired_model_as_an_expected_health_failure(monkeypatch) 
 
     integration._HEALTH_ROWS.clear()
     monkeypatch.setattr(integration, "continue_text", unavailable)
+    monkeypatch.setattr(
+        integration, "require_provider_access", lambda model: "anthropic"
+    )
 
     with pytest.raises(pytest.xfail.Exception):
         await integration._run_probe(
@@ -35,11 +44,35 @@ async def test_records_retired_model_as_an_expected_health_failure(monkeypatch) 
             model="anthropic/claude-sonnet-4-20250514",
             strategy=None,
             max_tokens=10,
-            test_kind="provider_depth",
+            test_kind="verified_model",
         )
 
     assert integration._HEALTH_ROWS[-1]["status"] == "xfail_retired_model"
     assert integration._HEALTH_ROWS[-1]["time_to_first_token_s"] is None
+
+
+@pytest.mark.asyncio
+async def test_records_provider_quota_as_an_expected_health_failure(
+    monkeypatch,
+) -> None:
+    async def unavailable(*_args, **_kwargs):
+        raise Exception("insufficient balance for this API key")
+        yield ""  # pragma: no cover
+
+    integration._HEALTH_ROWS.clear()
+    monkeypatch.setattr(integration, "continue_text", unavailable)
+    monkeypatch.setattr(integration, "require_provider_access", lambda model: "openai")
+
+    with pytest.raises(pytest.xfail.Exception):
+        await integration._run_probe(
+            prefix="A short prefix",
+            model="openai/gpt-4o-mini",
+            strategy=None,
+            max_tokens=10,
+            test_kind="verified_model",
+        )
+
+    assert integration._HEALTH_ROWS[-1]["status"] == "xfail_provider_quota"
 
 
 @pytest.mark.asyncio
