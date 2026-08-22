@@ -4,6 +4,7 @@ Run with:  pytest -m integration
 """
 
 import json
+import statistics
 from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
@@ -123,6 +124,8 @@ def _append_health_row(
     max_tokens: int,
     status: str,
     elapsed: float,
+    time_to_first_token_s: float | None,
+    generation_s: float | None,
     result: str,
     usage,
     error: str | None,
@@ -132,6 +135,9 @@ def _append_health_row(
     over_by = None
     if completion_tokens is not None and token_limit_soft_cap is not None:
         over_by = max(0, completion_tokens - token_limit_soft_cap)
+    output_tokens_per_s = None
+    if completion_tokens is not None and generation_s and generation_s > 0:
+        output_tokens_per_s = completion_tokens / generation_s
     _HEALTH_ROWS.append(
         {
             "test_kind": test_kind,
@@ -143,6 +149,19 @@ def _append_health_row(
             "token_limit_excess_tokens": over_by,
             "status": status,
             "latency_s": round(elapsed, 3),
+            "time_to_first_token_s": (
+                round(time_to_first_token_s, 3)
+                if time_to_first_token_s is not None
+                else None
+            ),
+            "generation_s": round(generation_s, 3)
+            if generation_s is not None
+            else None,
+            "output_tokens_per_s": (
+                round(output_tokens_per_s, 2)
+                if output_tokens_per_s is not None
+                else None
+            ),
             "output_chars": len(result),
             "chars_per_s": round((len(result) / elapsed), 2) if elapsed else None,
             "prompt_tokens": usage.prompt_tokens if usage else None,
@@ -171,10 +190,18 @@ async def _run_probe(
     error: str | None = None
     result = ""
     usage = None
+    first_token_at: float | None = None
+    generation_finished_at: float | None = None
     try:
-        result = await collect(
-            continue_text(prefix, model, max_tokens=max_tokens, strategy=strategy)
-        )
+        tokens = []
+        async for token in continue_text(
+            prefix, model, max_tokens=max_tokens, strategy=strategy
+        ):
+            if first_token_at is None:
+                first_token_at = perf_counter()
+            tokens.append(token)
+        generation_finished_at = perf_counter()
+        result = "".join(tokens)
         assert_clean(result)
         prompt, messages = _usage_prompt(model, prefix, strategy)
         usage = estimate_usage(
@@ -197,7 +224,16 @@ async def _run_probe(
         status = "error"
         raise
     finally:
-        elapsed = perf_counter() - started
+        finished_at = perf_counter()
+        elapsed = finished_at - started
+        time_to_first_token_s = (
+            first_token_at - started if first_token_at is not None else None
+        )
+        generation_s = (
+            generation_finished_at - first_token_at
+            if first_token_at is not None and generation_finished_at is not None
+            else None
+        )
         _append_health_row(
             test_kind=test_kind,
             provider=provider,
@@ -206,6 +242,8 @@ async def _run_probe(
             max_tokens=max_tokens,
             status=status,
             elapsed=elapsed,
+            time_to_first_token_s=time_to_first_token_s,
+            generation_s=generation_s,
             result=result,
             usage=usage,
             error=error,
@@ -220,12 +258,30 @@ def write_provider_health_report() -> None:
     total_cost = sum((row.get("estimated_cost_usd") or 0.0) for row in _HEALTH_ROWS)
     priced = sum(1 for row in _HEALTH_ROWS if row.get("pricing_available"))
     errors = sum(1 for row in _HEALTH_ROWS if row.get("status") == "error")
+    ttft_values = [
+        row["time_to_first_token_s"]
+        for row in _HEALTH_ROWS
+        if isinstance(row.get("time_to_first_token_s"), int | float)
+    ]
+    throughput_values = [
+        row["output_tokens_per_s"]
+        for row in _HEALTH_ROWS
+        if isinstance(row.get("output_tokens_per_s"), int | float)
+    ]
     summary = {
         "rows_total": len(_HEALTH_ROWS),
         "rows_with_pricing": priced,
         "rows_without_pricing": len(_HEALTH_ROWS) - priced,
         "rows_with_errors": errors,
         "estimated_total_cost_usd": round(total_cost, 8),
+        "median_time_to_first_token_s": (
+            round(statistics.median(ttft_values), 3) if ttft_values else None
+        ),
+        "median_output_tokens_per_s": (
+            round(statistics.median(throughput_values), 2)
+            if throughput_values
+            else None
+        ),
     }
     payload = {
         "generated_at_utc": datetime.now(tz=UTC).isoformat(),

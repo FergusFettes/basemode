@@ -123,6 +123,30 @@ def test_summarize_sorts_by_run_at_to_find_last_status() -> None:
     assert summary[0]["last_status"] == "ok"
 
 
+def test_summarize_includes_median_streaming_metrics() -> None:
+    summary = mr.summarize(
+        [
+            {
+                "model": "m",
+                "status": "ok",
+                "run_at": "2026-08-04T00:00:00Z",
+                "time_to_first_token_s": 0.2,
+                "output_tokens_per_s": 20.0,
+            },
+            {
+                "model": "m",
+                "status": "ok",
+                "run_at": "2026-08-11T00:00:00Z",
+                "time_to_first_token_s": 0.4,
+                "output_tokens_per_s": 40.0,
+            },
+        ]
+    )
+
+    assert summary[0]["median_time_to_first_token_s"] == 0.3
+    assert summary[0]["median_output_tokens_per_s"] == 30.0
+
+
 def test_load_rows_returns_empty_when_no_history_file(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr(mr, "HISTORY_PATH", tmp_path / "missing.jsonl")
     assert mr.load_rows() == []

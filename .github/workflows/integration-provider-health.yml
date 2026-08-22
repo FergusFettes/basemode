@@ -45,12 +45,15 @@ jobs:
           echo "## Provider health" >> "$GITHUB_STEP_SUMMARY"
           uv run python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import json
+          import statistics
           from collections import defaultdict
           from pathlib import Path
 
           p = Path("dist/integration/provider_health.json")
           rows = json.loads(p.read_text()).get("rows", [])
-          agg = defaultdict(lambda: {"ok": 0, "error": 0, "xfail": 0, "cost": 0.0})
+          agg = defaultdict(
+              lambda: {"ok": 0, "error": 0, "xfail": 0, "cost": 0.0, "ttft": [], "throughput": []}
+          )
           total_cost = 0.0
           for r in rows:
               provider = r["provider"]
@@ -65,12 +68,20 @@ jobs:
               if isinstance(cost, (int, float)):
                   agg[provider]["cost"] += float(cost)
                   total_cost += float(cost)
+              ttft = r.get("time_to_first_token_s")
+              if isinstance(ttft, (int, float)):
+                  agg[provider]["ttft"].append(float(ttft))
+              throughput = r.get("output_tokens_per_s")
+              if isinstance(throughput, (int, float)):
+                  agg[provider]["throughput"].append(float(throughput))
 
-          print("| Provider | OK | Error | XFail | Est. cost |")
-          print("|---|---:|---:|---:|---:|")
+          print("| Provider | OK | Error | XFail | Median TTFT | Median tok/s | Est. cost |")
+          print("|---|---:|---:|---:|---:|---:|---:|")
           for provider in sorted(agg):
               v = agg[provider]
-              print(f"| {provider} | {v['ok']} | {v['error']} | {v['xfail']} | ${v['cost']:.6f} |")
+              ttft = f"{statistics.median(v['ttft']):.3f}s" if v["ttft"] else "n/a"
+              throughput = f"{statistics.median(v['throughput']):.1f}" if v["throughput"] else "n/a"
+              print(f"| {provider} | {v['ok']} | {v['error']} | {v['xfail']} | {ttft} | {throughput} | ${v['cost']:.6f} |")
           print()
           print(f"Estimated total test cost: ${total_cost:.6f}")
           PY

@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 import test_integration as integration
 
@@ -37,3 +39,29 @@ async def test_records_retired_model_as_an_expected_health_failure(monkeypatch) 
         )
 
     assert integration._HEALTH_ROWS[-1]["status"] == "xfail_retired_model"
+    assert integration._HEALTH_ROWS[-1]["time_to_first_token_s"] is None
+
+
+@pytest.mark.asyncio
+async def test_records_time_to_first_token_and_throughput(monkeypatch) -> None:
+    async def stream(*_args, **_kwargs):
+        yield " hello"
+        await asyncio.sleep(0.001)
+        yield " world"
+
+    integration._HEALTH_ROWS.clear()
+    monkeypatch.setattr(integration, "continue_text", stream)
+    monkeypatch.setattr(integration, "require_provider_access", lambda model: "openai")
+
+    await integration._run_probe(
+        prefix="A short prefix",
+        model="openai/gpt-4o-mini",
+        strategy=None,
+        max_tokens=10,
+        test_kind="core_smoke",
+    )
+
+    row = integration._HEALTH_ROWS[-1]
+    assert row["time_to_first_token_s"] is not None
+    assert row["output_tokens_per_s"] is not None
+    assert row["output_tokens_per_s"] > 0

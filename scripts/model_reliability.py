@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import statistics
 from collections import defaultdict
 from pathlib import Path
 
@@ -38,6 +39,16 @@ def summarize(rows: list[dict]) -> list[dict]:
         total = len(model_rows)
         ok = sum(1 for r in model_rows if r.get("status") == "ok")
         last = model_rows[-1]
+        ttft_values = [
+            row["time_to_first_token_s"]
+            for row in model_rows
+            if isinstance(row.get("time_to_first_token_s"), int | float)
+        ]
+        throughput_values = [
+            row["output_tokens_per_s"]
+            for row in model_rows
+            if isinstance(row.get("output_tokens_per_s"), int | float)
+        ]
         summary.append(
             {
                 "model": model,
@@ -47,6 +58,16 @@ def summarize(rows: list[dict]) -> list[dict]:
                 "last_run_at": last.get("run_at"),
                 "last_status": last.get("status"),
                 "last_error": last.get("error"),
+                "last_time_to_first_token_s": last.get("time_to_first_token_s"),
+                "last_output_tokens_per_s": last.get("output_tokens_per_s"),
+                "median_time_to_first_token_s": (
+                    round(statistics.median(ttft_values), 3) if ttft_values else None
+                ),
+                "median_output_tokens_per_s": (
+                    round(statistics.median(throughput_values), 2)
+                    if throughput_values
+                    else None
+                ),
             }
         )
     return summary
@@ -73,15 +94,29 @@ def main() -> int:
         print("No history recorded yet.")
         return 0
 
-    print(f"{'Model':<45} {'Runs':>5} {'OK':>4} {'Rate':>7}  Last status")
+    print(
+        f"{'Model':<45} {'Runs':>5} {'OK':>4} {'Rate':>7} "
+        f"{'TTFT':>8} {'tok/s':>8}  Last status"
+    )
     for s in summary:
         rate = (
             f"{s['success_rate'] * 100:.0f}%"
             if s["success_rate"] is not None
             else "n/a"
         )
+        ttft = (
+            f"{s['median_time_to_first_token_s']:.3f}"
+            if s["median_time_to_first_token_s"] is not None
+            else "n/a"
+        )
+        throughput = (
+            f"{s['median_output_tokens_per_s']:.1f}"
+            if s["median_output_tokens_per_s"] is not None
+            else "n/a"
+        )
         print(
-            f"{s['model']:<45} {s['runs']:>5} {s['ok']:>4} {rate:>7}  {s['last_status']}"
+            f"{s['model']:<45} {s['runs']:>5} {s['ok']:>4} {rate:>7} "
+            f"{ttft:>8} {throughput:>8}  {s['last_status']}"
         )
     return 0
 
