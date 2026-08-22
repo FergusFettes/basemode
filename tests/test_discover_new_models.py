@@ -9,6 +9,8 @@ if str(ROOT / "scripts") not in sys.path:
 
 import discover_new_models as dnm  # noqa: E402
 
+from basemode.live_models import LiveModel  # noqa: E402
+
 
 def test_openai_blacklist_filters_non_text_models() -> None:
     assert dnm._is_openai_blacklisted("text-embedding-3-large")
@@ -25,13 +27,17 @@ def test_looks_clean_rejects_empty_and_chatty() -> None:
     assert dnm._looks_clean(" dog. It was a sunny day.") == (True, None)
 
 
+def _live(id_: str, release_date: str | None) -> LiveModel:
+    return LiveModel(id=id_, release_date=release_date, release_date_confidence="release")
+
+
 def test_select_candidates_dedupes_sorts_and_caps() -> None:
     raw = [
-        {"id": "gpt-5.9-mini", "created": 100},
-        {"id": "gpt-5.8", "created": 300},
-        {"id": "gpt-5.7", "created": 200},
-        {"id": "text-embedding-3-large", "created": 999},
-        {"id": "gpt-4o-mini", "created": 500},  # already known
+        _live("gpt-5.9-mini", "2026-01-01"),
+        _live("gpt-5.8", "2026-03-01"),
+        _live("gpt-5.7", "2026-02-01"),
+        _live("text-embedding-3-large", "2026-04-01"),
+        _live("gpt-4o-mini", "2026-05-01"),  # already known
     ]
     candidates = dnm.select_candidates(
         provider="openai",
@@ -45,7 +51,7 @@ def test_select_candidates_dedupes_sorts_and_caps() -> None:
 
 
 def test_select_candidates_skips_previously_rejected() -> None:
-    raw = [{"id": "gpt-5.7", "created": 1}]
+    raw = [_live("gpt-5.7", "2026-01-01")]
     candidates = dnm.select_candidates(
         provider="openai",
         raw_models=raw,
@@ -56,24 +62,10 @@ def test_select_candidates_skips_previously_rejected() -> None:
     assert candidates == []
 
 
-def test_select_candidates_skips_ids_normalize_resolves_to_other_provider() -> None:
-    # A bare Anthropic id fed into the openai selection pass shouldn't
-    # get pulled in just because normalize_model recognized it.
-    raw = [{"id": "claude-opus-4-9", "created": 1}]
-    candidates = dnm.select_candidates(
-        provider="openai",
-        raw_models=raw,
-        known=set(),
-        rejected=set(),
-        limit=10,
-    )
-    assert candidates == []
-
-
-def test_anthropic_created_parses_iso_timestamp() -> None:
-    assert dnm._anthropic_created({"created_at": "2026-04-20T00:00:00Z"}) > 0
-    assert dnm._anthropic_created({}) == 0.0
-    assert dnm._anthropic_created({"created_at": "not-a-date"}) == 0.0
+def test_release_date_ts_parses_iso_date() -> None:
+    assert dnm._release_date_ts("2026-04-20") > 0
+    assert dnm._release_date_ts(None) == 0.0
+    assert dnm._release_date_ts("not-a-date") == 0.0
 
 
 def test_guess_openrouter_id_matches_stem() -> None:
@@ -94,17 +86,17 @@ async def test_run_adds_working_and_rejects_broken_models(
     # Don't let a real ~/.config/basemode/auth.json leak keys into this test.
     monkeypatch.setattr(dnm, "load_into_environ", lambda: None)
 
-    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.setattr(dnm.settings, "api_key_for", lambda provider: "test-key")
 
-    monkeypatch.setattr(
-        dnm,
-        "_fetch_openai_models",
-        lambda api_key: [
-            {"id": "gpt-9-good", "created": 200},
-            {"id": "gpt-9-bad", "created": 100},
-        ],
-    )
+    def fake_fetch_live_models(provider, api_key):
+        if provider != "openai":
+            raise dnm.LiveModelsError(f"skip {provider}")
+        return [
+            _live("gpt-9-good", "2026-02-01"),
+            _live("gpt-9-bad", "2026-01-01"),
+        ]
+
+    monkeypatch.setattr(dnm, "fetch_live_models", fake_fetch_live_models)
     monkeypatch.setattr(dnm, "_fetch_openrouter_index", lambda: {})
 
     async def fake_probe(candidate):
@@ -114,7 +106,7 @@ async def test_run_adds_working_and_rejects_broken_models(
 
     monkeypatch.setattr(dnm, "_probe", fake_probe)
 
-    result = await dnm._run(limit=10)
+    result = await dnm._run(limit=10, providers={"openai"})
     assert result == 0
 
     registry = json.loads((tmp_path / "registry.json").read_text())
