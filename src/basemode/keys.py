@@ -1,7 +1,8 @@
 """Persistent API key + default-model storage in ~/.config/basemode/auth.json.
 
 File schema (current):
-    {"keys": {"openai": "sk-...", ...}, "default_model": "..."}
+    {"keys": {"openai": "sk-...", ...}, "default_model": "...",
+     "strategy_overrides": {"anthropic/claude-opus-5": "few_shot", ...}}
 
 Legacy flat schema (auto-migrated on next write):
     {"openai": "sk-...", ...}
@@ -37,14 +38,16 @@ def _load_raw() -> dict:
 
 def _normalize(raw: dict) -> dict:
     """Coerce raw file contents into the current schema."""
+    overrides = raw.get("strategy_overrides")
     if isinstance(raw.get("keys"), dict):
         return {
             "keys": raw["keys"],
             "default_model": raw.get("default_model"),
+            "strategy_overrides": overrides if isinstance(overrides, dict) else {},
         }
     # Legacy flat format: every top-level string value is a key.
     keys = {k: v for k, v in raw.items() if isinstance(v, str)}
-    return {"keys": keys, "default_model": None}
+    return {"keys": keys, "default_model": None, "strategy_overrides": {}}
 
 
 def _write(data: dict) -> None:
@@ -53,6 +56,8 @@ def _write(data: dict) -> None:
     out = {"keys": data.get("keys", {})}
     if data.get("default_model"):
         out["default_model"] = data["default_model"]
+    if data.get("strategy_overrides"):
+        out["strategy_overrides"] = data["strategy_overrides"]
     _AUTH_FILE.write_text(json.dumps(out, indent=2) + "\n")
     _AUTH_FILE.chmod(0o600)
 
@@ -92,6 +97,25 @@ def set_default_model(model: str | None) -> None:
     data = _load()
     data["default_model"] = model
     _write(data)
+
+
+def get_strategy_override(model: str) -> str | None:
+    """Strategy this user pinned for `model`, if any (see `basemode bench --save`)."""
+    return _load()["strategy_overrides"].get(model.lower())
+
+
+def set_strategy_override(model: str, strategy: str | None) -> None:
+    """Pin (or, with `strategy=None`, unpin) the strategy used for `model`."""
+    data = _load()
+    if strategy is None:
+        data["strategy_overrides"].pop(model.lower(), None)
+    else:
+        data["strategy_overrides"][model.lower()] = strategy
+    _write(data)
+
+
+def list_strategy_overrides() -> dict[str, str]:
+    return dict(_load()["strategy_overrides"])
 
 
 def _mask(value: str) -> str:

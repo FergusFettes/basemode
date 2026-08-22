@@ -71,10 +71,16 @@ def test_claude_5_family_does_not_send_temperature(model: str) -> None:
         "anthropic/claude-opus-4-6",
     ],
 )
-def test_claude_5_family_uses_system_strategy_not_prefill(model: str) -> None:
+def test_claude_5_family_never_uses_prefill(model: str) -> None:
+    """These models reject an assistant prefill, whatever the registry says.
+
+    Which non-prefill strategy they land on is the registry's call
+    (`claude-opus-5` is registered as `few_shot`); the invariant here is only
+    that prefill is never chosen for a `no_prefill` model.
+    """
     from basemode.detect import detect_strategy
 
-    assert detect_strategy(model).name == "system"
+    assert detect_strategy(model).name != "prefill"
 
 
 def test_moonshot_kimi_thinking_keeps_budget_without_control_param() -> None:

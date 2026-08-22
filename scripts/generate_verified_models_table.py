@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
-from basemode.detect import detect_strategy, normalize_model
+from basemode.detect import normalize_model, select_strategy
 from basemode.usage import get_price_info
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -138,7 +138,12 @@ def _build_rows() -> list[Row]:
         # A registry entry can pin the strategy that was actually verified to
         # work (see scripts/discover_new_models.py) — trust that over
         # detect.py's heuristic, which may not have caught up to this model.
-        prompt_method = entry.get("prompt_method") or detect_strategy(model).name
+        # allow_user_override=False: this table is committed data, so it must
+        # not pick up a strategy pinned on whoever's machine regenerates it.
+        prompt_method = (
+            entry.get("prompt_method")
+            or select_strategy(model, allow_user_override=False).name
+        )
 
         or_meta = openrouter.get(entry.get("openrouter_id", ""))
         release_date, release_source = _parse_release_date(or_meta)

@@ -1,5 +1,8 @@
+from dataclasses import dataclass
+
 from litellm.litellm_core_utils.get_llm_provider_logic import get_llm_provider
 
+from .keys import get_strategy_override
 from .strategies import (
     REGISTRY,
     CompletionStrategy,
@@ -8,7 +11,11 @@ from .strategies import (
     PrefillStrategy,
     SystemPromptStrategy,
 )
-from .strategies.compat import KNOWN_ANTHROPIC_MODELS, no_prefill
+from .strategies.compat import (
+    KNOWN_ANTHROPIC_MODELS,
+    no_prefill,
+    registry_prompt_method,
+)
 
 # Models that use the native completions API
 _COMPLETION_MODELS = {
@@ -125,24 +132,75 @@ def normalize_model(model: str) -> str:
     return model
 
 
-def detect_strategy(model: str, override: str | None = None) -> ContinuationStrategy:
-    if override:
-        if override not in REGISTRY:
-            valid = ", ".join(REGISTRY)
-            raise ValueError(f"Unknown strategy {override!r}. Valid: {valid}")
-        return REGISTRY[override]()
+@dataclass(frozen=True)
+class StrategyChoice:
+    """Which strategy was picked for a model, and what decided it."""
 
+    name: str
+    #: "explicit" (caller argument), "user" (`basemode bench --save`),
+    #: "registry" (verified prompt method), or "heuristic" (model-name rules).
+    source: str
+
+
+def _validate(name: str) -> str:
+    if name not in REGISTRY:
+        valid = ", ".join(REGISTRY)
+        raise ValueError(f"Unknown strategy {name!r}. Valid: {valid}")
+    return name
+
+
+def select_strategy(
+    model: str,
+    override: str | None = None,
+    *,
+    allow_user_override: bool = True,
+) -> StrategyChoice:
+    """Resolve the strategy for `model`, reporting where the choice came from.
+
+    Precedence: an explicit argument, then a user-pinned override, then the
+    prompt method verified for this model in the registry, then model-name
+    heuristics. A registry method is skipped when a known quirk rules it out
+    (a `prefill` entry for a model that has since gained `no_prefill`), so
+    stale registry data degrades to the heuristic rather than to a hard error.
+
+    Pass `allow_user_override=False` to ignore this machine's pinned choices —
+    scripts that generate committed data want the shared answer, not one
+    developer's local preference.
+    """
+    if override:
+        return StrategyChoice(_validate(override), "explicit")
+
+    pinned = get_strategy_override(model) if allow_user_override else None
+    if pinned and pinned in REGISTRY and _usable(pinned, model):
+        return StrategyChoice(pinned, "user")
+
+    verified = registry_prompt_method(model)
+    if verified and verified in REGISTRY and _usable(verified, model):
+        return StrategyChoice(verified, "registry")
+
+    return StrategyChoice(_heuristic_strategy(model), "heuristic")
+
+
+def _usable(strategy: str, model: str) -> bool:
+    return not (strategy == "prefill" and no_prefill(model))
+
+
+def detect_strategy(model: str, override: str | None = None) -> ContinuationStrategy:
+    return REGISTRY[select_strategy(model, override).name]()
+
+
+def _heuristic_strategy(model: str) -> str:
     m = model.lower()
 
     if "claude" in m:
         if no_prefill(model):
-            return SystemPromptStrategy()
-        return PrefillStrategy()
+            return SystemPromptStrategy.name
+        return PrefillStrategy.name
 
     if model in _COMPLETION_MODELS or any(s in m for s in _COMPLETION_SUBSTRINGS):
-        return CompletionStrategy()
+        return CompletionStrategy.name
 
     if any(s in m for s in _FIM_SUBSTRINGS):
-        return FIMStrategy()
+        return FIMStrategy.name
 
-    return SystemPromptStrategy()
+    return SystemPromptStrategy.name

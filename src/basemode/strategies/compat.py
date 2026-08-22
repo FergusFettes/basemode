@@ -1,6 +1,7 @@
 """Compatibility helpers for model-specific API quirks.
 
-Per-model quirks (`no_temperature`, `no_prefill`, ...) are sourced from the
+Per-model quirks (`no_temperature`, `no_prefill`, ...) and the verified
+prompt method are sourced from the
 verified-models registry (`data/verified_models_registry.json`, packaged as
 `verified_models_details.json`) rather than hardcoded here — see the
 `"quirks"` field on a registry entry. That registry is kept current by a
@@ -8,6 +9,12 @@ weekly probe (`scripts/probe_model_quirks.py`), which re-tests every known
 quirk and looks for new ones, opening a PR when it finds drift. Regex
 patterns below remain for provider-wide families too broad to enumerate
 individually in the registry.
+
+The registry's `"prompt_method"` field records which strategy was observed
+to actually work for a model — written by `scripts/discover_new_models.py`
+when it probes a newly-listed model, and read back here by
+`registry_prompt_method` so `detect.py` selects that strategy at runtime
+instead of re-deriving a guess from the model name.
 """
 
 import json
@@ -27,8 +34,8 @@ _NO_TEMPERATURE_PATTERNS = [
 
 
 @lru_cache(maxsize=1)
-def _registry_quirks() -> dict[str, frozenset[str]]:
-    """Map model stem -> quirk names, read from the packaged verified-models data."""
+def _registry_rows() -> list[dict]:
+    """Rows of the packaged verified-models data (empty if unreadable)."""
     try:
         text = (
             resources.files("basemode")
@@ -37,16 +44,34 @@ def _registry_quirks() -> dict[str, frozenset[str]]:
         )
         payload = json.loads(text)
     except Exception:
-        return {}
+        return []
+    rows = payload.get("rows")
+    return rows if isinstance(rows, list) else []
 
+
+@lru_cache(maxsize=1)
+def _registry_quirks() -> dict[str, frozenset[str]]:
+    """Map model stem -> quirk names, read from the packaged verified-models data."""
     result: dict[str, set[str]] = {}
-    for row in payload.get("rows", []):
+    for row in _registry_rows():
         model = row.get("model")
         quirks = row.get("quirks") or []
         if isinstance(model, str) and quirks:
             stem = model.lower().split("/")[-1]
             result.setdefault(stem, set()).update(quirks)
     return {stem: frozenset(quirks) for stem, quirks in result.items()}
+
+
+@lru_cache(maxsize=1)
+def _registry_prompt_methods() -> dict[str, str]:
+    """Map model stem -> the prompt method verified to work for it."""
+    result: dict[str, str] = {}
+    for row in _registry_rows():
+        model = row.get("model")
+        method = row.get("prompt_method")
+        if isinstance(model, str) and isinstance(method, str) and method:
+            result[model.lower().split("/")[-1]] = method
+    return result
 
 
 def _model_stem(model: str) -> str:
@@ -56,6 +81,11 @@ def _model_stem(model: str) -> str:
 def model_quirks(model: str) -> frozenset[str]:
     """Registry-declared quirk names for this model (empty if none known)."""
     return _registry_quirks().get(_model_stem(model), frozenset())
+
+
+def registry_prompt_method(model: str) -> str | None:
+    """Strategy name verified to work for this model, if the registry knows one."""
+    return _registry_prompt_methods().get(_model_stem(model))
 
 
 # Known live Anthropic model IDs (from /v1/models, 2026-04-17).
