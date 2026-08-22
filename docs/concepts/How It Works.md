@@ -45,6 +45,12 @@ same definition of "clean" governs both.
 Stream output is post-processed to avoid common boundary artifacts:
 
 - Missing space between prefix and first token
+- Split words at the prefix boundary, where the injected space lands inside a
+  word the model was finishing — `counted, a` + `nd` becoming `a nd` instead of
+  `and`. The join fires when the prefix tail plus the fragment is a dictionary
+  word and the fragment alone is not, so a prefix ending in a standalone letter
+  (`Section B` + ` undefined`) is left alone. It is applied only at the
+  boundary itself, never to later chunks of the same stream.
 - Split compounds like `any one` where the model intended `anyone`
 - Newline artifacts that break prose flow
 

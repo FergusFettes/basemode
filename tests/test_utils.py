@@ -306,3 +306,49 @@ def test_normalize_completion_segment_keeps_finished_hyphenated_word() -> None:
     )
 
     assert result == " a form assembled out of Jiu-Jitsu"
+
+
+def test_normalize_completion_segment_joins_single_letter_prefix_boundary() -> None:
+    result = normalize_completion_segment(
+        "counted, a",
+        " nd recalculated, measured and maximized.",
+    )
+
+    assert result == "nd recalculated, measured and maximized."
+
+
+def test_normalize_completion_segment_keeps_standalone_single_letter() -> None:
+    result = normalize_completion_segment(
+        "The exercise was labelled Section B",
+        " undefined by the institution.",
+    )
+
+    assert result == " undefined by the institution."
+
+
+def test_normalize_completion_segment_keeps_article_before_real_word() -> None:
+    result = normalize_completion_segment(
+        "welfare was measured a",
+        " way from the ratings.",
+    )
+
+    assert result == " way from the ratings."
+
+
+async def test_normalize_stream_joins_single_letter_prefix_boundary() -> None:
+    result = await _collect_stream(
+        "welfare was counted, a",
+        ["nd", " recalculated"],
+    )
+
+    assert result == "nd recalculated"
+
+
+async def test_normalize_stream_repairs_boundary_only_once() -> None:
+    tail = " and the institution counted the ratings again and again."
+    result = await _collect_stream(
+        "welfare was counted, a",
+        ["nd recalculated" + tail, " nd so the ratings held."],
+    )
+
+    assert result == "nd recalculated" + tail + " nd so the ratings held."

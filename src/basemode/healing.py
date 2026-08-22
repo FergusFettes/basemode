@@ -24,7 +24,7 @@ def _is_word(s: str) -> bool:
 
 
 _COMPOUND_RE = re.compile(r"\b([A-Za-z]{2,}) ([A-Za-z]{2,})\b")
-_PREFIX_WORD_RE = re.compile(r"([A-Za-z]{2,})$")
+_PREFIX_WORD_RE = re.compile(r"([A-Za-z]+)$")
 _TRAILING_FRAGMENT_RE = re.compile(r"([A-Za-z]{1,3})$")
 _PREFIX_HYPHEN_FRAGMENT_RE = re.compile(r"([A-Za-z]+-[A-Za-z]{0,2})$")
 _LEADING_WORD_RE = re.compile(r"^ ([A-Za-z]{2,})(\b|(?=[^A-Za-z]))")
@@ -293,8 +293,14 @@ def _repair_prefix_boundary(prefix: str, text: str) -> str:
         return text[1:]
 
     # If the existing prefix ends in a short non-word fragment, the next segment
-    # probably starts with the rest of that same word: "fl" + " anks".
-    if len(left) <= 3 and left.lower() not in _COMMON_SHORT_WORDS and len(right) >= 2:
+    # probably starts with the rest of that same word: "fl" + " anks". Single
+    # letters are excluded — "Section B" + " undefined" is not a split word — so
+    # they are only joined by the dictionary rule below.
+    if (
+        2 <= len(left) <= 3
+        and left.lower() not in _COMMON_SHORT_WORDS
+        and len(right) >= 2
+    ):
         return text[1:]
 
     # Dictionary: join if combined form is a word and the fragment alone is not
@@ -340,6 +346,7 @@ async def normalize_stream_newlines(
     prev_char = prefix[-1] if prefix else ""
     pending_newlines = 0
     pending_text = ""
+    at_boundary = True
 
     async for token in tokens:
         out: list[str] = []
@@ -365,17 +372,20 @@ async def normalize_stream_newlines(
 
         if out:
             pending_text += "".join(out)
-            pending_text = _repair_prefix_boundary(prefix, pending_text)
+            if at_boundary:
+                pending_text = _repair_prefix_boundary(prefix, pending_text)
             pending_text = _join_split_compounds(pending_text)
             pending_text = _fix_space_before_punctuation(pending_text)
             if len(pending_text) > _LOOKBEHIND_CHARS:
                 emit_len = len(pending_text) - _COMMIT_LAG_CHARS
                 yield pending_text[:emit_len]
                 pending_text = pending_text[emit_len:]
+                at_boundary = False
 
     if pending_newlines:
         pending_text += "\n" * pending_newlines
-    pending_text = _repair_prefix_boundary(prefix, pending_text)
+    if at_boundary:
+        pending_text = _repair_prefix_boundary(prefix, pending_text)
     pending_text = _join_split_compounds(pending_text)
     pending_text = _fix_space_before_punctuation(pending_text)
     if pending_text:
