@@ -485,7 +485,7 @@ def models(
         console.print("[yellow]No models found.[/yellow]")
         return
 
-    columns = ["Provider", "Model", "Release Date"]
+    columns = ["Provider", "Model", "Verified", "Release Date"]
     if not full:
         columns.append("Snapshots")
     table = Table(*columns, show_header=True, header_style="bold")
@@ -495,7 +495,8 @@ def models(
         if release_date and e.get("release_date_inferred"):
             release_date = f"~{release_date}"
             inferred_count += 1
-        row = [e["provider"], e["display"], release_date]
+        verified_mark = "[green]✓[/green]" if e.get("verified") else ""
+        row = [e["provider"], e["display"], verified_mark, release_date]
         if not full:
             snapshots = e.get("snapshots") or []
             row.append(str(len(snapshots)) if snapshots else "")
