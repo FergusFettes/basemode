@@ -1,15 +1,21 @@
-"""Compatibility helpers for model-specific API quirks."""
+"""Compatibility helpers for model-specific API quirks.
 
+Per-model quirks (`no_temperature`, `no_prefill`, ...) are sourced from the
+verified-models registry (`data/verified_models_registry.json`, packaged as
+`verified_models_details.json`) rather than hardcoded here — see the
+`"quirks"` field on a registry entry. That registry is kept current by a
+weekly probe (`scripts/probe_model_quirks.py`), which re-tests every known
+quirk and looks for new ones, opening a PR when it finds drift. Regex
+patterns below remain for provider-wide families too broad to enumerate
+individually in the registry.
+"""
+
+import json
 import re
+from functools import lru_cache
+from importlib import resources
 
 from ..params import GenerationParams
-
-# Models with an exact-match temperature lock.
-_NO_TEMPERATURE_MODELS = {
-    "claude-opus-4-7",
-    "kimi-k2.5",
-    "kimi-k2.6",
-}
 
 # Model stems that only accept temperature=1 (probed 2026-04-18):
 #   - gpt-5 / gpt-5-mini / gpt-5-nano / gpt-5-codex  (but NOT gpt-5.1, 5.4, etc.)
@@ -19,14 +25,38 @@ _NO_TEMPERATURE_PATTERNS = [
     re.compile(r"^o\d+(-[a-z]+)?$"),
 ]
 
-# Models that no longer support assistant prefill (must use system strategy instead).
-# Verified 2026-04-17 via API probe: opus 4.7, sonnet 4.6, opus 4.6 reject prefill;
-# the 4.5 and 4.0/4.1 families still accept it.
-NO_PREFILL_MODELS = {
-    "claude-opus-4-7",
-    "claude-sonnet-4-6",
-    "claude-opus-4-6",
-}
+
+@lru_cache(maxsize=1)
+def _registry_quirks() -> dict[str, frozenset[str]]:
+    """Map model stem -> quirk names, read from the packaged verified-models data."""
+    try:
+        text = (
+            resources.files("basemode")
+            .joinpath("data", "verified_models_details.json")
+            .read_text()
+        )
+        payload = json.loads(text)
+    except Exception:
+        return {}
+
+    result: dict[str, set[str]] = {}
+    for row in payload.get("rows", []):
+        model = row.get("model")
+        quirks = row.get("quirks") or []
+        if isinstance(model, str) and quirks:
+            stem = model.lower().split("/")[-1]
+            result.setdefault(stem, set()).update(quirks)
+    return {stem: frozenset(quirks) for stem, quirks in result.items()}
+
+
+def _model_stem(model: str) -> str:
+    return model.lower().split("/")[-1]
+
+
+def model_quirks(model: str) -> frozenset[str]:
+    """Registry-declared quirk names for this model (empty if none known)."""
+    return _registry_quirks().get(_model_stem(model), frozenset())
+
 
 # Known live Anthropic model IDs (from /v1/models, 2026-04-17).
 # Used for best-effort alias resolution — typing `sonnet-4-5` expands to
@@ -63,15 +93,14 @@ _ZAI_DISABLE_THINKING_PREFIXES = (
 )
 
 
-def _model_stem(model: str) -> str:
-    return model.lower().split("/")[-1]
-
-
 def no_temperature(model: str) -> bool:
-    stem = _model_stem(model)
-    if stem in _NO_TEMPERATURE_MODELS:
+    if "no_temperature" in model_quirks(model):
         return True
-    return any(p.match(stem) for p in _NO_TEMPERATURE_PATTERNS)
+    return any(p.match(_model_stem(model)) for p in _NO_TEMPERATURE_PATTERNS)
+
+
+def no_prefill(model: str) -> bool:
+    return "no_prefill" in model_quirks(model)
 
 
 def thinking_kwargs(model: str, max_tokens: int) -> dict:

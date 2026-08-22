@@ -8,7 +8,7 @@ from .strategies import (
     PrefillStrategy,
     SystemPromptStrategy,
 )
-from .strategies.compat import KNOWN_ANTHROPIC_MODELS, NO_PREFILL_MODELS
+from .strategies.compat import KNOWN_ANTHROPIC_MODELS, no_prefill
 
 # Models that use the native completions API
 _COMPLETION_MODELS = {
@@ -133,10 +133,9 @@ def detect_strategy(model: str, override: str | None = None) -> ContinuationStra
         return REGISTRY[override]()
 
     m = model.lower()
-    stem = m.split("/")[-1]
 
     if "claude" in m:
-        if stem in NO_PREFILL_MODELS:
+        if no_prefill(model):
             return SystemPromptStrategy()
         return PrefillStrategy()
 

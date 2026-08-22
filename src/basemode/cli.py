@@ -551,16 +551,19 @@ def _format_float(value: float) -> str:
 def info(model: Annotated[str, typer.Argument(help="Model name to inspect")]) -> None:
     """Show strategy, provider, limits, and known pricing for a model."""
     from .detect import detect_strategy, normalize_model
+    from .strategies.compat import model_quirks
     from .usage import format_per_million, get_price_info
 
     resolved = normalize_model(model)
     strat = detect_strategy(resolved)
     price = get_price_info(resolved)
+    quirks = model_quirks(resolved)
 
     table = Table("Field", "Value", show_header=True, header_style="bold")
     table.add_row("Model", model)
     table.add_row("Resolved", resolved)
     table.add_row("Strategy", strat.name)
+    table.add_row("Quirks", ", ".join(sorted(quirks)) if quirks else "none known")
     table.add_row("Provider", price.provider or "unknown")
     table.add_row("Input price", format_per_million(price.input_cost_per_token))
     table.add_row("Output price", format_per_million(price.output_cost_per_token))

@@ -6,6 +6,7 @@ from importlib import resources
 import litellm
 
 from .settings import settings
+from .strategies.compat import model_quirks
 
 _EXTRA_MODELS_BY_PROVIDER = {
     # Official Gemini API Gemma 4 IDs. LiteLLM 1.83.9 does not list these yet.
@@ -235,6 +236,9 @@ def list_model_picker_entries(
     - provider and key-availability
     - litellm `mode` (chat, image_generation, embedding, ...)
     - verified pricing/reliability/prompt-method when known
+    - `quirks`: known API-acceptance rules (e.g. `no_temperature`,
+      `no_prefill`) a frontend can use to grey out or hide controls the
+      model will reject; see `basemode.strategies.compat.model_quirks`
 
     `text_only` drops non text-generation models (image/audio/embedding/...).
     `compact` collapses dated snapshots (e.g. `gpt-5.4-2026-03-05`) into their
@@ -303,6 +307,7 @@ def list_model_picker_entries(
                 "input_cost_per_token": v.get("input_cost_per_token"),
                 "output_cost_per_token": v.get("output_cost_per_token"),
                 "issues": list(v.get("issues", [])),
+                "quirks": sorted(model_quirks(model)),
             }
         )
 

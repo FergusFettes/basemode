@@ -1,4 +1,4 @@
-.PHONY: build check publish test test-core test-integration lint lint-core models-table health-report discover-models docs-build docs-serve
+.PHONY: build check publish test test-core test-integration lint lint-core models-table health-report discover-models probe-quirks docs-build docs-serve
 
 build:
 	uv build
@@ -30,6 +30,10 @@ health-report:
 
 discover-models:
 	uv run python scripts/discover_new_models.py
+
+probe-quirks:
+	uv run python scripts/probe_model_quirks.py
+	uv run python scripts/generate_verified_models_table.py
 
 docs-build:
 	uv run mkdocs build --strict

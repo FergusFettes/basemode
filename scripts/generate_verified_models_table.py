@@ -40,6 +40,7 @@ class Row:
     reliability: str
     issues: list[str]
     sources: list[str]
+    quirks: list[str]
 
 
 def _load_registry() -> list[dict]:
@@ -170,16 +171,23 @@ def _build_rows() -> list[Row]:
                 reliability=reliability,
                 issues=issues,
                 sources=sources,
+                quirks=sorted(entry.get("quirks", [])),
             )
         )
 
     return sorted(rows, key=lambda r: r.model)
 
 
+def _format_quirks(quirks: list[str]) -> str:
+    if not quirks:
+        return ""
+    return ", ".join(f"`{q}`" for q in quirks)
+
+
 def _render_table(rows: list[Row]) -> str:
     lines = [
-        "| Model | Input cost (/1M) | Output cost (/1M) | Release date | Prompt method | Reliability |",
-        "|---|---:|---:|---|---|---|",
+        "| Model | Input cost (/1M) | Output cost (/1M) | Release date | Prompt method | Reliability | Quirks |",
+        "|---|---:|---:|---|---|---|---|",
     ]
     for row in rows:
         lines.append(
@@ -192,6 +200,7 @@ def _render_table(rows: list[Row]) -> str:
                     row.release_date or "unknown",
                     f"`{row.prompt_method}`",
                     row.reliability,
+                    _format_quirks(row.quirks),
                 ]
             )
             + " |"
@@ -243,6 +252,7 @@ def _write_details(rows: list[Row]) -> None:
                 "reliability": r.reliability,
                 "issues": r.issues,
                 "sources": r.sources,
+                "quirks": r.quirks,
             }
             for r in rows
         ],

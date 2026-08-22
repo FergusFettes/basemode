@@ -40,6 +40,43 @@ def test_moonshot_kimi_k26_does_not_send_temperature_or_thinking_param() -> None
     assert "extra_body" not in kwargs
 
 
+def test_moonshot_kimi_k3_does_not_send_temperature() -> None:
+    kwargs = build_kwargs(GenerationParams(model="moonshot/kimi-k3", max_tokens=200))
+
+    assert "temperature" not in kwargs
+
+
+@pytest.mark.parametrize(
+    "model",
+    [
+        "anthropic/claude-sonnet-5",
+        "anthropic/claude-opus-5",
+        "anthropic/claude-fable-5",
+    ],
+)
+def test_claude_5_family_does_not_send_temperature(model: str) -> None:
+    kwargs = build_kwargs(GenerationParams(model=model, max_tokens=200))
+
+    assert "temperature" not in kwargs
+
+
+@pytest.mark.parametrize(
+    "model",
+    [
+        "anthropic/claude-sonnet-5",
+        "anthropic/claude-opus-5",
+        "anthropic/claude-fable-5",
+        "anthropic/claude-opus-4-7",
+        "anthropic/claude-sonnet-4-6",
+        "anthropic/claude-opus-4-6",
+    ],
+)
+def test_claude_5_family_uses_system_strategy_not_prefill(model: str) -> None:
+    from basemode.detect import detect_strategy
+
+    assert detect_strategy(model).name == "system"
+
+
 def test_moonshot_kimi_thinking_keeps_budget_without_control_param() -> None:
     kwargs = build_kwargs(
         GenerationParams(model="moonshot/kimi-k2-thinking", max_tokens=200)
