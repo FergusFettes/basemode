@@ -168,6 +168,28 @@ def test_render_markdown_includes_health_metrics() -> None:
     assert "30.0" in page
 
 
+def test_render_html_includes_metrics_and_escapes_model_names() -> None:
+    page = mr.render_html(
+        [
+            {
+                "model": "provider/model<script>",
+                "runs": 2,
+                "ok": 1,
+                "success_rate": 0.5,
+                "last_run_at": "2026-08-11T00:00:00Z",
+                "last_status": "xfail_provider_quota",
+                "median_time_to_first_token_s": 0.3,
+                "median_output_tokens_per_s": 30.0,
+            }
+        ]
+    )
+
+    assert "<!doctype html>" in page
+    assert "provider/model&lt;script&gt;" in page
+    assert "0.300s" in page
+    assert "30.0" in page
+
+
 def test_load_rows_returns_empty_when_no_history_file(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr(mr, "HISTORY_PATH", tmp_path / "missing.jsonl")
     assert mr.load_rows() == []
