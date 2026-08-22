@@ -4,6 +4,7 @@ from collections.abc import AsyncGenerator
 
 import litellm
 
+from ..exceptions import EmptyCompletionError
 from ..params import GenerationParams
 from .base import ContinuationStrategy
 
@@ -41,7 +42,16 @@ class FIMStrategy(ContinuationStrategy):
             stream=True,
             **params.extra,
         )
+        yielded = False
+        finish_reason = None
         async for chunk in response:
-            token = chunk.choices[0].text or ""
+            choice = chunk.choices[0]
+            finish_reason = getattr(choice, "finish_reason", None) or finish_reason
+            token = choice.text or ""
             if token:
+                yielded = True
                 yield token
+        if not yielded:
+            raise EmptyCompletionError(
+                model=params.model, strategy=self.name, finish_reason=finish_reason
+            )

@@ -5,6 +5,7 @@ from collections.abc import AsyncGenerator
 
 import litellm
 
+from ..exceptions import EmptyCompletionError
 from ..healing import needs_leading_space, normalize_prefix
 from ..params import GenerationParams
 from .base import ContinuationStrategy
@@ -68,11 +69,20 @@ class FewShotStrategy(ContinuationStrategy):
             **build_kwargs(params),
         )
         first = True
+        yielded = False
+        finish_reason = None
         async for chunk in response:
-            token = chunk.choices[0].delta.content or ""
+            choice = chunk.choices[0]
+            finish_reason = getattr(choice, "finish_reason", None) or finish_reason
+            token = choice.delta.content or ""
             if not token:
                 continue
             if first and needs_leading_space(prefix, token):
                 token = " " + token
             first = False
+            yielded = True
             yield token
+        if not yielded:
+            raise EmptyCompletionError(
+                model=params.model, strategy=self.name, finish_reason=finish_reason
+            )

@@ -5,6 +5,7 @@ Public API exports:
 ```python
 from basemode import (
     ContinuationScore,
+    EmptyCompletionError,
     GenerationParams,
     StrategyChoice,
     bench_model,
@@ -32,6 +33,21 @@ async for token in continue_text(
     temperature=0.9,
 ):
     print(token, end="", flush=True)
+```
+
+If a provider stream ends without yielding any content — a content filter, a
+stop sequence hit immediately, a truncated response — the strategy raises
+`EmptyCompletionError` instead of silently completing with nothing. It carries
+`model`, `strategy`, and `finish_reason` (when the provider reported one):
+
+```python
+from basemode import EmptyCompletionError, continue_text
+
+try:
+    async for token in continue_text(prefix, model="moonshot/kimi-k3"):
+        print(token, end="")
+except EmptyCompletionError as exc:
+    print(f"no tokens from {exc.model} ({exc.strategy}): {exc.finish_reason}")
 ```
 
 ## `branch_text`

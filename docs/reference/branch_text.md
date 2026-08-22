@@ -27,4 +27,6 @@ Yields `(branch_idx, token)` tuples until all branches finish.
 - Stream order is interleaved across branches.
 - `branch_idx` is zero-based.
 - `n` must be at least one; a provider error from any branch is propagated and cancels the rest.
+  This includes `EmptyCompletionError` (with `model`, `strategy`, and `finish_reason`) when
+  a branch's stream ends without yielding any content.
 - `strict_max_tokens=True` stops each visible branch stream at `max_tokens` using client-side token counting.

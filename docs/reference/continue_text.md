@@ -26,3 +26,5 @@ Stream a single continuation token-by-token.
 - `rewind=True` rewinds short trailing word fragments for `system`/`few_shot` strategies.
 - `strict_max_tokens=True` stops the visible stream at `max_tokens` using client-side token counting.
 - `extra` is forwarded to LiteLLM request kwargs.
+- Raises `EmptyCompletionError` (with `model`, `strategy`, and `finish_reason`) if the
+  provider stream ends without yielding any content.

@@ -27,6 +27,7 @@ _setup_logging()
 
 __all__ = [
     "ContinuationScore",
+    "EmptyCompletionError",
     "GenerationParams",
     "StrategyChoice",
     "bench_model",
@@ -75,4 +76,8 @@ def __getattr__(name: str):
         from .params import GenerationParams
 
         return GenerationParams
+    if name == "EmptyCompletionError":
+        from .exceptions import EmptyCompletionError
+
+        return EmptyCompletionError
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
