@@ -78,6 +78,9 @@ async def branch_text(
     **extra,
 ) -> AsyncGenerator[tuple[int, str], None]:
     """Stream n parallel continuations as (branch_idx, token) tuples."""
+    if n < 1:
+        raise ValueError("n must be at least 1")
+
     litellm.suppress_debug_info = True
     load_into_environ()
     model = normalize_model(model)
@@ -86,29 +89,38 @@ async def branch_text(
     )
     strat = detect_strategy(model, strategy)
 
-    queue: asyncio.Queue[tuple[int, str] | None] = asyncio.Queue()
+    queue: asyncio.Queue[tuple[int, str] | BaseException | None] = asyncio.Queue()
     generation_prefix, rewind_fragment = _generation_prefix(prefix, strat.name, rewind)
 
     async def run_branch(idx: int) -> None:
-        raw_tokens = strat.stream(generation_prefix, params)
-        healed_tokens = strip_rewind_overlap(raw_tokens, rewind_fragment)
-        stream = normalize_stream_newlines(prefix, healed_tokens)
-        if strict_max_tokens:
-            stream = _enforce_visible_token_cap(stream, model, max_tokens)
-        async for token in stream:
-            await queue.put((idx, token))
-        await queue.put(None)
+        try:
+            raw_tokens = strat.stream(generation_prefix, params)
+            healed_tokens = strip_rewind_overlap(raw_tokens, rewind_fragment)
+            stream = normalize_stream_newlines(prefix, healed_tokens)
+            if strict_max_tokens:
+                stream = _enforce_visible_token_cap(stream, model, max_tokens)
+            async for token in stream:
+                await queue.put((idx, token))
+        except Exception as exc:
+            await queue.put(exc)
+        finally:
+            await queue.put(None)
 
     tasks = [asyncio.create_task(run_branch(i)) for i in range(n)]
-    done = 0
-    while done < n:
-        item = await queue.get()
-        if item is None:
-            done += 1
-        else:
-            yield item
-
-    await asyncio.gather(*tasks)
+    try:
+        done = 0
+        while done < n:
+            item = await queue.get()
+            if item is None:
+                done += 1
+            elif isinstance(item, BaseException):
+                raise item
+            else:
+                yield item
+    finally:
+        for task in tasks:
+            task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
 
 
 def _generation_prefix(

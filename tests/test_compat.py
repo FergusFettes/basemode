@@ -1,3 +1,5 @@
+import pytest
+
 from basemode.params import GenerationParams
 from basemode.strategies.compat import build_kwargs
 
@@ -151,3 +153,33 @@ async def test_continue_text_loads_persisted_keys(monkeypatch) -> None:
     assert calls["count"] == 1
     assert cont.litellm.suppress_debug_info is True
     assert "".join(out)
+
+
+async def test_branch_text_propagates_worker_errors(monkeypatch) -> None:
+    from basemode import continue_ as cont
+    from basemode.params import GenerationParams
+
+    class FailingStrategy:
+        name = "system"
+
+        async def stream(self, prefix: str, params: GenerationParams):
+            raise RuntimeError("provider unavailable")
+            yield  # pragma: no cover - keeps this an async generator
+
+    monkeypatch.setattr(cont, "load_into_environ", lambda: None)
+    monkeypatch.setattr(cont, "normalize_model", lambda model: model)
+    monkeypatch.setattr(
+        cont, "detect_strategy", lambda model, override=None: FailingStrategy()
+    )
+
+    with pytest.raises(RuntimeError, match="provider unavailable"):
+        async for _item in cont.branch_text("prefix", n=2):
+            pass
+
+
+async def test_branch_text_requires_a_positive_branch_count() -> None:
+    from basemode import continue_ as cont
+
+    with pytest.raises(ValueError, match="at least 1"):
+        async for _item in cont.branch_text("prefix", n=0):
+            pass
