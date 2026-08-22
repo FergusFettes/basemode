@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-"""Discover new OpenAI/Anthropic models, probe them, and register the ones that work.
+"""Discover new models across every keyed provider, probe them, and register
+the ones that work.
 
-For each provider with an API key available:
+For each provider with an API key configured (see `PROVIDER_ENDPOINTS` in
+`basemode.live_models`):
 1. List models from the provider's own /v1/models endpoint (the source of truth
    for "latest", ahead of LiteLLM's/OpenRouter's baked-in metadata).
 2. Drop anything already in the verified-models registry or previously rejected.
@@ -42,14 +44,16 @@ if str(ROOT / "src") not in sys.path:
 from basemode.continue_ import continue_text  # noqa: E402
 from basemode.detect import detect_strategy, normalize_model  # noqa: E402
 from basemode.keys import load_into_environ  # noqa: E402
+from basemode.live_models import (  # noqa: E402
+    PROVIDER_ENDPOINTS,
+    LiveModelsError,
+    fetch_live_models,
+)
+from basemode.settings import settings  # noqa: E402
 
 REGISTRY_PATH = ROOT / "data" / "verified_models_registry.json"
 REJECTED_PATH = ROOT / "data" / "verified_models_rejected.json"
 SUMMARY_PATH = ROOT / "dist" / "model-discovery" / "summary.md"
-
-OPENAI_MODELS_URL = "https://api.openai.com/v1/models"
-ANTHROPIC_MODELS_URL = "https://api.anthropic.com/v1/models"
-ANTHROPIC_VERSION = "2023-06-01"
 
 DEFAULT_LIMIT = 6
 PROBE_PREFIX = "The quick brown fox jumps over the lazy"
@@ -155,39 +159,11 @@ def _is_openai_blacklisted(model_id: str) -> bool:
     return any(substr in lowered for substr in _OPENAI_BLACKLIST_SUBSTRINGS)
 
 
-def _fetch_openai_models(api_key: str) -> list[dict]:
-    req = urllib.request.Request(
-        OPENAI_MODELS_URL,
-        headers={"Authorization": f"Bearer {api_key}"},
-    )
-    with urllib.request.urlopen(req, timeout=25) as resp:
-        payload = json.loads(resp.read().decode("utf-8"))
-    return list(payload.get("data", []))
-
-
-def _fetch_anthropic_models(api_key: str) -> list[dict]:
-    req = urllib.request.Request(
-        ANTHROPIC_MODELS_URL,
-        headers={
-            "x-api-key": api_key,
-            "anthropic-version": ANTHROPIC_VERSION,
-        },
-    )
-    with urllib.request.urlopen(req, timeout=25) as resp:
-        payload = json.loads(resp.read().decode("utf-8"))
-    return list(payload.get("data", []))
-
-
-def _openai_created(entry: dict) -> float:
-    return float(entry.get("created") or 0)
-
-
-def _anthropic_created(entry: dict) -> float:
-    created_at = entry.get("created_at")
-    if not created_at:
+def _release_date_ts(release_date: str | None) -> float:
+    if not release_date:
         return 0.0
     try:
-        return datetime.fromisoformat(created_at.replace("Z", "+00:00")).timestamp()
+        return datetime.fromisoformat(release_date).timestamp()
     except ValueError:
         return 0.0
 
@@ -195,7 +171,7 @@ def _anthropic_created(entry: dict) -> float:
 def select_candidates(
     *,
     provider: str,
-    raw_models: list[dict],
+    raw_models: list,  # list[basemode.live_models.LiveModel]
     known: set[str],
     rejected: set[str],
     limit: int,
@@ -204,13 +180,13 @@ def select_candidates(
     candidates: list[Candidate] = []
 
     for entry in raw_models:
-        raw_id = str(entry.get("id") or "")
+        raw_id = entry.id
         if not raw_id:
             continue
         if provider == "openai" and _is_openai_blacklisted(raw_id):
             continue
 
-        normalized_id = normalize_model(raw_id)
+        normalized_id = normalize_model(f"{provider}/{raw_id}")
         if not normalized_id.startswith(f"{provider}/"):
             # normalize_model didn't recognize it as belonging to this
             # provider (e.g. a stray non-chat id) — skip rather than guess.
@@ -218,17 +194,12 @@ def select_candidates(
         if normalized_id in known or normalized_id in rejected:
             continue
 
-        created = (
-            _openai_created(entry)
-            if provider == "openai"
-            else _anthropic_created(entry)
-        )
         candidates.append(
             Candidate(
                 provider=provider,
                 raw_id=raw_id,
                 normalized_id=normalized_id,
-                created=created,
+                created=_release_date_ts(entry.release_date),
             )
         )
 
@@ -244,21 +215,32 @@ def _looks_clean(text: str) -> tuple[bool, str | None]:
     return True, None
 
 
+PROBE_TIMEOUT = 60  # seconds; a stalled provider stream shouldn't hang the whole run
+
+
+async def _collect_chunks(candidate: Candidate, strategy: str | None) -> list[str]:
+    return [
+        token
+        async for token in continue_text(
+            PROBE_PREFIX,
+            model=candidate.normalized_id,
+            max_tokens=PROBE_MAX_TOKENS,
+            temperature=PROBE_TEMPERATURE,
+            strategy=strategy,
+        )
+    ]
+
+
 async def _probe_strategy(
     candidate: Candidate, strategy: str | None
 ) -> tuple[bool, str, str]:
     """Returns (worked, detail, sample_text) for a single strategy attempt."""
     try:
-        chunks = [
-            token
-            async for token in continue_text(
-                PROBE_PREFIX,
-                model=candidate.normalized_id,
-                max_tokens=PROBE_MAX_TOKENS,
-                temperature=PROBE_TEMPERATURE,
-                strategy=strategy,
-            )
-        ]
+        chunks = await asyncio.wait_for(
+            _collect_chunks(candidate, strategy), timeout=PROBE_TIMEOUT
+        )
+    except TimeoutError:
+        return False, f"timed out after {PROBE_TIMEOUT}s", ""
     except Exception as exc:  # provider/strategy error
         return False, f"{type(exc).__name__}: {exc}", ""
 
@@ -321,30 +303,22 @@ def _fetch_openrouter_index() -> dict[str, dict]:
         return {}
 
 
-async def _run(limit: int) -> int:
+async def _run(limit: int, providers: set[str] | None = None) -> int:
     load_into_environ()  # pull persisted keys (~/.config/basemode/auth.json) in, if any
     registry = _load_json(REGISTRY_PATH, {"models": []})
     rejected = _load_json(REJECTED_PATH, {"models": []})
     known = _known_models(registry)
     already_rejected = _rejected_models(rejected)
 
-    provider_keys = {
-        "openai": os.environ.get("OPENAI_API_KEY"),
-        "anthropic": os.environ.get("ANTHROPIC_API_KEY"),
-    }
-    fetchers = {
-        "openai": _fetch_openai_models,
-        "anthropic": _fetch_anthropic_models,
-    }
-
     all_candidates: list[Candidate] = []
-    for provider, api_key in provider_keys.items():
-        if not api_key:
+    for provider in sorted(providers if providers is not None else PROVIDER_ENDPOINTS):
+        api_key = settings.api_key_for(provider)
+        if not api_key and provider != "openrouter":
             print(f"skip {provider}: no API key configured")
             continue
         try:
-            raw_models = fetchers[provider](api_key)
-        except (urllib.error.URLError, json.JSONDecodeError) as exc:
+            raw_models = fetch_live_models(provider, api_key)
+        except LiveModelsError as exc:
             print(f"skip {provider}: failed to list models ({exc})")
             continue
 
@@ -377,7 +351,9 @@ async def _run(limit: int) -> int:
             or_id = _guess_openrouter_id(candidate.normalized_id, openrouter_index)
             if or_id:
                 entry["openrouter_id"] = or_id
-            entry["pricing_url"] = _PRICING_URLS[candidate.provider]
+            pricing_url = _PRICING_URLS.get(candidate.provider)
+            if pricing_url:
+                entry["pricing_url"] = pricing_url
             if strategy_used:
                 entry["prompt_method"] = strategy_used
             registry.setdefault("models", []).append(entry)
@@ -435,8 +411,20 @@ def main() -> int:
         default=int(os.environ.get("DISCOVER_MODELS_LIMIT") or DEFAULT_LIMIT),
         help="Max candidates to probe per provider (default: %(default)s)",
     )
+    parser.add_argument(
+        "--providers",
+        type=str,
+        default=None,
+        help="Comma-separated subset of providers to probe (default: all keyed "
+        f"providers, from {', '.join(sorted(PROVIDER_ENDPOINTS))})",
+    )
     args = parser.parse_args()
-    return asyncio.run(_run(args.limit))
+    providers = (
+        {p.strip() for p in args.providers.split(",") if p.strip()}
+        if args.providers
+        else None
+    )
+    return asyncio.run(_run(args.limit, providers=providers))
 
 
 if __name__ == "__main__":
