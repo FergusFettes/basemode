@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-08-14T04:47:54.699154+00:00",
+  "generated_at_utc": "2026-08-22T12:24:28.576873+00:00",
   "rows": [
     {
       "model": "anthropic/claude-fable-5",
@@ -200,6 +200,21 @@
       ]
     },
     {
+      "model": "gemini/gemini-2.5-flash-lite",
+      "input_cost_per_token": 1e-07,
+      "output_cost_per_token": 4e-07,
+      "release_date": "2025-07-22",
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "release_date_is_openrouter_created"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
       "model": "gemini/gemini-2.5-pro",
       "input_cost_per_token": 1.25e-06,
       "output_cost_per_token": 1e-05,
@@ -216,9 +231,238 @@
       ]
     },
     {
-      "model": "gemini/gemma-4-26b-a4b-it",
-      "input_cost_per_token": 1.2e-07,
+      "model": "gemini/gemini-3-flash-preview",
+      "input_cost_per_token": 5e-07,
+      "output_cost_per_token": 3e-06,
+      "release_date": "2025-12-17",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "gemini/gemini-3-pro-image",
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 1.2e-05,
+      "release_date": "2026-05-28",
+      "prompt_method": "prefill",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "gemini/gemini-3-pro-image-preview",
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 1.2e-05,
+      "release_date": "2026-05-28",
+      "prompt_method": "prefill",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "gemini/gemini-3.1-flash-image",
+      "input_cost_per_token": 5e-07,
+      "output_cost_per_token": 3e-06,
+      "release_date": "2026-05-28",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "gemini/gemini-3.1-flash-image-preview",
+      "input_cost_per_token": 5e-07,
+      "output_cost_per_token": 3e-06,
+      "release_date": "2026-05-28",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "gemini/gemini-3.1-flash-lite",
+      "input_cost_per_token": 2.5e-07,
+      "output_cost_per_token": 1.5e-06,
+      "release_date": "2026-06-30",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "gemini/gemini-3.1-flash-lite-image",
+      "input_cost_per_token": 2.5e-07,
+      "output_cost_per_token": 1.5e-06,
+      "release_date": "2026-06-30",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "gemini/gemini-3.1-flash-lite-preview",
+      "input_cost_per_token": 2.5e-07,
+      "output_cost_per_token": 1.5e-06,
+      "release_date": "2026-05-07",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "gemini/gemini-3.1-pro-preview",
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 1.2e-05,
+      "release_date": "2026-02-19",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "gemini/gemini-3.1-pro-preview-customtools",
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 1.2e-05,
+      "release_date": "2026-02-19",
+      "prompt_method": "prefill",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "gemini/gemini-3.5-flash",
+      "input_cost_per_token": 1.5e-06,
+      "output_cost_per_token": 9e-06,
+      "release_date": "2026-07-21",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "gemini/gemini-3.5-flash-lite",
+      "input_cost_per_token": 3e-07,
+      "output_cost_per_token": 2.5e-06,
+      "release_date": "2026-07-21",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "gemini/gemini-3.6-flash",
+      "input_cost_per_token": 7.5e-07,
+      "output_cost_per_token": 3.75e-06,
+      "release_date": "2026-07-21",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "gemini/gemini-flash-lite-latest",
+      "input_cost_per_token": 1e-07,
       "output_cost_per_token": 4e-07,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "gemini/gemini-pro-latest",
+      "input_cost_per_token": 1.25e-06,
+      "output_cost_per_token": 1e-05,
+      "release_date": "2026-04-27",
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "release_date_is_openrouter_created"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "gemini/gemini-robotics-er-1.6-preview",
+      "input_cost_per_token": 1e-06,
+      "output_cost_per_token": 5e-06,
+      "release_date": null,
+      "prompt_method": "prefill",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "gemini/gemini-robotics-er-2-preview",
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 1e-05,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "gemini/gemma-4-26b-a4b-it",
+      "input_cost_per_token": 7e-08,
+      "output_cost_per_token": 3.4e-07,
       "release_date": "2026-04-03",
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -247,6 +491,83 @@
         "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://ai.google.dev/gemini-api/docs/pricing"
+      ]
+    },
+    {
+      "model": "gemini/nano-banana-pro-preview",
+      "input_cost_per_token": null,
+      "output_cost_per_token": null,
+      "release_date": null,
+      "prompt_method": "prefill",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_price",
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "groq/allam-2-7b",
+      "input_cost_per_token": null,
+      "output_cost_per_token": null,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_price",
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "groq/groq/compound",
+      "input_cost_per_token": null,
+      "output_cost_per_token": null,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_price",
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "groq/groq/compound-mini",
+      "input_cost_per_token": null,
+      "output_cost_per_token": null,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_price",
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "groq/qwen/qwen3.6-27b",
+      "input_cost_per_token": 6e-07,
+      "output_cost_per_token": 3e-06,
+      "release_date": "2026-04-22",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
       ]
     },
     {
@@ -282,6 +603,295 @@
       ]
     },
     {
+      "model": "moonshot/kimi-k2.6",
+      "input_cost_per_token": 9.5e-07,
+      "output_cost_per_token": 4e-06,
+      "release_date": "2026-04-20",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "moonshot/kimi-k3",
+      "input_cost_per_token": 3e-06,
+      "output_cost_per_token": 1.5e-05,
+      "release_date": "2026-07-15",
+      "prompt_method": "prefill",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "moonshot/moonshot-v1-128k",
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 5e-06,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "moonshot/moonshot-v1-128k-vision-preview",
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 5e-06,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "moonshot/moonshot-v1-32k",
+      "input_cost_per_token": 1e-06,
+      "output_cost_per_token": 3e-06,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "moonshot/moonshot-v1-32k-vision-preview",
+      "input_cost_per_token": 1e-06,
+      "output_cost_per_token": 3e-06,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "moonshot/moonshot-v1-8k",
+      "input_cost_per_token": 2e-07,
+      "output_cost_per_token": 2e-06,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "moonshot/moonshot-v1-8k-vision-preview",
+      "input_cost_per_token": 2e-07,
+      "output_cost_per_token": 2e-06,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "moonshot/moonshot-v1-auto",
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 5e-06,
+      "release_date": "2023-11-08",
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "release_date_is_openrouter_created"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "openai/gpt-4-turbo-2024-04-09",
+      "input_cost_per_token": 1e-05,
+      "output_cost_per_token": 3e-05,
+      "release_date": "2024-04-09",
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "release_date_is_openrouter_created"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-4.1",
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 8e-06,
+      "release_date": "2025-04-14",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-4.1-2025-04-14",
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 8e-06,
+      "release_date": "2025-04-14",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-4.1-mini",
+      "input_cost_per_token": 4e-07,
+      "output_cost_per_token": 1.6e-06,
+      "release_date": "2025-04-14",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-4.1-mini-2025-04-14",
+      "input_cost_per_token": 4e-07,
+      "output_cost_per_token": 1.6e-06,
+      "release_date": "2025-04-14",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-4.1-nano",
+      "input_cost_per_token": 1e-07,
+      "output_cost_per_token": 4e-07,
+      "release_date": "2025-04-14",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-4.1-nano-2025-04-14",
+      "input_cost_per_token": 1e-07,
+      "output_cost_per_token": 4e-07,
+      "release_date": "2025-04-14",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-4o",
+      "input_cost_per_token": 2.5e-06,
+      "output_cost_per_token": 1e-05,
+      "release_date": "2024-11-20",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-4o-2024-05-13",
+      "input_cost_per_token": 5e-06,
+      "output_cost_per_token": 1.5e-05,
+      "release_date": "2024-05-13",
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "release_date_is_openrouter_created"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-4o-2024-08-06",
+      "input_cost_per_token": 2.5e-06,
+      "output_cost_per_token": 1e-05,
+      "release_date": "2024-08-06",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-4o-2024-11-20",
+      "input_cost_per_token": 2.5e-06,
+      "output_cost_per_token": 1e-05,
+      "release_date": "2024-11-20",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
       "model": "openai/gpt-4o-mini",
       "input_cost_per_token": 1.5e-07,
       "output_cost_per_token": 6e-07,
@@ -298,10 +908,138 @@
       ]
     },
     {
+      "model": "openai/gpt-4o-mini-2024-07-18",
+      "input_cost_per_token": 1.5e-07,
+      "output_cost_per_token": 6e-07,
+      "release_date": "2024-07-18",
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "release_date_is_openrouter_created"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-5.1",
+      "input_cost_per_token": 1.25e-06,
+      "output_cost_per_token": 1e-05,
+      "release_date": "2025-12-04",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-5.1-2025-11-13",
+      "input_cost_per_token": 1.25e-06,
+      "output_cost_per_token": 1e-05,
+      "release_date": "2025-11-13",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-5.2",
+      "input_cost_per_token": 1.75e-06,
+      "output_cost_per_token": 1.4e-05,
+      "release_date": "2026-01-14",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-5.2-2025-12-11",
+      "input_cost_per_token": 1.75e-06,
+      "output_cost_per_token": 1.4e-05,
+      "release_date": "2025-12-11",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-5.2-pro",
+      "input_cost_per_token": 2.1e-05,
+      "output_cost_per_token": 0.000168,
+      "release_date": "2025-12-11",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-5.2-pro-2025-12-11",
+      "input_cost_per_token": 2.1e-05,
+      "output_cost_per_token": 0.000168,
+      "release_date": "2025-12-11",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-5.3-codex",
+      "input_cost_per_token": 1.75e-06,
+      "output_cost_per_token": 1.4e-05,
+      "release_date": "2026-02-24",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
       "model": "openai/gpt-5.4",
       "input_cost_per_token": 2.5e-06,
       "output_cost_per_token": 1.5e-05,
       "release_date": "2026-04-21",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ]
+    },
+    {
+      "model": "openai/gpt-5.4-2026-03-05",
+      "input_cost_per_token": 2.5e-06,
+      "output_cost_per_token": 1.5e-05,
+      "release_date": "2026-03-05",
       "prompt_method": "system",
       "reliability": "\u2713",
       "issues": [],
@@ -425,8 +1163,8 @@
     },
     {
       "model": "openrouter/moonshotai/kimi-k2.6",
-      "input_cost_per_token": 9.5e-07,
-      "output_cost_per_token": 4e-06,
+      "input_cost_per_token": 5.415e-07,
+      "output_cost_per_token": 2.28e-06,
       "release_date": "2026-04-20",
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -437,6 +1175,127 @@
         "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://openrouter.ai/moonshotai/kimi-k2.6"
+      ]
+    },
+    {
+      "model": "xai/grok-4.20-0309-non-reasoning",
+      "input_cost_per_token": 1.25e-06,
+      "output_cost_per_token": 2.5e-06,
+      "release_date": "2026-03-09",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "xai/grok-4.20-0309-reasoning",
+      "input_cost_per_token": 1.25e-06,
+      "output_cost_per_token": 2.5e-06,
+      "release_date": "2026-03-09",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "xai/grok-4.3",
+      "input_cost_per_token": 1.25e-06,
+      "output_cost_per_token": 2.5e-06,
+      "release_date": "2026-04-30",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "xai/grok-4.5",
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 6e-06,
+      "release_date": "2026-07-08",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "xai/grok-4.6",
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 6e-06,
+      "release_date": "2026-08-10",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "xai/grok-build-0.1",
+      "input_cost_per_token": 1e-06,
+      "output_cost_per_token": 2e-06,
+      "release_date": "2026-05-20",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "zai/glm-4.5",
+      "input_cost_per_token": 6e-07,
+      "output_cost_per_token": 2.2e-06,
+      "release_date": "2025-08-11",
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "release_date_is_openrouter_created"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "zai/glm-4.5-air",
+      "input_cost_per_token": 2e-07,
+      "output_cost_per_token": 1.1e-06,
+      "release_date": "2025-07-25",
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "release_date_is_openrouter_created"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "zai/glm-4.6",
+      "input_cost_per_token": 6e-07,
+      "output_cost_per_token": 2.2e-06,
+      "release_date": "2025-12-08",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
       ]
     },
     {
@@ -465,6 +1324,49 @@
         "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://docs.z.ai/guides/overview/pricing"
+      ]
+    },
+    {
+      "model": "zai/glm-5-turbo",
+      "input_cost_per_token": 1.2e-06,
+      "output_cost_per_token": 4e-06,
+      "release_date": "2026-03-15",
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "price_not_from_litellm"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "zai/glm-5.1",
+      "input_cost_per_token": 1.4e-06,
+      "output_cost_per_token": 4.4e-06,
+      "release_date": "2026-04-06",
+      "prompt_method": "system",
+      "reliability": "\u2713",
+      "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ]
+    },
+    {
+      "model": "zai/glm-5.2",
+      "input_cost_per_token": 9.66e-07,
+      "output_cost_per_token": 3.036e-06,
+      "release_date": "2026-06-16",
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "price_not_from_litellm"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
       ]
     }
   ]

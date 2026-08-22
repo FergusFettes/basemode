@@ -1,6 +1,606 @@
 {
   "models": [
     {
+      "model": "deepseek/deepseek-v4-flash",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:05:01.728230+00:00"
+    },
+    {
+      "model": "deepseek/deepseek-v4-flash-vision-exp",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:05:04.392349+00:00"
+    },
+    {
+      "model": "deepseek/deepseek-v4-pro",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:05:09.811174+00:00"
+    },
+    {
+      "model": "gemini/antigravity-preview-05-2026",
+      "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Multiturn chat is not enabled for models/antigravity-preview-05-2026\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:05:10.655922+00:00"
+    },
+    {
+      "model": "gemini/aqa",
+      "reason": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/aqa is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/aqa is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "prefill": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/aqa is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "few_shot": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/aqa is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:05:11.002694+00:00"
+    },
+    {
+      "model": "gemini/deep-research-max-preview-04-2026",
+      "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:05:11.720354+00:00"
+    },
+    {
+      "model": "gemini/deep-research-preview-04-2026",
+      "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:11:01.983335+00:00"
+    },
+    {
+      "model": "gemini/deep-research-pro-preview-12-2025",
+      "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:11:02.560053+00:00"
+    },
+    {
+      "model": "gemini/gemini-2.5-computer-use-preview-10-2025",
+      "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model requires the use of the Computer Use tool. See https://ai.google.dev/gemini-api/docs/computer-use#send-request for instructions on adding the tool. If you want to use a custom set of functions instead, see https://ai.google.dev/gemini-api/docs/computer-use#custom-functions.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model requires the use of the Computer Use tool. See https://ai.google.dev/gemini-api/docs/computer-use#send-request for instructions on adding the tool. If you want to use a custom set of functions instead, see https://ai.google.dev/gemini-api/docs/computer-use#custom-functions.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model requires the use of the Computer Use tool. See https://ai.google.dev/gemini-api/docs/computer-use#send-request for instructions on adding the tool. If you want to use a custom set of functions instead, see https://ai.google.dev/gemini-api/docs/computer-use#custom-functions.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model requires the use of the Computer Use tool. See https://ai.google.dev/gemini-api/docs/computer-use#send-request for instructions on adding the tool. If you want to use a custom set of functions instead, see https://ai.google.dev/gemini-api/docs/computer-use#custom-functions.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:11:03.197288+00:00"
+    },
+    {
+      "model": "gemini/gemini-2.5-flash-image",
+      "reason": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-image. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request.",
+      "attempted_strategies": {
+        "system": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-image. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request.",
+        "prefill": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-image. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request.",
+        "few_shot": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-image. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request."
+      },
+      "checked_at_utc": "2026-08-22T12:11:03.242931+00:00"
+    },
+    {
+      "model": "gemini/gemini-2.5-flash-native-audio-latest",
+      "reason": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-native-audio-latest. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request.",
+      "attempted_strategies": {
+        "system": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-native-audio-latest. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request.",
+        "prefill": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-native-audio-latest. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request.",
+        "few_shot": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-native-audio-latest. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request."
+      },
+      "checked_at_utc": "2026-08-22T12:11:04.935060+00:00"
+    },
+    {
+      "model": "gemini/gemini-2.5-flash-native-audio-preview-09-2025",
+      "reason": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-native-audio-preview-09-2025. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request.",
+      "attempted_strategies": {
+        "system": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-native-audio-preview-09-2025. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request.",
+        "prefill": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-native-audio-preview-09-2025. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request.",
+        "few_shot": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-native-audio-preview-09-2025. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request."
+      },
+      "checked_at_utc": "2026-08-22T12:11:04.968931+00:00"
+    },
+    {
+      "model": "gemini/gemini-2.5-flash-native-audio-preview-12-2025",
+      "reason": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-native-audio-preview-12-2025. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request.",
+      "attempted_strategies": {
+        "system": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-native-audio-preview-12-2025. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request.",
+        "prefill": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-native-audio-preview-12-2025. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request.",
+        "few_shot": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-native-audio-preview-12-2025. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request."
+      },
+      "checked_at_utc": "2026-08-22T12:11:05.002912+00:00"
+    },
+    {
+      "model": "gemini/gemini-2.5-flash-preview-tts",
+      "reason": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-preview-tts. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request.",
+      "attempted_strategies": {
+        "system": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-preview-tts. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request.",
+        "prefill": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-preview-tts. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request.",
+        "few_shot": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-flash-preview-tts. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request."
+      },
+      "checked_at_utc": "2026-08-22T12:11:05.036536+00:00"
+    },
+    {
+      "model": "gemini/gemini-2.5-pro-preview-tts",
+      "reason": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-pro-preview-tts. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request.",
+      "attempted_strategies": {
+        "system": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-pro-preview-tts. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request.",
+        "prefill": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-pro-preview-tts. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request.",
+        "few_shot": "UnsupportedParamsError: litellm.UnsupportedParamsError: gemini does not support parameters: ['thinking'], for model=gemini-2.5-pro-preview-tts. To drop these, set `litellm.drop_params=True` or for proxy:\n\n`litellm_settings:\n drop_params: true`\n. \n If you want to use these params dynamically send allowed_openai_params=['thinking'] in your request."
+      },
+      "checked_at_utc": "2026-08-22T12:11:05.071391+00:00"
+    },
+    {
+      "model": "gemini/gemini-3.1-flash-live-preview",
+      "reason": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-3.1-flash-live-preview is not found for API version v1alpha, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-3.1-flash-live-preview is not found for API version v1alpha, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "prefill": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-3.1-flash-live-preview is not found for API version v1alpha, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "few_shot": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-3.1-flash-live-preview is not found for API version v1alpha, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:11:17.000874+00:00"
+    },
+    {
+      "model": "gemini/gemini-3.1-flash-tts-preview",
+      "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Request contains an invalid argument.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Request contains an invalid argument.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Multiturn chat is not enabled for this model\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Request contains an invalid argument.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:11:17.794860+00:00"
+    },
+    {
+      "model": "gemini/gemini-3.5-live-translate-preview",
+      "reason": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-3.5-live-translate-preview is not found for API version v1alpha, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-3.5-live-translate-preview is not found for API version v1alpha, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "prefill": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-3.5-live-translate-preview is not found for API version v1alpha, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "few_shot": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-3.5-live-translate-preview is not found for API version v1alpha, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:11:24.937081+00:00"
+    },
+    {
+      "model": "gemini/gemini-3.7-flash",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Requests ending with a model turn are not supported.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:11:27.970038+00:00"
+    },
+    {
+      "model": "gemini/gemini-embedding-001",
+      "reason": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-embedding-001 is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-embedding-001 is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "prefill": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-embedding-001 is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "few_shot": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-embedding-001 is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:11:28.170021+00:00"
+    },
+    {
+      "model": "gemini/gemini-embedding-2",
+      "reason": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-embedding-2 is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-embedding-2 is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "prefill": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-embedding-2 is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "few_shot": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-embedding-2 is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:11:28.398314+00:00"
+    },
+    {
+      "model": "gemini/gemini-embedding-2-preview",
+      "reason": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-embedding-2-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-embedding-2-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "prefill": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-embedding-2-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "few_shot": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-embedding-2-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:11:28.665428+00:00"
+    },
+    {
+      "model": "gemini/gemini-flash-latest",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Requests ending with a model turn are not supported.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:11:30.594912+00:00"
+    },
+    {
+      "model": "gemini/gemini-omni-flash-preview",
+      "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:11:31.638458+00:00"
+    },
+    {
+      "model": "gemini/gemini-robotics-er-2-streaming-preview",
+      "reason": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-robotics-er-2-streaming-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-robotics-er-2-streaming-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "prefill": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-robotics-er-2-streaming-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "few_shot": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/gemini-robotics-er-2-streaming-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:11:36.311131+00:00"
+    },
+    {
+      "model": "gemini/lyria-3-clip-preview",
+      "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Request contains an invalid argument.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Request contains an invalid argument.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Request contains an invalid argument.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Request contains an invalid argument.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:11:38.374701+00:00"
+    },
+    {
+      "model": "gemini/lyria-3-pro-preview",
+      "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Request contains an invalid argument.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Request contains an invalid argument.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Request contains an invalid argument.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "MidStreamFallbackError: litellm.MidStreamFallbackError: litellm.InternalServerError: Vertex_ai_betaException InternalServerError - b'{\\n  \"error\": {\\n    \"code\": 500,\\n    \"message\": \"Internal error encountered.\",\\n    \"status\": \"INTERNAL\"\\n  }\\n}\\n' Original exception: InternalServerError: litellm.InternalServerError: Vertex_ai_betaException InternalServerError - b'{\\n  \"error\": {\\n    \"code\": 500,\\n    \"message\": \"Internal error encountered.\",\\n    \"status\": \"INTERNAL\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:11:41.025743+00:00"
+    },
+    {
+      "model": "gemini/veo-3.1-fast-generate-preview",
+      "reason": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/veo-3.1-fast-generate-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/veo-3.1-fast-generate-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "prefill": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/veo-3.1-fast-generate-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "few_shot": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/veo-3.1-fast-generate-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:11:45.031712+00:00"
+    },
+    {
+      "model": "gemini/veo-3.1-generate-preview",
+      "reason": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/veo-3.1-generate-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/veo-3.1-generate-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "prefill": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/veo-3.1-generate-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "few_shot": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/veo-3.1-generate-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:11:45.245228+00:00"
+    },
+    {
+      "model": "gemini/veo-3.1-lite-generate-preview",
+      "reason": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/veo-3.1-lite-generate-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/veo-3.1-lite-generate-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "prefill": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/veo-3.1-lite-generate-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'",
+        "few_shot": "NotFoundError: litellm.NotFoundError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 404,\\n    \"message\": \"models/veo-3.1-lite-generate-preview is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.\",\\n    \"status\": \"NOT_FOUND\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-08-22T12:11:45.439054+00:00"
+    },
+    {
+      "model": "groq/canopylabs/orpheus-arabic-saudi",
+      "reason": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"The model `canopylabs/orpheus-arabic-saudi` requires terms acceptance. Please have the org admin accept the terms at https://console.groq.com/playground?model=canopylabs%2Forpheus-arabic-saudi\",\"type\":\"invalid_request_error\",\"code\":\"model_terms_required\"}}\n",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"The model `canopylabs/orpheus-arabic-saudi` requires terms acceptance. Please have the org admin accept the terms at https://console.groq.com/playground?model=canopylabs%2Forpheus-arabic-saudi\",\"type\":\"invalid_request_error\",\"code\":\"model_terms_required\"}}\n",
+        "prefill": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"The model `canopylabs/orpheus-arabic-saudi` requires terms acceptance. Please have the org admin accept the terms at https://console.groq.com/playground?model=canopylabs%2Forpheus-arabic-saudi\",\"type\":\"invalid_request_error\",\"code\":\"model_terms_required\"}}\n",
+        "few_shot": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"The model `canopylabs/orpheus-arabic-saudi` requires terms acceptance. Please have the org admin accept the terms at https://console.groq.com/playground?model=canopylabs%2Forpheus-arabic-saudi\",\"type\":\"invalid_request_error\",\"code\":\"model_terms_required\"}}\n"
+      },
+      "checked_at_utc": "2026-08-22T12:05:12.688399+00:00"
+    },
+    {
+      "model": "groq/canopylabs/orpheus-v1-english",
+      "reason": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"The model `canopylabs/orpheus-v1-english` requires terms acceptance. Please have the org admin accept the terms at https://console.groq.com/playground?model=canopylabs%2Forpheus-v1-english\",\"type\":\"invalid_request_error\",\"code\":\"model_terms_required\"}}\n",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"The model `canopylabs/orpheus-v1-english` requires terms acceptance. Please have the org admin accept the terms at https://console.groq.com/playground?model=canopylabs%2Forpheus-v1-english\",\"type\":\"invalid_request_error\",\"code\":\"model_terms_required\"}}\n",
+        "prefill": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"The model `canopylabs/orpheus-v1-english` requires terms acceptance. Please have the org admin accept the terms at https://console.groq.com/playground?model=canopylabs%2Forpheus-v1-english\",\"type\":\"invalid_request_error\",\"code\":\"model_terms_required\"}}\n",
+        "few_shot": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"The model `canopylabs/orpheus-v1-english` requires terms acceptance. Please have the org admin accept the terms at https://console.groq.com/playground?model=canopylabs%2Forpheus-v1-english\",\"type\":\"invalid_request_error\",\"code\":\"model_terms_required\"}}\n"
+      },
+      "checked_at_utc": "2026-08-22T12:05:12.422958+00:00"
+    },
+    {
+      "model": "groq/meta-llama/llama-prompt-guard-2-22m",
+      "reason": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"text classification models do not support streaming\",\"type\":\"invalid_request_error\"}}\n",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"text classification models do not support streaming\",\"type\":\"invalid_request_error\"}}\n",
+        "prefill": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"text classification models do not support streaming\",\"type\":\"invalid_request_error\"}}\n",
+        "few_shot": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"text classification models do not support streaming\",\"type\":\"invalid_request_error\"}}\n"
+      },
+      "checked_at_utc": "2026-08-22T12:11:49.165168+00:00"
+    },
+    {
+      "model": "groq/meta-llama/llama-prompt-guard-2-86m",
+      "reason": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"text classification models do not support streaming\",\"type\":\"invalid_request_error\"}}\n",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"text classification models do not support streaming\",\"type\":\"invalid_request_error\"}}\n",
+        "prefill": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"text classification models do not support streaming\",\"type\":\"invalid_request_error\"}}\n",
+        "few_shot": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"text classification models do not support streaming\",\"type\":\"invalid_request_error\"}}\n"
+      },
+      "checked_at_utc": "2026-08-22T12:11:49.342702+00:00"
+    },
+    {
+      "model": "groq/openai/gpt-oss-120b",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:11:48.307197+00:00"
+    },
+    {
+      "model": "groq/openai/gpt-oss-20b",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:11:48.969111+00:00"
+    },
+    {
+      "model": "groq/openai/gpt-oss-safeguard-20b",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:11:46.056376+00:00"
+    },
+    {
+      "model": "groq/whisper-large-v3",
+      "reason": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"The model `whisper-large-v3` does not support chat completions\",\"type\":\"invalid_request_error\"}}\n",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"The model `whisper-large-v3` does not support chat completions\",\"type\":\"invalid_request_error\"}}\n",
+        "prefill": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"The model `whisper-large-v3` does not support chat completions\",\"type\":\"invalid_request_error\"}}\n",
+        "few_shot": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"The model `whisper-large-v3` does not support chat completions\",\"type\":\"invalid_request_error\"}}\n"
+      },
+      "checked_at_utc": "2026-08-22T12:11:50.013070+00:00"
+    },
+    {
+      "model": "groq/whisper-large-v3-turbo",
+      "reason": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"The model `whisper-large-v3-turbo` does not support chat completions\",\"type\":\"invalid_request_error\"}}\n",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"The model `whisper-large-v3-turbo` does not support chat completions\",\"type\":\"invalid_request_error\"}}\n",
+        "prefill": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"The model `whisper-large-v3-turbo` does not support chat completions\",\"type\":\"invalid_request_error\"}}\n",
+        "few_shot": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"The model `whisper-large-v3-turbo` does not support chat completions\",\"type\":\"invalid_request_error\"}}\n"
+      },
+      "checked_at_utc": "2026-08-22T12:11:49.786119+00:00"
+    },
+    {
+      "model": "moonshot/kimi-k2.7-code",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:05:24.041132+00:00"
+    },
+    {
+      "model": "moonshot/kimi-k2.7-code-highspeed",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:05:27.042050+00:00"
+    },
+    {
+      "model": "openai/chat-latest",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."
+      },
+      "checked_at_utc": "2026-08-22T12:05:30.242407+00:00"
+    },
+    {
+      "model": "openai/gpt-5",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:15:09.422943+00:00"
+    },
+    {
+      "model": "openai/gpt-5-2025-08-07",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:15:24.777933+00:00"
+    },
+    {
+      "model": "openai/gpt-5-chat-latest",
+      "reason": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations",
+        "prefill": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations",
+        "few_shot": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations"
+      },
+      "checked_at_utc": "2026-08-22T12:15:25.407142+00:00"
+    },
+    {
+      "model": "openai/gpt-5-codex",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5-codex\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5-codex\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5-codex\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5-codex\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}"
+      },
+      "checked_at_utc": "2026-08-22T12:15:06.495841+00:00"
+    },
+    {
+      "model": "openai/gpt-5-mini",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:15:12.808127+00:00"
+    },
+    {
+      "model": "openai/gpt-5-mini-2025-08-07",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:15:17.307313+00:00"
+    },
+    {
+      "model": "openai/gpt-5-nano",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:15:19.459661+00:00"
+    },
+    {
+      "model": "openai/gpt-5-nano-2025-08-07",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:15:21.909116+00:00"
+    },
+    {
+      "model": "openai/gpt-5-pro",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:13:59.966529+00:00"
+    },
+    {
+      "model": "openai/gpt-5-pro-2025-10-06",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:15:05.115025+00:00"
+    },
+    {
+      "model": "openai/gpt-5.1-chat-latest",
+      "reason": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.1-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.1-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations",
+        "prefill": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.1-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations",
+        "few_shot": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.1-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations"
+      },
+      "checked_at_utc": "2026-08-22T12:12:29.809897+00:00"
+    },
+    {
+      "model": "openai/gpt-5.1-codex",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.1-codex\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.1-codex\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.1-codex\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.1-codex\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}"
+      },
+      "checked_at_utc": "2026-08-22T12:12:26.684857+00:00"
+    },
+    {
+      "model": "openai/gpt-5.1-codex-max",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.1-codex-max\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.1-codex-max\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.1-codex-max\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.1-codex-max\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}"
+      },
+      "checked_at_utc": "2026-08-22T12:12:24.657152+00:00"
+    },
+    {
+      "model": "openai/gpt-5.1-codex-mini",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.1-codex-mini\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.1-codex-mini\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.1-codex-mini\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.1-codex-mini\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}"
+      },
+      "checked_at_utc": "2026-08-22T12:12:25.714928+00:00"
+    },
+    {
+      "model": "openai/gpt-5.2-chat-latest",
+      "reason": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.2-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.2-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations",
+        "prefill": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.2-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations",
+        "few_shot": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.2-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations"
+      },
+      "checked_at_utc": "2026-08-22T12:12:09.885105+00:00"
+    },
+    {
+      "model": "openai/gpt-5.2-codex",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.2-codex\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.2-codex\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.2-codex\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - {\n  \"error\": {\n    \"message\": \"Model not found gpt-5.2-codex\",\n    \"type\": \"invalid_request_error\",\n    \"param\": \"model\",\n    \"code\": null\n  }\n}"
+      },
+      "checked_at_utc": "2026-08-22T12:12:08.916830+00:00"
+    },
+    {
+      "model": "openai/gpt-5.3-chat-latest",
+      "reason": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.3-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.3-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations",
+        "prefill": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.3-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations",
+        "few_shot": "NotFoundError: litellm.NotFoundError: OpenAIException - The model `gpt-5.3-chat-latest` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations"
+      },
+      "checked_at_utc": "2026-08-22T12:12:06.448039+00:00"
+    },
+    {
+      "model": "openai/gpt-5.4-pro",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:05:56.969677+00:00"
+    },
+    {
       "model": "openai/gpt-5.4-pro-2026-03-05",
       "reason": "empty continuation",
       "attempted_strategies": {
@@ -39,6 +639,276 @@
         "few_shot": "empty continuation"
       },
       "checked_at_utc": "2026-08-11T19:23:29.578311+00:00"
+    },
+    {
+      "model": "openai/o1",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:17:57.334517+00:00"
+    },
+    {
+      "model": "openai/o1-2024-12-17",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:17:59.686086+00:00"
+    },
+    {
+      "model": "openai/o1-pro",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:17:00.208974+00:00"
+    },
+    {
+      "model": "openai/o1-pro-2025-03-19",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:17:50.357117+00:00"
+    },
+    {
+      "model": "openai/o3",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:16:22.392502+00:00"
+    },
+    {
+      "model": "openai/o3-2025-04-16",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:16:27.654172+00:00"
+    },
+    {
+      "model": "openai/o3-mini",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:17:55.142854+00:00"
+    },
+    {
+      "model": "openai/o3-mini-2025-01-31",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:17:53.159704+00:00"
+    },
+    {
+      "model": "openai/o3-pro",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:16:14.609488+00:00"
+    },
+    {
+      "model": "openai/o3-pro-2025-06-10",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:15:51.190633+00:00"
+    },
+    {
+      "model": "openai/o4-mini",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:16:24.912815+00:00"
+    },
+    {
+      "model": "openai/o4-mini-2025-04-16",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:16:30.205610+00:00"
+    },
+    {
+      "model": "openai/sora-2",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - No available capacity was found for the model",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - No available capacity was found for the model",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - No available capacity was found for the model",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - No available capacity was found for the model"
+      },
+      "checked_at_utc": "2026-08-22T12:12:35.121499+00:00"
+    },
+    {
+      "model": "openai/sora-2-pro",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - No available capacity was found for the model",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - No available capacity was found for the model",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - No available capacity was found for the model",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - No available capacity was found for the model"
+      },
+      "checked_at_utc": "2026-08-22T12:12:40.805431+00:00"
+    },
+    {
+      "model": "openrouter/deepseek/deepseek-v4-flash-vision-exp",
+      "reason": "NotFoundError: litellm.NotFoundError: NotFoundError: OpenrouterException - {\"error\":{\"message\":\"No endpoints available matching your guardrail restrictions and data policy. Configure: https://openrouter.ai/settings/privacy\",\"code\":404}}",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: NotFoundError: OpenrouterException - {\"error\":{\"message\":\"No endpoints available matching your guardrail restrictions and data policy. Configure: https://openrouter.ai/settings/privacy\",\"code\":404}}",
+        "prefill": "NotFoundError: litellm.NotFoundError: NotFoundError: OpenrouterException - {\"error\":{\"message\":\"No endpoints available matching your guardrail restrictions and data policy. Configure: https://openrouter.ai/settings/privacy\",\"code\":404}}",
+        "few_shot": "NotFoundError: litellm.NotFoundError: NotFoundError: OpenrouterException - {\"error\":{\"message\":\"No endpoints available matching your guardrail restrictions and data policy. Configure: https://openrouter.ai/settings/privacy\",\"code\":404}}"
+      },
+      "checked_at_utc": "2026-08-22T12:05:57.447154+00:00"
+    },
+    {
+      "model": "openrouter/meta/muse-spark-1.2-contributor",
+      "reason": "NotFoundError: litellm.NotFoundError: NotFoundError: OpenrouterException - {\"error\":{\"message\":\"No endpoints available matching your guardrail restrictions and data policy. Configure: https://openrouter.ai/settings/privacy\",\"code\":404}}",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: NotFoundError: OpenrouterException - {\"error\":{\"message\":\"No endpoints available matching your guardrail restrictions and data policy. Configure: https://openrouter.ai/settings/privacy\",\"code\":404}}",
+        "prefill": "NotFoundError: litellm.NotFoundError: NotFoundError: OpenrouterException - {\"error\":{\"message\":\"No endpoints available matching your guardrail restrictions and data policy. Configure: https://openrouter.ai/settings/privacy\",\"code\":404}}",
+        "few_shot": "NotFoundError: litellm.NotFoundError: NotFoundError: OpenrouterException - {\"error\":{\"message\":\"No endpoints available matching your guardrail restrictions and data policy. Configure: https://openrouter.ai/settings/privacy\",\"code\":404}}"
+      },
+      "checked_at_utc": "2026-08-22T12:05:57.653577+00:00"
+    },
+    {
+      "model": "openrouter/stealth/ox-alpha",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:06:13.994381+00:00"
+    },
+    {
+      "model": "together_ai/ByteDance/Seedance-2.5",
+      "reason": "ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: Together_aiException - Service unavailable",
+      "attempted_strategies": {
+        "system": "ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: Together_aiException - Service unavailable",
+        "prefill": "ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: Together_aiException - Service unavailable",
+        "few_shot": "ServiceUnavailableError: litellm.ServiceUnavailableError: ServiceUnavailableError: Together_aiException - Service unavailable"
+      },
+      "checked_at_utc": "2026-08-22T12:06:47.405067+00:00"
+    },
+    {
+      "model": "together_ai/MiniMaxAI/MiniMax-M2.7",
+      "reason": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model MiniMaxAI/MiniMax-M2.7. Please visit https://api.together.ai/models/MiniMaxAI/MiniMax-M2.7 to create and start a new dedicated endpoint for the model.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model MiniMaxAI/MiniMax-M2.7. Please visit https://api.together.ai/models/MiniMaxAI/MiniMax-M2.7 to create and start a new dedicated endpoint for the model.",
+        "prefill": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model MiniMaxAI/MiniMax-M2.7. Please visit https://api.together.ai/models/MiniMaxAI/MiniMax-M2.7 to create and start a new dedicated endpoint for the model.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model MiniMaxAI/MiniMax-M2.7. Please visit https://api.together.ai/models/MiniMaxAI/MiniMax-M2.7 to create and start a new dedicated endpoint for the model."
+      },
+      "checked_at_utc": "2026-08-22T12:06:48.302999+00:00"
+    },
+    {
+      "model": "together_ai/deepseek-ai/DeepSeek-V4-Pro-0813",
+      "reason": "empty continuation",
+      "attempted_strategies": {
+        "system": "empty continuation",
+        "prefill": "empty continuation",
+        "few_shot": "empty continuation"
+      },
+      "checked_at_utc": "2026-08-22T12:06:17.704313+00:00"
+    },
+    {
+      "model": "xai/grok-4.20-multi-agent-0309",
+      "reason": "BadRequestError: litellm.BadRequestError: XaiException - \"Multi Agent requests are not allowed on chat completions\"",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: XaiException - \"Multi Agent requests are not allowed on chat completions\"",
+        "prefill": "BadRequestError: litellm.BadRequestError: XaiException - \"Multi Agent requests are not allowed on chat completions\"",
+        "few_shot": "BadRequestError: litellm.BadRequestError: XaiException - \"Multi Agent requests are not allowed on chat completions\""
+      },
+      "checked_at_utc": "2026-08-22T12:18:54.539878+00:00"
+    },
+    {
+      "model": "xai/grok-imagine-image",
+      "reason": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-image is an image model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/images/generations. For more information, see https://docs.x.ai/docs/api-reference#image-generation\"}",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-image is an image model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/images/generations. For more information, see https://docs.x.ai/docs/api-reference#image-generation\"}",
+        "prefill": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-image is an image model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/images/generations. For more information, see https://docs.x.ai/docs/api-reference#image-generation\"}",
+        "few_shot": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-image is an image model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/images/generations. For more information, see https://docs.x.ai/docs/api-reference#image-generation\"}"
+      },
+      "checked_at_utc": "2026-08-22T12:18:55.359976+00:00"
+    },
+    {
+      "model": "xai/grok-imagine-image-2.0",
+      "reason": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-image-2.0 is an image model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/images/generations. For more information, see https://docs.x.ai/docs/api-reference#image-generation\"}",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-image-2.0 is an image model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/images/generations. For more information, see https://docs.x.ai/docs/api-reference#image-generation\"}",
+        "prefill": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-image-2.0 is an image model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/images/generations. For more information, see https://docs.x.ai/docs/api-reference#image-generation\"}",
+        "few_shot": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-image-2.0 is an image model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/images/generations. For more information, see https://docs.x.ai/docs/api-reference#image-generation\"}"
+      },
+      "checked_at_utc": "2026-08-22T12:06:48.831723+00:00"
+    },
+    {
+      "model": "xai/grok-imagine-image-quality",
+      "reason": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-image-quality is an image model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/images/generations. For more information, see https://docs.x.ai/docs/api-reference#image-generation\"}",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-image-quality is an image model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/images/generations. For more information, see https://docs.x.ai/docs/api-reference#image-generation\"}",
+        "prefill": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-image-quality is an image model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/images/generations. For more information, see https://docs.x.ai/docs/api-reference#image-generation\"}",
+        "few_shot": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-image-quality is an image model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/images/generations. For more information, see https://docs.x.ai/docs/api-reference#image-generation\"}"
+      },
+      "checked_at_utc": "2026-08-22T12:18:46.015800+00:00"
+    },
+    {
+      "model": "xai/grok-imagine-video",
+      "reason": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-video is a video model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/videos/generations. For more information, see https://docs.x.ai/docs/api-reference#video-generation\"}",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-video is a video model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/videos/generations. For more information, see https://docs.x.ai/docs/api-reference#video-generation\"}",
+        "prefill": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-video is a video model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/videos/generations. For more information, see https://docs.x.ai/docs/api-reference#video-generation\"}",
+        "few_shot": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-video is a video model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/videos/generations. For more information, see https://docs.x.ai/docs/api-reference#video-generation\"}"
+      },
+      "checked_at_utc": "2026-08-22T12:18:56.050911+00:00"
+    },
+    {
+      "model": "xai/grok-imagine-video-1.5",
+      "reason": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-video-1.5 is a video model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/videos/generations. For more information, see https://docs.x.ai/docs/api-reference#video-generation\"}",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-video-1.5 is a video model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/videos/generations. For more information, see https://docs.x.ai/docs/api-reference#video-generation\"}",
+        "prefill": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-video-1.5 is a video model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/videos/generations. For more information, see https://docs.x.ai/docs/api-reference#video-generation\"}",
+        "few_shot": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-video-1.5 is a video model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/videos/generations. For more information, see https://docs.x.ai/docs/api-reference#video-generation\"}"
+      },
+      "checked_at_utc": "2026-08-22T12:18:05.170513+00:00"
+    },
+    {
+      "model": "zai/glm-5.3",
+      "reason": "BadRequestError: litellm.BadRequestError: ZaiException - This model always engages in thinking and cannot be disabled; please use low, high, or max",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: ZaiException - This model always engages in thinking and cannot be disabled; please use low, high, or max",
+        "prefill": "BadRequestError: litellm.BadRequestError: ZaiException - This model always engages in thinking and cannot be disabled; please use low, high, or max",
+        "few_shot": "BadRequestError: litellm.BadRequestError: ZaiException - This model always engages in thinking and cannot be disabled; please use low, high, or max"
+      },
+      "checked_at_utc": "2026-08-22T12:07:00.756871+00:00"
     }
   ]
 }
