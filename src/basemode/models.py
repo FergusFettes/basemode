@@ -1,7 +1,7 @@
 import datetime
 import json
 import re
-from pathlib import Path
+from importlib import resources
 
 import litellm
 
@@ -79,16 +79,16 @@ def _display_model_id(provider: str, model: str) -> str:
     return model[len(prefix) :] if model.startswith(prefix) else model
 
 
-def _project_root() -> Path:
-    return Path(__file__).resolve().parents[2]
+def _read_package_data(filename: str) -> dict:
+    try:
+        text = resources.files("basemode").joinpath("data", filename).read_text()
+        return json.loads(text)
+    except Exception:
+        return {}
 
 
 def _verified_rows_by_model() -> dict[str, dict]:
-    path = _project_root() / "data" / "verified_models_details.json"
-    try:
-        payload = json.loads(path.read_text())
-    except Exception:
-        return {}
+    payload = _read_package_data("verified_models_details.json")
     rows = payload.get("rows", [])
     return {
         row.get("model"): row
@@ -105,11 +105,7 @@ def _live_rows_by_provider() -> dict[str, dict]:
     trustworthy `created` field (not `moonshot`, whose API returns the same
     timestamp for every model) contribute a release date litellm never has.
     """
-    path = _project_root() / "data" / "live_models_cache.json"
-    try:
-        payload = json.loads(path.read_text())
-    except Exception:
-        return {}
+    payload = _read_package_data("live_models_cache.json")
     providers = payload.get("providers", {})
     return providers if isinstance(providers, dict) else {}
 

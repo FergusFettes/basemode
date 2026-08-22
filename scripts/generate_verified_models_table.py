@@ -27,7 +27,7 @@ from basemode.usage import get_price_info
 
 REGISTRY_PATH = ROOT / "data" / "verified_models_registry.json"
 README_PATH = ROOT / "README.md"
-DETAILS_PATH = ROOT / "data" / "verified_models_details.json"
+DETAILS_PATH = ROOT / "src" / "basemode" / "data" / "verified_models_details.json"
 DOCS_PATH = ROOT / "docs" / "usage" / "Verified Models.md"
 MARKER_START = "<!-- verified-models:start -->"
 MARKER_END = "<!-- verified-models:end -->"

@@ -38,7 +38,7 @@ from basemode.live_models import (  # noqa: E402
 )
 from basemode.settings import settings  # noqa: E402
 
-CACHE_PATH = ROOT / "data" / "live_models_cache.json"
+CACHE_PATH = ROOT / "src" / "basemode" / "data" / "live_models_cache.json"
 
 
 def main() -> int:
