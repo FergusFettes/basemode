@@ -4,6 +4,7 @@ from collections.abc import AsyncGenerator
 
 import litellm
 
+from .. import usage_capture
 from ..exceptions import EmptyCompletionError
 from ..params import GenerationParams
 from .base import ContinuationStrategy
@@ -45,6 +46,12 @@ class FIMStrategy(ContinuationStrategy):
         yielded = False
         finish_reason = None
         async for chunk in response:
+            # Not requested via stream_options (unclear which FIM-only
+            # backends tolerate it), but recorded opportunistically if a
+            # provider includes it anyway.
+            usage_capture.record(getattr(chunk, "usage", None))
+            if not chunk.choices:
+                continue
             choice = chunk.choices[0]
             finish_reason = getattr(choice, "finish_reason", None) or finish_reason
             token = choice.text or ""

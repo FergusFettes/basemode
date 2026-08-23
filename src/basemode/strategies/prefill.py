@@ -5,6 +5,7 @@ from collections.abc import AsyncGenerator
 
 import litellm
 
+from .. import usage_capture
 from ..exceptions import EmptyCompletionError
 from ..params import GenerationParams
 from .base import ContinuationStrategy
@@ -55,6 +56,9 @@ class PrefillStrategy(ContinuationStrategy):
         yielded = False
         finish_reason = None
         async for chunk in response:
+            usage_capture.record(getattr(chunk, "usage", None))
+            if not chunk.choices:
+                continue
             choice = chunk.choices[0]
             finish_reason = getattr(choice, "finish_reason", None) or finish_reason
             token = choice.delta.content or ""

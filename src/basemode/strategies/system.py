@@ -5,6 +5,7 @@ from collections.abc import AsyncGenerator
 
 import litellm
 
+from .. import usage_capture
 from ..exceptions import EmptyCompletionError
 from ..healing import needs_leading_space, normalize_prefix
 from ..params import GenerationParams
@@ -47,6 +48,9 @@ class SystemPromptStrategy(ContinuationStrategy):
         yielded = False
         finish_reason = None
         async for chunk in response:
+            usage_capture.record(getattr(chunk, "usage", None))
+            if not chunk.choices:
+                continue
             choice = chunk.choices[0]
             finish_reason = getattr(choice, "finish_reason", None) or finish_reason
             token = choice.delta.content or ""

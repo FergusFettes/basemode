@@ -221,7 +221,14 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
 
 def build_kwargs(params: GenerationParams) -> dict:
     """Build litellm kwargs with model-specific compatibility applied."""
-    kwargs: dict = {"max_tokens": params.max_tokens}
+    kwargs: dict = {
+        "max_tokens": params.max_tokens,
+        # Ask for real token/cost usage on the streamed response instead of
+        # relying solely on local tokenizer estimates (see `usage_capture.py`).
+        # litellm passes this through for OpenAI-compatible providers; for
+        # Anthropic it's a no-op since usage is always included on stream.
+        "stream_options": {"include_usage": True},
+    }
     if not no_temperature(params.model):
         kwargs["temperature"] = params.temperature
     kwargs.update(thinking_kwargs(params.model, params.max_tokens))

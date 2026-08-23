@@ -4,6 +4,7 @@ from collections.abc import AsyncGenerator, Callable
 
 import litellm
 
+from . import usage_capture
 from .detect import detect_strategy, normalize_model
 from .healing import (
     normalize_stream_newlines,
@@ -35,6 +36,7 @@ async def continue_text(
     record_health: bool = True,
     on_raw_head: Callable[[str], None] | None = None,
     raw_head_chars: int = RAW_HEAD_CHARS,
+    on_usage: Callable[[list[dict]], None] | None = None,
     **extra,
 ) -> AsyncGenerator[str, None]:
     """Stream a single continuation.
@@ -50,6 +52,14 @@ async def continue_text(
     then repaired away. A caller that stores it can diagnose the seam long
     after the stream is gone. It is a callback rather than a return value
     because branches run concurrently and each needs its own sink.
+
+    `on_usage` is called once, after the stream ends (successfully or not),
+    with every provider-reported usage payload seen along the way (see
+    `usage_capture.py`) — normally one, but two when the rewind-retry path
+    below aborts a first request and reissues a second, since both were
+    billed. Empty when the provider never returned usage (see
+    `strategies/compat.py` for which providers were asked), in which case a
+    caller should fall back to `usage.estimate_usage`.
     """
     litellm.suppress_debug_info = True
     load_into_environ()
@@ -71,6 +81,7 @@ async def continue_text(
         len(prefix),
     )
     token_count = 0
+    usage_capture.begin_capture()
     generation_prefix, rewind_fragment = _generation_prefix(prefix, strat.name, rewind)
     try:
         raw_tokens = _stream_tokens(
@@ -89,12 +100,14 @@ async def continue_text(
         # the model having worked; an immediate cancel is not a verdict.
         if record_health and token_count:
             record_outcome(model, ok=True)
+        _report_usage(on_usage)
         raise
     except Exception as exc:
         if record_health:
             category, status = classify_error(exc)
             record_outcome(model, ok=False, category=category, status=status)
         log.exception("continue_text: stream error after %d tokens", token_count)
+        _report_usage(on_usage)
         raise
     if record_health:
         record_outcome(
@@ -102,7 +115,17 @@ async def continue_text(
             ok=bool(token_count),
             category=None if token_count else EMPTY_RESPONSE,
         )
+    _report_usage(on_usage)
     log.debug("continue_text: done, %d tokens", token_count)
+
+
+def _report_usage(on_usage: Callable[[list[dict]], None] | None) -> None:
+    if on_usage is None:
+        return
+    try:
+        on_usage(usage_capture.collect())
+    except Exception:
+        log.warning("on_usage sink raised; ignoring", exc_info=True)
 
 
 async def branch_text(
@@ -116,12 +139,17 @@ async def branch_text(
     rewind: bool = False,
     strict_max_tokens: bool = False,
     record_health: bool = True,
+    on_usage: Callable[[int, list[dict]], None] | None = None,
     **extra,
 ) -> AsyncGenerator[tuple[int, str], None]:
     """Stream n parallel continuations as (branch_idx, token) tuples.
 
     Each branch is recorded as its own attempt (see :mod:`basemode.health`)
     unless `record_health=False`.
+
+    `on_usage`, if given, is called once per branch with its index and every
+    provider-reported usage payload seen for it (see `continue_text` for
+    details — same semantics, per branch instead of once).
     """
     if n < 1:
         raise ValueError("n must be at least 1")
@@ -139,6 +167,7 @@ async def branch_text(
 
     async def run_branch(idx: int) -> None:
         token_count = 0
+        usage_capture.begin_capture()
         try:
             raw_tokens = _stream_tokens(
                 strat, prefix, generation_prefix, rewind_fragment, params
@@ -166,6 +195,11 @@ async def branch_text(
                     category=None if token_count else EMPTY_RESPONSE,
                 )
         finally:
+            if on_usage is not None:
+                try:
+                    on_usage(idx, usage_capture.collect())
+                except Exception:
+                    log.warning("on_usage sink raised; ignoring", exc_info=True)
             await queue.put(None)
 
     tasks = [asyncio.create_task(run_branch(i)) for i in range(n)]
