@@ -135,11 +135,12 @@ async def _stream_one(
     strategy: str | None,
     rewind: bool = False,
     strict_max_tokens: bool = False,
-) -> str:
+) -> tuple[str, list[dict]]:
     from .continue_ import continue_text
 
     console.print(f"[dim]{prefix}[/dim]", end="")
     chunks: list[str] = []
+    usage_events: list[dict] = []
     async for token in continue_text(
         prefix,
         model,
@@ -148,11 +149,12 @@ async def _stream_one(
         strategy=strategy,
         rewind=rewind,
         strict_max_tokens=strict_max_tokens,
+        on_usage=usage_events.extend,
     ):
         chunks.append(token)
         console.print(token, end="")
     console.print()
-    return "".join(chunks)
+    return "".join(chunks), usage_events
 
 
 async def _stream_branches(
@@ -164,10 +166,11 @@ async def _stream_branches(
     strategy: str | None,
     rewind: bool = False,
     strict_max_tokens: bool = False,
-) -> list[str]:
+) -> tuple[list[str], list[dict]]:
     from .continue_ import branch_text
 
     buffers: list[list[str]] = [[] for _ in range(n)]
+    usage_events: list[dict] = []
 
     with Live(
         _branches_panel(prefix, buffers),
@@ -183,11 +186,12 @@ async def _stream_branches(
             strategy=strategy,
             rewind=rewind,
             strict_max_tokens=strict_max_tokens,
+            on_usage=lambda _idx, events: usage_events.extend(events),
         ):
             buffers[idx].append(token)
             live.update(_branches_panel(prefix, buffers))
 
-    return ["".join(buf) for buf in buffers]
+    return ["".join(buf) for buf in buffers], usage_events
 
 
 def _branches_panel(prefix: str, buffers: list[list[str]]) -> Panel:
@@ -235,7 +239,7 @@ def _run_text(
         console.print(f"[dim]strategy: {strat.name}[/dim]")
 
     if n == 1:
-        completion = asyncio.run(
+        completion, usage_events = asyncio.run(
             _stream_one(
                 prefix,
                 model,
@@ -248,10 +252,16 @@ def _run_text(
         )
         if show_usage or show_cost:
             _print_usage_estimate(
-                model, prefix, completion, strategy, show_cost, prompt_requests=1
+                model,
+                prefix,
+                completion,
+                strategy,
+                show_cost,
+                prompt_requests=1,
+                usage_events=usage_events,
             )
     else:
-        completions = asyncio.run(
+        completions, usage_events = asyncio.run(
             _stream_branches(
                 prefix,
                 model,
@@ -271,6 +281,7 @@ def _run_text(
                 strategy,
                 show_cost,
                 prompt_requests=n,
+                usage_events=usage_events,
             )
 
 
@@ -281,21 +292,25 @@ def _print_usage_estimate(
     strategy: str | None,
     show_cost: bool,
     prompt_requests: int,
+    usage_events: list[dict] | None = None,
 ) -> None:
     from .detect import normalize_model
-    from .usage import estimate_usage, format_usd
+    from .usage import estimate_usage, format_usd, usage_from_events
 
     resolved = normalize_model(model)
-    prompt, messages = _usage_prompt(resolved, prefix, strategy)
-    usage = estimate_usage(
-        resolved,
-        prompt,
-        completion,
-        prompt_messages=messages,
-        prompt_requests=prompt_requests,
-    )
+    usage = usage_from_events(resolved, usage_events) if usage_events else None
+    if usage is None:
+        prompt, messages = _usage_prompt(resolved, prefix, strategy)
+        usage = estimate_usage(
+            resolved,
+            prompt,
+            completion,
+            prompt_messages=messages,
+            prompt_requests=prompt_requests,
+        )
     table = Table("Metric", "Value", show_header=False)
     table.add_row("Model", usage.model)
+    table.add_row("Source", "provider" if not usage.is_estimate else "estimate")
     table.add_row("Prompt tokens", str(usage.prompt_tokens))
     table.add_row("Completion tokens", str(usage.completion_tokens))
     table.add_row("Total tokens", str(usage.total_tokens))
