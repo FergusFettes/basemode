@@ -54,13 +54,44 @@ def test_moonshot_kimi_k3_bumps_max_tokens_for_reasoning_budget() -> None:
     assert "extra_body" not in kwargs
 
 
-def test_claude_opus_5_bumps_max_tokens_for_reasoning_budget() -> None:
+def test_claude_opus_5_disables_thinking_instead_of_budget_bump() -> None:
+    """Claude 5.x rejects `thinking.type: "enabled"` outright (probed live
+    2026-08-23) and its replacement `"adaptive"` shape has unpredictable
+    reasoning-token consumption — disabling thinking is what's reliable."""
     kwargs = build_kwargs(
         GenerationParams(model="anthropic/claude-opus-5", max_tokens=200)
     )
 
-    assert kwargs["max_tokens"] == 2560
-    assert kwargs["thinking"] == {"type": "enabled", "budget_tokens": 2048}
+    assert kwargs["max_tokens"] == 200
+    assert kwargs["thinking"] == {"type": "disabled"}
+
+
+def test_claude_sonnet_5_disables_thinking_instead_of_budget_bump() -> None:
+    kwargs = build_kwargs(
+        GenerationParams(model="anthropic/claude-sonnet-5", max_tokens=200)
+    )
+
+    assert kwargs["max_tokens"] == 200
+    assert kwargs["thinking"] == {"type": "disabled"}
+
+
+def test_claude_opus_4_family_keeps_enabled_thinking_shape_if_ever_tagged(
+    monkeypatch,
+) -> None:
+    """Only the 5.x family needs the disable workaround — older Claude
+    models that pick up the registry's generic `reasoning_budget` quirk
+    should still get the (working) `"enabled"` shape."""
+    import basemode.strategies.compat as compat
+
+    monkeypatch.setattr(
+        compat, "model_quirks", lambda model: frozenset({"reasoning_budget"})
+    )
+
+    kwargs = build_kwargs(
+        GenerationParams(model="anthropic/claude-opus-4-7", max_tokens=200)
+    )
+
+    assert kwargs["thinking"] == {"type": "enabled", "budget_tokens": 4096}
 
 
 def test_openai_gpt_5_6_sol_bumps_max_tokens_without_thinking_param() -> None:

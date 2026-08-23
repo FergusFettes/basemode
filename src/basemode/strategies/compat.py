@@ -114,7 +114,6 @@ _THINKING_MODELS: dict[str, tuple[int, int]] = {
     "kimi-k2.6": (4096, 512),  # Kimi K2.6 exhibits similar long-reasoning behavior
     "kimi-k2-thinking": (4096, 512),
     "kimi-k3": (4096, 512),  # same always-on reasoning behavior as k2-thinking
-    "claude-opus-5": (2048, 512),  # extended thinking runs by default
     "gpt-5.6-sol": (2048, 512),  # o-series-style reasoning, always on
     "gpt-5.6-terra": (2048, 512),
 }
@@ -124,6 +123,19 @@ _ZAI_DISABLE_THINKING_PREFIXES = (
     "glm-4.6",
     "glm-4.7",
     "glm-5",
+)
+
+# Claude 5.x (opus-5, sonnet-5, ...), probed live 2026-08-23: this family
+# rejects the older `thinking.type: "enabled"` shape outright ("Use
+# thinking.type.adaptive and output_config.effort instead"), and the
+# replacement `"adaptive"` shape has wildly unpredictable reasoning-token
+# consumption — even 5000+ tokens sometimes produces no visible output at
+# all. Disabling thinking entirely (same trick as the zai/glm family above)
+# is simpler and reliable: basemode wants raw continuation, not chat
+# reasoning, and it produces clean output instantly at any budget instead of
+# racing an unbounded one.
+_ANTHROPIC_ADAPTIVE_ONLY_PATTERN = re.compile(
+    r"^claude-(opus|sonnet|haiku|fable)-5(\.\d+)?(-\d{8})?$"
 )
 
 
@@ -179,8 +191,11 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
     via_moonshot = lower_model.startswith("moonshot/")
     via_zai = lower_model.startswith("zai/")
     via_openai = lower_model.startswith("openai/")
+    via_anthropic = lower_model.startswith("anthropic/")
     if via_zai and stem.startswith(_ZAI_DISABLE_THINKING_PREFIXES):
         return {"extra_body": {"thinking": {"type": "disabled"}}}
+    if via_anthropic and _ANTHROPIC_ADAPTIVE_ONLY_PATTERN.match(stem):
+        return {"thinking": {"type": "disabled"}}
     for fragment, (budget, min_out) in _THINKING_MODELS.items():
         if fragment in stem:
             return _reasoning_budget_kwargs(
