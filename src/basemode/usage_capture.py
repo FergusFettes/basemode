@@ -18,7 +18,9 @@ own `asyncio.Task`, hence its own copy of the context) never share state.
 
 from contextvars import ContextVar
 
-_events: ContextVar[list[dict] | None] = ContextVar("_stream_usage_events", default=None)
+_events: ContextVar[list[dict] | None] = ContextVar(
+    "_stream_usage_events", default=None
+)
 
 
 def begin_capture() -> None:
