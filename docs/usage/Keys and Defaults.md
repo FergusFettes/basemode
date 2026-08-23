@@ -74,3 +74,27 @@ basemode strategies --unpin kimi-k3
 ```
 
 See [[Strategies]] for the full precedence order.
+
+## Model ratings
+
+`basemode rate` records a personal thumbs up or thumbs down for a model in the
+same file, under `model_ratings`:
+
+```json
+{
+  "keys": {"anthropic": "sk-..."},
+  "model_ratings": {"anthropic/claude-opus-5": 1, "openai/gpt-4o": -1}
+}
+```
+
+```bash
+basemode rate claude-opus-5 up
+basemode rate gpt-4o down
+basemode rate gpt-4o clear
+basemode rate                      # list every rated model
+```
+
+A rating only affects ordering: models you rated up sort to the top of
+`basemode models` (and of any picker built on `list_model_picker_entries`),
+models you rated down sort to the bottom, and nothing is ever hidden. Ratings
+are keyed like strategy pins — by the normalized model ID.

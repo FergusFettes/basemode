@@ -2,7 +2,8 @@
 
 File schema (current):
     {"keys": {"openai": "sk-...", ...}, "default_model": "...",
-     "strategy_overrides": {"anthropic/claude-opus-5": "few_shot", ...}}
+     "strategy_overrides": {"anthropic/claude-opus-5": "few_shot", ...},
+     "model_ratings": {"anthropic/claude-opus-5": 1, "openai/gpt-4o": -1}}
 
 Legacy flat schema (auto-migrated on next write):
     {"openai": "sk-...", ...}
@@ -29,6 +30,11 @@ KEY_ALIASES: dict[str, str] = {
     "deepseek": "DEEPSEEK_API_KEY",
 }
 
+#: The only values a model rating may take: thumbs up, thumbs down.
+RATING_UP = 1
+RATING_DOWN = -1
+_VALID_RATINGS = (RATING_UP, RATING_DOWN)
+
 
 def _load_raw() -> dict:
     if not _AUTH_FILE.exists():
@@ -36,18 +42,42 @@ def _load_raw() -> dict:
     return json.loads(_AUTH_FILE.read_text())
 
 
+def _normalize_ratings(raw: object) -> dict[str, int]:
+    """Keep only well-formed thumbs from the file; drop anything else.
+
+    A hand-edited or future-schema value should not crash a read that only
+    wanted the keys, so unknown values are discarded rather than raised on.
+    """
+    if not isinstance(raw, dict):
+        return {}
+    return {
+        str(model).lower(): int(value)
+        for model, value in raw.items()
+        if isinstance(value, int)
+        and not isinstance(value, bool)
+        and value in _VALID_RATINGS
+    }
+
+
 def _normalize(raw: dict) -> dict:
     """Coerce raw file contents into the current schema."""
     overrides = raw.get("strategy_overrides")
+    ratings = _normalize_ratings(raw.get("model_ratings"))
     if isinstance(raw.get("keys"), dict):
         return {
             "keys": raw["keys"],
             "default_model": raw.get("default_model"),
             "strategy_overrides": overrides if isinstance(overrides, dict) else {},
+            "model_ratings": ratings,
         }
     # Legacy flat format: every top-level string value is a key.
     keys = {k: v for k, v in raw.items() if isinstance(v, str)}
-    return {"keys": keys, "default_model": None, "strategy_overrides": {}}
+    return {
+        "keys": keys,
+        "default_model": None,
+        "strategy_overrides": {},
+        "model_ratings": ratings,
+    }
 
 
 def _write(data: dict) -> None:
@@ -58,6 +88,8 @@ def _write(data: dict) -> None:
         out["default_model"] = data["default_model"]
     if data.get("strategy_overrides"):
         out["strategy_overrides"] = data["strategy_overrides"]
+    if data.get("model_ratings"):
+        out["model_ratings"] = data["model_ratings"]
     _AUTH_FILE.write_text(json.dumps(out, indent=2) + "\n")
     _AUTH_FILE.chmod(0o600)
 
@@ -116,6 +148,32 @@ def set_strategy_override(model: str, strategy: str | None) -> None:
 
 def list_strategy_overrides() -> dict[str, str]:
     return dict(_load()["strategy_overrides"])
+
+
+def get_model_rating(model: str) -> int | None:
+    """This user's thumb for `model`: `RATING_UP`, `RATING_DOWN`, or None."""
+    return _load()["model_ratings"].get(model.lower())
+
+
+def set_model_rating(model: str, rating: int | None) -> None:
+    """Rate `model` up or down; `rating=None` clears it.
+
+    Ratings are keyed like strategy pins — by the model ID as given, lowered —
+    so callers should normalize first if they want `kimi-k3` and
+    `moonshot/kimi-k3` to be the same thumb.
+    """
+    if rating is not None and rating not in _VALID_RATINGS:
+        raise ValueError(f"rating must be {RATING_UP}, {RATING_DOWN}, or None")
+    data = _load()
+    if rating is None:
+        data["model_ratings"].pop(model.lower(), None)
+    else:
+        data["model_ratings"][model.lower()] = rating
+    _write(data)
+
+
+def list_model_ratings() -> dict[str, int]:
+    return dict(_load()["model_ratings"])
 
 
 def _mask(value: str) -> str:

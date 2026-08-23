@@ -77,3 +77,38 @@ def test_build_model_picker_state_flags_over_selection() -> None:
         verified_only=True,
     )
     assert state["too_many_selected"] is True
+
+
+def test_model_picker_entries_carry_the_stored_rating() -> None:
+    from basemode.keys import set_model_rating
+
+    set_model_rating("openai/gpt-4o-mini", -1)
+
+    entries = list_model_picker_entries(search="gpt-4o-mini")
+    rated = [e for e in entries if e["model"] in ("gpt-4o-mini", "openai/gpt-4o-mini")]
+    assert rated
+    assert all(e["rating"] == -1 for e in rated)
+    assert all(e["rating"] is None for e in entries if e not in rated)
+
+
+def test_model_picker_ratings_argument_overrides_the_store() -> None:
+    from basemode.keys import set_model_rating
+
+    set_model_rating("openai/gpt-4o-mini", -1)
+
+    entries = list_model_picker_entries(search="gpt-4o-mini", ratings={})
+    assert all(e["rating"] is None for e in entries)
+
+
+def test_rated_models_sort_ahead_of_and_behind_unrated_ones() -> None:
+    from basemode.keys import set_model_rating
+
+    entries = list_model_picker_entries(provider="openai", available_only=False)
+    assert len(entries) > 2
+    liked, disliked = entries[-1]["model"], entries[0]["model"]
+    set_model_rating(liked, 1)
+    set_model_rating(disliked, -1)
+
+    resorted = [e["model"] for e in list_model_picker_entries(provider="openai")]
+    assert resorted[0] == liked
+    assert resorted[-1] == disliked

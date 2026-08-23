@@ -5,6 +5,7 @@ from importlib import resources
 
 import litellm
 
+from .keys import list_model_ratings
 from .settings import settings
 from .strategies.compat import model_quirks
 
@@ -73,6 +74,17 @@ def _model_mode(provider: str, model: str) -> str | None:
         f"{provider}/{model}"
     )
     return info.get("mode") if info else None
+
+
+def _lowered(ratings: dict[str, int]) -> dict[str, int]:
+    return {str(model).lower(): value for model, value in ratings.items()}
+
+
+def _rating_for(thumbs: dict[str, int], provider: str, model: str) -> int | None:
+    """A thumb stored under either the bare or provider-qualified model ID."""
+    if not thumbs:
+        return None
+    return thumbs.get(model.lower()) or thumbs.get(f"{provider}/{model}".lower())
 
 
 def _display_model_id(provider: str, model: str) -> str:
@@ -228,6 +240,7 @@ def list_model_picker_entries(
     text_only: bool = False,
     compact: bool = False,
     since: str | None = None,
+    ratings: dict[str, int] | None = None,
 ) -> list[dict]:
     """Structured model metadata for frontend pickers.
 
@@ -239,6 +252,13 @@ def list_model_picker_entries(
     - `quirks`: known API-acceptance rules (e.g. `no_temperature`,
       `no_prefill`) a frontend can use to grey out or hide controls the
       model will reject; see `basemode.strategies.compat.model_quirks`
+    - `rating`: this user's thumb for the model (`1`, `-1`, or `None`), stored
+      in `~/.config/basemode/auth.json`; see `basemode.keys.set_model_rating`
+
+    A rated model sorts ahead of (thumbs up) or behind (thumbs down) the
+    reliability ordering, so an explicit opinion outranks the shipped data
+    for every consumer of this list. Pass `ratings` to override the stored
+    thumbs.
 
     `text_only` drops non text-generation models (image/audio/embedding/...).
     `compact` collapses dated snapshots (e.g. `gpt-5.4-2026-03-05`) into their
@@ -250,6 +270,7 @@ def list_model_picker_entries(
     verified = _verified_rows_by_model()
     live = _live_rows_by_provider()
     cross_provider_dates = _cross_provider_release_dates(verified, live)
+    thumbs = list_model_ratings() if ratings is None else _lowered(ratings)
 
     if verified_only:
         pairs = [(m.split("/", 1)[0] if "/" in m else "unknown", m) for m in verified]
@@ -308,6 +329,7 @@ def list_model_picker_entries(
                 "output_cost_per_token": v.get("output_cost_per_token"),
                 "issues": list(v.get("issues", [])),
                 "quirks": sorted(model_quirks(model)),
+                "rating": _rating_for(thumbs, model_provider, model),
             }
         )
 
@@ -318,10 +340,13 @@ def list_model_picker_entries(
         cutoff = parse_since(since)
         entries = [e for e in entries if (e.get("release_date") or "") >= cutoff]
 
-    def sort_key(item: dict) -> tuple[int, int, int, str, str]:
+    def sort_key(item: dict) -> tuple[int, int, int, int, str, str]:
         reliability_rank = 0 if item.get("reliability") == "✓" else 1
+        # -1 → 1 (last), None → 0, 1 → -1 (first).
+        rating_rank = -(item.get("rating") or 0)
         return (
             0 if item["available"] else 1,
+            rating_rank,
             0 if item["verified"] else 1,
             reliability_rank,
             item["provider"],

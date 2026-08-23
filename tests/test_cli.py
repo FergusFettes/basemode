@@ -151,3 +151,25 @@ def test_info_reports_where_the_strategy_came_from() -> None:
     assert result.exit_code == 0
     assert "prefill" in result.output
     assert "registry" in result.output
+
+
+def test_rate_pins_lists_and_clears_a_thumb() -> None:
+    from basemode.keys import list_model_ratings
+
+    up = runner.invoke(app, ["rate", "gpt-4o-mini", "up"])
+    assert up.exit_code == 0
+    assert list_model_ratings() == {"openai/gpt-4o-mini": 1}
+
+    listed = runner.invoke(app, ["rate"])
+    assert "openai/gpt-4o-mini" in listed.output
+
+    cleared = runner.invoke(app, ["rate", "gpt-4o-mini", "clear"])
+    assert cleared.exit_code == 0
+    assert list_model_ratings() == {}
+
+
+def test_rate_rejects_an_unknown_rating() -> None:
+    result = runner.invoke(app, ["rate", "gpt-4o-mini", "sideways"])
+
+    assert result.exit_code == 1
+    assert "Unknown rating" in result.output

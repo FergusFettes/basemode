@@ -17,12 +17,16 @@ from rich.text import Text
 
 from .keys import (
     KEY_ALIASES,
+    RATING_DOWN,
+    RATING_UP,
     get_default_model,
     get_key,
     list_keys,
+    list_model_ratings,
     list_strategy_overrides,
     set_default_model,
     set_key,
+    set_model_rating,
     set_strategy_override,
 )
 
@@ -492,7 +496,7 @@ def models(
         console.print("[yellow]No models found.[/yellow]")
         return
 
-    columns = ["Provider", "Model", "Verified", "Release Date"]
+    columns = ["Provider", "Model", "Verified", "Rating", "Release Date"]
     if not full:
         columns.append("Snapshots")
     table = Table(*columns, show_header=True, header_style="bold")
@@ -503,7 +507,13 @@ def models(
             release_date = f"~{release_date}"
             inferred_count += 1
         verified_mark = "[green]✓[/green]" if e.get("verified") else ""
-        row = [e["provider"], e["display"], verified_mark, release_date]
+        row = [
+            e["provider"],
+            e["display"],
+            verified_mark,
+            _RATING_MARKS.get(e.get("rating"), ""),
+            release_date,
+        ]
         if not full:
             snapshots = e.get("snapshots") or []
             row.append(str(len(snapshots)) if snapshots else "")
@@ -513,6 +523,68 @@ def models(
     if inferred_count:
         summary += f" ([yellow]~{inferred_count}[/yellow] dates guessed from another provider's listing of the same model)"
     console.print(summary + "[/dim]")
+
+
+_RATING_MARKS = {RATING_UP: "[green]+[/green]", RATING_DOWN: "[red]-[/red]"}
+_RATING_WORDS = {
+    "up": RATING_UP,
+    "+": RATING_UP,
+    "down": RATING_DOWN,
+    "-": RATING_DOWN,
+    "clear": None,
+    "none": None,
+}
+
+
+@app.command()
+def rate(
+    model: Annotated[
+        str | None,
+        typer.Argument(help="Model to rate. Omit to list every rated model."),
+    ] = None,
+    rating: Annotated[
+        str | None,
+        typer.Argument(help="up, down, or clear."),
+    ] = None,
+) -> None:
+    """Rate a model up or down. Rated models sort first (or last) everywhere.
+
+    Ratings are yours alone — stored in ~/.config/basemode/auth.json — and
+    outrank the shipped reliability ordering in `basemode models` and in any
+    frontend built on the picker list.
+    """
+    if model is None:
+        rated = list_model_ratings()
+        if not rated:
+            console.print("[yellow]No models rated yet.[/yellow]")
+            return
+        table = Table("Model", "Rating", show_header=True, header_style="bold")
+        for model_id, value in sorted(rated.items(), key=lambda kv: (-kv[1], kv[0])):
+            table.add_row(model_id, _RATING_MARKS.get(value, ""))
+        console.print(table)
+        console.print("[dim]Clear one with: basemode rate MODEL clear[/dim]")
+        return
+
+    if rating is None:
+        console.print("[red]Give a rating: up, down, or clear.[/red]")
+        raise typer.Exit(1)
+    word = rating.strip().lower()
+    if word not in _RATING_WORDS:
+        console.print(f"[red]Unknown rating {rating!r}. Use up, down, or clear.[/red]")
+        raise typer.Exit(1)
+
+    from .detect import normalize_model
+
+    resolved = normalize_model(model)
+    value = _RATING_WORDS[word]
+    set_model_rating(resolved, value)
+    if value is None:
+        console.print(f"[green]✓[/green] Cleared rating for [bold]{resolved}[/bold]")
+    else:
+        console.print(
+            f"[green]✓[/green] Rated [bold]{resolved}[/bold] "
+            f"{'up' if value == RATING_UP else 'down'}"
+        )
 
 
 @app.command()

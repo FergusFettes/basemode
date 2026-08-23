@@ -41,6 +41,22 @@ basemode models [--provider openai] [--search claude] [--available] [--verified]
 - `--verified` limits to models tracked in the verified-models registry.
 - `--json` emits structured picker metadata (provider, availability, reliability, pricing fields when known).
 
+The `Rating` column shows your own thumbs (see `rate`); rated models sort to
+the top or the bottom of the list.
+
+### `rate`
+
+Rate a model up or down. Ratings are personal, stored in
+`~/.config/basemode/auth.json`, and reorder every list built from the model
+picker — `basemode models`, and any frontend on top of it.
+
+```bash
+basemode rate claude-opus-5 up
+basemode rate gpt-4o down
+basemode rate gpt-4o clear
+basemode rate                      # list every rated model
+```
+
 ### `providers`
 
 List all known providers.

@@ -148,3 +148,18 @@ state = build_model_picker_state(
     verified_only=True,
 )
 ```
+
+Each entry carries a `rating` field — this user's thumb for the model (`1`,
+`-1`, or `None`) — and rated models sort ahead of or behind the reliability
+ordering, so an explicit opinion outranks the shipped data. Read and write
+thumbs with `basemode.keys`:
+
+```python
+from basemode.keys import RATING_UP, list_model_ratings, set_model_rating
+
+set_model_rating("anthropic/claude-opus-5", RATING_UP)
+list_model_ratings()  # {"anthropic/claude-opus-5": 1}
+```
+
+Pass `ratings={...}` to `list_model_picker_entries` to rank with thumbs from
+somewhere other than the local store.
