@@ -348,6 +348,33 @@ def test_normalize_completion_segment_keeps_finished_hyphenated_word() -> None:
     assert result == " a form assembled out of Jiu-Jitsu"
 
 
+def test_normalize_completion_segment_strips_echoed_word() -> None:
+    result = normalize_completion_segment(
+        "The cellular automaton Langton ",
+        "Langton found he called it lambda.",
+    )
+
+    assert result == "found he called it lambda."
+
+
+def test_normalize_completion_segment_strips_echoed_phrase() -> None:
+    result = normalize_completion_segment(
+        "he thought about the cellular automaton ",
+        "the cellular automaton was stranger than expected.",
+    )
+
+    assert result == "was stranger than expected."
+
+
+def test_normalize_completion_segment_keeps_ordinary_word_recurrence() -> None:
+    result = normalize_completion_segment(
+        "he said ",
+        "he would go tomorrow.",
+    )
+
+    assert result == "he would go tomorrow."
+
+
 async def test_normalize_stream_joins_single_letter_prefix_boundary() -> None:
     result = await _collect_stream(
         "welfare was counted, a",

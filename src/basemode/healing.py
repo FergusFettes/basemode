@@ -511,6 +511,48 @@ def _repair_prefix_boundary(prefix: str, text: str, *, protect_tail: int = 0) ->
     return text[1:] if merged_is_word and not right_alone else text
 
 
+_WORD_RE = re.compile(r"[A-Za-z']+")
+_TRAILING_PUNCT_RE = re.compile(r"[,.;:!?]+$")
+
+# Repetition of these alone is ordinary prose ("he said he would"), not a
+# model echoing what it was just shown, so a run of only such words never
+# counts as evidence of a restated prefix.
+_REPETITION_NOISE_WORDS = _COMMON_SHORT_WORDS | _TWO_LETTER_WORDS | _STANDALONE_LETTERS
+
+
+def _strip_repeated_leading_words(prefix: str, text: str, max_words: int = 3) -> str:
+    """Drop leading words that exactly restate the prefix's trailing words.
+
+    Some models echo the word(s) they were just shown before continuing:
+    prefix ``"...called Langton "`` followed by completion ``"Langton found
+    he called..."``. Matching is case-insensitive, tries the longest run
+    first (so a repeated phrase is trimmed once rather than word by word),
+    and requires at least one non-trivial word in the run — pure function
+    words ("the", "he", "and") repeat naturally in prose and are not evidence
+    of an echo.
+    """
+    stripped = text.lstrip(" ")
+    leading_space = text[: len(text) - len(stripped)]
+    prefix_words = _WORD_RE.findall(prefix.rstrip())
+    if not prefix_words:
+        return text
+
+    text_words = stripped.split(" ") if stripped else []
+    limit = min(max_words, len(prefix_words), len(text_words))
+
+    for n in range(limit, 0, -1):
+        tail = [w.lower() for w in prefix_words[-n:]]
+        head = [_TRAILING_PUNCT_RE.sub("", w).lower() for w in text_words[:n]]
+        if tail != head:
+            continue
+        if all(w in _REPETITION_NOISE_WORDS for w in tail):
+            continue
+        remainder = " ".join(text_words[n:])
+        return leading_space + remainder if remainder else ""
+
+    return text
+
+
 def _trim_dangling_short_tail(text: str, vocab: frozenset[str] = frozenset()) -> str:
     match = re.search(r"\b([A-Za-z]{1,3})$", text)
     if not match:
@@ -529,6 +571,7 @@ def normalize_completion_segment(prefix: str, completion: str) -> str:
     caused by a token limit.
     """
     completion = _repair_prefix_boundary(prefix, completion)
+    completion = _strip_repeated_leading_words(prefix, completion)
     completion = _DANGLING_HYPHENATED_TAIL_RE.sub("", completion).rstrip()
     return _trim_dangling_short_tail(completion, _document_vocabulary(prefix))
 
@@ -577,6 +620,7 @@ async def normalize_stream_newlines(
                 pending_text = _repair_prefix_boundary(
                     prefix, pending_text, protect_tail=_COMMIT_LAG_CHARS
                 )
+                pending_text = _strip_repeated_leading_words(prefix, pending_text)
             pending_text = _join_split_compounds(
                 pending_text, before=recent, protect_tail=_COMMIT_LAG_CHARS
             )
@@ -593,6 +637,7 @@ async def normalize_stream_newlines(
         pending_text += "\n" * pending_newlines
     if at_boundary:
         pending_text = _repair_prefix_boundary(prefix, pending_text)
+        pending_text = _strip_repeated_leading_words(prefix, pending_text)
     pending_text = _join_split_compounds(pending_text, before=recent)
     pending_text = _fix_space_before_punctuation(pending_text)
     if pending_text:
