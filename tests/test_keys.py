@@ -20,9 +20,10 @@ def test_clearing_a_rating_removes_it() -> None:
     assert keys.list_model_ratings() == {}
 
 
-def test_only_thumbs_are_accepted() -> None:
+@pytest.mark.parametrize("rating", [5, 0, True, False])
+def test_only_thumbs_are_accepted(rating) -> None:
     with pytest.raises(ValueError):
-        keys.set_model_rating("openai/gpt-4o", 5)
+        keys.set_model_rating("openai/gpt-4o", rating)
 
 
 def test_ratings_live_beside_keys_without_disturbing_them() -> None:

@@ -162,7 +162,11 @@ def set_model_rating(model: str, rating: int | None) -> None:
     so callers should normalize first if they want `kimi-k3` and
     `moonshot/kimi-k3` to be the same thumb.
     """
-    if rating is not None and rating not in _VALID_RATINGS:
+    # `True == 1`, so a bool would pass the membership test and then be
+    # written as JSON `true` — which the reader drops as malformed.
+    if rating is not None and (
+        isinstance(rating, bool) or rating not in _VALID_RATINGS
+    ):
         raise ValueError(f"rating must be {RATING_UP}, {RATING_DOWN}, or None")
     data = _load()
     if rating is None:
