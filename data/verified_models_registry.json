@@ -221,7 +221,7 @@
     },
     {
       "model": "moonshot/kimi-k2.7-code-highspeed",
-      "quirks": ["reasoning_budget"]
+      "quirks": ["no_temperature", "reasoning_budget"]
     },
     {
       "model": "moonshot/kimi-k3",

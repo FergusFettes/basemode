@@ -102,6 +102,27 @@ def test_openai_gpt_5_6_sol_bumps_max_tokens_without_thinking_param() -> None:
     assert "extra_body" not in kwargs
 
 
+def test_together_reasoning_model_uses_budget_without_thinking_param() -> None:
+    """Together rejects LiteLLM's Anthropic-shaped ``thinking`` argument."""
+    kwargs = build_kwargs(
+        GenerationParams(
+            model="together_ai/deepseek-ai/DeepSeek-V4-Pro-0813", max_tokens=20
+        )
+    )
+
+    assert kwargs["max_tokens"] == 5120
+    assert "thinking" not in kwargs
+    assert "extra_body" not in kwargs
+
+
+def test_moonshot_kimi_k27_highspeed_does_not_send_temperature() -> None:
+    kwargs = build_kwargs(
+        GenerationParams(model="moonshot/kimi-k2.7-code-highspeed", max_tokens=20)
+    )
+
+    assert "temperature" not in kwargs
+
+
 def test_registry_reasoning_budget_quirk_applies_generic_bump(monkeypatch) -> None:
     """A model with no tuned _THINKING_MODELS entry, but tagged with the
     registry's generic `reasoning_budget` quirk (auto-added by

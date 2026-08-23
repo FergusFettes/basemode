@@ -165,11 +165,13 @@ def _reasoning_budget_kwargs(
     via_moonshot: bool,
     via_openai: bool,
     via_openrouter: bool,
+    via_together: bool,
 ) -> dict:
     adjusted = max(max_tokens, budget + min_out)
-    if via_moonshot or via_openai:
-        # Neither takes an Anthropic-style `thinking` kwarg — just widen the
-        # raw token budget so there's room left after hidden reasoning.
+    if via_moonshot or via_openai or via_together:
+        # These OpenAI-compatible providers reject an Anthropic-style
+        # ``thinking`` kwarg. Just widen the raw token budget so there is room
+        # left after hidden reasoning.
         return {"max_tokens": adjusted}
     if via_openrouter:
         # OpenRouter separates visible completion cap from thinking budget.
@@ -191,6 +193,7 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
     via_moonshot = lower_model.startswith("moonshot/")
     via_zai = lower_model.startswith("zai/")
     via_openai = lower_model.startswith("openai/")
+    via_together = lower_model.startswith("together_ai/")
     via_anthropic = lower_model.startswith("anthropic/")
     if via_zai and stem.startswith(_ZAI_DISABLE_THINKING_PREFIXES):
         return {"extra_body": {"thinking": {"type": "disabled"}}}
@@ -205,6 +208,7 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
                 via_moonshot=via_moonshot,
                 via_openai=via_openai,
                 via_openrouter=via_openrouter,
+                via_together=via_together,
             )
     if "reasoning_budget" in model_quirks(model):
         budget, min_out = _GENERIC_REASONING_BUDGET
@@ -215,6 +219,7 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
             via_moonshot=via_moonshot,
             via_openai=via_openai,
             via_openrouter=via_openrouter,
+            via_together=via_together,
         )
     return {}
 
