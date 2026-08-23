@@ -224,6 +224,44 @@ def test_classify_error_recognises_an_empty_completion() -> None:
     assert health.classify_error(error) == ("empty_response", None)
 
 
+def test_invalid_request_records_safe_provider_code_and_parameter() -> None:
+    class ProviderError(RuntimeError):
+        status_code = 400
+        code = "unsupported_value"
+        param = "temperature"
+
+    error = ProviderError("temperature must be one")
+    category, status = health.classify_error(error)
+    code, parameter = health.error_details(error)
+    health.record_outcome(
+        "moonshot/kimi-k2.7-code-highspeed",
+        ok=False,
+        category=category,
+        status=status,
+        error_code=code,
+        error_param=parameter,
+    )
+
+    summary = health.model_health("moonshot/kimi-k2.7-code-highspeed")
+    assert summary["last_error_code"] == "unsupported_value"
+    assert summary["last_error_param"] == "temperature"
+    with health._connect() as conn:
+        event = conn.execute(
+            "SELECT error_code, error_param FROM model_events"
+        ).fetchone()
+    assert tuple(event) == ("unsupported_value", "temperature")
+
+
+def test_unsupported_params_error_is_an_invalid_request() -> None:
+    class UnsupportedParamsError(RuntimeError):
+        pass
+
+    error = UnsupportedParamsError("parameters: ['thinking']")
+
+    assert health.classify_error(error) == ("invalid_request", None)
+    assert health.error_details(error) == ("unsupported_parameter", "thinking")
+
+
 # --- raw head capture ---
 
 

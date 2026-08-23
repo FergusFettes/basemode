@@ -21,6 +21,7 @@ own errors. Set ``BASEMODE_NO_HEALTH=1`` to turn recording off entirely.
 from __future__ import annotations
 
 import os
+import re
 import sqlite3
 from collections import Counter
 from datetime import UTC, datetime, timedelta
@@ -57,11 +58,70 @@ def classify_error(error: BaseException) -> tuple[str, int | None]:
         return "timeout", status
     if status is not None and status >= 500:
         return "provider_unavailable", status
-    if status in {400, 404, 409, 422}:
+    if status in {400, 404, 409, 422} or "unsupportedparam" in name:
         return "invalid_request", status
     if "connection" in name or "network" in name:
         return "network", status
     return "provider_error", status
+
+
+def error_details(error: BaseException) -> tuple[str | None, str | None]:
+    """Extract safe, structured request-rejection details when available.
+
+    Provider error messages can contain prompt material, so health records
+    retain only a provider error code and parameter name. These are enough to
+    distinguish a bad model capability from a malformed request without
+    keeping provider response text.
+    """
+    code = _safe_error_field(getattr(error, "code", None))
+    param = _safe_error_field(getattr(error, "param", None))
+    for payload in (getattr(error, "body", None), getattr(error, "error", None)):
+        payload_code, payload_param = _payload_error_details(payload)
+        code = code or payload_code
+        param = param or payload_param
+
+    message = str(error)
+    if code is None:
+        if "UnsupportedParamsError" in type(error).__name__:
+            code = "unsupported_parameter"
+        elif re.search(r"unsupported parameter", message, re.IGNORECASE):
+            code = "unsupported_parameter"
+        elif re.search(
+            r"unsupported value|invalid temperature", message, re.IGNORECASE
+        ):
+            code = "unsupported_value"
+    if param is None:
+        parameter_match = re.search(
+            r"(?:parameter|value):\s*['`]([A-Za-z_][A-Za-z0-9_]*)['`]",
+            message,
+            re.IGNORECASE,
+        )
+        list_match = re.search(r"parameters:\s*\[['\"]([^'\"]+)", message)
+        if parameter_match:
+            param = parameter_match.group(1)
+        elif list_match:
+            param = list_match.group(1)
+        elif "invalid temperature" in message.lower():
+            param = "temperature"
+    return code, param
+
+
+def _safe_error_field(value: Any) -> str | None:
+    if not isinstance(value, str):
+        return None
+    value = value.strip()
+    return value[:120] if value else None
+
+
+def _payload_error_details(payload: Any) -> tuple[str | None, str | None]:
+    if not isinstance(payload, dict):
+        return None, None
+    nested = payload.get("error")
+    if isinstance(nested, dict):
+        payload = nested
+    return _safe_error_field(payload.get("code")), _safe_error_field(
+        payload.get("param")
+    )
 
 
 def error_status(error: BaseException) -> int | None:
@@ -112,7 +172,9 @@ def _connect() -> sqlite3.Connection:
             last_success_at TEXT,
             last_failure_at TEXT,
             last_category TEXT,
-            last_status INTEGER
+            last_status INTEGER,
+            last_error_code TEXT,
+            last_error_param TEXT
         )
         """
     )
@@ -124,14 +186,28 @@ def _connect() -> sqlite3.Connection:
             at TEXT NOT NULL,
             ok INTEGER NOT NULL,
             category TEXT,
-            status INTEGER
+            status INTEGER,
+            error_code TEXT,
+            error_param TEXT
         )
         """
     )
     conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_events_model_at ON model_events(model, at)"
     )
+    _ensure_column(conn, "model_totals", "last_error_code", "TEXT")
+    _ensure_column(conn, "model_totals", "last_error_param", "TEXT")
+    _ensure_column(conn, "model_events", "error_code", "TEXT")
+    _ensure_column(conn, "model_events", "error_param", "TEXT")
     return conn
+
+
+def _ensure_column(
+    conn: sqlite3.Connection, table: str, name: str, definition: str
+) -> None:
+    columns = {str(row["name"]) for row in conn.execute(f"PRAGMA table_info({table})")}
+    if name not in columns:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {name} {definition}")
 
 
 def record_outcome(
@@ -140,6 +216,8 @@ def record_outcome(
     ok: bool,
     category: str | None = None,
     status: int | None = None,
+    error_code: str | None = None,
+    error_param: str | None = None,
 ) -> None:
     """Record one generation attempt. Never raises.
 
@@ -154,16 +232,18 @@ def record_outcome(
     try:
         with _connect() as conn:
             conn.execute(
-                "INSERT INTO model_events (model, at, ok, category, status)"
-                " VALUES (?, ?, ?, ?, ?)",
-                (model, now, int(ok), category, status),
+                "INSERT INTO model_events "
+                "(model, at, ok, category, status, error_code, error_param)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (model, now, int(ok), category, status, error_code, error_param),
             )
             conn.execute(
                 """
                 INSERT INTO model_totals (
                     model, attempts, successes, failures, first_seen, last_seen,
                     last_success_at, last_failure_at, last_category, last_status
-                ) VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?)
+                    , last_error_code, last_error_param
+                ) VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(model) DO UPDATE SET
                     attempts = attempts + 1,
                     successes = successes + excluded.successes,
@@ -180,7 +260,13 @@ def record_outcome(
                         THEN excluded.last_category ELSE last_category END,
                     last_status = CASE
                         WHEN excluded.last_failure_at IS NOT NULL
-                        THEN excluded.last_status ELSE last_status END
+                        THEN excluded.last_status ELSE last_status END,
+                    last_error_code = CASE
+                        WHEN excluded.last_failure_at IS NOT NULL
+                        THEN excluded.last_error_code ELSE last_error_code END,
+                    last_error_param = CASE
+                        WHEN excluded.last_failure_at IS NOT NULL
+                        THEN excluded.last_error_param ELSE last_error_param END
                 """,
                 (
                     model,
@@ -192,6 +278,8 @@ def record_outcome(
                     None if ok else now,
                     category,
                     status,
+                    error_code,
+                    error_param,
                 ),
             )
             _prune(conn)
@@ -245,6 +333,8 @@ def _summary(row: sqlite3.Row, events: list[sqlite3.Row], days: int | None) -> d
         "last_failure_at": row["last_failure_at"],
         "last_category": row["last_category"],
         "last_status": row["last_status"],
+        "last_error_code": row["last_error_code"],
+        "last_error_param": row["last_error_param"],
         # Windowed figures come from the event log, which only reaches back
         # EVENT_RETENTION_DAYS; the totals above are for all time.
         "window_days": days,

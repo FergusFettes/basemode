@@ -11,7 +11,7 @@ from .healing import (
     probe_rewind_overlap,
     rewind_prefix_to_word_boundary,
 )
-from .health import EMPTY_RESPONSE, classify_error, record_outcome
+from .health import EMPTY_RESPONSE, classify_error, error_details, record_outcome
 from .keys import load_into_environ
 from .params import GenerationParams
 
@@ -105,7 +105,15 @@ async def continue_text(
     except Exception as exc:
         if record_health:
             category, status = classify_error(exc)
-            record_outcome(model, ok=False, category=category, status=status)
+            error_code, error_param = error_details(exc)
+            record_outcome(
+                model,
+                ok=False,
+                category=category,
+                status=status,
+                error_code=error_code,
+                error_param=error_param,
+            )
         log.exception("continue_text: stream error after %d tokens", token_count)
         _report_usage(on_usage)
         raise
@@ -185,7 +193,15 @@ async def branch_text(
         except Exception as exc:
             if record_health:
                 category, status = classify_error(exc)
-                record_outcome(model, ok=False, category=category, status=status)
+                error_code, error_param = error_details(exc)
+                record_outcome(
+                    model,
+                    ok=False,
+                    category=category,
+                    status=status,
+                    error_code=error_code,
+                    error_param=error_param,
+                )
             await queue.put(exc)
         else:
             if record_health:

@@ -125,6 +125,10 @@ Failures are recorded by category — `authentication`, `rate_limit`, `timeout`,
 and "pick another model". All-time totals are kept forever; the per-category
 breakdown comes from an event log pruned after 30 days.
 
+For invalid requests, the event record also keeps the provider's safe machine
+details when supplied: an error code and rejected parameter name. It does not
+retain provider error messages, which can include request content.
+
 A cancelled stream counts as a success if any tokens had already arrived: a
 consumer walking away is not a verdict on the model.
 
