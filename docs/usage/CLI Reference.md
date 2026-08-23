@@ -57,6 +57,16 @@ basemode rate gpt-4o clear
 basemode rate                      # list every rated model
 ```
 
+### `health`
+
+Show what models actually did on this machine: attempts, failures, failure
+rate, and the categories they failed with. Recorded automatically by every
+continuation; see [[Keys and Defaults]].
+
+```bash
+basemode health [MODEL] [--days 7] [--json] [--clear]
+```
+
 ### `providers`
 
 List all known providers.
@@ -79,7 +89,7 @@ basemode strategies --unpin claude-opus-5
 
 Show normalized model ID, selected strategy and where that choice came from
 (`verified models registry`, `model-name heuristic`, or a local pin), quirks,
-token limits, and pricing metadata.
+token limits, pricing metadata, your rating, and observed health.
 
 ```bash
 basemode info claude-sonnet-4-6

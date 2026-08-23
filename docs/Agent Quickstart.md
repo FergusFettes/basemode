@@ -37,6 +37,7 @@ print or commit provider credentials; see [[Keys and Defaults]].
 | Continuation scoring | `src/basemode/scoring.py` | Tuning what counts as assistant leakage rather than a clean continuation |
 | Strategy bake-off | `src/basemode/bench.py` | Changing how `basemode bench` probes or ranks strategies |
 | Model listing metadata | `src/basemode/models.py`, `src/basemode/live_models.py` | Updating picker data or live-provider discovery |
+| User model opinion and history | `src/basemode/keys.py`, `src/basemode/health.py` | Changing stored ratings, or how generation outcomes are recorded |
 | Provider health | `tests/test_integration.py`, `scripts/model_reliability.py` | Maintaining live-provider checks and the [[Provider Health]] dashboard |
 | Interfaces | `src/basemode/cli.py`, `src/basemode/server.py` | Changing CLI or OpenAI-completions-compatible server behaviour |
 | Tests | `tests/` | Add a regression beside the feature area; real-API coverage is in `test_integration.py` |

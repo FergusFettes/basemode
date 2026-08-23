@@ -163,3 +163,22 @@ list_model_ratings()  # {"anthropic/claude-opus-5": 1}
 
 Pass `ratings={...}` to `list_model_picker_entries` to rank with thumbs from
 somewhere other than the local store.
+
+Each entry also carries `health` — what the model has actually done on this
+machine, or `None` if it has never been generated with. `continue_text` and
+`branch_text` record their own outcomes, so this fills in on its own:
+
+```python
+from basemode.health import list_model_health, model_health, record_outcome
+
+model_health("openai/gpt-4o", days=7)
+# {"attempts": 84, "failures": 9, "failure_rate": 0.1071,
+#  "categories": {"rate_limit": 8, "timeout": 1}, ...}
+
+list_model_health()
+```
+
+A caller that classifies failures itself passes `record_health=False` to
+`continue_text` and records with `record_outcome(model, ok=False,
+category=..., status=...)`, so one attempt is never counted twice. Pass
+`health_days=` to `list_model_picker_entries` to window the breakdown.

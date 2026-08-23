@@ -98,3 +98,34 @@ A rating only affects ordering: models you rated up sort to the top of
 `basemode models` (and of any picker built on `list_model_picker_entries`),
 models you rated down sort to the bottom, and nothing is ever hidden. Ratings
 are keyed like strategy pins — by the normalized model ID.
+
+## Observed model health
+
+A rating is what you think of a model. Health is what the model has actually
+done here: every continuation records its outcome against the model it ran on,
+so a failure rate builds up from real usage rather than from the weekly
+registry probe.
+
+This lives in `~/.config/basemode/health.sqlite` rather than in `auth.json`,
+because branches generate in parallel and read-modify-write on a JSON file
+loses counts under exactly that load.
+
+```bash
+basemode health                    # every model seen, worst failure rate first
+basemode health claude-opus-5      # one model
+basemode health --days 7           # narrow the failure breakdown
+basemode health --json             # raw records
+basemode health --clear            # forget everything
+basemode info gpt-4o               # health and rating alongside pricing
+```
+
+Failures are recorded by category — `authentication`, `rate_limit`, `timeout`,
+`provider_unavailable`, `invalid_request`, `network`, `empty_response`, or
+`provider_error` — which is the difference between "fix your key", "wait",
+and "pick another model". All-time totals are kept forever; the per-category
+breakdown comes from an event log pruned after 30 days.
+
+A cancelled stream counts as a success if any tokens had already arrived: a
+consumer walking away is not a verdict on the model.
+
+Set `BASEMODE_NO_HEALTH=1` to turn recording off entirely.
