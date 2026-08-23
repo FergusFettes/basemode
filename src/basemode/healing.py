@@ -1,27 +1,58 @@
+import gzip
 import re
 from collections.abc import AsyncGenerator, AsyncIterable
 from functools import lru_cache
+from importlib import resources
 from pathlib import Path
 
 _LOOKBEHIND_CHARS = 80
 _COMMIT_LAG_CHARS = 32
 
+# Webster's Second International (the BSD `web2` list, 1934 copyright lapsed),
+# shipped with the package. Boundary repair reads the dictionary for nearly
+# every decision, so an empty one does not degrade gracefully — it inverts the
+# outcome: with no known words, `_word_like` is false for everything, the
+# prefix always looks mid-word, and "Seed beta" + " gamma" joins into
+# "betagamma". That is exactly what happened wherever /usr/share/dict/words
+# was absent, which is most Linux hosts and every stock CI runner. Bundling the
+# list makes the behaviour the same on every machine.
+_BUNDLED_DICT = "words.txt.gz"
 _DICT_PATH = Path("/usr/share/dict/words")
-_SYSTEM_WORDS: frozenset[str] | None = None
+_DICTIONARY: frozenset[str] | None = None
 
 
-def _system_words() -> frozenset[str]:
-    global _SYSTEM_WORDS
-    if _SYSTEM_WORDS is None:
-        if _DICT_PATH.exists():
-            _SYSTEM_WORDS = frozenset(_DICT_PATH.read_text().lower().split())
+def _load_bundled_dictionary() -> frozenset[str] | None:
+    try:
+        raw = resources.files("basemode").joinpath("data", _BUNDLED_DICT).read_bytes()
+    except Exception:
+        return None
+    try:
+        return frozenset(gzip.decompress(raw).decode("utf-8").split())
+    except Exception:
+        return None
+
+
+def _dictionary() -> frozenset[str]:
+    """Known English words, lowercased.
+
+    The packaged list is the source of truth so that healing is deterministic
+    across machines; the system dictionary is only a fallback for an install
+    whose package data went missing.
+    """
+    global _DICTIONARY
+    if _DICTIONARY is None:
+        bundled = _load_bundled_dictionary()
+        if bundled is not None:
+            _DICTIONARY = bundled
+        elif _DICT_PATH.exists():
+            _DICTIONARY = frozenset(_DICT_PATH.read_text().lower().split())
         else:
-            _SYSTEM_WORDS = frozenset()
-    return _SYSTEM_WORDS
+            _DICTIONARY = frozenset()
+    return _DICTIONARY
 
 
 def _is_word(s: str) -> bool:
-    return s.lower() in _system_words()
+    return s.lower() in _dictionary()
 
 
 _VOCAB_RE = re.compile(r"[A-Za-z]+")

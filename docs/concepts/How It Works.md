@@ -62,8 +62,15 @@ output is post-processed to undo that and a few related artifacts:
   `cars in side streets` all survive intact.
 - Newline artifacts that break prose flow.
 
-The dictionary these rules consult is `/usr/share/dict/words`, extended two
-ways, because on its own it is a poor judge of running prose: it lists `flank`
+The dictionary these rules consult ships with the package: Webster's Second
+International, the BSD `web2` list whose 1934 copyright has lapsed, held as a
+compressed word list in `basemode/data/`. It used to be read from
+`/usr/share/dict/words`, which meant that on a host without that file — most
+Linux images, every stock CI runner — no word was known, every prefix looked
+like it ended mid-word, and boundaries were joined that should have been left
+alone. Packaging the list makes healing behave identically everywhere; the
+system dictionary is now only a fallback for an install whose package data
+went missing. The list is extended two ways, because on its own it is a poor judge of running prose: it lists `flank`
 but not `flanks`, so plurals and past tenses are checked against their stems,
 and it knows nothing of invented or proper nouns, so the words already used in
 the document count as words too. That second source is what lets a coinage like

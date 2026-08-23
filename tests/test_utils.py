@@ -1,5 +1,7 @@
 """Unit tests for prefix normalization edge cases."""
 
+from pathlib import Path
+
 import pytest
 
 from basemode.healing import (
@@ -533,3 +535,32 @@ def test_normalize_completion_segment_keeps_short_coinage_from_document() -> Non
     )
 
     assert result == " Their envoys came from Vor"
+
+
+def test_healing_uses_the_packaged_dictionary_not_the_host_one(monkeypatch) -> None:
+    """The repair rules must behave the same on a host with no /usr/share/dict.
+
+    With an empty dictionary every word looks like a fragment, so the prefix
+    always reads as mid-word and boundaries get joined that should not be —
+    "Seed beta" + " gamma" became "Seed betagamma" on stock CI runners.
+    """
+    from basemode import healing
+
+    monkeypatch.setattr(healing, "_DICTIONARY", None)
+    monkeypatch.setattr(healing, "_DICT_PATH", Path("/nonexistent/dict/words"))
+
+    assert len(healing._dictionary()) > 100_000
+    assert healing._is_word("gamma")
+    assert normalize_completion_segment("Seed beta", " gamma") == " gamma"
+
+
+def test_healing_falls_back_to_the_system_dictionary(tmp_path, monkeypatch) -> None:
+    from basemode import healing
+
+    fallback = tmp_path / "words"
+    fallback.write_text("Alpha\nbeta\ngamma\n")
+    monkeypatch.setattr(healing, "_DICTIONARY", None)
+    monkeypatch.setattr(healing, "_load_bundled_dictionary", lambda: None)
+    monkeypatch.setattr(healing, "_DICT_PATH", fallback)
+
+    assert healing._dictionary() == frozenset({"alpha", "beta", "gamma"})
