@@ -37,6 +37,49 @@ EVENT_RETENTION_DAYS = 30
 EMPTY_RESPONSE = "empty_response"
 
 
+def classify_error(error: BaseException) -> tuple[str, int | None]:
+    """Sort a provider exception into a category and an HTTP status.
+
+    Categories are deliberately coarse: what a user needs from a failure
+    record is whether to fix a key, wait, retry, or pick another model.
+    """
+    from .exceptions import EmptyCompletionError
+
+    if isinstance(error, EmptyCompletionError):
+        return EMPTY_RESPONSE, None
+    status = error_status(error)
+    name = type(error).__name__.lower()
+    if status in {401, 403} or "auth" in name or "permission" in name:
+        return "authentication", status
+    if status == 429 or "ratelimit" in name or "rate_limit" in name:
+        return "rate_limit", status
+    if isinstance(error, TimeoutError) or "timeout" in name:
+        return "timeout", status
+    if status is not None and status >= 500:
+        return "provider_unavailable", status
+    if status in {400, 404, 409, 422}:
+        return "invalid_request", status
+    if "connection" in name or "network" in name:
+        return "network", status
+    return "provider_error", status
+
+
+def error_status(error: BaseException) -> int | None:
+    """The HTTP status a provider exception carries, if any."""
+    candidates = (getattr(error, "status_code", None), getattr(error, "status", None))
+    response = getattr(error, "response", None)
+    if response is not None:
+        candidates += (getattr(response, "status_code", None),)
+    for value in candidates:
+        if (
+            isinstance(value, int)
+            and not isinstance(value, bool)
+            and 100 <= value <= 599
+        ):
+            return value
+    return None
+
+
 def _now() -> str:
     return datetime.now(UTC).isoformat()
 

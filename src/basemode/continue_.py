@@ -10,6 +10,7 @@ from .healing import (
     probe_rewind_overlap,
     rewind_prefix_to_word_boundary,
 )
+from .health import EMPTY_RESPONSE, classify_error, record_outcome
 from .keys import load_into_environ
 from .params import GenerationParams
 
@@ -26,9 +27,15 @@ async def continue_text(
     strategy: str | None = None,
     rewind: bool = False,
     strict_max_tokens: bool = False,
+    record_health: bool = True,
     **extra,
 ) -> AsyncGenerator[str, None]:
-    """Stream a single continuation."""
+    """Stream a single continuation.
+
+    The outcome is recorded against the model (see :mod:`basemode.health`)
+    unless `record_health=False` — which a caller that classifies failures
+    itself should pass, so one attempt is not counted twice.
+    """
     litellm.suppress_debug_info = True
     load_into_environ()
     model = normalize_model(model)
@@ -60,9 +67,24 @@ async def continue_text(
         async for token in stream:
             token_count += 1
             yield token
-    except Exception:
+    except (GeneratorExit, asyncio.CancelledError):
+        # The consumer walked away. Tokens already delivered still count as
+        # the model having worked; an immediate cancel is not a verdict.
+        if record_health and token_count:
+            record_outcome(model, ok=True)
+        raise
+    except Exception as exc:
+        if record_health:
+            category, status = classify_error(exc)
+            record_outcome(model, ok=False, category=category, status=status)
         log.exception("continue_text: stream error after %d tokens", token_count)
         raise
+    if record_health:
+        record_outcome(
+            model,
+            ok=bool(token_count),
+            category=None if token_count else EMPTY_RESPONSE,
+        )
     log.debug("continue_text: done, %d tokens", token_count)
 
 
@@ -76,9 +98,14 @@ async def branch_text(
     strategy: str | None = None,
     rewind: bool = False,
     strict_max_tokens: bool = False,
+    record_health: bool = True,
     **extra,
 ) -> AsyncGenerator[tuple[int, str], None]:
-    """Stream n parallel continuations as (branch_idx, token) tuples."""
+    """Stream n parallel continuations as (branch_idx, token) tuples.
+
+    Each branch is recorded as its own attempt (see :mod:`basemode.health`)
+    unless `record_health=False`.
+    """
     if n < 1:
         raise ValueError("n must be at least 1")
 
@@ -94,6 +121,7 @@ async def branch_text(
     generation_prefix, rewind_fragment = _generation_prefix(prefix, strat.name, rewind)
 
     async def run_branch(idx: int) -> None:
+        token_count = 0
         try:
             raw_tokens = _stream_tokens(
                 strat, prefix, generation_prefix, rewind_fragment, params
@@ -102,9 +130,24 @@ async def branch_text(
             if strict_max_tokens:
                 stream = _enforce_visible_token_cap(stream, model, max_tokens)
             async for token in stream:
+                token_count += 1
                 await queue.put((idx, token))
+        except asyncio.CancelledError:
+            if record_health and token_count:
+                record_outcome(model, ok=True)
+            raise
         except Exception as exc:
+            if record_health:
+                category, status = classify_error(exc)
+                record_outcome(model, ok=False, category=category, status=status)
             await queue.put(exc)
+        else:
+            if record_health:
+                record_outcome(
+                    model,
+                    ok=bool(token_count),
+                    category=None if token_count else EMPTY_RESPONSE,
+                )
         finally:
             await queue.put(None)
 
