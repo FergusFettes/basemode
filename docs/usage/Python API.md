@@ -134,6 +134,32 @@ params = GenerationParams(
 )
 ```
 
+## Diagnosing a boundary
+
+Stream normalization repairs the seam between a prefix and its continuation —
+restoring a space the model dropped, collapsing a wrapped newline, rejoining a
+word split across the boundary. When the seam still comes out wrong, the
+question is whether the model produced it that way or the repair did it, and
+the stream is gone by the time anyone reads the text.
+
+`on_raw_head` answers that. It is called once with the opening characters as
+the strategy produced them, before normalization:
+
+```python
+head: list[str] = []
+async for token in continue_text(prefix, model, on_raw_head=head.append):
+    ...
+
+head[0]        # " wield both. The sculptor does"  — model emitted the space
+```
+
+If the stored text lost that space, the repair took it; if `head[0]` never had
+one, the model did. `raw_head_chars` sets the budget (32 by default) — a
+character count rather than a token count, since token sizes vary by provider.
+The sink is called once per call, including for a stream that ends early or
+raises, and an exception inside it is logged and swallowed rather than
+breaking the generation.
+
 ## Model picker helpers
 
 Use structured model metadata for frontend pickers:

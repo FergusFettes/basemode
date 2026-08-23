@@ -222,3 +222,86 @@ def test_classify_error_recognises_an_empty_completion() -> None:
     error = EmptyCompletionError(model="gpt-4o", strategy="system")
 
     assert health.classify_error(error) == ("empty_response", None)
+
+
+# --- raw head capture ---
+
+
+async def test_the_raw_head_is_reported_before_healing_touches_it(monkeypatch) -> None:
+    """The seam repair happens downstream, so the sink must see the original."""
+    from basemode import continue_text
+
+    _patch_stream(monkeypatch, tokens=[" wield", " both."])
+    seen: list[str] = []
+
+    text = "".join(
+        await _drain(
+            continue_text(
+                "...the solid and the fluid and to",
+                "gpt-4o-mini",
+                on_raw_head=seen.append,
+            )
+        )
+    )
+
+    assert seen == [" wield both."]
+    assert text.startswith(" wield")
+
+
+async def test_the_raw_head_is_capped_at_the_character_budget(monkeypatch) -> None:
+    from basemode import continue_text
+
+    _patch_stream(monkeypatch, tokens=["x" * 100])
+    seen: list[str] = []
+
+    await _drain(continue_text("Seed", "gpt-4o-mini", on_raw_head=seen.append))
+
+    assert seen == ["x" * 32]
+
+
+async def test_a_short_stream_still_reports_its_head_once(monkeypatch) -> None:
+    from basemode import continue_text
+
+    _patch_stream(monkeypatch, tokens=[" hi"])
+    seen: list[str] = []
+
+    await _drain(continue_text("Seed", "gpt-4o-mini", on_raw_head=seen.append))
+
+    assert seen == [" hi"]
+
+
+async def test_a_failed_stream_reports_what_arrived_before_the_error(
+    monkeypatch,
+) -> None:
+    import pytest
+
+    from basemode import continue_text
+
+    _patch_stream(monkeypatch, tokens=[" par"], error=RuntimeError("provider died"))
+    seen: list[str] = []
+
+    with pytest.raises(RuntimeError):
+        await _drain(continue_text("Seed", "gpt-4o-mini", on_raw_head=seen.append))
+
+    assert seen == [" par"]
+
+
+async def test_a_sink_that_raises_cannot_break_the_generation(monkeypatch) -> None:
+    from basemode import continue_text
+
+    def boom(_head: str) -> None:
+        raise ValueError("bad sink")
+
+    _patch_stream(monkeypatch, tokens=[" alpha"])
+
+    text = "".join(await _drain(continue_text("Seed", "gpt-4o-mini", on_raw_head=boom)))
+
+    assert text == " alpha"
+
+
+async def test_nothing_is_captured_without_a_sink(monkeypatch) -> None:
+    from basemode import continue_text
+
+    _patch_stream(monkeypatch, tokens=[" alpha"])
+
+    assert "".join(await _drain(continue_text("Seed", "gpt-4o-mini"))) == " alpha"

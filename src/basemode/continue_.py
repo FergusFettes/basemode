@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Callable
 
 import litellm
 
@@ -16,6 +16,11 @@ from .params import GenerationParams
 
 log = logging.getLogger(__name__)
 
+#: How much of a continuation's opening is enough to diagnose its boundary.
+#: Token sizes vary wildly between providers, so this is a character budget
+#: rather than a token count.
+RAW_HEAD_CHARS = 32
+
 
 async def continue_text(
     prefix: str,
@@ -28,6 +33,8 @@ async def continue_text(
     rewind: bool = False,
     strict_max_tokens: bool = False,
     record_health: bool = True,
+    on_raw_head: Callable[[str], None] | None = None,
+    raw_head_chars: int = RAW_HEAD_CHARS,
     **extra,
 ) -> AsyncGenerator[str, None]:
     """Stream a single continuation.
@@ -35,6 +42,14 @@ async def continue_text(
     The outcome is recorded against the model (see :mod:`basemode.health`)
     unless `record_health=False` — which a caller that classifies failures
     itself should pass, so one attempt is not counted twice.
+
+    `on_raw_head` is called once with the opening `raw_head_chars` characters
+    as the strategy produced them, before stream normalization touches the
+    text. That is the only place the two halves of a boundary defect can be
+    told apart: whether a missing space was never emitted, or was emitted and
+    then repaired away. A caller that stores it can diagnose the seam long
+    after the stream is gone. It is a callback rather than a return value
+    because branches run concurrently and each needs its own sink.
     """
     litellm.suppress_debug_info = True
     load_into_environ()
@@ -61,6 +76,8 @@ async def continue_text(
         raw_tokens = _stream_tokens(
             strat, prefix, generation_prefix, rewind_fragment, params
         )
+        if on_raw_head is not None:
+            raw_tokens = _capture_head(raw_tokens, on_raw_head, raw_head_chars)
         stream = normalize_stream_newlines(prefix, raw_tokens)
         if strict_max_tokens:
             stream = _enforce_visible_token_cap(stream, model, max_tokens)
@@ -166,6 +183,44 @@ async def branch_text(
         for task in tasks:
             task.cancel()
         await asyncio.gather(*tasks, return_exceptions=True)
+
+
+async def _capture_head(
+    tokens: AsyncGenerator[str, None],
+    sink: Callable[[str], None],
+    limit: int,
+) -> AsyncGenerator[str, None]:
+    """Pass tokens through, reporting the opening `limit` characters once.
+
+    The sink is called as soon as enough text has arrived, and again at the
+    end for a stream that finished shorter than that — but never twice, so a
+    caller can treat it as a single assignment. A sink that raises is ignored:
+    a diagnostic must not be able to break the generation it describes.
+    """
+    head: list[str] = []
+    length = 0
+    reported = False
+
+    def report() -> None:
+        nonlocal reported
+        if reported:
+            return
+        reported = True
+        try:
+            sink("".join(head)[:limit])
+        except Exception:
+            log.warning("on_raw_head sink raised; ignoring", exc_info=True)
+
+    try:
+        async for token in tokens:
+            if not reported:
+                head.append(token)
+                length += len(token)
+                if length >= limit:
+                    report()
+            yield token
+    finally:
+        report()
 
 
 async def _stream_tokens(
