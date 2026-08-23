@@ -5,6 +5,7 @@ from importlib import resources
 
 import litellm
 
+from .health import list_model_health
 from .keys import list_model_ratings
 from .settings import settings
 from .strategies.compat import model_quirks
@@ -85,6 +86,13 @@ def _rating_for(thumbs: dict[str, int], provider: str, model: str) -> int | None
     if not thumbs:
         return None
     return thumbs.get(model.lower()) or thumbs.get(f"{provider}/{model}".lower())
+
+
+def _health_for(health: dict[str, dict], provider: str, model: str) -> dict | None:
+    """Observed health stored under either the bare or qualified model ID."""
+    if not health:
+        return None
+    return health.get(model.lower()) or health.get(f"{provider}/{model}".lower())
 
 
 def _display_model_id(provider: str, model: str) -> str:
@@ -241,6 +249,7 @@ def list_model_picker_entries(
     compact: bool = False,
     since: str | None = None,
     ratings: dict[str, int] | None = None,
+    health_days: int | None = None,
 ) -> list[dict]:
     """Structured model metadata for frontend pickers.
 
@@ -254,6 +263,10 @@ def list_model_picker_entries(
       model will reject; see `basemode.strategies.compat.model_quirks`
     - `rating`: this user's thumb for the model (`1`, `-1`, or `None`), stored
       in `~/.config/basemode/auth.json`; see `basemode.keys.set_model_rating`
+    - `health`: what this model actually did for this user — attempts,
+      failures, failure rate, and failure categories — or `None` if they have
+      never generated with it; see `basemode.health`. `health_days` narrows
+      its windowed figures.
 
     A rated model sorts ahead of (thumbs up) or behind (thumbs down) the
     reliability ordering, so an explicit opinion outranks the shipped data
@@ -271,6 +284,7 @@ def list_model_picker_entries(
     live = _live_rows_by_provider()
     cross_provider_dates = _cross_provider_release_dates(verified, live)
     thumbs = list_model_ratings() if ratings is None else _lowered(ratings)
+    health = list_model_health(days=health_days)
 
     if verified_only:
         pairs = [(m.split("/", 1)[0] if "/" in m else "unknown", m) for m in verified]
@@ -330,6 +344,7 @@ def list_model_picker_entries(
                 "issues": list(v.get("issues", [])),
                 "quirks": sorted(model_quirks(model)),
                 "rating": _rating_for(thumbs, model_provider, model),
+                "health": _health_for(health, model_provider, model),
             }
         )
 

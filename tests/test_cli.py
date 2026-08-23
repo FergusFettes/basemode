@@ -173,3 +173,63 @@ def test_rate_rejects_an_unknown_rating() -> None:
 
     assert result.exit_code == 1
     assert "Unknown rating" in result.output
+
+
+def test_health_reports_recorded_outcomes(monkeypatch) -> None:
+    from basemode import health
+
+    # The table is rendered by rich, which elides columns at the default test
+    # terminal width; give it room so the assertions see real values.
+    monkeypatch.setenv("COLUMNS", "200")
+    health.record_outcome("openai/gpt-4o-mini", ok=True)
+    health.record_outcome("openai/gpt-4o-mini", ok=False, category="rate_limit")
+
+    listed = runner.invoke(app, ["health"])
+
+    assert listed.exit_code == 0
+    assert "openai/gpt-4o-mini" in listed.output
+    assert "rate_limit" in listed.output
+
+
+def test_health_for_an_unseen_model_exits_nonzero() -> None:
+    result = runner.invoke(app, ["health", "gpt-4o-mini"])
+
+    assert result.exit_code == 1
+    assert "No generations recorded" in result.output
+
+
+def test_health_clear_forgets_the_history() -> None:
+    from basemode import health
+
+    health.record_outcome("openai/gpt-4o-mini", ok=True)
+
+    result = runner.invoke(app, ["health", "--clear"])
+
+    assert result.exit_code == 0
+    assert health.list_model_health() == {}
+
+
+def test_health_json_is_machine_readable() -> None:
+    import json
+
+    from basemode import health
+
+    health.record_outcome("openai/gpt-4o-mini", ok=False, category="timeout")
+
+    result = runner.invoke(app, ["health", "--json"])
+
+    payload = json.loads(result.output)
+    assert payload["openai/gpt-4o-mini"]["failures"] == 1
+
+
+def test_info_shows_the_rating_and_observed_health() -> None:
+    from basemode import health
+    from basemode.keys import set_model_rating
+
+    set_model_rating("openai/gpt-4o-mini", 1)
+    health.record_outcome("openai/gpt-4o-mini", ok=True)
+
+    result = runner.invoke(app, ["info", "gpt-4o-mini"])
+
+    assert "thumbs up" in result.output
+    assert "1 attempts, no failures" in result.output

@@ -15,12 +15,19 @@ from rich.rule import Rule
 from rich.table import Table
 from rich.text import Text
 
+from .health import (
+    EVENT_RETENTION_DAYS,
+    clear_model_health,
+    list_model_health,
+    model_health,
+)
 from .keys import (
     KEY_ALIASES,
     RATING_DOWN,
     RATING_UP,
     get_default_model,
     get_key,
+    get_model_rating,
     list_keys,
     list_model_ratings,
     list_strategy_overrides,
@@ -526,6 +533,7 @@ def models(
 
 
 _RATING_MARKS = {RATING_UP: "[green]+[/green]", RATING_DOWN: "[red]-[/red]"}
+_RATING_WORDS_BY_VALUE = {RATING_UP: "thumbs up", RATING_DOWN: "thumbs down"}
 _RATING_WORDS = {
     "up": RATING_UP,
     "+": RATING_UP,
@@ -862,7 +870,118 @@ def info(model: Annotated[str, typer.Argument(help="Model name to inspect")]) ->
     )
     if not price.pricing_available:
         table.add_row("Cost note", "pricing unavailable in LiteLLM model map")
+
+    rating = get_model_rating(resolved)
+    table.add_row("Your rating", _RATING_WORDS_BY_VALUE.get(rating, "unrated"))
+    observed = model_health(resolved)
+    if observed is None:
+        table.add_row("Observed health", "never generated with")
+    else:
+        table.add_row("Observed health", _health_summary(observed))
+        if observed["categories"]:
+            table.add_row(
+                "Recent failures",
+                ", ".join(
+                    f"{name} x{count}" for name, count in observed["categories"].items()
+                ),
+            )
     console.print(table)
+
+
+def _health_summary(observed: dict) -> str:
+    rate = observed["failure_rate"]
+    attempts = observed["attempts"]
+    if not rate:
+        return f"{attempts} attempts, no failures"
+    return (
+        f"{attempts} attempts, {observed['failures']} failed ({rate:.0%}); "
+        f"last {observed['last_category']} at {observed['last_failure_at']}"
+    )
+
+
+@app.command()
+def health(
+    model: Annotated[
+        str | None,
+        typer.Argument(help="Model to inspect. Omit to show every model seen."),
+    ] = None,
+    days: Annotated[
+        int | None,
+        typer.Option("--days", help="Window for the failure breakdown, in days."),
+    ] = None,
+    as_json: Annotated[
+        bool, typer.Option("--json", help="Emit the raw records as JSON.")
+    ] = False,
+    clear: Annotated[
+        bool, typer.Option("--clear", help="Forget the history instead of showing it.")
+    ] = False,
+) -> None:
+    """Show what models actually did here: attempts, failures, and why.
+
+    Recorded from real generations rather than from the shipped registry, so
+    it reflects this machine's keys, rate limits, and usage. Turn recording
+    off with BASEMODE_NO_HEALTH=1.
+    """
+    from .detect import normalize_model
+
+    resolved = normalize_model(model) if model else None
+
+    if clear:
+        clear_model_health(resolved)
+        target = f"[bold]{resolved}[/bold]" if resolved else "every model"
+        console.print(f"[green]✓[/green] Cleared health history for {target}")
+        return
+
+    if resolved:
+        observed = model_health(resolved, days=days)
+        if observed is None:
+            console.print(f"[yellow]No generations recorded for {resolved}.[/yellow]")
+            raise typer.Exit(1)
+        records = {resolved: observed}
+    else:
+        records = list_model_health(days=days)
+        if not records:
+            console.print("[yellow]No generations recorded yet.[/yellow]")
+            return
+
+    if as_json:
+        console.print(json.dumps(records, indent=2))
+        return
+
+    table = Table(
+        "Model",
+        "Attempts",
+        "Failed",
+        "Rate",
+        "Failures seen",
+        "Last failure",
+        show_header=True,
+        header_style="bold",
+    )
+    for model_id, observed in sorted(
+        records.items(), key=lambda kv: (-(kv[1]["failure_rate"] or 0), kv[0])
+    ):
+        rate = observed["failure_rate"]
+        rate_text = "" if rate is None else f"{rate:.0%}"
+        if rate:
+            rate_text = f"[red]{rate_text}[/red]" if rate >= 0.2 else rate_text
+        table.add_row(
+            model_id,
+            str(observed["attempts"]),
+            str(observed["failures"]),
+            rate_text,
+            ", ".join(
+                f"{name} x{count}" for name, count in observed["categories"].items()
+            ),
+            observed["last_failure_at"] or "",
+        )
+    console.print(table)
+    window = f" over the last {days} days" if days else ""
+    console.print(
+        f"[dim]{len(records)} models with recorded generations; "
+        f"failure breakdown{window} from the last "
+        f"{EVENT_RETENTION_DAYS} days of events[/dim]"
+    )
 
 
 @app.command()

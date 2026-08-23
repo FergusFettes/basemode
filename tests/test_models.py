@@ -112,3 +112,22 @@ def test_rated_models_sort_ahead_of_and_behind_unrated_ones() -> None:
     resorted = [e["model"] for e in list_model_picker_entries(provider="openai")]
     assert resorted[0] == liked
     assert resorted[-1] == disliked
+
+
+def test_model_picker_entries_carry_observed_health() -> None:
+    from basemode import health
+
+    health.record_outcome("openai/gpt-4o-mini", ok=False, category="rate_limit")
+
+    entries = list_model_picker_entries(search="gpt-4o-mini")
+    rated = [e for e in entries if e["model"] in ("gpt-4o-mini", "openai/gpt-4o-mini")]
+
+    assert rated
+    assert all(e["health"]["failures"] == 1 for e in rated)
+    assert all(e["health"]["categories"] == {"rate_limit": 1} for e in rated)
+
+
+def test_model_picker_health_is_none_for_a_model_never_used() -> None:
+    entries = list_model_picker_entries(search="gpt-4o-mini")
+
+    assert all(e["health"] is None for e in entries)
