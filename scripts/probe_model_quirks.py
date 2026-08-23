@@ -51,6 +51,7 @@ if str(ROOT / "src") not in sys.path:
 
 from basemode.continue_ import continue_text  # noqa: E402
 from basemode.detect import detect_strategy, normalize_model  # noqa: E402
+from basemode.exceptions import EmptyCompletionError  # noqa: E402
 from basemode.keys import load_into_environ  # noqa: E402
 from basemode.params import GenerationParams  # noqa: E402
 from basemode.settings import settings  # noqa: E402
@@ -169,6 +170,11 @@ async def _try(coro) -> tuple[bool, str]:
         text = await asyncio.wait_for(coro, timeout=PROBE_TIMEOUT)
     except TimeoutError:
         return False, f"timed out after {PROBE_TIMEOUT}s"
+    except EmptyCompletionError:
+        # continue_text/strat.stream raise this instead of returning "" —
+        # same case the empty-string check below handles, so normalize both
+        # to the same detail string callers key off of.
+        return False, "empty continuation"
     except Exception as exc:
         return False, f"{type(exc).__name__}: {exc}"
     return bool(text.strip()), "empty continuation" if not text.strip() else "ok"

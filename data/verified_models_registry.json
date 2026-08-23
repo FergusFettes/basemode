@@ -76,6 +76,18 @@
       "quirks": ["no_prefill", "no_temperature"]
     },
     {
+      "model": "deepseek/deepseek-v4-flash",
+      "quirks": ["reasoning_budget"]
+    },
+    {
+      "model": "deepseek/deepseek-v4-flash-vision-exp",
+      "quirks": ["reasoning_budget"]
+    },
+    {
+      "model": "deepseek/deepseek-v4-pro",
+      "quirks": ["reasoning_budget"]
+    },
+    {
       "model": "gemini/gemini-2.5-flash",
       "openrouter_id": "google/gemini-2.5-flash",
       "pricing_url": "https://ai.google.dev/gemini-api/docs/pricing"
@@ -202,6 +214,14 @@
       "model": "moonshot/kimi-k2.6",
       "openrouter_id": "moonshotai/kimi-k2.6",
       "quirks": ["no_temperature"]
+    },
+    {
+      "model": "moonshot/kimi-k2.7-code",
+      "quirks": ["reasoning_budget"]
+    },
+    {
+      "model": "moonshot/kimi-k2.7-code-highspeed",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "moonshot/kimi-k3",
@@ -393,6 +413,10 @@
       "openrouter_id": "moonshotai/kimi-k2.6",
       "pricing_url": "https://openrouter.ai/moonshotai/kimi-k2.6",
       "quirks": ["no_temperature"]
+    },
+    {
+      "model": "together_ai/deepseek-ai/DeepSeek-V4-Pro-0813",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "xai/grok-4.20-0309-non-reasoning",

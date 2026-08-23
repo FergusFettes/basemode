@@ -63,6 +63,23 @@ async def test_probe_model_adds_reasoning_budget_quirk_on_empty_baseline(
     assert changes[0].action == "added"
 
 
+async def test_try_normalizes_empty_completion_error_to_empty_continuation() -> None:
+    """`continue_text`/`strat.stream` raise EmptyCompletionError instead of
+    returning "" — `_try` must normalize that to the same "empty
+    continuation" detail the empty-string case produces, since the
+    reasoning-budget check in `_probe_model` keys off that exact string."""
+
+    async def raising() -> str:
+        raise pmq.EmptyCompletionError(
+            model="anthropic/claude-x", strategy="system", finish_reason="length"
+        )
+
+    ok, detail = await pmq._try(raising())
+
+    assert ok is False
+    assert detail == "empty continuation"
+
+
 async def test_probe_model_skips_reasoning_budget_retry_when_already_tagged(
     monkeypatch,
 ) -> None:

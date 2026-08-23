@@ -215,6 +215,53 @@ async def test_probe_strategy_retries_empty_output_with_wider_reasoning_budget(
     assert calls == [dnm.PROBE_MAX_TOKENS, dnm.REASONING_RETRY_MAX_TOKENS]
 
 
+async def test_probe_strategy_retries_after_empty_completion_error(monkeypatch) -> None:
+    """`continue_text` raises EmptyCompletionError instead of returning ""
+    for a starved reasoning model — the wide-budget retry must still fire
+    rather than treating the exception as an outright strategy failure."""
+    candidate = dnm.Candidate("anthropic", "claude-x", "anthropic/claude-x", 0)
+
+    calls: list[int] = []
+
+    async def fake_collect_chunks(
+        candidate, strategy, *, max_tokens=dnm.PROBE_MAX_TOKENS
+    ):
+        calls.append(max_tokens)
+        if max_tokens == dnm.PROBE_MAX_TOKENS:
+            raise dnm.EmptyCompletionError(
+                model=candidate.normalized_id, strategy="system", finish_reason="length"
+            )
+        return [" a clean continuation."]
+
+    monkeypatch.setattr(dnm, "_collect_chunks", fake_collect_chunks)
+
+    worked, _detail, text, needs_budget = await dnm._probe_strategy(candidate, None)
+
+    assert worked is True
+    assert needs_budget is True
+    assert text.strip() == "a clean continuation."
+    assert calls == [dnm.PROBE_MAX_TOKENS, dnm.REASONING_RETRY_MAX_TOKENS]
+
+
+async def test_probe_strategy_rejects_when_wide_retry_also_raises(monkeypatch) -> None:
+    candidate = dnm.Candidate("anthropic", "claude-x", "anthropic/claude-x", 0)
+
+    async def fake_collect_chunks(
+        candidate, strategy, *, max_tokens=dnm.PROBE_MAX_TOKENS
+    ):
+        raise dnm.EmptyCompletionError(
+            model=candidate.normalized_id, strategy="system", finish_reason="length"
+        )
+
+    monkeypatch.setattr(dnm, "_collect_chunks", fake_collect_chunks)
+
+    worked, detail, _text, needs_budget = await dnm._probe_strategy(candidate, None)
+
+    assert worked is False
+    assert needs_budget is False
+    assert "empty" in detail
+
+
 async def test_probe_strategy_stays_rejected_when_wider_budget_still_empty(
     monkeypatch,
 ) -> None:

@@ -55,6 +55,7 @@ if str(ROOT / "src") not in sys.path:
 
 from basemode.continue_ import continue_text  # noqa: E402
 from basemode.detect import detect_strategy, normalize_model  # noqa: E402
+from basemode.exceptions import EmptyCompletionError  # noqa: E402
 from basemode.keys import load_into_environ  # noqa: E402
 from basemode.live_models import (  # noqa: E402
     PROVIDER_ENDPOINTS,
@@ -237,17 +238,25 @@ async def _probe_strategy(
     candidate: Candidate, strategy: str | None
 ) -> tuple[bool, str, str, bool]:
     """Returns (worked, detail, sample_text, needs_reasoning_budget)."""
+    empty = False
     try:
         chunks = await asyncio.wait_for(
             _collect_chunks(candidate, strategy), timeout=PROBE_TIMEOUT
         )
+        text = "".join(chunks)
+        empty = not text.strip()
     except TimeoutError:
         return False, f"timed out after {PROBE_TIMEOUT}s", "", False
+    except EmptyCompletionError:
+        # The strategy itself already raises this instead of returning
+        # nothing — same "starved of visible-output room" case as an empty
+        # string, so fall through to the widened-budget retry below.
+        text = ""
+        empty = True
     except Exception as exc:  # provider/strategy error
         return False, f"{type(exc).__name__}: {exc}", "", False
 
-    text = "".join(chunks)
-    if not text.strip():
+    if empty:
         try:
             wide_chunks = await asyncio.wait_for(
                 _collect_chunks(

@@ -1,36 +1,6 @@
 {
   "models": [
     {
-      "model": "deepseek/deepseek-v4-flash",
-      "reason": "empty continuation",
-      "attempted_strategies": {
-        "system": "empty continuation",
-        "prefill": "empty continuation",
-        "few_shot": "empty continuation"
-      },
-      "checked_at_utc": "2026-08-22T12:05:01.728230+00:00"
-    },
-    {
-      "model": "deepseek/deepseek-v4-flash-vision-exp",
-      "reason": "empty continuation",
-      "attempted_strategies": {
-        "system": "empty continuation",
-        "prefill": "empty continuation",
-        "few_shot": "empty continuation"
-      },
-      "checked_at_utc": "2026-08-22T12:05:04.392349+00:00"
-    },
-    {
-      "model": "deepseek/deepseek-v4-pro",
-      "reason": "empty continuation",
-      "attempted_strategies": {
-        "system": "empty continuation",
-        "prefill": "empty continuation",
-        "few_shot": "empty continuation"
-      },
-      "checked_at_utc": "2026-08-22T12:05:09.811174+00:00"
-    },
-    {
       "model": "gemini/antigravity-preview-05-2026",
       "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
       "attempted_strategies": {
@@ -389,26 +359,6 @@
         "few_shot": "BadRequestError: litellm.BadRequestError: GroqException - {\"error\":{\"message\":\"The model `whisper-large-v3-turbo` does not support chat completions\",\"type\":\"invalid_request_error\"}}\n"
       },
       "checked_at_utc": "2026-08-22T12:11:49.786119+00:00"
-    },
-    {
-      "model": "moonshot/kimi-k2.7-code",
-      "reason": "empty continuation",
-      "attempted_strategies": {
-        "system": "empty continuation",
-        "prefill": "empty continuation",
-        "few_shot": "empty continuation"
-      },
-      "checked_at_utc": "2026-08-22T12:05:24.041132+00:00"
-    },
-    {
-      "model": "moonshot/kimi-k2.7-code-highspeed",
-      "reason": "empty continuation",
-      "attempted_strategies": {
-        "system": "empty continuation",
-        "prefill": "empty continuation",
-        "few_shot": "empty continuation"
-      },
-      "checked_at_utc": "2026-08-22T12:05:27.042050+00:00"
     },
     {
       "model": "openai/chat-latest",
@@ -788,7 +738,7 @@
         "prefill": "NotFoundError: litellm.NotFoundError: NotFoundError: OpenrouterException - {\"error\":{\"message\":\"No endpoints available matching your guardrail restrictions and data policy. Configure: https://openrouter.ai/settings/privacy\",\"code\":404}}",
         "few_shot": "NotFoundError: litellm.NotFoundError: NotFoundError: OpenrouterException - {\"error\":{\"message\":\"No endpoints available matching your guardrail restrictions and data policy. Configure: https://openrouter.ai/settings/privacy\",\"code\":404}}"
       },
-      "checked_at_utc": "2026-08-22T12:05:57.447154+00:00"
+      "checked_at_utc": "2026-08-23T06:37:06.627851+00:00"
     },
     {
       "model": "openrouter/meta/muse-spark-1.2-contributor",
@@ -829,16 +779,6 @@
         "few_shot": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model MiniMaxAI/MiniMax-M2.7. Please visit https://api.together.ai/models/MiniMaxAI/MiniMax-M2.7 to create and start a new dedicated endpoint for the model."
       },
       "checked_at_utc": "2026-08-22T12:06:48.302999+00:00"
-    },
-    {
-      "model": "together_ai/deepseek-ai/DeepSeek-V4-Pro-0813",
-      "reason": "empty continuation",
-      "attempted_strategies": {
-        "system": "empty continuation",
-        "prefill": "empty continuation",
-        "few_shot": "empty continuation"
-      },
-      "checked_at_utc": "2026-08-22T12:06:17.704313+00:00"
     },
     {
       "model": "xai/grok-4.20-multi-agent-0309",

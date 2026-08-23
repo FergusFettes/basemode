@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-08-22T14:02:00.493233+00:00",
+  "generated_at_utc": "2026-08-23T06:37:22.990667+00:00",
   "rows": [
     {
       "model": "anthropic/claude-fable-5",
@@ -210,6 +210,61 @@
       "quirks": [
         "no_prefill",
         "no_temperature"
+      ]
+    },
+    {
+      "model": "deepseek/deepseek-v4-flash",
+      "input_cost_per_token": 4.4e-07,
+      "output_cost_per_token": 1.32e-06,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ],
+      "quirks": [
+        "reasoning_budget"
+      ]
+    },
+    {
+      "model": "deepseek/deepseek-v4-flash-vision-exp",
+      "input_cost_per_token": null,
+      "output_cost_per_token": null,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_price",
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ],
+      "quirks": [
+        "reasoning_budget"
+      ]
+    },
+    {
+      "model": "deepseek/deepseek-v4-pro",
+      "input_cost_per_token": 1.32e-06,
+      "output_cost_per_token": 3.96e-06,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ],
+      "quirks": [
+        "reasoning_budget"
       ]
     },
     {
@@ -676,6 +731,44 @@
       ],
       "quirks": [
         "no_temperature"
+      ]
+    },
+    {
+      "model": "moonshot/kimi-k2.7-code",
+      "input_cost_per_token": null,
+      "output_cost_per_token": null,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_price",
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ],
+      "quirks": [
+        "reasoning_budget"
+      ]
+    },
+    {
+      "model": "moonshot/kimi-k2.7-code-highspeed",
+      "input_cost_per_token": null,
+      "output_cost_per_token": null,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_price",
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ],
+      "quirks": [
+        "reasoning_budget"
       ]
     },
     {
@@ -1246,8 +1339,8 @@
     },
     {
       "model": "openai/gpt-5.6-sol",
-      "input_cost_per_token": 5e-06,
-      "output_cost_per_token": 3e-05,
+      "input_cost_per_token": 4e-06,
+      "output_cost_per_token": 2e-05,
       "release_date": "2026-07-09",
       "prompt_method": "system",
       "reliability": "\u2713",
@@ -1280,8 +1373,8 @@
     },
     {
       "model": "openrouter/moonshotai/kimi-k2.6",
-      "input_cost_per_token": 5.415e-07,
-      "output_cost_per_token": 2.28e-06,
+      "input_cost_per_token": 9.5e-07,
+      "output_cost_per_token": 4e-06,
       "release_date": "2026-04-20",
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -1295,6 +1388,25 @@
       ],
       "quirks": [
         "no_temperature"
+      ]
+    },
+    {
+      "model": "together_ai/deepseek-ai/DeepSeek-V4-Pro-0813",
+      "input_cost_per_token": null,
+      "output_cost_per_token": null,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_price",
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models"
+      ],
+      "quirks": [
+        "reasoning_budget"
       ]
     },
     {
