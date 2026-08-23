@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from basemode import keys
+from basemode import health, keys
 
 
 @pytest.fixture(autouse=True)
@@ -12,16 +12,19 @@ def isolated_key_store(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Keep unit tests off the developer's real ~/.config/basemode/auth.json.
+    """Keep unit tests off the developer's real ~/.config/basemode files.
 
     Without this, a locally-stored default model or pinned strategy would
-    leak into assertions, and a test that writes would clobber real keys.
-    Integration tests are exempt: they need the stored provider keys.
+    leak into assertions, and a test that writes would clobber real keys or
+    real health history. Integration tests are exempt: they need the stored
+    provider keys.
     """
     if request.node.get_closest_marker("integration"):
         return
     monkeypatch.setattr(keys, "_CONFIG_DIR", tmp_path)
     monkeypatch.setattr(keys, "_AUTH_FILE", tmp_path / "auth.json")
+    monkeypatch.setattr(health, "_CONFIG_DIR", tmp_path)
+    monkeypatch.setattr(health, "_DB_FILE", tmp_path / "health.sqlite")
 
 
 @pytest.fixture
