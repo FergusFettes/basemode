@@ -193,6 +193,8 @@ _PREFIX_WORD_RE = re.compile(r"([A-Za-z]+)$")
 _TRAILING_FRAGMENT_RE = re.compile(r"(?:^|(?<=\s))([A-Za-z]{1,3})$")
 _PREFIX_HYPHEN_FRAGMENT_RE = re.compile(r"([A-Za-z]+-[A-Za-z]{0,2})$")
 _LEADING_WORD_RE = re.compile(r"^ ([A-Za-z]+)(\b|(?=[^A-Za-z]))")
+# A run of whitespace containing at least one newline, then a word.
+_LEADING_NEWLINE_WORD_RE = re.compile(r"^([ \t]*\n\s*)([A-Za-z]+)")
 _DANGLING_HYPHENATED_TAIL_RE = re.compile(r"\b[A-Za-z]{2,}-(?:[A-Za-z]{0,2})$")
 
 
@@ -453,6 +455,38 @@ def _fix_space_before_punctuation(text: str) -> str:
     return text
 
 
+def _repair_newline_split_word(prefix: str, text: str, protect_tail: int) -> str | None:
+    """Drop a line break a model opened with in the middle of a word.
+
+    A continuation may begin with a newline for perfectly good reasons — a new
+    paragraph, a heading, a scene break — but not when the prefix stops
+    mid-word: nothing legitimate starts a paragraph inside "thermodynamic".
+    Seen in the wild as ``"...work in the thermod"`` continued by
+    ``"\n\nynamic sense is only possible"``.
+
+    The evidence required is the same as for the space case, so a real
+    paragraph break after a complete word is never touched: the prefix must
+    end on a fragment that is not a word, and the fragment plus the
+    continuation's first word must be one. Returns None when the rule does
+    not apply, leaving the remaining repairs to decide.
+    """
+    prefix_match = _PREFIX_WORD_RE.search(prefix)
+    if not prefix_match or (prefix and prefix[-1].isspace()):
+        return None
+    match = _LEADING_NEWLINE_WORD_RE.match(text)
+    if not match:
+        return None
+    left, right = prefix_match.group(1), match.group(2)
+    # Too little of the word has arrived to judge it; the caller runs again
+    # when the stream ends, with nothing held back.
+    if len(text) - match.end(2) < protect_tail:
+        return None
+    vocab = _document_vocabulary(prefix)
+    if _word_like(left, vocab) or not _word_like(left + right, vocab):
+        return None
+    return text[match.end(1) :]
+
+
 def _repair_prefix_boundary(prefix: str, text: str, *, protect_tail: int = 0) -> str:
     """Undo a space that landed inside a word straddling the generation boundary.
 
@@ -462,6 +496,10 @@ def _repair_prefix_boundary(prefix: str, text: str, *, protect_tail: int = 0) ->
     the boundary back together when the evidence says the two halves are one
     word.
     """
+    rejoined = _repair_newline_split_word(prefix, text, protect_tail)
+    if rejoined is not None:
+        return rejoined
+
     prefix_match = _PREFIX_WORD_RE.search(prefix)
 
     # Space injected before punctuation or contraction at the boundary

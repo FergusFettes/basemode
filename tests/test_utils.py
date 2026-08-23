@@ -591,3 +591,70 @@ def test_healing_falls_back_to_the_system_dictionary(tmp_path, monkeypatch) -> N
     monkeypatch.setattr(healing, "_DICT_PATH", fallback)
 
     assert healing._dictionary() == frozenset({"alpha", "beta", "gamma"})
+
+
+# --- a line break inside a word at the generation boundary ---
+
+
+def test_a_newline_inside_a_split_word_is_dropped() -> None:
+    """Seen in the wild: opus continued "the thermod" with "\\n\\nynamic sense"."""
+    healed = normalize_completion_segment(
+        "to work at all, since work in the thermod",
+        "\n\nynamic sense is only possible across a gradient",
+    )
+
+    assert healed == "ynamic sense is only possible across a gradient"
+
+
+def test_a_single_newline_inside_a_split_word_is_dropped() -> None:
+    healed = normalize_completion_segment(
+        "a state of recalculat", "\ned figures for the quarter"
+    )
+
+    assert healed == "ed figures for the quarter"
+
+
+def test_a_paragraph_break_after_a_whole_word_survives() -> None:
+    healed = normalize_completion_segment(
+        "and that xe would want for nothing.\n\n# Xe",
+        "\n\nXe was the most hominiform of xer broodset",
+    )
+
+    assert healed == "\n\nXe was the most hominiform of xer broodset"
+
+
+def test_a_paragraph_break_after_a_sentence_survives() -> None:
+    healed = normalize_completion_segment(
+        "It was the end of the chapter.", "\n\nThe next morning was clear"
+    )
+
+    assert healed == "\n\nThe next morning was clear"
+
+
+def test_a_fragment_that_does_not_complete_a_word_keeps_its_break() -> None:
+    """Without a word to make, the break is the model changing subject."""
+    healed = normalize_completion_segment(
+        "to work at all, since work in the thermod", "\n\nThe next chapter begins"
+    )
+
+    assert healed == "\n\nThe next chapter begins"
+
+
+def test_a_prefix_ending_in_whitespace_keeps_the_break() -> None:
+    healed = normalize_completion_segment(
+        "the sentence ended here ", "\n\nAnother thought entirely"
+    )
+
+    assert healed == "\n\nAnother thought entirely"
+
+
+@pytest.mark.asyncio
+async def test_the_stream_drops_a_newline_inside_a_split_word() -> None:
+    async def tokens():
+        for token in ["\n", "\n", "ynamic", " sense is only possible across a grad"]:
+            yield token
+
+    prefix = "to work at all, since work in the thermod"
+    streamed = "".join([t async for t in normalize_stream_newlines(prefix, tokens())])
+
+    assert streamed.startswith("ynamic sense")

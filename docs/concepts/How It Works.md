@@ -61,6 +61,11 @@ output is post-processed to undo that and a few related artifacts:
   `some body of water`, `laid out side by side`, `her self-esteem`, and
   `cars in side streets` all survive intact.
 - Newline artifacts that break prose flow.
+- A line break the model opened with in the middle of a word. A continuation
+  may legitimately start a new paragraph, a heading, or a scene break — but
+  not when the prefix stops mid-word, since nothing starts a paragraph inside
+  `thermodynamic`. The evidence required is the same as for the space case, so
+  a real break after a complete word is never touched.
 
 The dictionary these rules consult ships with the package: Webster's Second
 International, the BSD `web2` list whose 1934 copyright has lapsed, held as a
