@@ -5,6 +5,21 @@ from datetime import UTC, datetime
 from basemode import evidence
 
 
+def test_text_classification_excludes_music_but_keeps_text_reasoning_models() -> None:
+    assert evidence.classify_text_endpoint("openrouter/google/lyria-3-clip-preview") == (
+        False,
+        "non-text model family: lyria",
+    )
+    assert evidence.classify_text_endpoint("openrouter/meta/muse-spark-1.2") == (
+        True,
+        None,
+    )
+    assert evidence.classify_text_endpoint("openrouter/sakana/fugu-ultra") == (
+        True,
+        None,
+    )
+
+
 def test_schema_and_thorough_status_are_durable() -> None:
     with evidence.connect() as db:
         run = evidence.start_run("thorough", conn=db)
