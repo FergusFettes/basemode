@@ -1,5 +1,6 @@
 import json
 import sqlite3
+from datetime import UTC, datetime
 
 from basemode import evidence
 
@@ -90,6 +91,10 @@ def test_import_sweep_preserves_claude_timing_and_safe_error_fields(tmp_path) ->
     assert row["http_status"] == 422
     assert row["safe_error_code"] == "unsupported_parameter"
     assert row["safe_error_parameter"] == "thinking"
+    assert (
+        row["finished_at"]
+        == datetime.fromtimestamp(source.stat().st_mtime, UTC).isoformat()
+    )
 
 
 def test_import_provider_status_is_not_stored_as_an_http_status(tmp_path) -> None:
@@ -102,6 +107,24 @@ def test_import_provider_status_is_not_stored_as_an_http_status(tmp_path) -> Non
         row = db.execute("SELECT * FROM verification_attempts").fetchone()
     assert row["failure_class"] == "xfail_retired_model"
     assert row["http_status"] is None
+
+
+def test_import_provider_history_preserves_run_timestamp(tmp_path) -> None:
+    source = tmp_path / "provider.jsonl"
+    source.write_text(
+        json.dumps(
+            {
+                "model": "openai/model",
+                "status": "ok",
+                "run_at": "2026-08-19T12:00:00+00:00",
+            }
+        )
+        + "\n"
+    )
+    evidence.import_provider_health_jsonl(source)
+    with evidence.connect() as db:
+        row = db.execute("SELECT finished_at FROM verification_attempts").fetchone()
+    assert row[0] == "2026-08-19T12:00:00+00:00"
 
 
 def test_import_live_catalog_cache_is_idempotent(tmp_path) -> None:

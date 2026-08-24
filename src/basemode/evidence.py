@@ -510,6 +510,7 @@ def import_sweep_jsonl(
     own = conn is None
     db = conn or connect()
     content = path.read_bytes()
+    source_observed_at = datetime.fromtimestamp(path.stat().st_mtime, UTC).isoformat()
     run_id = "import-" + hashlib.sha256(content).hexdigest()[:24]
     if db.execute("SELECT 1 FROM verification_runs WHERE id=?", (run_id,)).fetchone():
         if own:
@@ -557,6 +558,12 @@ def import_sweep_jsonl(
         failure_class = row.get("category") or row.get("failure_class")
         if not ok and failure_class is None and isinstance(raw_status, str):
             failure_class = raw_status
+        observed_at = (
+            row.get("finished_at")
+            or row.get("at")
+            or row.get("run_at")
+            or source_observed_at
+        )
         record_attempt(
             run_id,
             model,
@@ -564,6 +571,8 @@ def import_sweep_jsonl(
             attempt_number=row.get("attempt_number", counts[key]),
             outcome="success" if ok else "failure",
             conn=db,
+            started_at=row.get("started_at") or observed_at,
+            finished_at=observed_at,
             failure_class=failure_class,
             http_status=http_status,
             safe_error_code=row.get("code") or row.get("safe_error_code"),
