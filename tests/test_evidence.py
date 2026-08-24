@@ -22,7 +22,6 @@ from basemode import evidence
         ("groq/canopylabs/orpheus-v1-english", "orpheus"),
         ("openai/gpt-realtime-2.1", "realtime"),
         ("openai/gpt-4o-transcribe", "transcribe"),
-        ("openrouter/nvidia/nemotron-content-safety:free", "content-safety"),
         ("together_ai/deepseek-ai/deepseek-ocr-2", "ocr"),
         ("deepinfra/stabilityai/sdxl-turbo", "sdxl"),
     ],
@@ -45,6 +44,12 @@ def test_text_classification_keeps_text_reasoning_models() -> None:
         True,
         None,
     )
+
+
+def test_text_output_does_not_admit_specialized_safety_classifier() -> None:
+    assert evidence.classify_text_endpoint(
+        "openrouter/nvidia/nemotron-content-safety:free", "text"
+    ) == (False, "non-generation model family: content-safety")
 
 
 def test_schema_and_thorough_status_are_durable() -> None:
@@ -376,6 +381,10 @@ def test_structured_catalog_cache_preserves_capabilities_and_uses_text_output(
                                 "input_modalities": ["text"],
                                 "output_modalities": ["image"],
                             },
+                            "vendor/music-with-caption": {
+                                "input_modalities": ["text"],
+                                "output_modalities": ["text", "audio"],
+                            },
                         },
                         "reliable_dates": True,
                     }
@@ -383,7 +392,7 @@ def test_structured_catalog_cache_preserves_capabilities_and_uses_text_output(
             }
         )
     )
-    assert evidence.import_live_catalog_cache(source) == 2
+    assert evidence.import_live_catalog_cache(source) == 3
     with evidence.connect() as db:
         rows = db.execute(
             "SELECT normalized_model_id,text_eligible FROM model_endpoints ORDER BY normalized_model_id"
@@ -397,6 +406,7 @@ def test_structured_catalog_cache_preserves_capabilities_and_uses_text_output(
         )
     assert [tuple(row) for row in rows] == [
         ("openrouter/vendor/image-only", 0),
+        ("openrouter/vendor/music-with-caption", 0),
         ("openrouter/vendor/vision-chat", 1),
     ]
     assert metadata["input_modalities"] == ["text", "image"]
@@ -433,6 +443,25 @@ def test_metadata_free_attempt_upsert_preserves_catalog_eligibility() -> None:
             "SELECT modality,text_eligible,exclusion_reason FROM model_endpoints"
         ).fetchone()
     assert tuple(row) == ("text", 1, None)
+
+
+def test_maintenance_reprojects_stored_catalog_capabilities() -> None:
+    evidence.record_catalog_observation(
+        "openrouter/vendor/music-model",
+        source="provider",
+        available=True,
+        metadata={"output_modalities": ["text", "audio"]},
+    )
+    with evidence.connect() as db:
+        db.execute(
+            "UPDATE model_endpoints SET modality='text',text_eligible=1,exclusion_reason=NULL"
+        )
+        result = evidence.enforce_text_only_and_supersede_obsolete_failures(conn=db)
+        row = db.execute(
+            "SELECT modality,text_eligible,exclusion_reason FROM model_endpoints"
+        ).fetchone()
+    assert result["non_text_endpoints_excluded"] == 1
+    assert tuple(row) == ("audio", 0, "provider modality: audio")
 
 
 def test_import_verified_registry_retains_intent_without_granting_success(

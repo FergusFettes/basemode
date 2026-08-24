@@ -60,12 +60,21 @@ _NON_TEXT_NAME_RE = re.compile(
     r"(?:$|[/_.:-])",
     re.IGNORECASE,
 )
+_NON_GENERATION_NAME_RE = re.compile(
+    r"(?:^|[/_.:-])(?:content-safety|llama-guard|llama-prompt-guard|moderation|"
+    r"rerank|safeguard)(?:$|[/_.:-])",
+    re.IGNORECASE,
+)
 
 
 def classify_text_endpoint(
     model: str, modality: str | None = None
 ) -> tuple[bool, str | None]:
     """Return text eligibility and a durable, human-readable exclusion reason."""
+    specialized = _NON_GENERATION_NAME_RE.search(model)
+    if specialized:
+        family = specialized.group(0).strip("/_.:-").lower()
+        return False, f"non-generation model family: {family}"
     normalized_modality = (modality or "").strip().lower()
     if normalized_modality in NON_TEXT_MODALITIES:
         return False, f"provider modality: {normalized_modality}"
@@ -326,11 +335,11 @@ def _catalog_text_modality(metadata: Mapping[str, Any]) -> str | None:
         if isinstance(value, str)
     }
     if outputs:
-        if outputs & TEXT_MODALITIES:
-            return "text"
         known_non_text = outputs & NON_TEXT_MODALITIES
         if known_non_text:
             return sorted(known_non_text)[0]
+        if outputs & TEXT_MODALITIES:
+            return "text"
     methods = {
         str(value).strip().lower()
         for value in metadata.get("supported_methods", [])
@@ -759,14 +768,29 @@ def enforce_text_only_and_supersede_obsolete_failures(
     endpoints_changed = 0
     for row in db.execute(
         "SELECT id,normalized_model_id,modality,text_eligible,exclusion_reason FROM model_endpoints"
-    ):
-        eligible, reason = classify_text_endpoint(
-            row["normalized_model_id"], row["modality"]
+    ).fetchall():
+        latest = db.execute(
+            "SELECT metadata_json FROM catalog_observations WHERE endpoint_id=? "
+            "ORDER BY observed_at DESC,id DESC LIMIT 1",
+            (row["id"],),
+        ).fetchone()
+        projected_modality = (
+            _catalog_text_modality(json.loads(latest[0])) if latest else None
         )
-        if not eligible and (row["text_eligible"] or row["exclusion_reason"] != reason):
+        modality = projected_modality or row["modality"]
+        eligible, reason = classify_text_endpoint(row["normalized_model_id"], modality)
+        authoritative_change = projected_modality is not None and (
+            row["modality"] != projected_modality
+            or bool(row["text_eligible"]) != eligible
+            or row["exclusion_reason"] != reason
+        )
+        fallback_exclusion = not eligible and (
+            row["text_eligible"] or row["exclusion_reason"] != reason
+        )
+        if authoritative_change or fallback_exclusion:
             db.execute(
-                "UPDATE model_endpoints SET text_eligible=0,exclusion_reason=? WHERE id=?",
-                (reason, row["id"]),
+                "UPDATE model_endpoints SET modality=?,text_eligible=?,exclusion_reason=? WHERE id=?",
+                (modality, int(eligible), reason, row["id"]),
             )
             endpoints_changed += 1
 
