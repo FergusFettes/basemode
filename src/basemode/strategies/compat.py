@@ -125,15 +125,14 @@ _ZAI_DISABLE_THINKING_PREFIXES = (
     "glm-5",
 )
 
-# Claude 5.x (opus-5, sonnet-5, ...), probed live 2026-08-23: this family
+# Claude 5.x (opus-5, sonnet-5, ...), probed live 2026-08-24: this family
 # rejects the older `thinking.type: "enabled"` shape outright ("Use
-# thinking.type.adaptive and output_config.effort instead"), and the
-# replacement `"adaptive"` shape has wildly unpredictable reasoning-token
-# consumption — even 5000+ tokens sometimes produces no visible output at
-# all. Disabling thinking entirely (same trick as the zai/glm family above)
-# is simpler and reliable: basemode wants raw continuation, not chat
-# reasoning, and it produces clean output instantly at any budget instead of
-# racing an unbounded one.
+# thinking.type.adaptive and output_config.effort instead"), and also now
+# rejects `thinking.type: "disabled"` ("Thinking defaults to adaptive mode
+# when not specified"). So the only shape Anthropic still accepts is no
+# `thinking` kwarg at all, which is also the fastest: adaptive-by-default
+# produces clean output instantly instead of racing an unbounded reasoning
+# budget.
 _ANTHROPIC_ADAPTIVE_ONLY_PATTERN = re.compile(
     r"^claude-(opus|sonnet|haiku|fable)-5(\.\d+)?(-\d{8})?$"
 )
@@ -198,7 +197,7 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
     if via_zai and stem.startswith(_ZAI_DISABLE_THINKING_PREFIXES):
         return {"extra_body": {"thinking": {"type": "disabled"}}}
     if via_anthropic and _ANTHROPIC_ADAPTIVE_ONLY_PATTERN.match(stem):
-        return {"thinking": {"type": "disabled"}}
+        return {}
     for fragment, (budget, min_out) in _THINKING_MODELS.items():
         if fragment in stem:
             return _reasoning_budget_kwargs(

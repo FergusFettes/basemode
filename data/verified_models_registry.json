@@ -43,7 +43,8 @@
       "model": "anthropic/claude-opus-4-8",
       "openrouter_id": "anthropic/claude-opus-4.8-fast",
       "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing",
-      "prompt_method": "system"
+      "prompt_method": "system",
+      "quirks": ["no_temperature"]
     },
     {
       "model": "anthropic/claude-opus-5",
@@ -217,7 +218,7 @@
     },
     {
       "model": "moonshot/kimi-k2.7-code",
-      "quirks": ["reasoning_budget"]
+      "quirks": ["no_temperature", "reasoning_budget"]
     },
     {
       "model": "moonshot/kimi-k2.7-code-highspeed",

@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-08-23T21:38:04.375720+00:00",
+  "generated_at_utc": "2026-08-24T18:33:25.126146+00:00",
   "rows": [
     {
       "model": "anthropic/claude-fable-5",
@@ -127,7 +127,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://docs.anthropic.com/en/docs/about-claude/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "no_temperature"
+      ]
     },
     {
       "model": "anthropic/claude-opus-5",
@@ -749,6 +751,7 @@
         "https://openrouter.ai/docs/api-reference/models/get-models"
       ],
       "quirks": [
+        "no_temperature",
         "reasoning_budget"
       ]
     },
@@ -1374,8 +1377,8 @@
     },
     {
       "model": "openrouter/moonshotai/kimi-k2.6",
-      "input_cost_per_token": 5.415e-07,
-      "output_cost_per_token": 2.28e-06,
+      "input_cost_per_token": 9.5e-07,
+      "output_cost_per_token": 4e-06,
       "release_date": "2026-04-20",
       "prompt_method": "system",
       "reliability": "\u26a0",

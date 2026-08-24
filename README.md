@@ -139,7 +139,7 @@ Single generated table, refreshed by CI.
 | `anthropic/claude-opus-4-5-20251101` | $5.00 | $25.00 | 2025-11-24 | `prefill` | ✓ |  |
 | `anthropic/claude-opus-4-6` | $5.00 | $25.00 | 2026-02-05 | `system` | ✓ | `no_prefill` |
 | `anthropic/claude-opus-4-7` | $5.00 | $25.00 | 2026-04-16 | `system` | ✓ | `no_prefill`, `no_temperature` |
-| `anthropic/claude-opus-4-8` | $5.00 | $25.00 | 2026-05-28 | `system` | ✓ |  |
+| `anthropic/claude-opus-4-8` | $5.00 | $25.00 | 2026-05-28 | `system` | ✓ | `no_temperature` |
 | `anthropic/claude-opus-5` | $5.00 | $25.00 | 2026-07-23 | `few_shot` | ✓ | `no_prefill`, `no_temperature` |
 | `anthropic/claude-sonnet-4-20250514` | $3.00 | $15.00 | 2025-05-22 | `prefill` | ✓ |  |
 | `anthropic/claude-sonnet-4-5-20250929` | $3.00 | $15.00 | 2025-09-29 | `prefill` | ✓ |  |
@@ -178,7 +178,7 @@ Single generated table, refreshed by CI.
 | `moonshot/kimi-k2-0905-preview` | $0.60 | $2.50 | 2025-07-11 | `system` | ⚠ |  |
 | `moonshot/kimi-k2.5` | $0.60 | $3.00 | 2026-01-27 | `system` | ⚠ | `no_temperature` |
 | `moonshot/kimi-k2.6` | $0.95 | $4.00 | 2026-04-20 | `system` | ✓ | `no_temperature` |
-| `moonshot/kimi-k2.7-code` | unknown | unknown | unknown | `system` | ⚠ | `reasoning_budget` |
+| `moonshot/kimi-k2.7-code` | unknown | unknown | unknown | `system` | ⚠ | `no_temperature`, `reasoning_budget` |
 | `moonshot/kimi-k2.7-code-highspeed` | unknown | unknown | unknown | `system` | ⚠ | `no_temperature`, `reasoning_budget` |
 | `moonshot/kimi-k3` | $3.00 | $15.00 | 2026-07-15 | `prefill` | ✓ | `no_temperature` |
 | `moonshot/moonshot-v1-128k` | $2.00 | $5.00 | unknown | `system` | ⚠ |  |
@@ -218,7 +218,7 @@ Single generated table, refreshed by CI.
 | `openai/gpt-5.5-2026-04-23` | $5.00 | $30.00 | 2026-04-23 | `system` | ✓ | `no_temperature` |
 | `openai/gpt-5.6-sol` | $4.00 | $20.00 | 2026-07-09 | `system` | ✓ | `no_temperature` |
 | `openai/gpt-5.6-terra` | $2.00 | $12.00 | 2026-07-09 | `system` | ✓ | `no_temperature` |
-| `openrouter/moonshotai/kimi-k2.6` | $0.54 | $2.28 | 2026-04-20 | `system` | ⚠ | `no_temperature` |
+| `openrouter/moonshotai/kimi-k2.6` | $0.95 | $4.00 | 2026-04-20 | `system` | ⚠ | `no_temperature` |
 | `together_ai/deepseek-ai/DeepSeek-V4-Pro-0813` | unknown | unknown | unknown | `system` | ⚠ | `reasoning_budget` |
 | `xai/grok-4.20-0309-non-reasoning` | $1.25 | $2.50 | 2026-03-09 | `system` | ✓ |  |
 | `xai/grok-4.20-0309-reasoning` | $1.25 | $2.50 | 2026-03-09 | `system` | ✓ |  |
