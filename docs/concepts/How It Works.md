@@ -22,6 +22,22 @@ Every strategy implements a shared interface:
 
 This keeps provider-specific behavior behind a common API.
 
+## Transport and model data
+
+Continuation strategies send chat or text-completion requests through a small
+transport interface. LiteLLM is the default transport: it translates request
+and streaming response shapes for many providers without requiring basemode to
+depend on every provider SDK. A different transport can be installed for a
+provider whose protocol cannot be represented safely by LiteLLM.
+
+The transport is not the model catalog. Basemode owns endpoint identity,
+verified strategies, compatibility quirks, and model evidence. Live provider
+catalogs and direct verification take precedence over LiteLLM's bundled model
+metadata. Consequently, a provider-qualified model can be called even when it
+has not yet appeared in LiteLLM's model list; the qualified ID is passed to the
+transport unchanged. LiteLLM pricing and token metadata remain best-effort
+fallbacks and are reported as unavailable when they are missing.
+
 ## Why continuation needs coercion
 
 Most chat models default to assistant behavior (acknowledgments, headings, commentary). `basemode` avoids that by:

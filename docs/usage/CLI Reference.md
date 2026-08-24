@@ -31,7 +31,9 @@ basemode [PREFIX] [OPTIONS]
 
 ### `models`
 
-List LiteLLM-known models.
+List known model endpoints. The list combines basemode's verified data, cached
+live provider catalogs, and LiteLLM's bundled catalog; fresh provider evidence
+takes precedence over stale bundled entries.
 
 ```bash
 basemode models [--provider openai] [--search claude] [--available] [--verified] [--json]
