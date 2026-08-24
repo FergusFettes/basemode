@@ -36,6 +36,11 @@ class Settings(BaseSettings):
     xai_api_key: str = ""
     zai_api_key: str = ""
     deepseek_api_key: str = ""
+    cerebras_api_key: str = ""
+    deepinfra_api_key: str = ""
+    sambanova_api_key: str = ""
+    fireworks_ai_api_key: str = ""
+    novita_api_key: str = ""
 
     @property
     def _provider_keys(self) -> list[tuple[str, str]]:
@@ -50,6 +55,11 @@ class Settings(BaseSettings):
             ("xai", self.xai_api_key),
             ("zai", self.zai_api_key),
             ("deepseek", self.deepseek_api_key),
+            ("cerebras", self.cerebras_api_key),
+            ("deepinfra", self.deepinfra_api_key),
+            ("sambanova", self.sambanova_api_key),
+            ("fireworks_ai", self.fireworks_ai_api_key),
+            ("novita", self.novita_api_key),
         ]
 
     @property

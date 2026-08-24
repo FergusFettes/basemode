@@ -28,6 +28,11 @@ KEY_ALIASES: dict[str, str] = {
     "xai": "XAI_API_KEY",
     "zai": "ZAI_API_KEY",
     "deepseek": "DEEPSEEK_API_KEY",
+    "cerebras": "CEREBRAS_API_KEY",
+    "deepinfra": "DEEPINFRA_API_KEY",
+    "sambanova": "SAMBANOVA_API_KEY",
+    "fireworks_ai": "FIREWORKS_AI_API_KEY",
+    "novita": "NOVITA_API_KEY",
 }
 
 #: The only values a model rating may take: thumbs up, thumbs down.
