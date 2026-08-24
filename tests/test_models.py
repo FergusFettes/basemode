@@ -82,14 +82,26 @@ def test_live_listing_with_no_signal_keeps_litellm_as_is(monkeypatch) -> None:
     assert any("llama-3.3-70b" in e["model"] for e in entries)
 
 
-def test_verified_only_includes_a_model_with_no_registry_row_but_clean_evidence() -> (
-    None
-):
-    """Nobody has ever hand-added a registry entry for most deepinfra
-    models, but a verification probe that found one working is still real
-    evidence it works -- `verified` shouldn't require curation on top of
-    proof."""
+def test_verified_only_requires_thorough_evidence_for_an_unregistered_model() -> None:
+    """A quick health probe proves reachability, while a thorough suite can
+    grant the stronger verified status without a curated registry entry."""
+    from basemode import evidence
+
     health.record_outcome("deepinfra/zai-org/GLM-5.2", ok=True, source="verification")
+    entries = list_model_picker_entries(verified_only=True, text_only=False)
+    assert not any(e["model"] == "deepinfra/zai-org/glm-5.2" for e in entries)
+
+    with evidence.connect() as db:
+        run = evidence.start_run("thorough", conn=db)
+        evidence.record_attempt(
+            run,
+            "deepinfra/zai-org/GLM-5.2",
+            probe_kind="continuation",
+            attempt_number=10,
+            outcome="success",
+            conn=db,
+        )
+        evidence.finish_run(run, conn=db)
 
     entries = list_model_picker_entries(verified_only=True, text_only=False)
     assert any(e["model"] == "deepinfra/zai-org/glm-5.2" for e in entries)

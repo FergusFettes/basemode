@@ -349,22 +349,16 @@ def list_model_picker_entries(
 
     durable_evidence = evidence_current_status()
     # A registry entry means a human confirmed this model works at some
-    # point; a verification probe (see `basemode health --verification`)
-    # can contradict that with live evidence -- currently_broken looks only
-    # at each model's most recent probe, so a later fix clears it without
-    # needing the registry edited by hand. evidence_verified is the other
-    # direction: a model with no registry row at all (nobody has hand-added
-    # it, e.g. a reseller like deepinfra) still counts as verified once a
-    # probe has actually proven it works, with no failures seen.
+    # point; a verification probe can contradict that with live evidence.
+    # Only the versioned thorough suite can independently grant verified
+    # status to an endpoint outside the curated registry. Quick and imported
+    # probes establish reachability but are not equivalent to verification.
     broken = {m for m, e in verification.items() if e["currently_broken"]}
-    evidence_verified = {
-        m for m, e in verification.items() if e["attempts"] > 0 and e["failures"] == 0
-    }
     # Thorough-suite evidence is durable and reproducible. Quick legacy
     # probes remain a compatibility fallback, but cannot independently grant
     # the stronger evidence-backed verified state.
     broken |= {m for m, e in durable_evidence.items() if e.get("currently_broken")}
-    evidence_verified |= {m for m, e in durable_evidence.items() if e.get("verified")}
+    evidence_verified = {m for m, e in durable_evidence.items() if e.get("verified")}
     verified_models = (set(verified) | evidence_verified) - broken
 
     if verified_only:
