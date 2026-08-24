@@ -142,6 +142,14 @@ PROVIDER_ENDPOINTS: dict[str, _Endpoint] = {
     "gemini": _Endpoint(
         "https://generativelanguage.googleapis.com/v1beta/models", None, _parse_gemini
     ),
+    "cerebras": _Endpoint(
+        "https://api.cerebras.ai/v1/models", _bearer_headers, _parse_openai_style
+    ),
+    "deepinfra": _Endpoint(
+        "https://api.deepinfra.com/v1/openai/models",
+        _bearer_headers,
+        _parse_openai_style,
+    ),
 }
 
 
