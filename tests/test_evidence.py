@@ -6,7 +6,9 @@ from basemode import evidence
 
 
 def test_text_classification_excludes_music_but_keeps_text_reasoning_models() -> None:
-    assert evidence.classify_text_endpoint("openrouter/google/lyria-3-clip-preview") == (
+    assert evidence.classify_text_endpoint(
+        "openrouter/google/lyria-3-clip-preview"
+    ) == (
         False,
         "non-text model family: lyria",
     )
