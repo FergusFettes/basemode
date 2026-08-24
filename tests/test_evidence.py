@@ -18,7 +18,7 @@ def test_schema_and_thorough_status_are_durable() -> None:
             request_params={"max_tokens": 160},
         )
         evidence.finish_run(run, conn=db)
-        assert db.execute("PRAGMA user_version").fetchone()[0] == 3
+        assert db.execute("PRAGMA user_version").fetchone()[0] == 4
         assert evidence.current_status(conn=db)["openrouter/example/model"] == {
             "reachable": True,
             "last_checked_at": db.execute(
@@ -43,10 +43,175 @@ def test_transient_failure_is_selected_for_recheck() -> None:
             conn=db,
         )
         evidence.finish_run(run, conn=db)
-        assert evidence.transient_recheck_models(conn=db) == ["groq/flaky"]
+        assert evidence.transient_recheck_models(conn=db) == []
+        assert evidence.transient_recheck_models(
+            conn=db, now="9999-01-01T00:00:00+00:00"
+        ) == ["groq/flaky"]
         status = evidence.current_status(conn=db)["groq/flaky"]
         assert status["transient_failure"] is True
         assert status["currently_broken"] is False
+        assert status["operational_status"] == "suspected_transient"
+        assert status["next_check_at"] is not None
+
+
+def test_v3_migration_backfills_existing_transient_queue(tmp_path) -> None:
+    path = tmp_path / "legacy-v3.sqlite"
+    with evidence.connect(path) as db:
+        run = evidence.start_run("quick", conn=db)
+        evidence.record_attempt(
+            run,
+            "groq/flaky",
+            probe_kind="continuation",
+            attempt_number=1,
+            outcome="failure",
+            failure_class="rate_limit",
+            finished_at="2026-08-01T00:00:00+00:00",
+            conn=db,
+        )
+        evidence.finish_run(run, conn=db)
+    with sqlite3.connect(path) as db:
+        db.execute("DROP TABLE recheck_schedules")
+        db.execute("PRAGMA user_version=3")
+    with evidence.connect(path) as db:
+        state = evidence.recheck_statuses(conn=db)["groq/flaky"]
+        assert state["next_check_at"] == "2026-08-01T00:15:00+00:00"
+
+
+def test_aborted_run_does_not_change_recheck_schedule() -> None:
+    with evidence.connect() as db:
+        run = evidence.start_run("quick", conn=db)
+        evidence.record_attempt(
+            run,
+            "groq/interrupted",
+            probe_kind="continuation",
+            attempt_number=1,
+            outcome="failure",
+            failure_class="timeout",
+            conn=db,
+        )
+        evidence.finish_run(run, "aborted", conn=db)
+        assert "groq/interrupted" not in evidence.recheck_statuses(conn=db)
+
+
+def _failure_run(db, model: str, at: str, failure_class: str) -> None:
+    run = evidence.start_run("transient-recheck", conn=db)
+    evidence.record_attempt(
+        run,
+        model,
+        probe_kind="continuation",
+        attempt_number=1,
+        outcome="failure",
+        failure_class=failure_class,
+        finished_at=at,
+        conn=db,
+    )
+    evidence.finish_run(run, conn=db)
+
+
+def test_recheck_backoff_becomes_persistent_only_across_separate_runs() -> None:
+    with evidence.connect() as db:
+        first = evidence.start_run("quick", conn=db)
+        for number in (1, 2):
+            evidence.record_attempt(
+                first,
+                "groq/flaky",
+                probe_kind="continuation",
+                attempt_number=number,
+                outcome="failure",
+                failure_class="timeout",
+                finished_at="2026-08-01T00:00:00+00:00",
+                conn=db,
+            )
+        evidence.finish_run(first, conn=db)
+        state = evidence.recheck_statuses(conn=db)["groq/flaky"]
+        assert state["consecutive_operational_failures"] == 1
+        assert state["next_check_at"] == "2026-08-01T00:15:00+00:00"
+
+        _failure_run(db, "groq/flaky", "2026-08-01T02:00:00+00:00", "timeout")
+        state = evidence.recheck_statuses(conn=db)["groq/flaky"]
+        assert state["consecutive_operational_failures"] == 2
+        assert state["next_check_at"] == "2026-08-01T04:00:00+00:00"
+
+        _failure_run(db, "groq/flaky", "2026-08-02T04:00:00+00:00", "timeout")
+        state = evidence.recheck_statuses(conn=db)["groq/flaky"]
+        assert state["operational_status"] == "persistent_operational"
+        assert state["next_check_at"] == "2026-08-09T04:00:00+00:00"
+
+
+def test_success_marks_operational_failure_recovered() -> None:
+    with evidence.connect() as db:
+        _failure_run(db, "groq/flaky", "2026-08-01T00:00:00+00:00", "rate_limit")
+        run = evidence.start_run("transient-recheck", conn=db)
+        evidence.record_attempt(
+            run,
+            "groq/flaky",
+            probe_kind="continuation",
+            attempt_number=1,
+            outcome="success",
+            finished_at="2026-08-01T00:16:00+00:00",
+            conn=db,
+        )
+        evidence.finish_run(run, conn=db)
+        state = evidence.recheck_statuses(conn=db)["groq/flaky"]
+        assert state["operational_status"] == "recovered"
+        assert state["next_check_at"] is None
+
+
+def test_authentication_failure_is_account_limited_and_not_scheduled() -> None:
+    with evidence.connect() as db:
+        _failure_run(
+            db, "anthropic/private", "2026-08-01T00:00:00+00:00", "authentication"
+        )
+        state = evidence.recheck_statuses(conn=db)["anthropic/private"]
+        assert state["operational_status"] == "account_limited"
+        assert state["next_check_at"] is None
+
+
+def test_quota_shaped_rate_limit_is_account_limited() -> None:
+    with evidence.connect() as db:
+        run = evidence.start_run("quick", conn=db)
+        evidence.record_attempt(
+            run,
+            "openai/no-credit",
+            probe_kind="continuation",
+            attempt_number=1,
+            outcome="failure",
+            failure_class="rate_limit",
+            safe_error_code="insufficient_quota",
+            conn=db,
+        )
+        evidence.finish_run(run, conn=db)
+        state = evidence.recheck_statuses(conn=db)["openai/no-credit"]
+        assert state["operational_status"] == "account_limited"
+
+
+def test_persistent_failed_route_is_distinguished_from_working_route() -> None:
+    with evidence.connect() as db:
+        evidence.ensure_endpoint(
+            "openrouter/vendor/model", model_family_id="vendor-model", conn=db
+        )
+        evidence.ensure_endpoint(
+            "vendor/model", model_family_id="vendor-model", conn=db
+        )
+        good = evidence.start_run("quick", conn=db)
+        evidence.record_attempt(
+            good,
+            "vendor/model",
+            probe_kind="continuation",
+            attempt_number=1,
+            outcome="success",
+            conn=db,
+        )
+        evidence.finish_run(good, conn=db)
+        for day in (1, 2, 3):
+            _failure_run(
+                db,
+                "openrouter/vendor/model",
+                f"2026-08-0{day}T00:00:00+00:00",
+                "provider_unavailable",
+            )
+        state = evidence.recheck_statuses(conn=db)["openrouter/vendor/model"]
+        assert state["operational_status"] == "provider_route_unavailable"
 
 
 def test_catalog_availability_is_an_independent_status() -> None:

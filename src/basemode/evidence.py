@@ -15,15 +15,18 @@ import re
 import sqlite3
 import uuid
 from collections.abc import Iterable, Mapping
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 _DB_FILE = Path.home() / ".local" / "share" / "basemode" / "model_evidence.sqlite"
 TRANSIENT_FAILURES = frozenset(
     {"rate_limit", "timeout", "provider_unavailable", "network"}
 )
+ACCOUNT_FAILURES = frozenset({"authentication", "quota"})
+RECHECK_DELAYS = (timedelta(minutes=15), timedelta(hours=2), timedelta(days=1))
+PERSISTENT_RECHECK_DELAY = timedelta(days=7)
 
 # These are deliberately conservative. Unknown endpoints remain eligible: many
 # provider chat catalogs have no modality field at all. We only exclude a model
@@ -180,6 +183,42 @@ def _migrate(conn: sqlite3.Connection) -> None:
             """
         )
         conn.commit()
+        version = 3
+    if version == 3:
+        conn.executescript(
+            """
+            CREATE TABLE recheck_schedules (
+              endpoint_id INTEGER PRIMARY KEY REFERENCES model_endpoints(id),
+              failure_class TEXT NOT NULL, first_failure_at TEXT NOT NULL,
+              last_failure_at TEXT NOT NULL, consecutive_failures INTEGER NOT NULL,
+              next_check_at TEXT, operational_status TEXT NOT NULL,
+              updated_at TEXT NOT NULL, last_run_id TEXT
+            );
+            CREATE INDEX recheck_schedule_due ON recheck_schedules(next_check_at);
+            """
+        )
+        # Preserve the existing transient queue when upgrading a v3 database.
+        # Replay completed observations chronologically; the scheduler counts
+        # distinct run IDs, so self-healing attempts in one run remain one
+        # operational observation.
+        for row in conn.execute(
+            """SELECT a.endpoint_id,a.outcome,a.failure_class,a.failure_transience,
+            a.safe_error_code,coalesce(a.finished_at,a.started_at) observed_at,a.run_id
+            FROM verification_attempts a JOIN verification_runs r ON r.id=a.run_id
+            WHERE r.status='completed' ORDER BY observed_at,a.id"""
+        ):
+            _update_recheck_schedule(
+                conn,
+                endpoint_id=row["endpoint_id"],
+                outcome=row["outcome"],
+                failure_class=row["failure_class"],
+                failure_transience=row["failure_transience"],
+                safe_error_code=row["safe_error_code"],
+                observed_at=row["observed_at"],
+                run_id=row["run_id"],
+            )
+        conn.execute("PRAGMA user_version=4")
+        conn.commit()
 
 
 def ensure_endpoint(
@@ -318,6 +357,23 @@ def finish_run(
         "UPDATE verification_runs SET completed_at=?, status=? WHERE id=?",
         (_now(), status, run_id),
     )
+    if status == "completed":
+        for row in db.execute(
+            """SELECT endpoint_id,outcome,failure_class,failure_transience,
+            safe_error_code,coalesce(finished_at,started_at) observed_at
+            FROM verification_attempts WHERE run_id=? ORDER BY observed_at,id""",
+            (run_id,),
+        ):
+            _update_recheck_schedule(
+                db,
+                endpoint_id=row["endpoint_id"],
+                outcome=row["outcome"],
+                failure_class=row["failure_class"],
+                failure_transience=row["failure_transience"],
+                safe_error_code=row["safe_error_code"],
+                observed_at=row["observed_at"],
+                run_id=run_id,
+            )
     if own:
         db.commit()
         db.close()
@@ -404,10 +460,106 @@ def record_attempt(
         f"INSERT INTO verification_attempts({columns}) VALUES({','.join('?' for _ in params)})",
         params,
     )
+    run_status = db.execute(
+        "SELECT status FROM verification_runs WHERE id=?", (run_id,)
+    ).fetchone()[0]
+    if run_status == "completed":
+        _update_recheck_schedule(
+            db,
+            endpoint_id=endpoint_id,
+            outcome=outcome,
+            failure_class=failure,
+            failure_transience=transience,
+            safe_error_code=values.get("safe_error_code"),
+            observed_at=values.get("finished_at", _now()),
+            run_id=run_id,
+        )
     if own:
         db.commit()
         db.close()
     return int(cur.lastrowid)
+
+
+def _as_utc(value: str) -> datetime:
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
+
+
+def _update_recheck_schedule(
+    db: sqlite3.Connection,
+    *,
+    endpoint_id: int,
+    outcome: str,
+    failure_class: str | None,
+    failure_transience: str | None,
+    safe_error_code: str | None,
+    observed_at: str,
+    run_id: str,
+) -> None:
+    previous = db.execute(
+        "SELECT * FROM recheck_schedules WHERE endpoint_id=?", (endpoint_id,)
+    ).fetchone()
+    if outcome == "success":
+        if previous is not None:
+            db.execute(
+                """UPDATE recheck_schedules SET next_check_at=NULL,
+                operational_status='recovered',updated_at=? WHERE endpoint_id=?""",
+                (observed_at, endpoint_id),
+            )
+        return
+    if not failure_class:
+        return
+    is_transient = (
+        failure_transience == "suspected" or failure_class in TRANSIENT_FAILURES
+    )
+    normalized_code = (safe_error_code or "").lower()
+    is_account = failure_class in ACCOUNT_FAILURES or any(
+        marker in normalized_code
+        for marker in ("quota", "credit", "billing", "insufficient_funds")
+    )
+    if not (is_transient or is_account):
+        return
+    was_recovered = (
+        previous is not None and previous["operational_status"] == "recovered"
+    )
+    is_separate_run = previous is None or previous["last_run_id"] != run_id
+    consecutive = (
+        1
+        if was_recovered
+        else int(previous["consecutive_failures"]) + int(is_separate_run)
+        if previous
+        else 1
+    )
+    first = str(previous["first_failure_at"]) if previous else observed_at
+    if is_account:
+        status = "account_limited"
+        next_check = None
+    elif consecutive >= 3:
+        status = "persistent_operational"
+        next_check = _as_utc(observed_at) + PERSISTENT_RECHECK_DELAY
+    else:
+        status = "suspected_transient"
+        next_check = _as_utc(observed_at) + RECHECK_DELAYS[consecutive - 1]
+    db.execute(
+        """INSERT INTO recheck_schedules(endpoint_id,failure_class,first_failure_at,
+        last_failure_at,consecutive_failures,next_check_at,operational_status,updated_at,last_run_id)
+        VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(endpoint_id) DO UPDATE SET
+        failure_class=excluded.failure_class,last_failure_at=excluded.last_failure_at,
+        consecutive_failures=excluded.consecutive_failures,next_check_at=excluded.next_check_at,
+        operational_status=excluded.operational_status,updated_at=excluded.updated_at,
+        last_run_id=excluded.last_run_id""",
+        (
+            endpoint_id,
+            failure_class,
+            first,
+            observed_at,
+            consecutive,
+            next_check.isoformat() if next_check else None,
+            status,
+            observed_at,
+            run_id,
+        ),
+    )
 
 
 def record_probe_result(
@@ -474,17 +626,72 @@ def current_status(
         # Rows are newest-first, so insertion order gives the latest run.
         groups = next(iter(runs.values()))
         result.setdefault(model, {})["verified"] = bool(groups) and all(groups.values())
+    for model, schedule in recheck_statuses(conn=db).items():
+        result.setdefault(model, {}).update(schedule)
     if own:
         db.close()
     return result
 
 
-def transient_recheck_models(*, conn: sqlite3.Connection | None = None) -> list[str]:
-    return sorted(
-        m
-        for m, status in current_status(conn=conn).items()
-        if status.get("transient_failure")
-    )
+def recheck_statuses(
+    *, conn: sqlite3.Connection | None = None
+) -> dict[str, dict[str, Any]]:
+    """Return durable operational assessments and their next scheduled check."""
+    own = conn is None
+    db = conn or connect()
+    rows = db.execute(
+        """SELECT s.*,e.normalized_model_id,e.model_family_id FROM recheck_schedules s
+        JOIN model_endpoints e ON e.id=s.endpoint_id WHERE e.text_eligible=1"""
+    ).fetchall()
+    output: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        status = row["operational_status"]
+        if (
+            status == "persistent_operational"
+            and row["failure_class"] == "provider_unavailable"
+            and row["model_family_id"]
+        ):
+            alternative = db.execute(
+                """SELECT 1 FROM verification_attempts a
+                JOIN verification_runs r ON r.id=a.run_id
+                JOIN model_endpoints e ON e.id=a.endpoint_id
+                WHERE e.model_family_id=? AND e.id!=? AND a.outcome='success'
+                  AND r.status='completed' AND a.status_eligible=1 LIMIT 1""",
+                (row["model_family_id"], row["endpoint_id"]),
+            ).fetchone()
+            if alternative:
+                status = "provider_route_unavailable"
+        output[row["normalized_model_id"]] = {
+            "operational_status": status,
+            "recheck_failure_class": row["failure_class"],
+            "consecutive_operational_failures": row["consecutive_failures"],
+            "first_operational_failure_at": row["first_failure_at"],
+            "last_operational_failure_at": row["last_failure_at"],
+            "next_check_at": row["next_check_at"],
+        }
+    if own:
+        db.close()
+    return output
+
+
+def transient_recheck_models(
+    *, conn: sqlite3.Connection | None = None, now: str | None = None
+) -> list[str]:
+    """Return only endpoints whose durable backoff says they are due."""
+    own = conn is None
+    db = conn or connect()
+    due = now or _now()
+    rows = db.execute(
+        """SELECT e.normalized_model_id FROM recheck_schedules s
+        JOIN model_endpoints e ON e.id=s.endpoint_id
+        WHERE s.next_check_at IS NOT NULL AND s.next_check_at<=?
+          AND s.operational_status IN ('suspected_transient','persistent_operational')
+          AND e.text_eligible=1 ORDER BY e.normalized_model_id""",
+        (due,),
+    ).fetchall()
+    if own:
+        db.close()
+    return [str(row[0]) for row in rows]
 
 
 def excluded_non_text_models(*, conn: sqlite3.Connection | None = None) -> set[str]:

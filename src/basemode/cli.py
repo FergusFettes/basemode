@@ -1245,7 +1245,7 @@ def evidence_command(
     view: Annotated[
         str,
         typer.Argument(
-            help="overview, providers, statuses, failures, transient, runs, corpus, endpoint, or export"
+            help="overview, providers, statuses, failures, transient, rechecks, runs, corpus, endpoint, or export"
         ),
     ] = "overview",
     model: Annotated[
@@ -1264,6 +1264,7 @@ def evidence_command(
         "statuses": evidence_report.statuses,
         "failures": evidence_report.failures,
         "transient": evidence_report.transient,
+        "rechecks": evidence_report.rechecks,
         "runs": evidence_report.runs,
         "corpus": evidence_report.corpus,
     }

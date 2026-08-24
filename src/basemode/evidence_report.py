@@ -91,7 +91,24 @@ def failures(db: sqlite3.Connection) -> list[dict[str, Any]]:
 
 
 def transient(db: sqlite3.Connection) -> list[dict[str, Any]]:
-    return [row for row in statuses(db) if row.get("transient_failure")]
+    return [
+        row
+        for row in statuses(db)
+        if row.get("operational_status")
+        in {
+            "suspected_transient",
+            "persistent_operational",
+            "provider_route_unavailable",
+        }
+    ]
+
+
+def rechecks(db: sqlite3.Connection) -> list[dict[str, Any]]:
+    """Show every operational assessment, including recovered/account-limited."""
+    return [
+        {"model": model, **state}
+        for model, state in sorted(evidence.recheck_statuses(conn=db).items())
+    ]
 
 
 def runs(db: sqlite3.Connection) -> list[dict[str, Any]]:
@@ -170,6 +187,8 @@ def export_records(db: sqlite3.Connection) -> Iterable[dict[str, Any]]:
         yield {"type": "attempt", **row}
     for row in corpus(db):
         yield {"type": "corpus", **row}
+    for row in rechecks(db):
+        yield {"type": "recheck", **row}
 
 
 def json_lines(records: Iterable[dict[str, Any]]) -> str:

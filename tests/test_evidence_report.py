@@ -57,6 +57,10 @@ def test_cli_evidence_json_and_tables() -> None:
     assert result.exit_code == 0
     assert "rate_limit" in result.output
 
+    result = runner.invoke(app, ["evidence", "rechecks", "--json"])
+    assert result.exit_code == 0
+    assert json.loads(result.output)[0]["operational_status"] == "suspected_transient"
+
 
 def test_export_is_jsonl_sanitized_and_text_only() -> None:
     _seed()
@@ -67,6 +71,7 @@ def test_export_is_jsonl_sanitized_and_text_only() -> None:
     assert all(row.get("model") != "together/image-model" for row in records)
     assert all("request_params_json" not in row for row in records)
     assert all("configuration_json" not in row for row in records)
+    assert any(row["type"] == "recheck" for row in records)
 
 
 def test_endpoint_detail_includes_attempt_history() -> None:
