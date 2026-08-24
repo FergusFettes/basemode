@@ -232,16 +232,64 @@ def _cross_provider_release_dates(verified: dict, live: dict) -> dict[str, str]:
     return index
 
 
-def _all_provider_pairs() -> list[tuple[str, str]]:
-    """(provider, model) pairs from litellm plus anything the live cache
+def _keep_litellm_pair(
+    provider: str,
+    model: str,
+    *,
+    live: dict[str, dict],
+    verified: dict[str, dict],
+    extra_display: set[tuple[str, str]],
+) -> bool:
+    """False if this litellm-only pair is a stale entry a fresh live listing
+    contradicts.
 
-    has that litellm doesn't — provider always correct.
+    litellm's bundled catalog lags real deprecations as well as releases:
+    probed live 2026-08-24, both groq and cerebras had several litellm-known
+    model ids the provider's own `/v1/models` no longer lists at all, and a
+    direct call confirmed them dead (404 / "decommissioned" / "archived").
+    So a litellm model missing from a provider's live listing is dropped --
+    unless a human already confirmed it works (the verified registry, which
+    outranks a live snapshot that might just be incomplete for this key's
+    access tier) or it was hand-added to `_EXTRA_MODELS_BY_PROVIDER`.
+    """
+    row = live.get(provider)
+    if not row or not row.get("models"):
+        return True  # no live signal for this provider -- trust litellm as-is
+    display = _display_model_id(provider, model)
+    if display in row["models"]:
+        return True
+    if (provider, display) in extra_display:
+        return True
+    return model in verified or f"{provider}/{model}" in verified
+
+
+def _all_provider_pairs() -> list[tuple[str, str]]:
+    """(provider, model) pairs from litellm and the live cache, taking the
+
+    best of each: a fresh live listing adds ids litellm doesn't know about
+    yet and drops ones litellm still lists but the provider no longer serves
+    (see `_keep_litellm_pair`); a provider with no live cache entry is
+    unaffected.
     """
     by_provider: dict[str, list[str]] = litellm.models_by_provider
     pairs = [(p, m) for p, ms in by_provider.items() for m in ms]
     pairs.extend((p, m) for p, ms in _EXTRA_MODELS_BY_PROVIDER.items() for m in ms)
+
+    live = _live_rows_by_provider()
+    verified = _verified_rows_by_model()
+    extra_display = {
+        (p, _display_model_id(p, m))
+        for p, ms in _EXTRA_MODELS_BY_PROVIDER.items()
+        for m in ms
+    }
+    pairs = [
+        (p, m)
+        for p, m in pairs
+        if _keep_litellm_pair(p, m, live=live, verified=verified, extra_display=extra_display)
+    ]
+
     known_display = {(p, _display_model_id(p, m)) for p, m in pairs}
-    for provider, row in _live_rows_by_provider().items():
+    for provider, row in live.items():
         for model_id in row.get("models", {}):
             if (provider, model_id) not in known_display:
                 pairs.append((provider, f"{provider}/{model_id}"))

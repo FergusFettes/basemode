@@ -32,6 +32,53 @@ def test_list_models_search() -> None:
     assert all("claude" in m for m in models)
 
 
+def test_live_listing_drops_stale_litellm_models(monkeypatch) -> None:
+    """A litellm-known model missing from a provider's fresh live listing is
+    dropped from the picker -- probed live 2026-08-24, groq's own /v1/models
+    no longer lists several models litellm still has, and a direct call to
+    one (llama-3.3-70b-versatile) confirmed a 404, not just a stale live
+    snapshot."""
+    import basemode.models as models_mod
+
+    monkeypatch.setattr(
+        models_mod,
+        "_live_rows_by_provider",
+        lambda: {"groq": {"models": {"allam-2-7b": "2025-01-23"}, "reliable_dates": True}},
+    )
+
+    entries = list_model_picker_entries(provider="groq", text_only=False)
+    ids = {e["model"] for e in entries}
+    assert "groq/allam-2-7b" in ids
+    assert not any("llama-3.3-70b" in m for m in ids)
+
+
+def test_live_listing_keeps_verified_models_even_if_absent_live(monkeypatch) -> None:
+    """A model a human already confirmed works (the verified registry)
+    outranks a live snapshot that might just be incomplete for this key's
+    access tier -- it should survive the live-listing prune."""
+    import basemode.models as models_mod
+
+    monkeypatch.setattr(
+        models_mod,
+        "_live_rows_by_provider",
+        lambda: {"openai": {"models": {}, "reliable_dates": True}},
+    )
+
+    entries = list_model_picker_entries(search="gpt-4o-mini", text_only=False)
+    assert any(e["model"] == "gpt-4o-mini" for e in entries)
+
+
+def test_live_listing_with_no_signal_keeps_litellm_as_is(monkeypatch) -> None:
+    """A provider with no live cache entry (or an empty one, e.g. a failed
+    refresh) is unaffected -- no signal means trust litellm."""
+    import basemode.models as models_mod
+
+    monkeypatch.setattr(models_mod, "_live_rows_by_provider", lambda: {})
+
+    entries = list_model_picker_entries(provider="groq", text_only=False)
+    assert any("llama-3.3-70b" in e["model"] for e in entries)
+
+
 def test_text_only_drops_untagged_image_models_by_name() -> None:
     """xai's grok-imagine-image-*/grok-imagine-video-* carry no litellm mode
     tag at all (probed live 2026-08-24: both 404 a text completion with "is
