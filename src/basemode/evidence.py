@@ -548,6 +548,15 @@ def import_sweep_jsonl(
                 ),
             )
         )
+        raw_status = row.get("http_status", row.get("status"))
+        http_status = (
+            raw_status
+            if isinstance(raw_status, int) and not isinstance(raw_status, bool)
+            else None
+        )
+        failure_class = row.get("category") or row.get("failure_class")
+        if not ok and failure_class is None and isinstance(raw_status, str):
+            failure_class = raw_status
         record_attempt(
             run_id,
             model,
@@ -555,9 +564,12 @@ def import_sweep_jsonl(
             attempt_number=row.get("attempt_number", counts[key]),
             outcome="success" if ok else "failure",
             conn=db,
-            failure_class=row.get("category") or row.get("failure_class"),
-            http_status=row.get("status") or row.get("http_status"),
+            failure_class=failure_class,
+            http_status=http_status,
+            safe_error_code=row.get("code") or row.get("safe_error_code"),
+            safe_error_parameter=row.get("param") or row.get("safe_error_parameter"),
             latency_ms=row.get("latency_ms")
+            or (row.get("elapsed_s") and row["elapsed_s"] * 1000)
             or (row.get("elapsed_seconds") and row["elapsed_seconds"] * 1000)
             or (row.get("latency_s") and row["latency_s"] * 1000),
             cost_usd=row.get("cost_usd") or row.get("estimated_cost_usd"),
@@ -670,6 +682,7 @@ def import_health_sqlite(
     )
     for number, row in enumerate(rows, 1):
         d = dict(row)
+        observed_at = d.get("at") or d.get("timestamp") or _now()
         record_attempt(
             run_id,
             d["model"],
@@ -677,8 +690,8 @@ def import_health_sqlite(
             attempt_number=number,
             outcome="success" if d["ok"] else "failure",
             conn=db,
-            started_at=d.get("timestamp"),
-            finished_at=d.get("timestamp"),
+            started_at=observed_at,
+            finished_at=observed_at,
             failure_class=d.get("category"),
             http_status=d.get("status"),
             safe_error_code=d.get("error_code"),

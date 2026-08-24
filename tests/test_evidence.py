@@ -67,6 +67,43 @@ def test_import_sweep_is_idempotent(tmp_path) -> None:
         )
 
 
+def test_import_sweep_preserves_claude_timing_and_safe_error_fields(tmp_path) -> None:
+    source = tmp_path / "sweep.jsonl"
+    source.write_text(
+        json.dumps(
+            {
+                "model": "deepinfra/new",
+                "ok": False,
+                "elapsed_s": 1.25,
+                "category": "invalid_request",
+                "status": 422,
+                "code": "unsupported_parameter",
+                "param": "thinking",
+            }
+        )
+        + "\n"
+    )
+    evidence.import_sweep_jsonl(source)
+    with evidence.connect() as db:
+        row = db.execute("SELECT * FROM verification_attempts").fetchone()
+    assert row["latency_ms"] == 1250
+    assert row["http_status"] == 422
+    assert row["safe_error_code"] == "unsupported_parameter"
+    assert row["safe_error_parameter"] == "thinking"
+
+
+def test_import_provider_status_is_not_stored_as_an_http_status(tmp_path) -> None:
+    source = tmp_path / "provider.jsonl"
+    source.write_text(
+        json.dumps({"model": "openai/old", "status": "xfail_retired_model"}) + "\n"
+    )
+    evidence.import_provider_health_jsonl(source)
+    with evidence.connect() as db:
+        row = db.execute("SELECT * FROM verification_attempts").fetchone()
+    assert row["failure_class"] == "xfail_retired_model"
+    assert row["http_status"] is None
+
+
 def test_import_legacy_health_verification_only(tmp_path) -> None:
     source = tmp_path / "health.sqlite"
     db = sqlite3.connect(source)
@@ -108,6 +145,33 @@ def test_import_legacy_health_verification_only(tmp_path) -> None:
             target.execute("SELECT count(*) FROM verification_attempts").fetchone()[0]
             == 1
         )
+
+
+def test_import_real_legacy_health_at_column(tmp_path) -> None:
+    source = tmp_path / "health.sqlite"
+    db = sqlite3.connect(source)
+    db.execute("""CREATE TABLE model_events(model TEXT,at TEXT,ok INTEGER,
+        category TEXT,status INTEGER,error_code TEXT,error_param TEXT,source TEXT,cost_usd REAL)""")
+    db.execute(
+        "INSERT INTO model_events VALUES(?,?,?,?,?,?,?,?,?)",
+        (
+            "openai/test",
+            "2026-08-24T18:00:00+00:00",
+            1,
+            None,
+            None,
+            None,
+            None,
+            "verification",
+            0.01,
+        ),
+    )
+    db.commit()
+    db.close()
+    evidence.import_health_sqlite(source)
+    with evidence.connect() as target:
+        row = target.execute("SELECT started_at FROM verification_attempts").fetchone()
+    assert row[0] == "2026-08-24T18:00:00+00:00"
 
 
 def test_corpus_adapter_stores_only_aggregates() -> None:
