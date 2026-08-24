@@ -6,6 +6,29 @@ from basemode import evidence, verify
 
 
 @pytest.mark.asyncio
+async def test_known_catalog_eligibility_overrides_name_fallback(monkeypatch) -> None:
+    async def continuation(*args, **kwargs):
+        yield " text output"
+
+    monkeypatch.setattr(verify, "continue_text", continuation)
+    monkeypatch.setattr(
+        verify,
+        "estimate_usage",
+        lambda *args: SimpleNamespace(
+            prompt_tokens=1, completion_tokens=1, cost_usd=None, is_estimate=True
+        ),
+    )
+    evidence.ensure_endpoint(
+        "openrouter/acme/image-reasoner",
+        metadata={"input_modalities": ["image"], "output_modalities": ["text"]},
+    )
+
+    summary = await verify.verify_models(["openrouter/acme/image-reasoner"])
+
+    assert summary.successes == 1
+
+
+@pytest.mark.asyncio
 async def test_quick_verification_records_success(monkeypatch) -> None:
     async def continuation(*args, **kwargs):
         callback = kwargs["on_usage"]

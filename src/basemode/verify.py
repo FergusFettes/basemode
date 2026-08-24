@@ -143,7 +143,27 @@ async def verify_models(
     if suite == "transient-recheck" and not models:
         models = transient_recheck_models()
     models = list(dict.fromkeys(models or []))
-    non_text = [model for model in models if not classify_text_endpoint(model)[0]]
+    db = connect()
+    try:
+        known_eligibility = (
+            {
+                row["normalized_model_id"]: bool(row["text_eligible"])
+                for row in db.execute(
+                    f"SELECT normalized_model_id,text_eligible FROM model_endpoints "
+                    f"WHERE normalized_model_id IN ({','.join('?' for _ in models)})",
+                    models,
+                )
+            }
+            if models
+            else {}
+        )
+    finally:
+        db.close()
+    non_text = [
+        model
+        for model in models
+        if not known_eligibility.get(model, classify_text_endpoint(model)[0])
+    ]
     if non_text:
         raise ValueError(
             "verification accepts text-generation endpoints only: "
