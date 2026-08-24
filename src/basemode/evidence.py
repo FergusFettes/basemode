@@ -492,6 +492,17 @@ def enforce_text_only_and_supersede_obsolete_failures(
             )
             endpoints_changed += 1
 
+    # A structured unsupported parameter/value rejection is evidence about
+    # basemode's request shaping, not about endpoint health.
+    compatibility_cursor = db.execute(
+        """UPDATE verification_attempts
+        SET status_eligible=0,
+            status_exclusion_reason='basemode request-shaping incompatibility'
+        WHERE status_eligible=1 AND failure_class='invalid_request'
+          AND safe_error_code IN ('unsupported_parameter','unsupported_value')"""
+    )
+    compatibility_failures_changed = compatibility_cursor.rowcount
+
     # A later successful direct request is concrete evidence that an older
     # invalid request was about our then-current request shaping. Other failure
     # classes and invalid requests without recovery remain status-bearing.
@@ -514,6 +525,7 @@ def enforce_text_only_and_supersede_obsolete_failures(
         db.close()
     return {
         "non_text_endpoints_excluded": endpoints_changed,
+        "request_shaping_failures_superseded": compatibility_failures_changed,
         "obsolete_invalid_requests_superseded": attempts_changed,
     }
 

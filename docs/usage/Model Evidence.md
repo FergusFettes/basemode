@@ -52,8 +52,10 @@ many provider chat catalogs do not publish this field.
 maintenance operation. It retains every raw observation while excluding
 non-text endpoints from model lists, status, and transient rechecks. It also
 marks an old `invalid_request` attempt as status-ineligible when a later request
-to the same endpoint succeeded. Invalid requests without demonstrated recovery,
-and genuine provider availability failures, remain status-bearing evidence.
+to the same endpoint succeeded. Explicit provider rejections of unsupported
+parameters or values are also retained as compatibility evidence but excluded
+from endpoint health. Other invalid requests without demonstrated recovery, and
+genuine provider availability failures, remain status-bearing evidence.
 
 ## Importing existing evidence
 

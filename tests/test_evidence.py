@@ -378,3 +378,30 @@ def test_unrecovered_invalid_request_remains_status_bearing() -> None:
             evidence.current_status(conn=db)["openai/still-broken"]["currently_broken"]
             is True
         )
+
+
+def test_unsupported_parameter_is_compatibility_not_endpoint_health() -> None:
+    with evidence.connect() as db:
+        run = evidence.start_run("quick", conn=db)
+        evidence.record_attempt(
+            run,
+            "anthropic/new-model",
+            probe_kind="continuation",
+            attempt_number=1,
+            outcome="failure",
+            failure_class="invalid_request",
+            safe_error_code="unsupported_parameter",
+            safe_error_parameter="thinking",
+            conn=db,
+        )
+        evidence.finish_run(run, conn=db)
+        result = evidence.enforce_text_only_and_supersede_obsolete_failures(conn=db)
+        row = db.execute(
+            "SELECT status_eligible,status_exclusion_reason FROM verification_attempts"
+        ).fetchone()
+        assert result["request_shaping_failures_superseded"] == 1
+        assert row["status_eligible"] == 0
+        assert row["status_exclusion_reason"] == (
+            "basemode request-shaping incompatibility"
+        )
+        assert evidence.current_status(conn=db) == {}
