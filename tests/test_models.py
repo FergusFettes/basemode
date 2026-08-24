@@ -1,3 +1,4 @@
+from basemode import health
 from basemode.models import (
     build_model_picker_state,
     list_model_picker_entries,
@@ -77,6 +78,39 @@ def test_live_listing_with_no_signal_keeps_litellm_as_is(monkeypatch) -> None:
 
     entries = list_model_picker_entries(provider="groq", text_only=False)
     assert any("llama-3.3-70b" in e["model"] for e in entries)
+
+
+def test_verified_only_includes_a_model_with_no_registry_row_but_clean_evidence() -> (
+    None
+):
+    """Nobody has ever hand-added a registry entry for most deepinfra
+    models, but a verification probe that found one working is still real
+    evidence it works -- `verified` shouldn't require curation on top of
+    proof."""
+    health.record_outcome(
+        "deepinfra/zai-org/GLM-5.2", ok=True, source="verification"
+    )
+
+    entries = list_model_picker_entries(verified_only=True, text_only=False)
+    assert any(e["model"] == "deepinfra/zai-org/glm-5.2" for e in entries)
+
+
+def test_verified_only_excludes_evidence_with_any_recorded_failure() -> None:
+    """A later clean pass isn't enough on its own -- evidence_verified
+    requires zero failures ever seen, not just that the latest attempt
+    happened to succeed (that's what currently_broken already covers)."""
+    health.record_outcome(
+        "deepinfra/some/flaky-model",
+        ok=False,
+        category="empty_response",
+        source="verification",
+    )
+    health.record_outcome(
+        "deepinfra/some/flaky-model", ok=True, source="verification"
+    )
+
+    entries = list_model_picker_entries(verified_only=True, text_only=False)
+    assert not any(e["model"] == "deepinfra/some/flaky-model" for e in entries)
 
 
 def test_text_only_drops_untagged_image_models_by_name() -> None:

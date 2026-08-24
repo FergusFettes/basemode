@@ -5,7 +5,7 @@ from importlib import resources
 
 import litellm
 
-from .health import currently_broken_models, list_model_health
+from .health import list_model_health, verification_history
 from .keys import list_model_ratings
 from .settings import settings
 from .strategies.compat import model_quirks
@@ -342,23 +342,29 @@ def list_model_picker_entries(
     cross_provider_dates = _cross_provider_release_dates(verified, live)
     thumbs = list_model_ratings() if ratings is None else _lowered(ratings)
     health = list_model_health(days=health_days)
+    verification = verification_history()
     # A registry entry means a human confirmed this model works at some
     # point; a verification probe (see `basemode health --verification`)
     # can contradict that with live evidence -- currently_broken looks only
     # at each model's most recent probe, so a later fix clears it without
-    # needing the registry edited by hand.
-    broken = currently_broken_models()
+    # needing the registry edited by hand. evidence_verified is the other
+    # direction: a model with no registry row at all (nobody has hand-added
+    # it, e.g. a reseller like deepinfra) still counts as verified once a
+    # probe has actually proven it works, with no failures seen.
+    broken = {m for m, e in verification.items() if e["currently_broken"]}
+    evidence_verified = {
+        m for m, e in verification.items() if e["attempts"] > 0 and e["failures"] == 0
+    }
+    verified_models = (set(verified) | evidence_verified) - broken
 
     if verified_only:
         pairs = [
-            (m.split("/", 1)[0] if "/" in m else "unknown", m)
-            for m in verified
-            if m not in broken
+            (m.split("/", 1)[0] if "/" in m else "unknown", m) for m in verified_models
         ]
     else:
         pairs = _all_provider_pairs()
         known_display = {(p, _display_model_id(p, m)) for p, m in pairs}
-        for m in verified:
+        for m in verified_models:
             v_provider = m.split("/", 1)[0] if "/" in m else "unknown"
             v_display = _display_model_id(v_provider, m)
             if (v_provider, v_display) not in known_display:
@@ -388,7 +394,9 @@ def list_model_picker_entries(
             continue
 
         v = verified.get(model) or verified.get(f"{model_provider}/{model}", {})
-        is_broken = model in broken or f"{model_provider}/{model}" in broken
+        qualified = f"{model_provider}/{model}"
+        is_broken = model in broken or qualified in broken
+        is_evidence_verified = model in evidence_verified or qualified in evidence_verified
         available = model_provider in available_providers
         if available_only and not available:
             continue
@@ -406,7 +414,7 @@ def list_model_picker_entries(
                 "provider": model_provider,
                 "mode": mode,
                 "available": available,
-                "verified": bool(v) and not is_broken,
+                "verified": (bool(v) or is_evidence_verified) and not is_broken,
                 "prompt_method": v.get("prompt_method"),
                 "reliability": v.get("reliability"),
                 "release_date": release_date,
