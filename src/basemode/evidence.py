@@ -202,6 +202,8 @@ def ensure_endpoint(
         VALUES(?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(normalized_model_id) DO UPDATE SET
         last_seen_at=excluded.last_seen_at,
         modality=COALESCE(excluded.modality,model_endpoints.modality),
+        release_date=COALESCE(excluded.release_date,model_endpoints.release_date),
+        display_name=COALESCE(excluded.display_name,model_endpoints.display_name),
         text_eligible=CASE WHEN excluded.text_eligible=0 THEN 0 ELSE model_endpoints.text_eligible END,
         exclusion_reason=COALESCE(excluded.exclusion_reason,model_endpoints.exclusion_reason)""",
         (
@@ -243,7 +245,13 @@ def record_catalog_observation(
     db = conn or connect()
     catalog_metadata = metadata or {}
     modality = catalog_metadata.get("modality") or catalog_metadata.get("mode")
-    endpoint = ensure_endpoint(model, conn=db, modality=modality)
+    endpoint = ensure_endpoint(
+        model,
+        conn=db,
+        modality=modality,
+        release_date=catalog_metadata.get("release_date"),
+        display_name=catalog_metadata.get("display_name"),
+    )
     cur = db.execute(
         """INSERT INTO catalog_observations(endpoint_id,observed_at,source,available,
         catalog_snapshot_id,metadata_json) VALUES(?,?,?,?,?,?)""",

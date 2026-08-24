@@ -23,7 +23,20 @@ rate limit, timeout, network error, or provider outage.
 basemode verify --suite quick openai/gpt-4o-mini
 basemode verify --suite thorough --attempts 3 openai/gpt-4o-mini
 basemode verify --suite transient-recheck
+basemode verify --from-catalog --provider openai --status never-tested --dry-run
+basemode verify --from-catalog --released-since 2026-08-01 --dry-run --json
 ```
+
+Verification planning is deterministic: transient and durable failures come
+first, followed by never-tested, stale, reachable, and verified endpoints;
+ties are ordered by provider and model ID. Selectors cover catalog availability,
+provider, release date/age, and prior status. Explicit model IDs can be combined
+with the same filters. Text eligibility is always enforced.
+
+Dry runs never initialize a verification run or contact a provider. Their cost
+figure is a conservative ceiling for the maximum three self-healing requests
+per logical probe. It is best-effort LiteLLM pricing metadata, clearly split
+into priced and unpriced target counts; it is not treated as model truth.
 
 Use `basemode evidence` for read-only summaries and sanitized exports. Views
 cover the overall dataset, providers, current statuses, failure classes, the

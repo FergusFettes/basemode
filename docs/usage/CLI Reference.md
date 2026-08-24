@@ -106,12 +106,21 @@ real provider requests and stores each attempt in the shared model-evidence
 database. See [[Model Evidence]].
 
 ```bash
-basemode verify [MODEL...] [--suite quick|thorough|transient-recheck] [--attempts N] [--max-tokens N] [--json]
+basemode verify [MODEL...] [--suite quick|thorough|transient-recheck] [--attempts N] [--max-tokens N]
+  [--provider NAME] [--status STATUS] [--from-catalog]
+  [--released-since YYYY-MM-DD | --max-release-age-days N]
+  [--stale-after-days N] [--dry-run] [--json]
 ```
 
 Models are required for quick and thorough suites. With no models, the
 transient-recheck suite selects endpoints whose latest operational failure is
 suspected to be temporary.
+
+Selectors can plan deterministic catalog sweeps by provider, release date, and
+current status (`never-tested`, `reachable`, `broken`, `transient`, `verified`,
+or `stale`). Repeat provider and status options to form unions. `--dry-run`
+makes no provider requests and reports the ordered stages, provider counts,
+logical probes, maximum self-healing requests, and a best-effort price ceiling.
 
 ### `evidence`
 

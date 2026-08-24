@@ -1086,11 +1086,38 @@ def verify_command(
         int, typer.Option("--attempts", min=1, help="Attempts per probe.")
     ] = 1,
     max_tokens: Annotated[int | None, typer.Option("--max-tokens", min=1)] = None,
+    providers: Annotated[
+        list[str] | None,
+        typer.Option("--provider", help="Limit to a provider; repeatable."),
+    ] = None,
+    statuses: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--status",
+            help="never-tested, reachable, broken, transient, verified, or stale; repeatable.",
+        ),
+    ] = None,
+    from_catalog: Annotated[
+        bool,
+        typer.Option("--from-catalog", help="Require current catalog availability."),
+    ] = False,
+    released_since: Annotated[
+        str | None, typer.Option("--released-since", help="Minimum ISO release date.")
+    ] = None,
+    max_release_age_days: Annotated[
+        int | None, typer.Option("--max-release-age-days", min=0)
+    ] = None,
+    stale_after_days: Annotated[int, typer.Option("--stale-after-days", min=1)] = 30,
+    dry_run: Annotated[
+        bool, typer.Option("--dry-run", help="Plan only; never contact providers.")
+    ] = False,
     as_json: Annotated[bool, typer.Option("--json")] = False,
 ) -> None:
     """Probe models and retain every result in the shared evidence database."""
     from dataclasses import asdict
 
+    from .usage import format_usd
+    from .verification_plan import plan_verification
     from .verify import verify_models
 
     if suite not in {"quick", "thorough", "transient-recheck"}:
@@ -1098,11 +1125,79 @@ def verify_command(
             "[red]--suite must be quick, thorough, or transient-recheck[/red]"
         )
         raise typer.Exit(2)
-    if not models and suite != "transient-recheck":
-        console.print("[red]Supply at least one model to verify.[/red]")
+    has_selector = bool(
+        providers
+        or statuses
+        or from_catalog
+        or released_since
+        or max_release_age_days is not None
+    )
+    if not models and suite != "transient-recheck" and not has_selector:
+        console.print("[red]Supply models or at least one target selector.[/red]")
         raise typer.Exit(2)
+    try:
+        plan = plan_verification(
+            models,
+            suite=suite,
+            attempts=attempts,
+            max_tokens=max_tokens,
+            providers=providers,
+            statuses=statuses,
+            catalog_available=from_catalog,
+            released_since=released_since,
+            max_release_age_days=max_release_age_days,
+            stale_after_days=stale_after_days,
+        )
+    except ValueError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(2) from exc
+    if dry_run:
+        if as_json:
+            console.print(json.dumps(plan.to_dict(), indent=2))
+            return
+        table = Table(
+            "Stage",
+            "Provider",
+            "Model",
+            "Prior",
+            "Catalog",
+            "Release",
+            "Probes",
+            "Max reqs",
+            "Max cost",
+        )
+        for target in plan.targets:
+            table.add_row(
+                target.stage,
+                target.provider,
+                target.model,
+                target.prior_status,
+                "yes"
+                if target.catalog_available
+                else "no"
+                if target.catalog_available is False
+                else "?",
+                target.release_date or "?",
+                str(target.logical_probes),
+                str(target.maximum_requests),
+                format_usd(target.estimated_max_cost_usd),
+            )
+        console.print(table)
+        console.print(
+            f"[dim]{len(plan.targets)} targets; providers {plan.provider_counts}; "
+            f"{plan.logical_probes} logical probes; at most {plan.maximum_requests} requests; "
+            f"known-price ceiling {format_usd(plan.estimated_known_max_cost_usd)} "
+            f"({plan.priced_targets} priced, {plan.unpriced_targets} unknown)[/dim]"
+        )
+        return
+    selected_models = [target.model for target in plan.targets]
+    if not selected_models:
+        console.print("[yellow]No eligible verification targets.[/yellow]")
+        return
     summary = asyncio.run(
-        verify_models(models, suite=suite, attempts=attempts, max_tokens=max_tokens)
+        verify_models(
+            selected_models, suite=suite, attempts=attempts, max_tokens=max_tokens
+        )
     )
     payload = asdict(summary)
     if as_json:
