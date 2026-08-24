@@ -343,6 +343,9 @@ def list_model_picker_entries(
     thumbs = list_model_ratings() if ratings is None else _lowered(ratings)
     health = list_model_health(days=health_days)
     verification = verification_history()
+    from .evidence import current_status as evidence_current_status
+
+    durable_evidence = evidence_current_status()
     # A registry entry means a human confirmed this model works at some
     # point; a verification probe (see `basemode health --verification`)
     # can contradict that with live evidence -- currently_broken looks only
@@ -354,6 +357,15 @@ def list_model_picker_entries(
     broken = {m for m, e in verification.items() if e["currently_broken"]}
     evidence_verified = {
         m for m, e in verification.items() if e["attempts"] > 0 and e["failures"] == 0
+    }
+    # Thorough-suite evidence is durable and reproducible. Quick legacy
+    # probes remain a compatibility fallback, but cannot independently grant
+    # the stronger evidence-backed verified state.
+    broken |= {
+        m for m, e in durable_evidence.items() if e.get("currently_broken")
+    }
+    evidence_verified |= {
+        m for m, e in durable_evidence.items() if e.get("verified")
     }
     verified_models = (set(verified) | evidence_verified) - broken
 

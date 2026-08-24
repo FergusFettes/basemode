@@ -957,6 +957,7 @@ def health(
         console.print(f"[green]✓[/green] Cleared health history for {target}")
         return
 
+
     if verification:
         from .usage import format_usd
 
@@ -1073,6 +1074,48 @@ def health(
         f"failure breakdown{window} from the last "
         f"{EVENT_RETENTION_DAYS} days of events[/dim]"
     )
+
+
+@app.command("verify")
+def verify_command(
+    models: Annotated[
+        list[str] | None,
+        typer.Argument(help="Provider-qualified model IDs to verify."),
+    ] = None,
+    suite: Annotated[
+        str,
+        typer.Option("--suite", help="quick, thorough, or transient-recheck"),
+    ] = "quick",
+    attempts: Annotated[
+        int, typer.Option("--attempts", min=1, help="Attempts per probe.")
+    ] = 1,
+    max_tokens: Annotated[int | None, typer.Option("--max-tokens", min=1)] = None,
+    as_json: Annotated[bool, typer.Option("--json")] = False,
+) -> None:
+    """Probe models and retain every result in the shared evidence database."""
+    from dataclasses import asdict
+
+    from .verify import verify_models
+
+    if suite not in {"quick", "thorough", "transient-recheck"}:
+        console.print(
+            "[red]--suite must be quick, thorough, or transient-recheck[/red]"
+        )
+        raise typer.Exit(2)
+    if not models and suite != "transient-recheck":
+        console.print("[red]Supply at least one model to verify.[/red]")
+        raise typer.Exit(2)
+    summary = asyncio.run(
+        verify_models(models, suite=suite, attempts=attempts, max_tokens=max_tokens)
+    )
+    payload = asdict(summary)
+    if as_json:
+        console.print(json.dumps(payload, indent=2))
+    else:
+        console.print(
+            f"[green]✓[/green] {summary.successes}/{summary.attempts} probes "
+            f"passed; run {summary.run_id}"
+        )
 
 
 @app.command()
