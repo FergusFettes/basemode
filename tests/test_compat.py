@@ -308,6 +308,78 @@ async def test_continue_text_loads_persisted_keys(monkeypatch) -> None:
     assert "".join(out)
 
 
+async def test_continue_text_retries_openrouter_empty_with_reasoning_off(
+    monkeypatch,
+) -> None:
+    """OpenRouter often defaults reasoning on for a model, which can eat the
+    whole visible budget and yield nothing. A single retry with reasoning
+    switched off should recover transparently."""
+    from basemode import continue_ as cont
+    from basemode.exceptions import EmptyCompletionError
+    from basemode.params import GenerationParams
+
+    calls = []
+
+    class FlakyStrategy:
+        name = "system"
+
+        async def stream(self, prefix: str, params: GenerationParams):
+            calls.append(dict(params.extra))
+            if params.extra.get("reasoning") == {"enabled": False}:
+                yield "recovered"
+                return
+            raise EmptyCompletionError(
+                model=params.model, strategy=self.name, finish_reason="length"
+            )
+
+    monkeypatch.setattr(cont, "load_into_environ", lambda: None)
+    monkeypatch.setattr(cont, "normalize_model", lambda model: model)
+    monkeypatch.setattr(
+        cont, "detect_strategy", lambda model, override=None: FlakyStrategy()
+    )
+
+    out = []
+    async for token in cont.continue_text(
+        "prefix", model="openrouter/some/model", record_health=False
+    ):
+        out.append(token)
+
+    assert "".join(out) == "recovered"
+    assert calls == [{}, {"reasoning": {"enabled": False}}]
+
+
+async def test_continue_text_does_not_retry_non_openrouter_empty(monkeypatch) -> None:
+    from basemode import continue_ as cont
+    from basemode.exceptions import EmptyCompletionError
+    from basemode.params import GenerationParams
+
+    calls = []
+
+    class AlwaysEmptyStrategy:
+        name = "system"
+
+        async def stream(self, prefix: str, params: GenerationParams):
+            calls.append(dict(params.extra))
+            raise EmptyCompletionError(
+                model=params.model, strategy=self.name, finish_reason="length"
+            )
+            yield  # pragma: no cover - keeps this an async generator
+
+    monkeypatch.setattr(cont, "load_into_environ", lambda: None)
+    monkeypatch.setattr(cont, "normalize_model", lambda model: model)
+    monkeypatch.setattr(
+        cont, "detect_strategy", lambda model, override=None: AlwaysEmptyStrategy()
+    )
+
+    with pytest.raises(EmptyCompletionError):
+        async for _ in cont.continue_text(
+            "prefix", model="anthropic/claude-opus-5", record_health=False
+        ):
+            pass
+
+    assert calls == [{}]
+
+
 async def test_branch_text_propagates_worker_errors(monkeypatch) -> None:
     from basemode import continue_ as cont
     from basemode.params import GenerationParams

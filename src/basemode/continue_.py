@@ -1,11 +1,13 @@
 import asyncio
 import logging
 from collections.abc import AsyncGenerator, Callable
+from dataclasses import replace
 
 import litellm
 
 from . import usage_capture
 from .detect import detect_strategy, normalize_model
+from .exceptions import EmptyCompletionError
 from .healing import (
     normalize_stream_newlines,
     probe_rewind_overlap,
@@ -83,18 +85,48 @@ async def continue_text(
     token_count = 0
     usage_capture.begin_capture()
     generation_prefix, rewind_fragment = _generation_prefix(prefix, strat.name, rewind)
+    attempt_params = params
+    retried_reasoning_off = False
     try:
-        raw_tokens = _stream_tokens(
-            strat, prefix, generation_prefix, rewind_fragment, params
-        )
-        if on_raw_head is not None:
-            raw_tokens = _capture_head(raw_tokens, on_raw_head, raw_head_chars)
-        stream = normalize_stream_newlines(prefix, raw_tokens)
-        if strict_max_tokens:
-            stream = _enforce_visible_token_cap(stream, model, max_tokens)
-        async for token in stream:
-            token_count += 1
-            yield token
+        while True:
+            try:
+                raw_tokens = _stream_tokens(
+                    strat, prefix, generation_prefix, rewind_fragment, attempt_params
+                )
+                if on_raw_head is not None:
+                    raw_tokens = _capture_head(raw_tokens, on_raw_head, raw_head_chars)
+                stream = normalize_stream_newlines(prefix, raw_tokens)
+                if strict_max_tokens:
+                    stream = _enforce_visible_token_cap(stream, model, max_tokens)
+                async for token in stream:
+                    token_count += 1
+                    yield token
+                break
+            except EmptyCompletionError:
+                # OpenRouter often proxies a model whose reasoning is on by
+                # default and consumes the whole visible token budget, so
+                # nothing comes out (`finish_reason="length"`) even though
+                # the request itself was fine. Retry once with reasoning
+                # switched off before giving up — a model that requires
+                # reasoning just rejects this immediately as a 400, which
+                # `except Exception` below still handles.
+                eligible = (
+                    not retried_reasoning_off
+                    and token_count == 0
+                    and model.lower().startswith("openrouter/")
+                    and "reasoning" not in attempt_params.extra
+                )
+                if not eligible:
+                    raise
+                retried_reasoning_off = True
+                attempt_params = replace(
+                    attempt_params,
+                    extra={**attempt_params.extra, "reasoning": {"enabled": False}},
+                )
+                log.debug(
+                    "continue_text: %s produced nothing, retrying with reasoning off",
+                    model,
+                )
     except (GeneratorExit, asyncio.CancelledError):
         # The consumer walked away. Tokens already delivered still count as
         # the model having worked; an immediate cancel is not a verdict.
@@ -176,16 +208,40 @@ async def branch_text(
     async def run_branch(idx: int) -> None:
         token_count = 0
         usage_capture.begin_capture()
+        branch_params = params
+        retried_reasoning_off = False
         try:
-            raw_tokens = _stream_tokens(
-                strat, prefix, generation_prefix, rewind_fragment, params
-            )
-            stream = normalize_stream_newlines(prefix, raw_tokens)
-            if strict_max_tokens:
-                stream = _enforce_visible_token_cap(stream, model, max_tokens)
-            async for token in stream:
-                token_count += 1
-                await queue.put((idx, token))
+            while True:
+                try:
+                    raw_tokens = _stream_tokens(
+                        strat, prefix, generation_prefix, rewind_fragment, branch_params
+                    )
+                    stream = normalize_stream_newlines(prefix, raw_tokens)
+                    if strict_max_tokens:
+                        stream = _enforce_visible_token_cap(stream, model, max_tokens)
+                    async for token in stream:
+                        token_count += 1
+                        await queue.put((idx, token))
+                    break
+                except EmptyCompletionError:
+                    # See continue_text's matching retry: OpenRouter often
+                    # defaults reasoning on and it eats the whole visible
+                    # budget. A model that requires reasoning just 400s
+                    # immediately on the retry, handled by `except Exception`
+                    # below.
+                    eligible = (
+                        not retried_reasoning_off
+                        and token_count == 0
+                        and model.lower().startswith("openrouter/")
+                        and "reasoning" not in branch_params.extra
+                    )
+                    if not eligible:
+                        raise
+                    retried_reasoning_off = True
+                    branch_params = replace(
+                        branch_params,
+                        extra={**branch_params.extra, "reasoning": {"enabled": False}},
+                    )
         except asyncio.CancelledError:
             if record_health and token_count:
                 record_outcome(model, ok=True)
