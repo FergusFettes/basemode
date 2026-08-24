@@ -364,9 +364,14 @@ def verification_history(
     `record_outcome`), most recent first, distinct from organic generation
     traffic.
 
-    Each model's `categories` counts every failure category seen; a model
-    whose failures are all in `TRANSIENT_CATEGORIES` looks flaky rather than
-    durably broken -- worth re-probing rather than blacklisting outright.
+    Each model's `categories` counts every failure category seen across all
+    matching events -- a historical pattern, useful for the CLI table, but
+    it never expires: a model fixed today still shows old failures here.
+    `currently_broken` is the actionable signal instead: it looks only at
+    the most recent probe, so a later success immediately clears it
+    regardless of how many times the model failed before. `looks_transient`
+    is the same all-failures-ever view as `categories` -- true only when
+    every failure seen, historical or current, was in `TRANSIENT_CATEGORIES`.
     """
     try:
         with _connect() as conn:
@@ -420,9 +425,23 @@ def verification_history(
                 entry["looks_transient"] = bool(cats) and all(
                     c in TRANSIENT_CATEGORIES for c in cats
                 )
+                entry["currently_broken"] = (
+                    not entry["last_ok"]
+                    and entry["last_category"] not in TRANSIENT_CATEGORIES
+                )
             return by_model
     except Exception:
         return {}
+
+
+def currently_broken_models() -> set[str]:
+    """Model ids whose most recent verification probe failed durably (see
+    `verification_history`'s `currently_broken`). A model with no
+    verification history at all is not in this set -- absence of evidence
+    isn't evidence of brokenness."""
+    return {
+        m for m, entry in verification_history().items() if entry["currently_broken"]
+    }
 
 
 def _summary(row: sqlite3.Row, events: list[sqlite3.Row], days: int | None) -> dict:

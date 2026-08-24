@@ -158,6 +158,9 @@ def test_verification_history_tracks_probes_separately() -> None:
     assert entry["failures"] == 2
     assert entry["categories"] == {"empty_response": 1, "rate_limit": 1}
     assert entry["looks_transient"] is False  # empty_response isn't transient
+    # ... but the most recent attempt was the transient rate_limit, so it's
+    # not "currently broken" even though its history isn't purely transient.
+    assert entry["currently_broken"] is False
 
 
 def test_verification_history_flags_purely_transient_failures() -> None:
@@ -192,6 +195,28 @@ def test_verification_history_cost_is_none_when_never_known() -> None:
 
     entry = health.verification_history()["openai/gpt-4o-mini"]
     assert entry["cost_usd"] is None
+
+
+def test_currently_broken_models_self_heals_after_a_later_success() -> None:
+    """The whole point of `currently_broken` over the all-time `categories`
+    view: a model that failed durably yesterday and passes today should
+    stop being flagged immediately, with no manual reset needed."""
+    health.record_outcome(
+        "moonshot/kimi-k2.7-code",
+        ok=False,
+        category="invalid_request",
+        source="verification",
+    )
+    assert health.currently_broken_models() == {"moonshot/kimi-k2.7-code"}
+
+    health.record_outcome("moonshot/kimi-k2.7-code", ok=True, source="verification")
+
+    assert health.currently_broken_models() == set()
+    assert health.verification_history()["moonshot/kimi-k2.7-code"]["failures"] == 1
+
+
+def test_currently_broken_models_ignores_models_never_probed() -> None:
+    assert health.currently_broken_models() == set()
 
 
 def test_recording_never_raises_at_the_call_site(monkeypatch) -> None:
