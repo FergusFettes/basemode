@@ -51,9 +51,10 @@ NON_TEXT_MODALITIES = frozenset(
     }
 )
 _NON_TEXT_NAME_RE = re.compile(
-    r"(?:^|[/_.-])(?:dall-e|embedding|embed|flux|image|imagen|moderation|rerank|"
-    r"i2v|lyria|pixverse|r2v|seedance|sora|speech|stable-diffusion|t2v|tts|veo|video|"
-    r"vidu|wan|whisper)"
+    r"(?:^|[/_.-])(?:audio|bge|bria|clip-vit|dall-e|embedding(?:gemma)?|embed|e5|"
+    r"flux|higgsaudio|ideogram|image|imagen|i2v|kokoro|lyria|moderation|nano-banana|"
+    r"pixverse|r2v|rerank|seedance|seedream|sora|speech|stable-diffusion|t2v|tts|"
+    r"veo|video|vidu|wan|whisper)"
     r"(?:$|[/_.-])",
     re.IGNORECASE,
 )

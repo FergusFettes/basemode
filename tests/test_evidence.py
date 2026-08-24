@@ -2,16 +2,34 @@ import json
 import sqlite3
 from datetime import UTC, datetime
 
+import pytest
+
 from basemode import evidence
 
 
-def test_text_classification_excludes_music_but_keeps_text_reasoning_models() -> None:
-    assert evidence.classify_text_endpoint(
-        "openrouter/google/lyria-3-clip-preview"
-    ) == (
+@pytest.mark.parametrize(
+    ("model", "family"),
+    [
+        ("openrouter/google/lyria-3-clip-preview", "lyria"),
+        ("deepinfra/baai/bge-m3", "bge"),
+        ("deepinfra/google/embeddinggemma-300m", "embeddinggemma"),
+        ("deepinfra/hexgrad/kokoro-82m", "kokoro"),
+        ("openai/gpt-audio-mini", "audio"),
+        ("deepinfra/bria/remove_background", "bria"),
+        ("deepinfra/google/nano-banana-pro", "nano-banana"),
+        ("together_ai/bytedance-seed/seedream-4.0", "seedream"),
+    ],
+)
+def test_text_classification_excludes_non_text_families(
+    model: str, family: str
+) -> None:
+    assert evidence.classify_text_endpoint(model) == (
         False,
-        "non-text model family: lyria",
+        f"non-text model family: {family}",
     )
+
+
+def test_text_classification_keeps_text_reasoning_models() -> None:
     assert evidence.classify_text_endpoint("openrouter/meta/muse-spark-1.2") == (
         True,
         None,
