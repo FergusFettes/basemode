@@ -74,6 +74,14 @@ def test_normalize_gemma_4_aliases() -> None:
     assert normalize_model("gemma-4-31b") == "gemini/gemma-4-31b-it"
 
 
+def test_normalize_deepseek_defaults_to_deepseek() -> None:
+    """A bare `deepseek-*` name has no litellm-native provider detection and
+    used to reach the provider as-is, failing with "LLM Provider NOT
+    provided" -- deepseek needs the same explicit prefixing as kimi/glm."""
+    assert normalize_model("deepseek-v4-flash") == "deepseek/deepseek-v4-flash"
+    assert normalize_model("deepseek-v4-pro") == "deepseek/deepseek-v4-pro"
+
+
 def test_normalize_anthropic_aliases_before_litellm_probe(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
