@@ -199,6 +199,17 @@ def _connect() -> sqlite3.Connection:
     _ensure_column(conn, "model_totals", "last_error_param", "TEXT")
     _ensure_column(conn, "model_events", "error_code", "TEXT")
     _ensure_column(conn, "model_events", "error_param", "TEXT")
+    # "generation" (default) is real traffic from continue_text/branch_text
+    # and is what model_totals' rolling attempts/successes/failures track.
+    # "verification" is a deliberate probe (e.g. a verification sweep) --
+    # recorded in model_events for its own history, but never folded into
+    # model_totals, so a synthetic probe run can't skew what this user's
+    # actual generation traffic says about a model.
+    _ensure_column(conn, "model_events", "source", "TEXT NOT NULL DEFAULT 'generation'")
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_events_source_model_at "
+        "ON model_events(source, model, at)"
+    )
     return conn
 
 
@@ -218,11 +229,18 @@ def record_outcome(
     status: int | None = None,
     error_code: str | None = None,
     error_param: str | None = None,
+    source: str = "generation",
 ) -> None:
     """Record one generation attempt. Never raises.
 
     `category` describes a failure the way the caller classified it (
     `rate_limit`, `timeout`, `empty_response`, ...); it is ignored when `ok`.
+
+    `source` distinguishes real traffic (`"generation"`, the default -- what
+    `model_totals` and `list_model_health` track) from a deliberate
+    verification probe (`"verification"`, see :func:`verification_history`),
+    which is recorded in the event log but never folded into the rolling
+    totals real generation decisions read.
     """
     if _disabled() or not model.strip():
         return
@@ -233,55 +251,65 @@ def record_outcome(
         with _connect() as conn:
             conn.execute(
                 "INSERT INTO model_events "
-                "(model, at, ok, category, status, error_code, error_param)"
-                " VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (model, now, int(ok), category, status, error_code, error_param),
-            )
-            conn.execute(
-                """
-                INSERT INTO model_totals (
-                    model, attempts, successes, failures, first_seen, last_seen,
-                    last_success_at, last_failure_at, last_category, last_status
-                    , last_error_code, last_error_param
-                ) VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ON CONFLICT(model) DO UPDATE SET
-                    attempts = attempts + 1,
-                    successes = successes + excluded.successes,
-                    failures = failures + excluded.failures,
-                    last_seen = excluded.last_seen,
-                    last_success_at = COALESCE(
-                        excluded.last_success_at, last_success_at
-                    ),
-                    last_failure_at = COALESCE(
-                        excluded.last_failure_at, last_failure_at
-                    ),
-                    last_category = CASE
-                        WHEN excluded.last_failure_at IS NOT NULL
-                        THEN excluded.last_category ELSE last_category END,
-                    last_status = CASE
-                        WHEN excluded.last_failure_at IS NOT NULL
-                        THEN excluded.last_status ELSE last_status END,
-                    last_error_code = CASE
-                        WHEN excluded.last_failure_at IS NOT NULL
-                        THEN excluded.last_error_code ELSE last_error_code END,
-                    last_error_param = CASE
-                        WHEN excluded.last_failure_at IS NOT NULL
-                        THEN excluded.last_error_param ELSE last_error_param END
-                """,
+                "(model, at, ok, category, status, error_code, error_param, source)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     model,
+                    now,
                     int(ok),
-                    int(not ok),
-                    now,
-                    now,
-                    now if ok else None,
-                    None if ok else now,
                     category,
                     status,
                     error_code,
                     error_param,
+                    source,
                 ),
             )
+            if source == "generation":
+                conn.execute(
+                    """
+                    INSERT INTO model_totals (
+                        model, attempts, successes, failures, first_seen, last_seen,
+                        last_success_at, last_failure_at, last_category, last_status
+                        , last_error_code, last_error_param
+                    ) VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(model) DO UPDATE SET
+                        attempts = attempts + 1,
+                        successes = successes + excluded.successes,
+                        failures = failures + excluded.failures,
+                        last_seen = excluded.last_seen,
+                        last_success_at = COALESCE(
+                            excluded.last_success_at, last_success_at
+                        ),
+                        last_failure_at = COALESCE(
+                            excluded.last_failure_at, last_failure_at
+                        ),
+                        last_category = CASE
+                            WHEN excluded.last_failure_at IS NOT NULL
+                            THEN excluded.last_category ELSE last_category END,
+                        last_status = CASE
+                            WHEN excluded.last_failure_at IS NOT NULL
+                            THEN excluded.last_status ELSE last_status END,
+                        last_error_code = CASE
+                            WHEN excluded.last_failure_at IS NOT NULL
+                            THEN excluded.last_error_code ELSE last_error_code END,
+                        last_error_param = CASE
+                            WHEN excluded.last_failure_at IS NOT NULL
+                            THEN excluded.last_error_param ELSE last_error_param END
+                    """,
+                    (
+                        model,
+                        int(ok),
+                        int(not ok),
+                        now,
+                        now,
+                        now if ok else None,
+                        None if ok else now,
+                        category,
+                        status,
+                        error_code,
+                        error_param,
+                    ),
+                )
             _prune(conn)
     except Exception:
         # A health record is never worth failing a generation over.
@@ -296,7 +324,7 @@ def _prune(conn: sqlite3.Connection) -> None:
 def _window_rows(
     conn: sqlite3.Connection, model: str | None, days: int | None
 ) -> dict[str, list[sqlite3.Row]]:
-    sql = "SELECT model, ok, category FROM model_events"
+    sql = "SELECT model, ok, category FROM model_events WHERE source = 'generation'"
     clauses, params = [], []
     if model:
         clauses.append("model = ?")
@@ -305,12 +333,80 @@ def _window_rows(
         cutoff = (datetime.now(UTC) - timedelta(days=days)).isoformat()
         clauses.append("at >= ?")
         params.append(cutoff)
-    if clauses:
-        sql += " WHERE " + " AND ".join(clauses)
+    for clause in clauses:
+        sql += " AND " + clause
     rows: dict[str, list[sqlite3.Row]] = {}
     for row in conn.execute(sql, params):
         rows.setdefault(row["model"], []).append(row)
     return rows
+
+
+#: Failure categories that describe transient provider/network state rather
+#: than something durably wrong with a model -- worth retrying later instead
+#: of writing the model off.
+TRANSIENT_CATEGORIES = frozenset(
+    {"rate_limit", "timeout", "provider_unavailable", "network"}
+)
+
+
+def verification_history(
+    *, model: str | None = None, days: int | None = None
+) -> dict[str, dict[str, Any]]:
+    """Per-model results from `source="verification"` probes (see
+    `record_outcome`), most recent first, distinct from organic generation
+    traffic.
+
+    Each model's `categories` counts every failure category seen; a model
+    whose failures are all in `TRANSIENT_CATEGORIES` looks flaky rather than
+    durably broken -- worth re-probing rather than blacklisting outright.
+    """
+    try:
+        with _connect() as conn:
+            sql = (
+                "SELECT model, at, ok, category, status, error_code, error_param "
+                "FROM model_events WHERE source = 'verification'"
+            )
+            params: list[Any] = []
+            if model:
+                sql += " AND model = ?"
+                params.append(model.strip().lower())
+            if days is not None:
+                cutoff = (datetime.now(UTC) - timedelta(days=days)).isoformat()
+                sql += " AND at >= ?"
+                params.append(cutoff)
+            sql += " ORDER BY at DESC"
+            by_model: dict[str, dict[str, Any]] = {}
+            for row in conn.execute(sql, params):
+                m = row["model"]
+                entry = by_model.setdefault(
+                    m,
+                    {
+                        "model": m,
+                        "attempts": 0,
+                        "successes": 0,
+                        "failures": 0,
+                        "categories": Counter(),
+                        "last_at": row["at"],
+                        "last_ok": bool(row["ok"]),
+                        "last_category": row["category"],
+                    },
+                )
+                entry["attempts"] += 1
+                if row["ok"]:
+                    entry["successes"] += 1
+                else:
+                    entry["failures"] += 1
+                    if row["category"]:
+                        entry["categories"][row["category"]] += 1
+            for entry in by_model.values():
+                cats = entry["categories"]
+                entry["categories"] = dict(sorted(cats.items()))
+                entry["looks_transient"] = bool(cats) and all(
+                    c in TRANSIENT_CATEGORIES for c in cats
+                )
+            return by_model
+    except Exception:
+        return {}
 
 
 def _summary(row: sqlite3.Row, events: list[sqlite3.Row], days: int | None) -> dict:

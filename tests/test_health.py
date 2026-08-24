@@ -115,6 +115,64 @@ def test_recording_can_be_turned_off(monkeypatch) -> None:
     assert health.list_model_health() == {}
 
 
+def test_verification_source_does_not_pollute_generation_totals() -> None:
+    health.record_outcome("openai/gpt-4o", ok=True)
+    health.record_outcome(
+        "openai/gpt-4o",
+        ok=False,
+        category="rate_limit",
+        status=429,
+        source="verification",
+    )
+
+    summary = health.model_health("openai/gpt-4o")
+    assert summary["attempts"] == 1
+    assert summary["successes"] == 1
+    assert summary["failures"] == 0
+    assert summary["categories"] == {}
+
+
+def test_verification_history_tracks_probes_separately() -> None:
+    health.record_outcome("openai/gpt-4o", ok=True)  # organic, should not show up
+    health.record_outcome(
+        "openrouter/some/model",
+        ok=False,
+        category="empty_response",
+        source="verification",
+    )
+    health.record_outcome(
+        "openrouter/some/model",
+        ok=False,
+        category="rate_limit",
+        status=429,
+        source="verification",
+    )
+
+    hist = health.verification_history()
+
+    assert set(hist) == {"openrouter/some/model"}
+    entry = hist["openrouter/some/model"]
+    assert entry["attempts"] == 2
+    assert entry["failures"] == 2
+    assert entry["categories"] == {"empty_response": 1, "rate_limit": 1}
+    assert entry["looks_transient"] is False  # empty_response isn't transient
+
+
+def test_verification_history_flags_purely_transient_failures() -> None:
+    health.record_outcome(
+        "cerebras/some-model", ok=False, category="rate_limit", source="verification"
+    )
+    health.record_outcome(
+        "cerebras/some-model",
+        ok=False,
+        category="provider_unavailable",
+        source="verification",
+    )
+
+    entry = health.verification_history()["cerebras/some-model"]
+    assert entry["looks_transient"] is True
+
+
 def test_recording_never_raises_at_the_call_site(monkeypatch) -> None:
     import sqlite3
 
