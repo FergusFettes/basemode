@@ -7,8 +7,6 @@ import time
 from dataclasses import dataclass
 from typing import Any
 
-import litellm
-
 from .continue_ import continue_text
 from .evidence import (
     connect,
@@ -19,6 +17,7 @@ from .evidence import (
     transient_recheck_models,
 )
 from .health import classify_error, error_details
+from .transport import litellm_version
 from .usage import estimate_usage, usage_from_events
 
 QUICK_PREFIXES = ("The path curved through the trees and",)
@@ -69,7 +68,7 @@ async def verify_models(
         },
         target_policy={"models": models},
         basemode_version=basemode_version,
-        litellm_version=getattr(litellm, "__version__", None),
+        litellm_version=litellm_version(),
     )
     total = successes = 0
     try:
