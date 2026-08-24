@@ -1,0 +1,44 @@
+name: Transient model rechecks
+
+on:
+  schedule:
+    - cron: "17 */2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  recheck:
+    runs-on: ubuntu-latest
+    env:
+      XDG_DATA_HOME: ${{ github.workspace }}/.scheduled-evidence
+      BASEMODE_SCHEDULED_RECHECKS: ${{ secrets.BASEMODE_SCHEDULED_RECHECKS }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}
+      DEEPINFRA_API_KEY: ${{ secrets.DEEPINFRA_API_KEY }}
+      TOGETHERAI_API_KEY: ${{ secrets.TOGETHERAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+        with:
+          enable-cache: true
+      - name: Restore durable recheck state
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: .scheduled-evidence/basemode
+          key: transient-evidence-${{ github.run_id }}
+          restore-keys: |
+            transient-evidence-
+      - run: uv sync --locked
+      - name: Run explicitly enabled, due-only rechecks
+        run: uv run python scripts/run_transient_rechecks.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always() && hashFiles('dist/transient-recheck.json') != ''
+        with:
+          name: transient-recheck-results
+          path: dist/transient-recheck.json
+          retention-days: 30
