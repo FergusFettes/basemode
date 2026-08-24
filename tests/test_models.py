@@ -55,6 +55,33 @@ def test_live_listing_drops_stale_litellm_models(monkeypatch) -> None:
     assert not any("llama-3.3-70b" in m for m in ids)
 
 
+def test_model_picker_reads_structured_live_catalog_dates(monkeypatch) -> None:
+    import basemode.models as models_mod
+
+    monkeypatch.setattr(
+        models_mod,
+        "_live_rows_by_provider",
+        lambda: {
+            "groq": {
+                "models": {
+                    "allam-2-7b": {
+                        "release_date": "2025-01-23",
+                        "output_modalities": ["text"],
+                    }
+                },
+                "reliable_dates": True,
+            }
+        },
+    )
+
+    entry = next(
+        row
+        for row in list_model_picker_entries(provider="groq", text_only=False)
+        if row["model"] == "groq/allam-2-7b"
+    )
+    assert entry["release_date"] == "2025-01-23"
+
+
 def test_live_listing_keeps_verified_models_even_if_absent_live(monkeypatch) -> None:
     """A model a human already confirmed works (the verified registry)
     outranks a live snapshot that might just be incomplete for this key's

@@ -200,7 +200,12 @@ def _known_release_date(
     display = _display_model_id(model_provider, model)
     v = verified.get(model) or verified.get(f"{model_provider}/{model}", {})
     _, suffix_date = _strip_date_suffix(display)
-    live_date = live.get(model_provider, {}).get("models", {}).get(display)
+    live_record = live.get(model_provider, {}).get("models", {}).get(display)
+    live_date = (
+        live_record.get("release_date")
+        if isinstance(live_record, dict)
+        else live_record
+    )
     return v.get("release_date") or suffix_date or live_date
 
 
