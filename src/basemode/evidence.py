@@ -642,6 +642,94 @@ def import_rejected_registry(
     return run_id
 
 
+def import_live_catalog_cache(
+    path: Path, *, conn: sqlite3.Connection | None = None
+) -> int:
+    """Import a packaged live-provider catalog snapshot idempotently."""
+    payload = json.loads(path.read_text())
+    providers = payload.get("providers", {}) if isinstance(payload, dict) else {}
+    snapshot_id = "live-" + hashlib.sha256(path.read_bytes()).hexdigest()[:24]
+    own = conn is None
+    db = conn or connect()
+    if db.execute(
+        "SELECT 1 FROM catalog_observations WHERE catalog_snapshot_id=? LIMIT 1",
+        (snapshot_id,),
+    ).fetchone():
+        if own:
+            db.close()
+        return 0
+    count = 0
+    observed_at = payload.get("generated_at_utc") or payload.get("generated_at")
+    for provider, provider_data in providers.items():
+        models = provider_data.get("models", {})
+        if isinstance(models, list):
+            models = {model: None for model in models}
+        for provider_model_id, release_date in models.items():
+            model = f"{provider}/{provider_model_id}"
+            record_catalog_observation(
+                model,
+                source="provider_api_cache",
+                available=True,
+                observed_at=observed_at,
+                catalog_snapshot_id=snapshot_id,
+                metadata={
+                    "release_date": release_date,
+                    "reliable_dates": provider_data.get("reliable_dates"),
+                },
+                conn=db,
+            )
+            count += 1
+    db.commit()
+    if own:
+        db.close()
+    return count
+
+
+def import_verified_registry(
+    path: Path, *, conn: sqlite3.Connection | None = None
+) -> int:
+    """Import curated registry intent as annotations, not measured success."""
+    payload = json.loads(path.read_text())
+    models = payload.get("models", []) if isinstance(payload, dict) else []
+    source = "verified_registry:" + hashlib.sha256(path.read_bytes()).hexdigest()[:24]
+    own = conn is None
+    db = conn or connect()
+    count = 0
+    for row in models:
+        model = row.get("model")
+        if not isinstance(model, str) or not model:
+            continue
+        endpoint = ensure_endpoint(model, conn=db)
+        value = {
+            key: row[key]
+            for key in (
+                "prompt_method",
+                "quirks",
+                "known_issues",
+                "openrouter_id",
+                "pricing_url",
+            )
+            if key in row
+        }
+        encoded = _json(value)
+        if db.execute(
+            """SELECT 1 FROM model_annotations WHERE endpoint_id=?
+            AND kind='registry_intent' AND value_json=? AND source=?""",
+            (endpoint, encoded, source),
+        ).fetchone():
+            continue
+        db.execute(
+            """INSERT INTO model_annotations(endpoint_id,kind,value_json,source,created_at)
+            VALUES(?,?,?,?,?)""",
+            (endpoint, "registry_intent", encoded, source, _now()),
+        )
+        count += 1
+    db.commit()
+    if own:
+        db.close()
+    return count
+
+
 def import_health_sqlite(
     path: Path, *, conn: sqlite3.Connection | None = None
 ) -> str | None:

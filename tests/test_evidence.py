@@ -104,6 +104,57 @@ def test_import_provider_status_is_not_stored_as_an_http_status(tmp_path) -> Non
     assert row["http_status"] is None
 
 
+def test_import_live_catalog_cache_is_idempotent(tmp_path) -> None:
+    source = tmp_path / "live.json"
+    source.write_text(
+        json.dumps(
+            {
+                "generated_at_utc": "2026-08-24T00:00:00Z",
+                "providers": {
+                    "deepinfra": {
+                        "models": {"org/new-model": "2026-08-01"},
+                        "reliable_dates": True,
+                    }
+                },
+            }
+        )
+    )
+    assert evidence.import_live_catalog_cache(source) == 1
+    assert evidence.import_live_catalog_cache(source) == 0
+    status = evidence.current_status()["deepinfra/org/new-model"]
+    assert status["available"] is True
+
+
+def test_import_verified_registry_retains_intent_without_granting_success(
+    tmp_path,
+) -> None:
+    source = tmp_path / "registry.json"
+    source.write_text(
+        json.dumps(
+            {
+                "models": [
+                    {
+                        "model": "anthropic/claude-test",
+                        "prompt_method": "prefill",
+                        "quirks": ["no_temperature"],
+                    }
+                ]
+            }
+        )
+    )
+    assert evidence.import_verified_registry(source) == 1
+    assert evidence.import_verified_registry(source) == 0
+    with evidence.connect() as db:
+        annotation = db.execute(
+            "SELECT value_json FROM model_annotations WHERE kind='registry_intent'"
+        ).fetchone()
+    assert json.loads(annotation[0]) == {
+        "prompt_method": "prefill",
+        "quirks": ["no_temperature"],
+    }
+    assert "anthropic/claude-test" not in evidence.current_status()
+
+
 def test_import_legacy_health_verification_only(tmp_path) -> None:
     source = tmp_path / "health.sqlite"
     db = sqlite3.connect(source)

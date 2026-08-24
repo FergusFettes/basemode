@@ -40,8 +40,10 @@ model incompatibility.
 
 `basemode.evidence` provides idempotent import functions for generic sweep
 JSONL, the legacy health SQLite database, scheduled provider-health JSONL, the
-rejected-model registry, and legacy ratings. Imports append evidence and never
-remove the original source.
+rejected-model registry, live catalog snapshots, curated verified-registry
+intent, and legacy ratings. Curated intent remains an annotation and does not
+pretend to be a measured success. Imports append evidence and never remove the
+original source.
 
 Loom keeps private node text and tree structure in its own database. It calls
 `publish_corpus_observations` with aggregate counts and timing summaries. A
