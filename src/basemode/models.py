@@ -345,9 +345,11 @@ def list_model_picker_entries(
     thumbs = list_model_ratings() if ratings is None else _lowered(ratings)
     health = list_model_health(days=health_days)
     verification = verification_history()
+    from .evidence import classify_text_endpoint, excluded_non_text_models
     from .evidence import current_status as evidence_current_status
 
     durable_evidence = evidence_current_status()
+    evidence_non_text = excluded_non_text_models()
     # A registry entry means a human confirmed this model works at some
     # point; a verification probe can contradict that with live evidence.
     # Only the versioned thorough suite can independently grant verified
@@ -390,6 +392,11 @@ def list_model_picker_entries(
         seen.add((model_provider, model))
 
         mode = _model_mode(model_provider, model)
+        qualified = f"{model_provider}/{model}"
+        if model.lower() in evidence_non_text or qualified.lower() in evidence_non_text:
+            continue
+        if not classify_text_endpoint(qualified, mode)[0]:
+            continue
         if text_only and mode is not None and mode not in TEXT_MODES:
             continue
         if text_only and any(
@@ -398,7 +405,6 @@ def list_model_picker_entries(
             continue
 
         v = verified.get(model) or verified.get(f"{model_provider}/{model}", {})
-        qualified = f"{model_provider}/{model}"
         is_broken = model in broken or qualified in broken
         is_evidence_verified = (
             model in evidence_verified or qualified in evidence_verified

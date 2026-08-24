@@ -9,6 +9,7 @@ from typing import Any
 
 from .continue_ import continue_text
 from .evidence import (
+    classify_text_endpoint,
     connect,
     finish_run,
     record_attempt,
@@ -50,6 +51,12 @@ async def verify_models(
     if suite == "transient-recheck" and not models:
         models = transient_recheck_models()
     models = list(dict.fromkeys(models or []))
+    non_text = [model for model in models if not classify_text_endpoint(model)[0]]
+    if non_text:
+        raise ValueError(
+            "verification accepts text-generation endpoints only: "
+            + ", ".join(non_text)
+        )
     token_budget = max_tokens or (160 if suite == "thorough" else 64)
     prefixes = THOROUGH_PREFIXES if suite == "thorough" else QUICK_PREFIXES
     try:

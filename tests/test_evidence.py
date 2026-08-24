@@ -18,7 +18,7 @@ def test_schema_and_thorough_status_are_durable() -> None:
             request_params={"max_tokens": 160},
         )
         evidence.finish_run(run, conn=db)
-        assert db.execute("PRAGMA user_version").fetchone()[0] == 2
+        assert db.execute("PRAGMA user_version").fetchone()[0] == 3
         assert evidence.current_status(conn=db)["openrouter/example/model"] == {
             "reachable": True,
             "last_checked_at": db.execute(
@@ -296,3 +296,85 @@ def test_rating_clear_supersedes_without_erasing_history() -> None:
     assert evidence.get_model_rating("openai/example") is None
     with evidence.connect() as db:
         assert db.execute("SELECT count(*) FROM model_annotations").fetchone()[0] == 2
+
+
+def test_text_enforcement_excludes_non_text_from_all_derived_status() -> None:
+    with evidence.connect() as db:
+        run = evidence.start_run("quick", conn=db)
+        evidence.record_attempt(
+            run,
+            "together/black-forest-labs/flux.1",
+            probe_kind="continuation",
+            attempt_number=1,
+            outcome="failure",
+            failure_class="rate_limit",
+            conn=db,
+        )
+        evidence.finish_run(run, conn=db)
+        first = evidence.enforce_text_only_and_supersede_obsolete_failures(conn=db)
+        second = evidence.enforce_text_only_and_supersede_obsolete_failures(conn=db)
+        assert first["non_text_endpoints_excluded"] == 0  # excluded on insertion
+        assert second["non_text_endpoints_excluded"] == 0
+        assert evidence.excluded_non_text_models(conn=db) == {
+            "together/black-forest-labs/flux.1"
+        }
+        assert evidence.current_status(conn=db) == {}
+        assert evidence.transient_recheck_models(conn=db) == []
+
+
+def test_recovered_invalid_request_is_superseded_but_retained() -> None:
+    with evidence.connect() as db:
+        run = evidence.start_run("quick", conn=db)
+        evidence.record_attempt(
+            run,
+            "openai/fixed",
+            probe_kind="continuation",
+            attempt_number=1,
+            outcome="failure",
+            failure_class="invalid_request",
+            finished_at="2026-01-01T00:00:00+00:00",
+            conn=db,
+        )
+        evidence.record_attempt(
+            run,
+            "openai/fixed",
+            probe_kind="continuation",
+            attempt_number=2,
+            outcome="success",
+            finished_at="2026-02-01T00:00:00+00:00",
+            conn=db,
+        )
+        evidence.finish_run(run, conn=db)
+        result = evidence.enforce_text_only_and_supersede_obsolete_failures(conn=db)
+        assert result["obsolete_invalid_requests_superseded"] == 1
+        rows = db.execute(
+            "SELECT outcome,status_eligible,status_exclusion_reason FROM verification_attempts ORDER BY id"
+        ).fetchall()
+        assert len(rows) == 2
+        assert rows[0]["status_eligible"] == 0
+        assert (
+            rows[0]["status_exclusion_reason"]
+            == "superseded by later successful request"
+        )
+        assert evidence.current_status(conn=db)["openai/fixed"]["reachable"] is True
+
+
+def test_unrecovered_invalid_request_remains_status_bearing() -> None:
+    with evidence.connect() as db:
+        run = evidence.start_run("quick", conn=db)
+        evidence.record_attempt(
+            run,
+            "openai/still-broken",
+            probe_kind="continuation",
+            attempt_number=1,
+            outcome="failure",
+            failure_class="invalid_request",
+            conn=db,
+        )
+        evidence.finish_run(run, conn=db)
+        result = evidence.enforce_text_only_and_supersede_obsolete_failures(conn=db)
+        assert result["obsolete_invalid_requests_superseded"] == 0
+        assert (
+            evidence.current_status(conn=db)["openai/still-broken"]["currently_broken"]
+            is True
+        )

@@ -131,8 +131,10 @@ def test_text_only_drops_untagged_image_models_by_name() -> None:
     entries = list_model_picker_entries(provider="xai", text_only=True)
     assert not any("grok-imagine" in e["model"] for e in entries)
 
+    # Explicitly known non-text endpoints are now durably excluded even from
+    # the legacy all-modes escape hatch: basemode is a text continuation tool.
     untagged = list_model_picker_entries(provider="xai", text_only=False)
-    assert any("grok-imagine" in e["model"] for e in untagged)
+    assert not any("grok-imagine" in e["model"] for e in untagged)
 
 
 def test_list_models_search_case_insensitive() -> None:

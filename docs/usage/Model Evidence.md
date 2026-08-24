@@ -42,6 +42,19 @@ reasoning disabled and with a larger output budget. Operational errors such as
 rate limits are recorded for later rechecking rather than being mistaken for
 model incompatibility.
 
+Verification and derived status are text-generation-only. Provider modality is
+preferred where it exists; conservative model-family classification excludes
+clear image, video, audio, embedding, reranking, transcription, and moderation
+endpoints when catalogs omit modality. Unknown models remain eligible because
+many provider chat catalogs do not publish this field.
+
+`enforce_text_only_and_supersede_obsolete_failures()` is an idempotent evidence
+maintenance operation. It retains every raw observation while excluding
+non-text endpoints from model lists, status, and transient rechecks. It also
+marks an old `invalid_request` attempt as status-ineligible when a later request
+to the same endpoint succeeded. Invalid requests without demonstrated recovery,
+and genuine provider availability failures, remain status-bearing evidence.
+
 ## Importing existing evidence
 
 `basemode.evidence` provides idempotent import functions for generic sweep

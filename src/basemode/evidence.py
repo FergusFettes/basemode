@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import sqlite3
 import uuid
 from collections.abc import Iterable, Mapping
@@ -18,11 +19,55 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 _DB_FILE = Path.home() / ".local" / "share" / "basemode" / "model_evidence.sqlite"
 TRANSIENT_FAILURES = frozenset(
     {"rate_limit", "timeout", "provider_unavailable", "network"}
 )
+
+# These are deliberately conservative. Unknown endpoints remain eligible: many
+# provider chat catalogs have no modality field at all. We only exclude a model
+# when provider metadata or its product name makes the non-text purpose clear.
+TEXT_MODALITIES = frozenset({"text", "chat", "completion", "responses", "language"})
+NON_TEXT_MODALITIES = frozenset(
+    {
+        "audio",
+        "audio_generation",
+        "embedding",
+        "embeddings",
+        "image",
+        "image_generation",
+        "moderation",
+        "rerank",
+        "speech",
+        "stt",
+        "tts",
+        "transcription",
+        "video",
+        "video_generation",
+    }
+)
+_NON_TEXT_NAME_RE = re.compile(
+    r"(?:^|[/_.-])(?:dall-e|embedding|embed|flux|image|imagen|moderation|rerank|"
+    r"seedance|sora|speech|stable-diffusion|tts|veo|video|vidu|wan|whisper)"
+    r"(?:$|[/_.-])",
+    re.IGNORECASE,
+)
+
+
+def classify_text_endpoint(
+    model: str, modality: str | None = None
+) -> tuple[bool, str | None]:
+    """Return text eligibility and a durable, human-readable exclusion reason."""
+    normalized_modality = (modality or "").strip().lower()
+    if normalized_modality in NON_TEXT_MODALITIES:
+        return False, f"provider modality: {normalized_modality}"
+    if normalized_modality in TEXT_MODALITIES:
+        return True, None
+    match = _NON_TEXT_NAME_RE.search(model)
+    if match:
+        return False, f"non-text model family: {match.group(0).strip('/_.-').lower()}"
+    return True, None
 
 
 def _now() -> str:
@@ -122,6 +167,18 @@ def _migrate(conn: sqlite3.Connection) -> None:
         # inflate aggregates.
         conn.execute("PRAGMA user_version=2")
         conn.commit()
+        version = 2
+    if version == 2:
+        conn.executescript(
+            """
+            ALTER TABLE model_endpoints ADD COLUMN text_eligible INTEGER NOT NULL DEFAULT 1;
+            ALTER TABLE model_endpoints ADD COLUMN exclusion_reason TEXT;
+            ALTER TABLE verification_attempts ADD COLUMN status_eligible INTEGER NOT NULL DEFAULT 1;
+            ALTER TABLE verification_attempts ADD COLUMN status_exclusion_reason TEXT;
+            PRAGMA user_version=3;
+            """
+        )
+        conn.commit()
 
 
 def ensure_endpoint(
@@ -134,11 +191,18 @@ def ensure_endpoint(
     if not provider_model:
         provider, provider_model = "unknown", provider
     now = _now()
+    text_eligible, exclusion_reason = classify_text_endpoint(
+        normalized, metadata.get("modality")
+    )
     db.execute(
         """INSERT INTO model_endpoints(normalized_model_id,provider,provider_model_id,
-        model_family_id,upstream_provider,display_name,modality,release_date,first_seen_at,last_seen_at)
-        VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(normalized_model_id) DO UPDATE SET
-        last_seen_at=excluded.last_seen_at""",
+        model_family_id,upstream_provider,display_name,modality,release_date,first_seen_at,last_seen_at,
+        text_eligible,exclusion_reason)
+        VALUES(?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(normalized_model_id) DO UPDATE SET
+        last_seen_at=excluded.last_seen_at,
+        modality=COALESCE(excluded.modality,model_endpoints.modality),
+        text_eligible=CASE WHEN excluded.text_eligible=0 THEN 0 ELSE model_endpoints.text_eligible END,
+        exclusion_reason=COALESCE(excluded.exclusion_reason,model_endpoints.exclusion_reason)""",
         (
             normalized,
             provider,
@@ -150,6 +214,8 @@ def ensure_endpoint(
             metadata.get("release_date"),
             now,
             now,
+            int(text_eligible),
+            exclusion_reason,
         ),
     )
     endpoint_id = db.execute(
@@ -174,7 +240,9 @@ def record_catalog_observation(
     """Record what one catalog source claimed without treating it as truth."""
     own = conn is None
     db = conn or connect()
-    endpoint = ensure_endpoint(model, conn=db)
+    catalog_metadata = metadata or {}
+    modality = catalog_metadata.get("modality") or catalog_metadata.get("mode")
+    endpoint = ensure_endpoint(model, conn=db, modality=modality)
     cur = db.execute(
         """INSERT INTO catalog_observations(endpoint_id,observed_at,source,available,
         catalog_snapshot_id,metadata_json) VALUES(?,?,?,?,?,?)""",
@@ -184,7 +252,7 @@ def record_catalog_observation(
             source,
             int(available),
             catalog_snapshot_id,
-            _json(metadata or {}),
+            _json(catalog_metadata),
         ),
     )
     if own:
@@ -336,9 +404,11 @@ def current_status(
     rows = db.execute("""SELECT e.normalized_model_id, r.suite, a.outcome, a.failure_class,
       a.failure_transience, a.finished_at, a.run_id, a.attempt_number FROM verification_attempts a
       JOIN model_endpoints e ON e.id=a.endpoint_id JOIN verification_runs r ON r.id=a.run_id
-      WHERE r.status='completed' ORDER BY a.finished_at DESC, a.id DESC""").fetchall()
+      WHERE r.status='completed' AND e.text_eligible=1 AND a.status_eligible=1
+      ORDER BY a.finished_at DESC, a.id DESC""").fetchall()
     catalogs = db.execute("""SELECT e.normalized_model_id,c.available,c.observed_at FROM catalog_observations c
-      JOIN model_endpoints e ON e.id=c.endpoint_id ORDER BY c.observed_at DESC,c.id DESC""").fetchall()
+      JOIN model_endpoints e ON e.id=c.endpoint_id WHERE e.text_eligible=1
+      ORDER BY c.observed_at DESC,c.id DESC""").fetchall()
     result: dict[str, dict[str, Any]] = {}
     for row in catalogs:
         entry = result.setdefault(row["normalized_model_id"], {})
@@ -381,6 +451,70 @@ def transient_recheck_models(*, conn: sqlite3.Connection | None = None) -> list[
         for m, status in current_status(conn=conn).items()
         if status.get("transient_failure")
     )
+
+
+def excluded_non_text_models(*, conn: sqlite3.Connection | None = None) -> set[str]:
+    """Return endpoints durably excluded from text-generation consumers."""
+    own = conn is None
+    db = conn or connect()
+    rows = db.execute(
+        "SELECT normalized_model_id FROM model_endpoints WHERE text_eligible=0"
+    ).fetchall()
+    if own:
+        db.close()
+    return {row[0] for row in rows}
+
+
+def enforce_text_only_and_supersede_obsolete_failures(
+    *, conn: sqlite3.Connection | None = None
+) -> dict[str, int]:
+    """Idempotently clean derived status while retaining every raw observation.
+
+    Non-text endpoints are excluded using provider modality first and conservative
+    product-name evidence second. Historical ``invalid_request`` attempts are
+    excluded from *current status* only where a later success demonstrates that
+    the old request shape, rather than the endpoint, was at fault.
+    """
+    own = conn is None
+    db = conn or connect()
+    endpoints_changed = 0
+    for row in db.execute(
+        "SELECT id,normalized_model_id,modality,text_eligible,exclusion_reason FROM model_endpoints"
+    ):
+        eligible, reason = classify_text_endpoint(
+            row["normalized_model_id"], row["modality"]
+        )
+        if not eligible and (row["text_eligible"] or row["exclusion_reason"] != reason):
+            db.execute(
+                "UPDATE model_endpoints SET text_eligible=0,exclusion_reason=? WHERE id=?",
+                (reason, row["id"]),
+            )
+            endpoints_changed += 1
+
+    # A later successful direct request is concrete evidence that an older
+    # invalid request was about our then-current request shaping. Other failure
+    # classes and invalid requests without recovery remain status-bearing.
+    cursor = db.execute(
+        """UPDATE verification_attempts AS failed
+        SET status_eligible=0,
+            status_exclusion_reason='superseded by later successful request'
+        WHERE failed.status_eligible=1 AND failed.failure_class='invalid_request'
+          AND EXISTS (
+            SELECT 1 FROM verification_attempts AS passed
+            WHERE passed.endpoint_id=failed.endpoint_id
+              AND passed.outcome='success'
+              AND (passed.finished_at>failed.finished_at
+                   OR (passed.finished_at=failed.finished_at AND passed.id>failed.id))
+          )"""
+    )
+    attempts_changed = cursor.rowcount
+    if own:
+        db.commit()
+        db.close()
+    return {
+        "non_text_endpoints_excluded": endpoints_changed,
+        "obsolete_invalid_requests_superseded": attempts_changed,
+    }
 
 
 def add_annotation(
