@@ -157,6 +157,13 @@ _ANTHROPIC_ADAPTIVE_ONLY_PATTERN = re.compile(
     r"^claude-(opus|sonnet|haiku|fable)-5(\.\d+)?(-\d{8})?$"
 )
 
+# Claude 5's adaptive reasoning can consume a very small completion allowance
+# before emitting visible text.  Anthropic does not accept an explicit budget
+# for these models, so reserve provider-side headroom with max_tokens instead.
+# Callers that need an exact visible limit use continue_text's
+# strict_max_tokens=True; Loom does this for every branch.
+_ANTHROPIC_ADAPTIVE_MIN_TOKENS = 512
+
 
 def no_temperature(model: str) -> bool:
     if "no_temperature" in model_quirks(model):
@@ -241,7 +248,7 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
     if via_zai and stem.startswith(_ZAI_DISABLE_THINKING_PREFIXES):
         return {"extra_body": {"thinking": {"type": "disabled"}}}
     if via_anthropic and _ANTHROPIC_ADAPTIVE_ONLY_PATTERN.match(stem):
-        return {}
+        return {"max_tokens": max(max_tokens, _ANTHROPIC_ADAPTIVE_MIN_TOKENS)}
     if stem in _GEMINI_DISABLE_THINKING_STEMS:
         return {"reasoning_effort": "none"}
     for fragment, (budget, min_out) in _THINKING_MODELS.items():

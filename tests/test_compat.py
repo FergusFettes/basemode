@@ -63,7 +63,7 @@ def test_claude_opus_5_omits_thinking_kwarg_entirely() -> None:
         GenerationParams(model="anthropic/claude-opus-5", max_tokens=200)
     )
 
-    assert kwargs["max_tokens"] == 200
+    assert kwargs["max_tokens"] == 512
     assert "thinking" not in kwargs
 
 
@@ -72,7 +72,16 @@ def test_claude_sonnet_5_omits_thinking_kwarg_entirely() -> None:
         GenerationParams(model="anthropic/claude-sonnet-5", max_tokens=200)
     )
 
-    assert kwargs["max_tokens"] == 200
+    assert kwargs["max_tokens"] == 512
+    assert "thinking" not in kwargs
+
+
+def test_claude_5_preserves_a_larger_requested_output_budget() -> None:
+    kwargs = build_kwargs(
+        GenerationParams(model="anthropic/claude-sonnet-5", max_tokens=1024)
+    )
+
+    assert kwargs["max_tokens"] == 1024
     assert "thinking" not in kwargs
 
 
