@@ -97,6 +97,20 @@ basemode info claude-sonnet-4-6
 
 ## Tuning
 
+### `verify`
+
+Run durable quick, thorough, or transient-failure verification. This makes
+real provider requests and stores each attempt in the shared model-evidence
+database. See [[Model Evidence]].
+
+```bash
+basemode verify [MODEL...] [--suite quick|thorough|transient-recheck] [--attempts N] [--max-tokens N] [--json]
+```
+
+Models are required for quick and thorough suites. With no models, the
+transient-recheck suite selects endpoints whose latest operational failure is
+suspected to be temporary.
+
 ### `bench`
 
 Run each candidate strategy against a model and rank them by continuation
