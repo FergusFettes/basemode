@@ -2,11 +2,10 @@
 
 from collections.abc import AsyncGenerator
 
-import litellm
-
 from .. import usage_capture
 from ..exceptions import EmptyCompletionError
 from ..params import GenerationParams
+from ..transport import get_transport
 from .base import ContinuationStrategy
 from .compat import build_kwargs
 
@@ -19,7 +18,7 @@ class CompletionStrategy(ContinuationStrategy):
     async def stream(
         self, prefix: str, params: GenerationParams
     ) -> AsyncGenerator[str, None]:
-        response = await litellm.atext_completion(
+        response = await get_transport().text_completion(
             model=params.model,
             prompt=prefix,
             stream=True,

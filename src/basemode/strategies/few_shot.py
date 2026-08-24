@@ -3,12 +3,11 @@
 import logging
 from collections.abc import AsyncGenerator
 
-import litellm
-
 from .. import usage_capture
 from ..exceptions import EmptyCompletionError
 from ..healing import needs_leading_space, normalize_prefix
 from ..params import GenerationParams
+from ..transport import get_transport
 from .base import ContinuationStrategy
 from .compat import build_kwargs
 
@@ -60,7 +59,7 @@ class FewShotStrategy(ContinuationStrategy):
         if params.context:
             system += f"\n\n<CONTEXT>\n{params.context}\n</CONTEXT>"
         log.debug("FewShotStrategy.stream: model=%s", params.model)
-        response = await litellm.acompletion(
+        response = await get_transport().chat_completion(
             model=params.model,
             messages=[
                 {"role": "system", "content": system},

@@ -36,9 +36,7 @@ async def test_system_strategy_raises_with_finish_reason(monkeypatch):
     async def fake_acompletion(**kwargs):
         return _achunks([_chat_chunk(None, "content_filter")])
 
-    monkeypatch.setattr(
-        "basemode.strategies.system.litellm.acompletion", fake_acompletion
-    )
+    monkeypatch.setattr("basemode.transport.litellm.acompletion", fake_acompletion)
 
     strat = SystemPromptStrategy()
     params = GenerationParams(model="gpt-4o-mini")
@@ -57,9 +55,7 @@ async def test_prefill_strategy_raises_with_finish_reason(monkeypatch):
     async def fake_acompletion(**kwargs):
         return _achunks([_chat_chunk(None, "length")])
 
-    monkeypatch.setattr(
-        "basemode.strategies.prefill.litellm.acompletion", fake_acompletion
-    )
+    monkeypatch.setattr("basemode.transport.litellm.acompletion", fake_acompletion)
 
     strat = PrefillStrategy()
     params = GenerationParams(model="anthropic/claude-haiku-4-5-20251001")
@@ -75,7 +71,7 @@ async def test_completion_strategy_raises_without_finish_reason(monkeypatch):
         return _achunks([_text_chunk(None), _text_chunk("")])
 
     monkeypatch.setattr(
-        "basemode.strategies.completion.litellm.atext_completion", fake_atext_completion
+        "basemode.transport.litellm.atext_completion", fake_atext_completion
     )
 
     strat = CompletionStrategy()
@@ -91,9 +87,7 @@ async def test_strategy_yields_normally_when_content_present(monkeypatch):
     async def fake_acompletion(**kwargs):
         return _achunks([_chat_chunk("hi"), _chat_chunk(None, "stop")])
 
-    monkeypatch.setattr(
-        "basemode.strategies.system.litellm.acompletion", fake_acompletion
-    )
+    monkeypatch.setattr("basemode.transport.litellm.acompletion", fake_acompletion)
 
     strat = SystemPromptStrategy()
     params = GenerationParams(model="gpt-4o-mini")
