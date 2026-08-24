@@ -212,6 +212,31 @@ def test_openrouter_kimi_uses_extra_body_thinking() -> None:
     assert kwargs["extra_body"] == {"thinking": {"budget_tokens": 4096}}
 
 
+def test_reseller_widens_budget_instead_of_thinking_kwarg(monkeypatch) -> None:
+    """`model_quirks` is keyed by stem, so a reseller hosting a model under
+    the same stem as one tagged `reasoning_budget` inherits that quirk too --
+    deepinfra sharing deepseek-v4-flash's stem, probed live 2026-08-24, 400s
+    on the Anthropic-shaped `thinking` kwarg ("does not support parameters:
+    ['thinking']"). Only anthropic/gemini are trusted to accept that shape
+    natively; every other provider widens max_tokens instead, regardless of
+    which registry entry the quirk came from."""
+    import basemode.strategies.compat as compat
+
+    monkeypatch.setattr(
+        compat, "model_quirks", lambda model: frozenset({"reasoning_budget"})
+    )
+
+    kwargs = build_kwargs(
+        GenerationParams(
+            model="deepinfra/deepseek-ai/DeepSeek-V4-Flash", max_tokens=200
+        )
+    )
+
+    assert kwargs["max_tokens"] > 200
+    assert "thinking" not in kwargs
+    assert "extra_body" not in kwargs
+
+
 def test_openrouter_kimi_k26_uses_extra_body_thinking() -> None:
     kwargs = build_kwargs(
         GenerationParams(model="openrouter/moonshotai/kimi-k2.6", max_tokens=200)

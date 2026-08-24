@@ -176,15 +176,25 @@ def no_prefill(model: str) -> bool:
 _GENERIC_REASONING_BUDGET = (4096, 1024)
 
 
+#: Providers confirmed live to accept the bare Anthropic-shaped
+#: ``thinking: {"type": "enabled", "budget_tokens": ...}`` kwarg as-is
+#: (litellm translates it for gemini under the hood). Every other provider
+#: defaults to the safe "just widen max_tokens" path: `model_quirks` is
+#: keyed by model *stem*, so a reseller hosting the same model under the
+#: same stem (e.g. `deepinfra/deepseek-ai/DeepSeek-V4-Flash` sharing
+#: `deepseek/deepseek-v4-flash`'s `reasoning_budget` quirk, probed live
+#: 2026-08-24: deepinfra 400s on an unrecognized `thinking` param) inherits
+#: this quirk without ever being reviewed for whether it accepts the shape.
+_NATIVE_THINKING_KWARG_PROVIDERS = frozenset({"anthropic", "gemini"})
+
+
 def _reasoning_budget_kwargs(
     *,
     budget: int,
     min_out: int,
     max_tokens: int,
-    via_moonshot: bool,
-    via_openai: bool,
+    provider: str,
     via_openrouter: bool,
-    via_together: bool,
     via_gemma: bool = False,
 ) -> dict:
     adjusted = max(max_tokens, budget + min_out)
@@ -192,13 +202,8 @@ def _reasoning_budget_kwargs(
         # Gemma models reject any thinking-budget shape outright ("Thinking
         # budget is not supported for this model", probed live 2026-08-24)
         # even though they silently burn hidden reasoning tokens with no way
-        # to see or cap them. The only lever left is a bigger raw max_tokens
-        # so there's room left after reasoning eats its unknown share.
-        return {"max_tokens": adjusted}
-    if via_moonshot or via_openai or via_together:
-        # These OpenAI-compatible providers reject an Anthropic-style
-        # ``thinking`` kwarg. Just widen the raw token budget so there is room
-        # left after hidden reasoning.
+        # to see or cap them -- widen-only, same as a non-native provider,
+        # despite gemma living under the "gemini" provider.
         return {"max_tokens": adjusted}
     if via_openrouter:
         # OpenRouter separates visible completion cap from thinking budget.
@@ -207,6 +212,12 @@ def _reasoning_budget_kwargs(
             "max_tokens": max_tokens,
             "extra_body": {"thinking": {"budget_tokens": budget}},
         }
+    if provider not in _NATIVE_THINKING_KWARG_PROVIDERS:
+        # Safe default: widen the raw token budget so there is room left
+        # after hidden reasoning, without guessing at a provider-specific
+        # thinking-control shape it may reject outright (or, for gemma-style
+        # models, may not support at all -- see _GEMMA_NO_THINKING_CONTROL).
+        return {"max_tokens": adjusted}
     return {
         "thinking": {"type": "enabled", "budget_tokens": budget},
         "max_tokens": adjusted,
@@ -216,12 +227,10 @@ def _reasoning_budget_kwargs(
 def thinking_kwargs(model: str, max_tokens: int) -> dict:
     stem = _model_stem(model)
     lower_model = model.lower()
-    via_openrouter = lower_model.startswith("openrouter/")
-    via_moonshot = lower_model.startswith("moonshot/")
-    via_zai = lower_model.startswith("zai/")
-    via_openai = lower_model.startswith("openai/")
-    via_together = lower_model.startswith("together_ai/")
-    via_anthropic = lower_model.startswith("anthropic/")
+    provider = lower_model.split("/", 1)[0] if "/" in lower_model else "unknown"
+    via_openrouter = provider == "openrouter"
+    via_zai = provider == "zai"
+    via_anthropic = provider == "anthropic"
     via_gemma = stem.startswith("gemma-")
     if via_zai and stem in _ZAI_MANDATORY_THINKING_STEMS:
         budget, min_out = _GENERIC_REASONING_BUDGET
@@ -241,10 +250,8 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
                 budget=budget,
                 min_out=min_out,
                 max_tokens=max_tokens,
-                via_moonshot=via_moonshot,
-                via_openai=via_openai,
+                provider=provider,
                 via_openrouter=via_openrouter,
-                via_together=via_together,
                 via_gemma=via_gemma,
             )
     if "reasoning_budget" in model_quirks(model):
@@ -253,10 +260,8 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
             budget=budget,
             min_out=min_out,
             max_tokens=max_tokens,
-            via_moonshot=via_moonshot,
-            via_openai=via_openai,
+            provider=provider,
             via_openrouter=via_openrouter,
-            via_together=via_together,
             via_gemma=via_gemma,
         )
     return {}
