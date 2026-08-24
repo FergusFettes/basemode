@@ -418,6 +418,23 @@ def test_explicit_text_output_can_correct_older_name_heuristic() -> None:
     assert tuple(row) == ("text", 1, None)
 
 
+def test_metadata_free_attempt_upsert_preserves_catalog_eligibility() -> None:
+    evidence.record_catalog_observation(
+        "openrouter/vendor/image-specialist",
+        source="provider",
+        available=True,
+        metadata={"input_modalities": ["image"], "output_modalities": ["text"]},
+    )
+
+    evidence.ensure_endpoint("openrouter/vendor/image-specialist")
+
+    with evidence.connect() as db:
+        row = db.execute(
+            "SELECT modality,text_eligible,exclusion_reason FROM model_endpoints"
+        ).fetchone()
+    assert tuple(row) == ("text", 1, None)
+
+
 def test_import_verified_registry_retains_intent_without_granting_success(
     tmp_path,
 ) -> None:

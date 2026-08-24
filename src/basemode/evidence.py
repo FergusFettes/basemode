@@ -247,9 +247,9 @@ def ensure_endpoint(
         release_date=COALESCE(excluded.release_date,model_endpoints.release_date),
         display_name=COALESCE(excluded.display_name,model_endpoints.display_name),
         text_eligible=CASE WHEN excluded.modality IS NOT NULL THEN excluded.text_eligible
-          WHEN excluded.text_eligible=0 THEN 0 ELSE model_endpoints.text_eligible END,
+          ELSE model_endpoints.text_eligible END,
         exclusion_reason=CASE WHEN excluded.modality IS NOT NULL THEN excluded.exclusion_reason
-          ELSE COALESCE(excluded.exclusion_reason,model_endpoints.exclusion_reason) END""",
+          ELSE model_endpoints.exclusion_reason END""",
         (
             normalized,
             provider,
