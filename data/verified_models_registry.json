@@ -175,13 +175,15 @@
       "model": "gemini/gemma-4-26b-a4b-it",
       "openrouter_id": "google/gemma-4-26b-a4b-it",
       "pricing_url": "https://ai.google.dev/gemini-api/docs/pricing",
-      "known_issues": ["litellm_missing_pricing"]
+      "known_issues": ["litellm_missing_pricing"],
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "gemini/gemma-4-31b-it",
       "openrouter_id": "google/gemma-4-31b-it",
       "pricing_url": "https://ai.google.dev/gemini-api/docs/pricing",
-      "known_issues": ["litellm_missing_pricing"]
+      "known_issues": ["litellm_missing_pricing"],
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "gemini/nano-banana-pro-preview",

@@ -110,6 +110,10 @@ _THINKING_MODELS: dict[str, tuple[int, int]] = {
     "gemini-2.5-flash": (1024, 512),
     "gemini-2.5-flash-lite": (512, 256),
     "gemini-2.5-pro": (2048, 512),
+    # gemini-pro-latest currently aliases a pro-tier model that rejects a
+    # zero thinking budget outright ("This model only works in thinking
+    # mode", probed live 2026-08-24) -- same tuning as gemini-2.5-pro.
+    "gemini-pro-latest": (2048, 512),
     "kimi-k2.5": (4096, 512),  # Kimi K2.5 uses a large reasoning budget
     "kimi-k2.6": (4096, 512),  # Kimi K2.6 exhibits similar long-reasoning behavior
     "kimi-k2-thinking": (4096, 512),
@@ -118,12 +122,28 @@ _THINKING_MODELS: dict[str, tuple[int, int]] = {
     "gpt-5.6-terra": (2048, 512),
 }
 
+# gemini-3.x flash and its "latest" alias, probed live 2026-08-24: these
+# default reasoning on and can silently burn the whole visible max_tokens
+# budget on hidden thinking (finish_reason="length", nothing yielded).
+# Unlike gemini-pro-latest, they accept reasoning_effort="none" and disabling
+# is both cheaper and simpler than guessing a big-enough budget.
+_GEMINI_DISABLE_THINKING_STEMS = frozenset(
+    {"gemini-3.5-flash", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-flash-latest"}
+)
+
 _ZAI_DISABLE_THINKING_PREFIXES = (
     "glm-4.5",
     "glm-4.6",
     "glm-4.7",
     "glm-5",
 )
+
+# glm-5.3, probed live 2026-08-24: unlike the rest of the glm-5.x family
+# above, it rejects `thinking.type: "disabled"` outright ("This model always
+# engages in thinking and cannot be disabled; please use low, high, or max")
+# and needs an effort level plus a wider budget instead -- checked before
+# the prefix match above, which would otherwise catch it via "glm-5".
+_ZAI_MANDATORY_THINKING_STEMS = frozenset({"glm-5.3"})
 
 # Claude 5.x (opus-5, sonnet-5, ...), probed live 2026-08-24: this family
 # rejects the older `thinking.type: "enabled"` shape outright ("Use
@@ -165,8 +185,16 @@ def _reasoning_budget_kwargs(
     via_openai: bool,
     via_openrouter: bool,
     via_together: bool,
+    via_gemma: bool = False,
 ) -> dict:
     adjusted = max(max_tokens, budget + min_out)
+    if via_gemma:
+        # Gemma models reject any thinking-budget shape outright ("Thinking
+        # budget is not supported for this model", probed live 2026-08-24)
+        # even though they silently burn hidden reasoning tokens with no way
+        # to see or cap them. The only lever left is a bigger raw max_tokens
+        # so there's room left after reasoning eats its unknown share.
+        return {"max_tokens": adjusted}
     if via_moonshot or via_openai or via_together:
         # These OpenAI-compatible providers reject an Anthropic-style
         # ``thinking`` kwarg. Just widen the raw token budget so there is room
@@ -194,10 +222,19 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
     via_openai = lower_model.startswith("openai/")
     via_together = lower_model.startswith("together_ai/")
     via_anthropic = lower_model.startswith("anthropic/")
+    via_gemma = stem.startswith("gemma-")
+    if via_zai and stem in _ZAI_MANDATORY_THINKING_STEMS:
+        budget, min_out = _GENERIC_REASONING_BUDGET
+        return {
+            "extra_body": {"thinking": {"type": "enabled", "effort": "low"}},
+            "max_tokens": max(max_tokens, budget + min_out),
+        }
     if via_zai and stem.startswith(_ZAI_DISABLE_THINKING_PREFIXES):
         return {"extra_body": {"thinking": {"type": "disabled"}}}
     if via_anthropic and _ANTHROPIC_ADAPTIVE_ONLY_PATTERN.match(stem):
         return {}
+    if stem in _GEMINI_DISABLE_THINKING_STEMS:
+        return {"reasoning_effort": "none"}
     for fragment, (budget, min_out) in _THINKING_MODELS.items():
         if fragment in stem:
             return _reasoning_budget_kwargs(
@@ -208,6 +245,7 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
                 via_openai=via_openai,
                 via_openrouter=via_openrouter,
                 via_together=via_together,
+                via_gemma=via_gemma,
             )
     if "reasoning_budget" in model_quirks(model):
         budget, min_out = _GENERIC_REASONING_BUDGET
@@ -219,6 +257,7 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
             via_openai=via_openai,
             via_openrouter=via_openrouter,
             via_together=via_together,
+            via_gemma=via_gemma,
         )
     return {}
 

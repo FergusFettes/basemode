@@ -221,14 +221,49 @@ def test_openrouter_kimi_k26_uses_extra_body_thinking() -> None:
     assert kwargs["extra_body"] == {"thinking": {"budget_tokens": 4096}}
 
 
-def test_gemini_gemma_4_preserves_requested_max_tokens() -> None:
+def test_gemini_gemma_4_widens_budget_instead_of_thinking_kwarg() -> None:
+    """Gemma rejects any thinking-budget shape outright ("Thinking budget is
+    not supported for this model", probed live 2026-08-24) even though it
+    silently burns hidden reasoning tokens -- confirmed live: a caller's
+    small max_tokens leaves nothing after reasoning eats its share
+    (finish_reason="length", zero visible tokens). Widening max_tokens is the
+    only lever available, same as the OpenAI-compatible-provider case."""
     kwargs = build_kwargs(
         GenerationParams(model="gemini/gemma-4-26b-a4b-it", max_tokens=200)
     )
 
-    assert kwargs["max_tokens"] == 200
+    assert kwargs["max_tokens"] > 200
     assert "extra_body" not in kwargs
     assert "thinking" not in kwargs
+    assert "reasoning_effort" not in kwargs
+
+
+def test_gemini_3_flash_disables_reasoning() -> None:
+    """gemini-3.x flash and its "latest" alias default reasoning on and can
+    silently consume the whole visible budget (finish_reason="length",
+    probed live 2026-08-24); unlike gemma or gemini-pro-latest, they accept
+    reasoning_effort="none" outright, which is cheaper than a bigger budget."""
+    for model in (
+        "gemini/gemini-3.5-flash",
+        "gemini/gemini-3.6-flash",
+        "gemini/gemini-3.7-flash",
+        "gemini/gemini-flash-latest",
+    ):
+        kwargs = build_kwargs(GenerationParams(model=model, max_tokens=200))
+        assert kwargs["reasoning_effort"] == "none"
+        assert kwargs["max_tokens"] == 200
+
+
+def test_gemini_pro_latest_needs_a_nonzero_thinking_budget() -> None:
+    """Unlike the flash family, gemini-pro-latest rejects reasoning_effort
+    "none" outright ("Budget 0 is invalid. This model only works in thinking
+    mode.", probed live 2026-08-24) -- same tuning as gemini-2.5-pro."""
+    kwargs = build_kwargs(
+        GenerationParams(model="gemini/gemini-pro-latest", max_tokens=200)
+    )
+
+    assert kwargs["thinking"] == {"type": "enabled", "budget_tokens": 2048}
+    assert kwargs["max_tokens"] == 2560
 
 
 async def test_continue_text_strict_max_tokens_clips_visible_output(
@@ -273,6 +308,17 @@ def test_zai_glm_disables_thinking_via_extra_body() -> None:
     assert kwargs["max_tokens"] == 200
     assert kwargs["extra_body"] == {"thinking": {"type": "disabled"}}
     assert "thinking" not in kwargs
+
+
+def test_zai_glm_5_3_cannot_disable_thinking() -> None:
+    """glm-5.3 rejects `thinking.type: "disabled"` outright ("This model
+    always engages in thinking and cannot be disabled; please use low, high,
+    or max", probed live 2026-08-24) unlike the rest of the glm-5.x family,
+    which the "glm-5" prefix match would otherwise catch it under."""
+    kwargs = build_kwargs(GenerationParams(model="zai/glm-5.3", max_tokens=200))
+
+    assert kwargs["extra_body"] == {"thinking": {"type": "enabled", "effort": "low"}}
+    assert kwargs["max_tokens"] > 200
 
 
 async def test_continue_text_loads_persisted_keys(monkeypatch) -> None:

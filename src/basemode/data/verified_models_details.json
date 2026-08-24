@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-08-24T18:33:25.126146+00:00",
+  "generated_at_utc": "2026-08-24T19:11:54.121291+00:00",
   "rows": [
     {
       "model": "anthropic/claude-fable-5",
@@ -581,7 +581,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://ai.google.dev/gemini-api/docs/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "gemini/gemma-4-31b-it",
@@ -599,7 +601,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://ai.google.dev/gemini-api/docs/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "gemini/nano-banana-pro-preview",

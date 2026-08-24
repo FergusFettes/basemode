@@ -22,6 +22,15 @@ _EXTRA_MODELS_BY_PROVIDER = {
 # as opposed to image/audio/embedding/rerank/etc. side models.
 TEXT_MODES = {"chat", "responses", "completion"}
 
+# `text_only` deliberately lets an untagged (`mode is None`) model through --
+# most of litellm's chat-model catalog has no mode at all, so treating
+# "unknown" as "exclude" would drop legitimate text models by the hundreds.
+# A handful of non-text models carry no mode tag either (probed live
+# 2026-08-24: xai's grok-imagine-image-*/grok-imagine-video-* both 404 on
+# text completions with "is an image model and is therefore not available"),
+# so those are named explicitly instead.
+_NON_TEXT_NAME_FRAGMENTS = ("grok-imagine-image", "grok-imagine-video")
+
 # Matches a trailing dated-snapshot suffix, e.g. "-2026-03-05" or "-20251001".
 _DATE_SUFFIX_RE = re.compile(r"-(?:(\d{4})-(\d{2})-(\d{2})|(\d{8}))$")
 
@@ -314,6 +323,10 @@ def list_model_picker_entries(
 
         mode = _model_mode(model_provider, model)
         if text_only and mode is not None and mode not in TEXT_MODES:
+            continue
+        if text_only and any(
+            fragment in model.lower() for fragment in _NON_TEXT_NAME_FRAGMENTS
+        ):
             continue
 
         v = verified.get(model) or verified.get(f"{model_provider}/{model}", {})

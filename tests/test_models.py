@@ -32,6 +32,18 @@ def test_list_models_search() -> None:
     assert all("claude" in m for m in models)
 
 
+def test_text_only_drops_untagged_image_models_by_name() -> None:
+    """xai's grok-imagine-image-*/grok-imagine-video-* carry no litellm mode
+    tag at all (probed live 2026-08-24: both 404 a text completion with "is
+    an image model and is therefore not available"), so the mode-based
+    text_only filter can't catch them -- named explicitly instead."""
+    entries = list_model_picker_entries(provider="xai", text_only=True)
+    assert not any("grok-imagine" in e["model"] for e in entries)
+
+    untagged = list_model_picker_entries(provider="xai", text_only=False)
+    assert any("grok-imagine" in e["model"] for e in untagged)
+
+
 def test_list_models_search_case_insensitive() -> None:
     lower = list_models(search="claude")
     upper = list_models(search="CLAUDE")
