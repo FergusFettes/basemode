@@ -9,15 +9,9 @@ from typing import Any
 
 from . import evidence
 
-_NON_TEXT = ("image", "video", "audio", "embedding", "rerank", "moderation")
-
 
 def _text_clause(alias: str = "e") -> str:
-    terms = " AND ".join(
-        f"lower(coalesce({alias}.modality,'')) NOT LIKE '%{kind}%'"
-        for kind in _NON_TEXT
-    )
-    return f"({terms})"
+    return f"{alias}.text_eligible=1"
 
 
 def _rows(
@@ -44,7 +38,8 @@ def providers(db: sqlite3.Connection) -> list[dict[str, Any]]:
       LEFT JOIN (SELECT a.endpoint_id,a.outcome,a.failure_transience,row_number() OVER
         (PARTITION BY a.endpoint_id ORDER BY a.finished_at DESC,a.id DESC) rn
         FROM verification_attempts a JOIN verification_runs r ON r.id=a.run_id
-        WHERE r.status='completed') la ON la.endpoint_id=e.id AND la.rn=1
+        WHERE r.status='completed' AND a.status_eligible=1) la
+        ON la.endpoint_id=e.id AND la.rn=1
       WHERE {text} GROUP BY e.provider ORDER BY endpoints DESC,e.provider""",
     )
 
@@ -76,15 +71,8 @@ def overview(db: sqlite3.Connection) -> list[dict[str, Any]]:
 
 def statuses(db: sqlite3.Connection) -> list[dict[str, Any]]:
     current = evidence.current_status(conn=db)
-    modalities = {
-        r[0]: r[1]
-        for r in db.execute("SELECT normalized_model_id,modality FROM model_endpoints")
-    }
     output = []
     for model, state in current.items():
-        modality = (modalities.get(model) or "").lower()
-        if any(kind in modality for kind in _NON_TEXT):
-            continue
         output.append({"model": model, **state})
     return sorted(output, key=lambda row: row["model"])
 
@@ -96,7 +84,8 @@ def failures(db: sqlite3.Connection) -> list[dict[str, Any]]:
       count(*) attempts,count(DISTINCT a.endpoint_id) endpoints,
       min(a.finished_at) first_seen,max(a.finished_at) last_seen
       FROM verification_attempts a JOIN model_endpoints e ON e.id=a.endpoint_id
-      WHERE a.outcome!='success' AND {_text_clause()} GROUP BY 1,2
+      WHERE a.outcome!='success' AND a.status_eligible=1 AND {_text_clause()}
+      GROUP BY 1,2
       ORDER BY attempts DESC,failure_class""",
     )
 
@@ -173,7 +162,8 @@ def export_records(db: sqlite3.Connection) -> Iterable[dict[str, Any]]:
       a.started_at,a.finished_at,a.prompt_method,a.outcome,a.failure_class,a.failure_transience,
       a.http_status,a.safe_error_code,a.safe_error_parameter,a.latency_ms,a.ttft_ms,a.generation_ms,
       a.prompt_tokens,a.completion_tokens,a.reasoning_tokens,a.output_characters,
-      a.output_tokens_per_second,a.cost_usd,a.cost_source FROM verification_attempts a
+      a.output_tokens_per_second,a.cost_usd,a.cost_source,a.status_eligible,
+      a.status_exclusion_reason FROM verification_attempts a
       JOIN verification_runs r ON r.id=a.run_id JOIN model_endpoints e ON e.id=a.endpoint_id
       WHERE {_text_clause()} ORDER BY a.id""",
     ):
