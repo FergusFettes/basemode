@@ -957,7 +957,6 @@ def health(
         console.print(f"[green]✓[/green] Cleared health history for {target}")
         return
 
-
     if verification:
         from .usage import format_usd
 
@@ -1002,8 +1001,7 @@ def health(
                 str(observed["failures"]),
                 transient,
                 ", ".join(
-                    f"{name} x{count}"
-                    for name, count in observed["categories"].items()
+                    f"{name} x{count}" for name, count in observed["categories"].items()
                 ),
                 format_usd(cost) if cost is not None else "",
                 observed["last_at"],
@@ -1015,9 +1013,7 @@ def health(
             if any_cost_known
             else " cost unavailable for these probes"
         )
-        console.print(
-            f"[dim]{len(records)} models probed{window};{cost_line}[/dim]"
-        )
+        console.print(f"[dim]{len(records)} models probed{window};{cost_line}[/dim]")
         console.print(
             "[dim]'Transient?' is 'maybe' only when every failure seen was "
             "rate_limit/timeout/provider_unavailable/network[/dim]"

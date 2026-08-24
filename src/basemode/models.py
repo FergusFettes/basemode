@@ -285,7 +285,9 @@ def _all_provider_pairs() -> list[tuple[str, str]]:
     pairs = [
         (p, m)
         for p, m in pairs
-        if _keep_litellm_pair(p, m, live=live, verified=verified, extra_display=extra_display)
+        if _keep_litellm_pair(
+            p, m, live=live, verified=verified, extra_display=extra_display
+        )
     ]
 
     known_display = {(p, _display_model_id(p, m)) for p, m in pairs}
@@ -361,12 +363,8 @@ def list_model_picker_entries(
     # Thorough-suite evidence is durable and reproducible. Quick legacy
     # probes remain a compatibility fallback, but cannot independently grant
     # the stronger evidence-backed verified state.
-    broken |= {
-        m for m, e in durable_evidence.items() if e.get("currently_broken")
-    }
-    evidence_verified |= {
-        m for m, e in durable_evidence.items() if e.get("verified")
-    }
+    broken |= {m for m, e in durable_evidence.items() if e.get("currently_broken")}
+    evidence_verified |= {m for m, e in durable_evidence.items() if e.get("verified")}
     verified_models = (set(verified) | evidence_verified) - broken
 
     if verified_only:
@@ -408,7 +406,9 @@ def list_model_picker_entries(
         v = verified.get(model) or verified.get(f"{model_provider}/{model}", {})
         qualified = f"{model_provider}/{model}"
         is_broken = model in broken or qualified in broken
-        is_evidence_verified = model in evidence_verified or qualified in evidence_verified
+        is_evidence_verified = (
+            model in evidence_verified or qualified in evidence_verified
+        )
         available = model_provider in available_providers
         if available_only and not available:
             continue
