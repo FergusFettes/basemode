@@ -18,8 +18,10 @@ async def test_known_catalog_eligibility_overrides_name_fallback(monkeypatch) ->
             prompt_tokens=1, completion_tokens=1, cost_usd=None, is_estimate=True
         ),
     )
-    evidence.ensure_endpoint(
+    evidence.record_catalog_observation(
         "openrouter/acme/image-reasoner",
+        source="test-catalog",
+        available=True,
         metadata={"input_modalities": ["image"], "output_modalities": ["text"]},
     )
 
