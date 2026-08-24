@@ -20,6 +20,7 @@ from .health import (
     clear_model_health,
     list_model_health,
     model_health,
+    verification_history,
 )
 from .keys import (
     KEY_ALIASES,
@@ -930,6 +931,15 @@ def health(
     clear: Annotated[
         bool, typer.Option("--clear", help="Forget the history instead of showing it.")
     ] = False,
+    verification: Annotated[
+        bool,
+        typer.Option(
+            "--verification",
+            help="Show verification-probe results instead of real generations "
+            "(see `basemode bench` / a verification sweep) -- recorded "
+            "separately so probing a model doesn't skew its usage stats.",
+        ),
+    ] = False,
 ) -> None:
     """Show what models actually did here: attempts, failures, and why.
 
@@ -945,6 +955,55 @@ def health(
         clear_model_health(resolved)
         target = f"[bold]{resolved}[/bold]" if resolved else "every model"
         console.print(f"[green]✓[/green] Cleared health history for {target}")
+        return
+
+    if verification:
+        records = verification_history(model=resolved, days=days)
+        if not records:
+            console.print("[yellow]No verification probes recorded.[/yellow]")
+            return
+        if as_json:
+            console.print(json.dumps(records, indent=2))
+            return
+        table = Table(
+            "Model",
+            "Attempts",
+            "Failed",
+            "Transient?",
+            "Failures seen",
+            "Last probe",
+            show_header=True,
+            header_style="bold",
+        )
+        for model_id, observed in sorted(
+            records.items(),
+            key=lambda kv: (-kv[1]["failures"], kv[0]),
+        ):
+            transient = ""
+            if observed["failures"]:
+                transient = (
+                    "[yellow]maybe[/yellow]"
+                    if observed["looks_transient"]
+                    else "[red]no[/red]"
+                )
+            table.add_row(
+                model_id,
+                str(observed["attempts"]),
+                str(observed["failures"]),
+                transient,
+                ", ".join(
+                    f"{name} x{count}"
+                    for name, count in observed["categories"].items()
+                ),
+                observed["last_at"],
+            )
+        console.print(table)
+        window = f" over the last {days} days" if days else ""
+        console.print(
+            f"[dim]{len(records)} models probed{window}; "
+            "'Transient?' is 'maybe' only when every failure seen was "
+            "rate_limit/timeout/provider_unavailable/network[/dim]"
+        )
         return
 
     if resolved:
