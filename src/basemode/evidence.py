@@ -161,6 +161,38 @@ def ensure_endpoint(
     return endpoint_id
 
 
+def record_catalog_observation(
+    model: str,
+    *,
+    source: str,
+    available: bool,
+    observed_at: str | None = None,
+    catalog_snapshot_id: str | None = None,
+    metadata: Mapping[str, Any] | None = None,
+    conn: sqlite3.Connection | None = None,
+) -> int:
+    """Record what one catalog source claimed without treating it as truth."""
+    own = conn is None
+    db = conn or connect()
+    endpoint = ensure_endpoint(model, conn=db)
+    cur = db.execute(
+        """INSERT INTO catalog_observations(endpoint_id,observed_at,source,available,
+        catalog_snapshot_id,metadata_json) VALUES(?,?,?,?,?,?)""",
+        (
+            endpoint,
+            observed_at or _now(),
+            source,
+            int(available),
+            catalog_snapshot_id,
+            _json(metadata or {}),
+        ),
+    )
+    if own:
+        db.commit()
+        db.close()
+    return int(cur.lastrowid)
+
+
 def start_run(
     suite: str,
     *,

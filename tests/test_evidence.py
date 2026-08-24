@@ -48,6 +48,13 @@ def test_transient_failure_is_selected_for_recheck() -> None:
         assert status["currently_broken"] is False
 
 
+def test_catalog_availability_is_an_independent_status() -> None:
+    evidence.record_catalog_observation(
+        "deepinfra/new", source="provider_api", available=True
+    )
+    assert evidence.current_status()["deepinfra/new"]["available"] is True
+
+
 def test_import_sweep_is_idempotent(tmp_path) -> None:
     source = tmp_path / "sweep.jsonl"
     source.write_text(json.dumps({"model": "deepinfra/new", "ok": True}) + "\n")
