@@ -51,11 +51,13 @@ NON_TEXT_MODALITIES = frozenset(
     }
 )
 _NON_TEXT_NAME_RE = re.compile(
-    r"(?:^|[/_.-])(?:audio|bge|bria|clip-vit|dall-e|embedding(?:gemma)?|embed|e5|"
-    r"flux|higgsaudio|ideogram|image|imagen|i2v|kokoro|lyria|moderation|nano-banana|"
-    r"pixverse|r2v|rerank|seedance|seedream|sora|speech|stable-diffusion|t2v|tts|"
-    r"veo|video|vidu|wan|whisper)"
-    r"(?:$|[/_.-])",
+    r"(?:^|[/_.:-])(?:audio|bge|bria|chatterbox|clip-vit|content-safety|csm|dall-e|"
+    r"diariz\w*|embedding(?:gemma)?|embed|e5|flux|gte|higgsaudio|ideogram|image|"
+    r"imagen|i2v|kokoro|llama-guard|llama-prompt-guard|lyria|moderation|"
+    r"nano-banana|ocr|orpheus|pixverse|r2v|realtime|rerank|safeguard|seedance|"
+    r"seedream|sentence-transformers|sora|speech|sdxl|stable-diffusion|t2v|text2vec|"
+    r"transcrib\w*|tts|veo|video|vidu|wan|whisper)"
+    r"(?:$|[/_.:-])",
     re.IGNORECASE,
 )
 
@@ -71,7 +73,7 @@ def classify_text_endpoint(
         return True, None
     match = _NON_TEXT_NAME_RE.search(model)
     if match:
-        return False, f"non-text model family: {match.group(0).strip('/_.-').lower()}"
+        return False, f"non-text model family: {match.group(0).strip('/_.:-').lower()}"
     return True, None
 
 

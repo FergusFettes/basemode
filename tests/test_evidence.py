@@ -18,6 +18,13 @@ from basemode import evidence
         ("deepinfra/bria/remove_background", "bria"),
         ("deepinfra/google/nano-banana-pro", "nano-banana"),
         ("together_ai/bytedance-seed/seedream-4.0", "seedream"),
+        ("deepinfra/sentence-transformers/all-minilm-l6-v2", "sentence-transformers"),
+        ("groq/canopylabs/orpheus-v1-english", "orpheus"),
+        ("openai/gpt-realtime-2.1", "realtime"),
+        ("openai/gpt-4o-transcribe", "transcribe"),
+        ("openrouter/nvidia/nemotron-content-safety:free", "content-safety"),
+        ("together_ai/deepseek-ai/deepseek-ocr-2", "ocr"),
+        ("deepinfra/stabilityai/sdxl-turbo", "sdxl"),
     ],
 )
 def test_text_classification_excludes_non_text_families(
