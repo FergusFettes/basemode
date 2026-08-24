@@ -2,6 +2,8 @@
 
 from datetime import UTC, datetime, timedelta
 
+import pytest
+
 from basemode import health
 
 
@@ -171,6 +173,25 @@ def test_verification_history_flags_purely_transient_failures() -> None:
 
     entry = health.verification_history()["cerebras/some-model"]
     assert entry["looks_transient"] is True
+
+
+def test_verification_history_sums_known_cost() -> None:
+    health.record_outcome(
+        "openai/gpt-4o-mini", ok=True, source="verification", cost_usd=0.001
+    )
+    health.record_outcome(
+        "openai/gpt-4o-mini", ok=True, source="verification", cost_usd=0.002
+    )
+
+    entry = health.verification_history()["openai/gpt-4o-mini"]
+    assert entry["cost_usd"] == pytest.approx(0.003)
+
+
+def test_verification_history_cost_is_none_when_never_known() -> None:
+    health.record_outcome("openai/gpt-4o-mini", ok=True, source="verification")
+
+    entry = health.verification_history()["openai/gpt-4o-mini"]
+    assert entry["cost_usd"] is None
 
 
 def test_recording_never_raises_at_the_call_site(monkeypatch) -> None:

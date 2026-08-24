@@ -210,6 +210,7 @@ def _connect() -> sqlite3.Connection:
         "CREATE INDEX IF NOT EXISTS idx_events_source_model_at "
         "ON model_events(source, model, at)"
     )
+    _ensure_column(conn, "model_events", "cost_usd", "REAL")
     return conn
 
 
@@ -230,6 +231,7 @@ def record_outcome(
     error_code: str | None = None,
     error_param: str | None = None,
     source: str = "generation",
+    cost_usd: float | None = None,
 ) -> None:
     """Record one generation attempt. Never raises.
 
@@ -241,6 +243,10 @@ def record_outcome(
     verification probe (`"verification"`, see :func:`verification_history`),
     which is recorded in the event log but never folded into the rolling
     totals real generation decisions read.
+
+    `cost_usd`, when the caller has it (see `usage.usage_from_events` /
+    `usage.estimate_usage`), is stored on the event so a verification sweep's
+    actual spend is known rather than guessed after the fact.
     """
     if _disabled() or not model.strip():
         return
@@ -251,8 +257,9 @@ def record_outcome(
         with _connect() as conn:
             conn.execute(
                 "INSERT INTO model_events "
-                "(model, at, ok, category, status, error_code, error_param, source)"
-                " VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "(model, at, ok, category, status, error_code, error_param, "
+                "source, cost_usd)"
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     model,
                     now,
@@ -262,6 +269,7 @@ def record_outcome(
                     error_code,
                     error_param,
                     source,
+                    cost_usd,
                 ),
             )
             if source == "generation":
@@ -363,8 +371,8 @@ def verification_history(
     try:
         with _connect() as conn:
             sql = (
-                "SELECT model, at, ok, category, status, error_code, error_param "
-                "FROM model_events WHERE source = 'verification'"
+                "SELECT model, at, ok, category, status, error_code, error_param, "
+                "cost_usd FROM model_events WHERE source = 'verification'"
             )
             params: list[Any] = []
             if model:
@@ -389,6 +397,8 @@ def verification_history(
                         "last_at": row["at"],
                         "last_ok": bool(row["ok"]),
                         "last_category": row["category"],
+                        "cost_usd": 0.0,
+                        "cost_known": False,
                     },
                 )
                 entry["attempts"] += 1
@@ -398,7 +408,13 @@ def verification_history(
                     entry["failures"] += 1
                     if row["category"]:
                         entry["categories"][row["category"]] += 1
+                if row["cost_usd"] is not None:
+                    entry["cost_usd"] += row["cost_usd"]
+                    entry["cost_known"] = True
             for entry in by_model.values():
+                if not entry["cost_known"]:
+                    entry["cost_usd"] = None
+                del entry["cost_known"]
                 cats = entry["categories"]
                 entry["categories"] = dict(sorted(cats.items()))
                 entry["looks_transient"] = bool(cats) and all(

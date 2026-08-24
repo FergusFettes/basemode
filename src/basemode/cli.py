@@ -958,6 +958,8 @@ def health(
         return
 
     if verification:
+        from .usage import format_usd
+
         records = verification_history(model=resolved, days=days)
         if not records:
             console.print("[yellow]No verification probes recorded.[/yellow]")
@@ -971,10 +973,13 @@ def health(
             "Failed",
             "Transient?",
             "Failures seen",
+            "Cost",
             "Last probe",
             show_header=True,
             header_style="bold",
         )
+        total_cost = 0.0
+        any_cost_known = False
         for model_id, observed in sorted(
             records.items(),
             key=lambda kv: (-kv[1]["failures"], kv[0]),
@@ -986,6 +991,10 @@ def health(
                     if observed["looks_transient"]
                     else "[red]no[/red]"
                 )
+            cost = observed["cost_usd"]
+            if cost is not None:
+                total_cost += cost
+                any_cost_known = True
             table.add_row(
                 model_id,
                 str(observed["attempts"]),
@@ -995,13 +1004,21 @@ def health(
                     f"{name} x{count}"
                     for name, count in observed["categories"].items()
                 ),
+                format_usd(cost) if cost is not None else "",
                 observed["last_at"],
             )
         console.print(table)
         window = f" over the last {days} days" if days else ""
+        cost_line = (
+            f" total cost {format_usd(total_cost)}"
+            if any_cost_known
+            else " cost unavailable for these probes"
+        )
         console.print(
-            f"[dim]{len(records)} models probed{window}; "
-            "'Transient?' is 'maybe' only when every failure seen was "
+            f"[dim]{len(records)} models probed{window};{cost_line}[/dim]"
+        )
+        console.print(
+            "[dim]'Transient?' is 'maybe' only when every failure seen was "
             "rate_limit/timeout/provider_unavailable/network[/dim]"
         )
         return
