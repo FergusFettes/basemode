@@ -16,8 +16,8 @@ their availability, request compatibility, speed, and price can differ.
 The quick suite performs an inexpensive continuation health check. The
 thorough suite uses several prefixes and a larger output allowance; only a
 completed thorough suite can add evidence-backed verified status. The
-transient-recheck suite selects endpoints whose latest attempt failed with a
-rate limit, timeout, network error, or provider outage.
+transient-recheck suite selects endpoints whose rate limit, timeout, network
+error, or provider outage is due for another check.
 
 ```bash
 basemode verify --suite quick openai/gpt-4o-mini
@@ -68,6 +68,32 @@ On request-shape failure or empty output, verification can retry with
 reasoning disabled and with a larger output budget. Operational errors such as
 rate limits are recorded for later rechecking rather than being mistaken for
 model incompatibility.
+
+## Operational rechecks
+
+Suspected transient failures receive durable next-check timestamps. The
+default backoff is 15 minutes, 2 hours, then 24 hours. Three failures observed
+in separate verification runs become `persistent_operational` and move to a
+weekly check. A later success becomes `recovered`; authentication and quota
+failures become `account_limited` and are not automatically retried. When one
+provider route repeatedly reports an unavailable model while another endpoint
+for the same known model family succeeds, the assessment is
+`provider_route_unavailable`.
+
+Inspect the full queue, including recovered and account-limited endpoints:
+
+```bash
+basemode evidence rechecks --json
+```
+
+The scheduled GitHub workflow is inert unless the repository secret
+`BASEMODE_SCHEDULED_RECHECKS` is exactly `1`. It checks only due endpoints with
+a configured provider key and uploads a sanitized result containing structured
+outcomes and timings—not keys, prompts, responses, account fingerprints, or
+request configuration. Its evidence SQLite directory is restored through the
+GitHub Actions cache so backoff and recovery survive ephemeral runners; an
+empty cache is seeded only from sanitized repository evidence. Running
+verification can incur provider cost.
 
 Verification and derived status are text-generation-only. Provider modality is
 preferred where it exists; conservative model-family classification excludes

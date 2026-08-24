@@ -120,7 +120,8 @@ with status `limited`; continue it with `basemode verify --resume RUN_ID`.
 
 Models are required for quick and thorough suites. With no models, the
 transient-recheck suite selects endpoints whose latest operational failure is
-suspected to be temporary.
+suspected to be temporary and whose stored backoff timestamp is due. Explicit
+model arguments override queue selection for a deliberate manual recheck.
 
 Selectors can plan deterministic catalog sweeps by provider, release date, and
 current status (`never-tested`, `reachable`, `broken`, `transient`, `verified`,
@@ -140,6 +141,7 @@ basemode evidence providers
 basemode evidence statuses --json
 basemode evidence failures
 basemode evidence transient
+basemode evidence rechecks --json
 basemode evidence runs
 basemode evidence corpus
 basemode evidence endpoint openai/gpt-5.4
