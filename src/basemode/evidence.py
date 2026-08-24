@@ -49,7 +49,8 @@ NON_TEXT_MODALITIES = frozenset(
 )
 _NON_TEXT_NAME_RE = re.compile(
     r"(?:^|[/_.-])(?:dall-e|embedding|embed|flux|image|imagen|moderation|rerank|"
-    r"seedance|sora|speech|stable-diffusion|tts|veo|video|vidu|wan|whisper)"
+    r"i2v|pixverse|r2v|seedance|sora|speech|stable-diffusion|t2v|tts|veo|video|"
+    r"vidu|wan|whisper)"
     r"(?:$|[/_.-])",
     re.IGNORECASE,
 )
