@@ -157,7 +157,10 @@ def list_strategy_overrides() -> dict[str, str]:
 
 def get_model_rating(model: str) -> int | None:
     """This user's thumb for `model`: `RATING_UP`, `RATING_DOWN`, or None."""
-    return _load()["model_ratings"].get(model.lower())
+    from .evidence import get_model_rating as evidence_rating
+
+    value = evidence_rating(model)
+    return value if value is not None else _load()["model_ratings"].get(model.lower())
 
 
 def set_model_rating(model: str, rating: int | None) -> None:
@@ -179,10 +182,21 @@ def set_model_rating(model: str, rating: int | None) -> None:
     else:
         data["model_ratings"][model.lower()] = rating
     _write(data)
+    # Dual-write for one compatibility release: older basemode versions can
+    # still read auth.json while the durable evidence database becomes the
+    # source of truth for ratings shared with Loom.
+    from .evidence import set_model_rating as set_evidence_rating
+
+    set_evidence_rating(model, rating)
 
 
 def list_model_ratings() -> dict[str, int]:
-    return dict(_load()["model_ratings"])
+    legacy = dict(_load()["model_ratings"])
+    from .evidence import import_annotations
+    from .evidence import list_model_ratings as evidence_ratings
+
+    import_annotations(legacy)
+    return {**legacy, **evidence_ratings()}
 
 
 def _mask(value: str) -> str:
