@@ -112,6 +112,12 @@ basemode verify [MODEL...] [--suite quick|thorough|transient-recheck] [--attempt
   [--stale-after-days N] [--dry-run] [--json]
 ```
 
+Sweeps run with bounded global and per-provider concurrency (`--concurrency` and
+`--per-provider-concurrency`). Bound work with `--max-probes`, `--max-requests`,
+`--max-elapsed` (seconds), and `--max-cost-usd`. Every underlying self-healing
+request is retained and counts toward the request limit. A bounded run finishes
+with status `limited`; continue it with `basemode verify --resume RUN_ID`.
+
 Models are required for quick and thorough suites. With no models, the
 transient-recheck suite selects endpoints whose latest operational failure is
 suspected to be temporary.

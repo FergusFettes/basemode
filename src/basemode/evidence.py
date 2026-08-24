@@ -323,6 +323,29 @@ def finish_run(
         db.close()
 
 
+def resume_run(run_id: str, *, conn: sqlite3.Connection | None = None) -> sqlite3.Row:
+    """Mark an interrupted or limited run active again and return its metadata."""
+    own = conn is None
+    db = conn or connect()
+    row = db.execute("SELECT * FROM verification_runs WHERE id=?", (run_id,)).fetchone()
+    if row is None:
+        if own:
+            db.close()
+        raise ValueError(f"unknown verification run: {run_id}")
+    if row["status"] == "completed":
+        if own:
+            db.close()
+        raise ValueError(f"verification run is already completed: {run_id}")
+    db.execute(
+        "UPDATE verification_runs SET completed_at=NULL,status='running' WHERE id=?",
+        (run_id,),
+    )
+    if own:
+        db.commit()
+        db.close()
+    return row
+
+
 def record_attempt(
     run_id: str,
     model: str,
@@ -345,7 +368,7 @@ def record_attempt(
         "request_params_json,compatibility_actions_json,outcome,failure_class,failure_transience,"
         "http_status,safe_error_code,safe_error_parameter,latency_ms,ttft_ms,generation_ms,"
         "prompt_tokens,completion_tokens,reasoning_tokens,output_characters,output_tokens_per_second,"
-        "cost_usd,cost_source,output_fingerprint"
+        "cost_usd,cost_source,output_fingerprint,status_eligible,status_exclusion_reason"
     )
     params = (
         run_id,
@@ -374,6 +397,8 @@ def record_attempt(
         values.get("cost_usd"),
         values.get("cost_source"),
         values.get("output_fingerprint"),
+        int(values.get("status_eligible", True)),
+        values.get("status_exclusion_reason"),
     )
     cur = db.execute(
         f"INSERT INTO verification_attempts({columns}) VALUES({','.join('?' for _ in params)})",

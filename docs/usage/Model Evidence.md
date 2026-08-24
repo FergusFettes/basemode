@@ -38,6 +38,20 @@ figure is a conservative ceiling for the maximum three self-healing requests
 per logical probe. It is best-effort LiteLLM pricing metadata, clearly split
 into priced and unpriced target counts; it is not treated as model truth.
 
+Large runs are resumable and provider-fair. For example, the following permits
+at most 100 logical probes and 200 total requests (including self-healing
+retries), with no more than two simultaneous requests to one provider:
+
+```bash
+basemode verify openai/gpt-4o-mini anthropic/claude-sonnet-4 \
+  --max-probes 100 --max-requests 200 --concurrency 8 \
+  --per-provider-concurrency 2 --max-elapsed 1800 --max-cost-usd 2
+basemode verify --resume RUN_ID --max-requests 200
+```
+
+Attempts commit individually. Cancellation marks a run `aborted`, while a
+deadline or work/request/cost ceiling marks it `limited`; either can be resumed.
+
 Use `basemode evidence` for read-only summaries and sanitized exports. Views
 cover the overall dataset, providers, current statuses, failure classes, the
 transient queue, runs, Loom corpus quality (including depth buckets), and a

@@ -1111,6 +1111,21 @@ def verify_command(
     dry_run: Annotated[
         bool, typer.Option("--dry-run", help="Plan only; never contact providers.")
     ] = False,
+    run_id: Annotated[
+        str | None, typer.Option("--resume", help="Resume this run ID.")
+    ] = None,
+    concurrency: Annotated[int, typer.Option("--concurrency", min=1)] = 4,
+    per_provider_concurrency: Annotated[
+        int, typer.Option("--per-provider-concurrency", min=1)
+    ] = 2,
+    max_probes: Annotated[int | None, typer.Option("--max-probes", min=1)] = None,
+    max_requests: Annotated[int | None, typer.Option("--max-requests", min=1)] = None,
+    max_elapsed_seconds: Annotated[
+        float | None, typer.Option("--max-elapsed", min=0.01)
+    ] = None,
+    max_cost_usd: Annotated[
+        float | None, typer.Option("--max-cost-usd", min=0.000001)
+    ] = None,
     as_json: Annotated[bool, typer.Option("--json")] = False,
 ) -> None:
     """Probe models and retain every result in the shared evidence database."""
@@ -1132,26 +1147,32 @@ def verify_command(
         or released_since
         or max_release_age_days is not None
     )
-    if not models and suite != "transient-recheck" and not has_selector:
+    if dry_run and run_id:
+        console.print("[red]--dry-run cannot be combined with --resume.[/red]")
+        raise typer.Exit(2)
+    if not models and suite != "transient-recheck" and not has_selector and not run_id:
         console.print("[red]Supply models or at least one target selector.[/red]")
         raise typer.Exit(2)
-    try:
-        plan = plan_verification(
-            models,
-            suite=suite,
-            attempts=attempts,
-            max_tokens=max_tokens,
-            providers=providers,
-            statuses=statuses,
-            catalog_available=from_catalog,
-            released_since=released_since,
-            max_release_age_days=max_release_age_days,
-            stale_after_days=stale_after_days,
-        )
-    except ValueError as exc:
-        console.print(f"[red]{exc}[/red]")
-        raise typer.Exit(2) from exc
+    plan = None
+    if not run_id:
+        try:
+            plan = plan_verification(
+                models,
+                suite=suite,
+                attempts=attempts,
+                max_tokens=max_tokens,
+                providers=providers,
+                statuses=statuses,
+                catalog_available=from_catalog,
+                released_since=released_since,
+                max_release_age_days=max_release_age_days,
+                stale_after_days=stale_after_days,
+            )
+        except ValueError as exc:
+            console.print(f"[red]{exc}[/red]")
+            raise typer.Exit(2) from exc
     if dry_run:
+        assert plan is not None
         if as_json:
             console.print(json.dumps(plan.to_dict(), indent=2))
             return
@@ -1190,13 +1211,23 @@ def verify_command(
             f"({plan.priced_targets} priced, {plan.unpriced_targets} unknown)[/dim]"
         )
         return
-    selected_models = [target.model for target in plan.targets]
-    if not selected_models:
+    selected_models = [target.model for target in plan.targets] if plan else None
+    if not run_id and not selected_models:
         console.print("[yellow]No eligible verification targets.[/yellow]")
         return
     summary = asyncio.run(
         verify_models(
-            selected_models, suite=suite, attempts=attempts, max_tokens=max_tokens
+            selected_models,
+            suite=suite,
+            attempts=attempts,
+            max_tokens=max_tokens,
+            run_id=run_id,
+            concurrency=concurrency,
+            per_provider_concurrency=per_provider_concurrency,
+            max_probes=max_probes,
+            max_requests=max_requests,
+            max_elapsed_seconds=max_elapsed_seconds,
+            max_cost_usd=max_cost_usd,
         )
     )
     payload = asdict(summary)
@@ -1205,7 +1236,7 @@ def verify_command(
     else:
         console.print(
             f"[green]✓[/green] {summary.successes}/{summary.attempts} probes "
-            f"passed; run {summary.run_id}"
+            f"passed ({summary.requests} requests, {summary.status}); run {summary.run_id}"
         )
 
 

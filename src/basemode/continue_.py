@@ -36,6 +36,7 @@ async def continue_text(
     rewind: bool = False,
     strict_max_tokens: bool = False,
     record_health: bool = True,
+    retry_empty_completion: bool = True,
     on_raw_head: Callable[[str], None] | None = None,
     raw_head_chars: int = RAW_HEAD_CHARS,
     on_usage: Callable[[list[dict]], None] | None = None,
@@ -111,7 +112,8 @@ async def continue_text(
                 # reasoning just rejects this immediately as a 400, which
                 # `except Exception` below still handles.
                 eligible = (
-                    not retried_reasoning_off
+                    retry_empty_completion
+                    and not retried_reasoning_off
                     and token_count == 0
                     and model.lower().startswith("openrouter/")
                     and "reasoning" not in attempt_params.extra
