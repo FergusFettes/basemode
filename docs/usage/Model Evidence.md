@@ -101,6 +101,15 @@ clear image, video, audio, embedding, reranking, transcription, and moderation
 endpoints when catalogs omit modality. Unknown models remain eligible because
 many provider chat catalogs do not publish this field.
 
+Live catalog snapshots preserve structured capability metadata when providers
+publish it. OpenRouter input/output modalities and supported parameters, Gemini
+generation methods, and generic provider model types are retained with their
+catalog observation. Text eligibility is based on output capability: a model
+that accepts images but generates text remains eligible, while an image-only
+output model does not. Older cache files whose model values are plain release
+dates remain importable. Sparse catalogs still fall back to conservative model
+family classification.
+
 `enforce_text_only_and_supersede_obsolete_failures()` is an idempotent evidence
 maintenance operation. It retains every raw observation while excluding
 non-text endpoints from model lists, status, and transient rechecks. It also

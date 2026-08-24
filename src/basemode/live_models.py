@@ -36,6 +36,22 @@ class LiveModel:
     id: str
     release_date: str | None
     release_date_confidence: str  # "release" | "registered" | "unknown"
+    input_modalities: tuple[str, ...] = ()
+    output_modalities: tuple[str, ...] = ()
+    supported_methods: tuple[str, ...] = ()
+    provider_type: str | None = None
+    supported_parameters: tuple[str, ...] = ()
+
+
+def _strings(value: object) -> tuple[str, ...]:
+    if not isinstance(value, list | tuple):
+        return ()
+    return tuple(str(item).lower() for item in value if isinstance(item, str))
+
+
+def _architecture(model: dict) -> dict:
+    value = model.get("architecture")
+    return value if isinstance(value, dict) else {}
 
 
 def _bearer_headers(key: str) -> dict[str, str]:
@@ -74,6 +90,10 @@ def _parse_openai_style(payload: dict | list) -> list[LiveModel]:
             id=str(m["id"]),
             release_date=_unix_to_date(m.get("created")),
             release_date_confidence="registered",
+            input_modalities=_strings(_architecture(m).get("input_modalities")),
+            output_modalities=_strings(_architecture(m).get("output_modalities")),
+            provider_type=m.get("type") if isinstance(m.get("type"), str) else None,
+            supported_parameters=_strings(m.get("supported_parameters")),
         )
         for m in data
         if isinstance(m, dict) and "id" in m
@@ -98,6 +118,11 @@ def _parse_gemini(payload: dict) -> list[LiveModel]:
             id=str(m["name"]).removeprefix("models/"),
             release_date=None,
             release_date_confidence="unknown",
+            supported_methods=tuple(
+                str(method)
+                for method in m.get("supportedGenerationMethods", [])
+                if isinstance(method, str)
+            ),
         )
         for m in payload.get("models", [])
         if isinstance(m, dict) and "name" in m

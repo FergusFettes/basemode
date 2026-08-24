@@ -58,7 +58,20 @@ def main() -> int:
         reliable = dates_look_trustworthy(live)
         providers_out[provider] = {
             "reliable_dates": reliable,
-            "models": {m.id: (m.release_date if reliable else None) for m in live},
+            "models": {
+                m.id: {
+                    "release_date": m.release_date if reliable else None,
+                    "release_date_confidence": (
+                        m.release_date_confidence if reliable else "unknown"
+                    ),
+                    "input_modalities": list(m.input_modalities),
+                    "output_modalities": list(m.output_modalities),
+                    "supported_methods": list(m.supported_methods),
+                    "provider_type": m.provider_type,
+                    "supported_parameters": list(m.supported_parameters),
+                }
+                for m in live
+            },
         }
         flag = "" if reliable else " (dates look bogus, dropped)"
         print(f"{provider}: {len(live)} models{flag}")

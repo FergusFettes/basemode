@@ -355,6 +355,69 @@ def test_import_live_catalog_cache_is_idempotent(tmp_path) -> None:
     assert status["available"] is True
 
 
+def test_structured_catalog_cache_preserves_capabilities_and_uses_text_output(
+    tmp_path,
+) -> None:
+    source = tmp_path / "live-structured.json"
+    source.write_text(
+        json.dumps(
+            {
+                "generated_at_utc": "2026-08-24T00:00:00Z",
+                "providers": {
+                    "openrouter": {
+                        "models": {
+                            "vendor/vision-chat": {
+                                "release_date": "2026-08-01",
+                                "input_modalities": ["text", "image"],
+                                "output_modalities": ["text"],
+                                "supported_parameters": ["temperature"],
+                            },
+                            "vendor/image-only": {
+                                "input_modalities": ["text"],
+                                "output_modalities": ["image"],
+                            },
+                        },
+                        "reliable_dates": True,
+                    }
+                },
+            }
+        )
+    )
+    assert evidence.import_live_catalog_cache(source) == 2
+    with evidence.connect() as db:
+        rows = db.execute(
+            "SELECT normalized_model_id,text_eligible FROM model_endpoints ORDER BY normalized_model_id"
+        ).fetchall()
+        metadata = json.loads(
+            db.execute(
+                "SELECT metadata_json FROM catalog_observations c "
+                "JOIN model_endpoints e ON e.id=c.endpoint_id "
+                "WHERE e.normalized_model_id='openrouter/vendor/vision-chat'"
+            ).fetchone()[0]
+        )
+    assert [tuple(row) for row in rows] == [
+        ("openrouter/vendor/image-only", 0),
+        ("openrouter/vendor/vision-chat", 1),
+    ]
+    assert metadata["input_modalities"] == ["text", "image"]
+    assert metadata["supported_parameters"] == ["temperature"]
+
+
+def test_explicit_text_output_can_correct_older_name_heuristic() -> None:
+    evidence.ensure_endpoint("openrouter/vendor/image-specialist")
+    evidence.record_catalog_observation(
+        "openrouter/vendor/image-specialist",
+        source="provider",
+        available=True,
+        metadata={"input_modalities": ["image"], "output_modalities": ["text"]},
+    )
+    with evidence.connect() as db:
+        row = db.execute(
+            "SELECT modality,text_eligible,exclusion_reason FROM model_endpoints"
+        ).fetchone()
+    assert tuple(row) == ("text", 1, None)
+
+
 def test_import_verified_registry_retains_intent_without_granting_success(
     tmp_path,
 ) -> None:

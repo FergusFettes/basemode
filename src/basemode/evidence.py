@@ -246,8 +246,10 @@ def ensure_endpoint(
         modality=COALESCE(excluded.modality,model_endpoints.modality),
         release_date=COALESCE(excluded.release_date,model_endpoints.release_date),
         display_name=COALESCE(excluded.display_name,model_endpoints.display_name),
-        text_eligible=CASE WHEN excluded.text_eligible=0 THEN 0 ELSE model_endpoints.text_eligible END,
-        exclusion_reason=COALESCE(excluded.exclusion_reason,model_endpoints.exclusion_reason)""",
+        text_eligible=CASE WHEN excluded.modality IS NOT NULL THEN excluded.text_eligible
+          WHEN excluded.text_eligible=0 THEN 0 ELSE model_endpoints.text_eligible END,
+        exclusion_reason=CASE WHEN excluded.modality IS NOT NULL THEN excluded.exclusion_reason
+          ELSE COALESCE(excluded.exclusion_reason,model_endpoints.exclusion_reason) END""",
         (
             normalized,
             provider,
@@ -286,7 +288,7 @@ def record_catalog_observation(
     own = conn is None
     db = conn or connect()
     catalog_metadata = metadata or {}
-    modality = catalog_metadata.get("modality") or catalog_metadata.get("mode")
+    modality = _catalog_text_modality(catalog_metadata)
     endpoint = ensure_endpoint(
         model,
         conn=db,
@@ -310,6 +312,39 @@ def record_catalog_observation(
         db.commit()
         db.close()
     return int(cur.lastrowid)
+
+
+def _catalog_text_modality(metadata: Mapping[str, Any]) -> str | None:
+    """Project rich catalog capabilities onto text eligibility.
+
+    Output capability is intentionally decisive. Image input with text output
+    is a valid text-generation endpoint; image-only output is not.
+    """
+    outputs = {
+        str(value).strip().lower()
+        for value in metadata.get("output_modalities", [])
+        if isinstance(value, str)
+    }
+    if outputs:
+        if outputs & TEXT_MODALITIES:
+            return "text"
+        known_non_text = outputs & NON_TEXT_MODALITIES
+        if known_non_text:
+            return sorted(known_non_text)[0]
+    methods = {
+        str(value).strip().lower()
+        for value in metadata.get("supported_methods", [])
+        if isinstance(value, str)
+    }
+    if "generatecontent" in methods:
+        return "text"
+    provider_type = metadata.get("provider_type")
+    if isinstance(provider_type, str):
+        normalized_type = provider_type.strip().lower()
+        if normalized_type in TEXT_MODALITIES | NON_TEXT_MODALITIES:
+            return normalized_type
+    value = metadata.get("modality") or metadata.get("mode")
+    return str(value) if isinstance(value, str) else None
 
 
 def start_run(
@@ -1063,7 +1098,13 @@ def import_live_catalog_cache(
         models = provider_data.get("models", {})
         if isinstance(models, list):
             models = {model: None for model in models}
-        for provider_model_id, release_date in models.items():
+        for provider_model_id, model_data in models.items():
+            metadata = (
+                dict(model_data)
+                if isinstance(model_data, dict)
+                else {"release_date": model_data}
+            )
+            metadata["reliable_dates"] = provider_data.get("reliable_dates")
             model = f"{provider}/{provider_model_id}"
             record_catalog_observation(
                 model,
@@ -1071,10 +1112,7 @@ def import_live_catalog_cache(
                 available=True,
                 observed_at=observed_at,
                 catalog_snapshot_id=snapshot_id,
-                metadata={
-                    "release_date": release_date,
-                    "reliable_dates": provider_data.get("reliable_dates"),
-                },
+                metadata=metadata,
                 conn=db,
             )
             count += 1
