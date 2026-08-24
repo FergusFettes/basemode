@@ -25,6 +25,12 @@ basemode verify --suite thorough --attempts 3 openai/gpt-4o-mini
 basemode verify --suite transient-recheck
 ```
 
+Use `basemode evidence` for read-only summaries and sanitized exports. Views
+cover the overall dataset, providers, current statuses, failure classes, the
+transient queue, runs, Loom corpus quality (including depth buckets), and a
+single endpoint's history. `basemode evidence export` writes JSONL; add
+`--json` for one JSON array. Reports are text-model-only.
+
 These commands make provider requests and may incur cost. Every request and
 self-healing step is retained, including parameters, safe structured failure
 details, latency, TTFT, usage, estimated or provider-derived cost, and output

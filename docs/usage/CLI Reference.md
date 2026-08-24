@@ -113,6 +113,29 @@ Models are required for quick and thorough suites. With no models, the
 transient-recheck suite selects endpoints whose latest operational failure is
 suspected to be temporary.
 
+### `evidence`
+
+Inspect the shared database without making provider requests. Reports exclude
+endpoints explicitly identified as image, video, audio, embedding, reranking,
+or moderation models.
+
+```bash
+basemode evidence
+basemode evidence providers
+basemode evidence statuses --json
+basemode evidence failures
+basemode evidence transient
+basemode evidence runs
+basemode evidence corpus
+basemode evidence endpoint openai/gpt-5.4
+basemode evidence export > evidence.jsonl
+basemode evidence export --json
+```
+
+The export omits prompts, generated text, request/configuration JSON, output
+fingerprints, and account identifiers. It contains safe structured outcomes,
+measurements, text endpoint metadata, and aggregated corpus quality.
+
 ### `bench`
 
 Run each candidate strategy against a model and rank them by continuation
