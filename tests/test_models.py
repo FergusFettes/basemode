@@ -114,15 +114,19 @@ def test_verified_only_requires_thorough_evidence_for_an_unregistered_model() ->
     grant the stronger verified status without a curated registry entry."""
     from basemode import evidence
 
-    health.record_outcome("deepinfra/zai-org/GLM-5.2", ok=True, source="verification")
+    # Deliberately synthetic: a real model ID would silently invalidate this
+    # test's premise the day the promotion script adds it to the registry.
+    health.record_outcome(
+        "deepinfra/some/Unregistered-Model", ok=True, source="verification"
+    )
     entries = list_model_picker_entries(verified_only=True, text_only=False)
-    assert not any(e["model"] == "deepinfra/zai-org/glm-5.2" for e in entries)
+    assert not any(e["model"] == "deepinfra/some/unregistered-model" for e in entries)
 
     with evidence.connect() as db:
         run = evidence.start_run("thorough", conn=db)
         evidence.record_attempt(
             run,
-            "deepinfra/zai-org/GLM-5.2",
+            "deepinfra/some/Unregistered-Model",
             probe_kind="continuation",
             attempt_number=10,
             outcome="success",
@@ -131,7 +135,7 @@ def test_verified_only_requires_thorough_evidence_for_an_unregistered_model() ->
         evidence.finish_run(run, conn=db)
 
     entries = list_model_picker_entries(verified_only=True, text_only=False)
-    assert any(e["model"] == "deepinfra/zai-org/glm-5.2" for e in entries)
+    assert any(e["model"] == "deepinfra/some/unregistered-model" for e in entries)
 
 
 def test_verified_only_excludes_evidence_with_any_recorded_failure() -> None:
