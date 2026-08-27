@@ -145,6 +145,97 @@ Single generated table, refreshed by CI.
 | `anthropic/claude-sonnet-4-5-20250929` | $3.00 | $15.00 | 2025-09-29 | `prefill` | ✓ |  |
 | `anthropic/claude-sonnet-4-6` | $3.00 | $15.00 | 2026-02-17 | `system` | ✓ | `no_prefill` |
 | `anthropic/claude-sonnet-5` | $2.00 | $10.00 | 2026-06-30 | `system` | ✓ | `no_prefill`, `no_temperature` |
+| `cerebras/gemma-4-31b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `cerebras/gpt-oss-120b` | $0.35 | $0.75 | unknown | `system` | ⚠ |  |
+| `deepinfra/anthropic/claude-fable-5` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/anthropic/claude-haiku-4-5` | unknown | unknown | unknown | `prefill` | ⚠ |  |
+| `deepinfra/anthropic/claude-opus-4-7` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/anthropic/claude-opus-4-8` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/anthropic/claude-opus-5` | unknown | unknown | unknown | `few_shot` | ⚠ |  |
+| `deepinfra/anthropic/claude-sonnet-4-6` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/anthropic/claude-sonnet-5` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/bytedance/seed-1.8` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/bytedance/seed-2.0-code` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/bytedance/seed-2.0-mini` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/bytedance/seed-2.0-pro` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/deepseek-ai/deepseek-r1-0528` | $0.50 | $2.15 | unknown | `system` | ⚠ |  |
+| `deepinfra/deepseek-ai/deepseek-v3` | $0.38 | $0.89 | unknown | `system` | ⚠ |  |
+| `deepinfra/deepseek-ai/deepseek-v3-0324` | $0.25 | $0.88 | unknown | `system` | ⚠ |  |
+| `deepinfra/deepseek-ai/deepseek-v3.1` | $0.27 | $1.00 | unknown | `system` | ⚠ |  |
+| `deepinfra/deepseek-ai/deepseek-v3.2` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/deepseek-ai/deepseek-v4-flash` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/deepseek-ai/deepseek-v4-flash-0731` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/deepseek-ai/deepseek-v4-pro` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/deepseek-ai/deepseek-v4-pro-0813` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/google/gemini-2.5-flash` | $0.30 | $2.50 | unknown | `system` | ⚠ |  |
+| `deepinfra/google/gemini-2.5-pro` | $1.25 | $10.00 | unknown | `system` | ⚠ |  |
+| `deepinfra/google/gemini-3.1-flash-lite` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/google/gemini-3.1-pro` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/google/gemma-3-12b-it` | $0.05 | $0.10 | unknown | `system` | ⚠ |  |
+| `deepinfra/google/gemma-3-27b-it` | $0.09 | $0.16 | unknown | `system` | ⚠ |  |
+| `deepinfra/google/gemma-3-4b-it` | $0.04 | $0.08 | unknown | `system` | ⚠ |  |
+| `deepinfra/google/gemma-4-26b-a4b-it` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/google/gemma-4-31b-it` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/google/gemma-4-31b-it-turbo` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/google/gemma-4-31b-it-ultra` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/google/gemma-4-e4b-it` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/gryphe/mythomax-l2-13b` | $0.08 | $0.09 | unknown | `system` | ⚠ |  |
+| `deepinfra/inclusionai/ling-3.0-flash` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/meta-llama/llama-3.3-70b-instruct-turbo` | $0.13 | $0.39 | unknown | `system` | ⚠ |  |
+| `deepinfra/meta-llama/llama-4-scout-17b-16e-instruct` | $0.08 | $0.30 | unknown | `system` | ⚠ |  |
+| `deepinfra/meta-llama/meta-llama-3.1-70b-instruct-turbo` | $0.10 | $0.28 | unknown | `system` | ⚠ |  |
+| `deepinfra/meta-llama/meta-llama-3.1-8b-instruct-turbo` | $0.02 | $0.03 | unknown | `system` | ⚠ |  |
+| `deepinfra/microsoft/phi-4` | $0.07 | $0.14 | unknown | `system` | ⚠ |  |
+| `deepinfra/minimaxai/minimax-m2.7` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/minimaxai/minimax-m3` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/mistralai/mistral-nemo-instruct-2407` | $0.02 | $0.04 | unknown | `system` | ⚠ |  |
+| `deepinfra/mistralai/mistral-small-24b-instruct-2501` | $0.05 | $0.08 | unknown | `system` | ⚠ |  |
+| `deepinfra/mistralai/mistral-small-3.2-24b-instruct-2506` | $0.07 | $0.20 | unknown | `system` | ⚠ |  |
+| `deepinfra/moonshotai/kimi-k2.5` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/moonshotai/kimi-k2.6` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/moonshotai/kimi-k2.7-code` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/moonshotai/kimi-k3` | unknown | unknown | unknown | `prefill` | ⚠ |  |
+| `deepinfra/nousresearch/hermes-3-llama-3.1-405b` | $1.00 | $1.00 | unknown | `system` | ⚠ |  |
+| `deepinfra/nousresearch/hermes-3-llama-3.1-70b` | $0.30 | $0.30 | unknown | `system` | ⚠ |  |
+| `deepinfra/nvidia/nemotron-3-nano-30b-a3b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/nvidia/nvidia-nemotron-3-super-120b-a12b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/nvidia/nvidia-nemotron-3.5-lightning` | $0.05 | $0.20 | unknown | `system` | ⚠ |  |
+| `deepinfra/openai/gpt-oss-120b-turbo` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/openai/gpt-oss-120b-ultra` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/openai/gpt-oss-20b` | $0.04 | $0.15 | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen2.5-72b-instruct` | $0.12 | $0.39 | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3-14b` | $0.06 | $0.24 | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3-235b-a22b-instruct-2507` | $0.09 | $0.60 | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3-30b-a3b` | $0.08 | $0.29 | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3-32b` | $0.10 | $0.28 | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3-coder-480b-a35b-instruct-turbo` | $0.29 | $1.20 | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3-max` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3-max-thinking` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3-next-80b-a3b-instruct` | $0.14 | $1.40 | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3-vl-235b-a22b-instruct` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3-vl-30b-a3b-instruct` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3.5-122b-a10b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3.5-27b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3.5-35b-a3b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3.5-397b-a17b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3.5-9b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3.6-35b-a3b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3.7-max` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3.8-2.4t-a95b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3.8-27b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3.8-max` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/sao10k/l3-8b-lunaris-v1-turbo` | $0.04 | $0.05 | unknown | `system` | ⚠ |  |
+| `deepinfra/sao10k/l3.1-70b-euryale-v2.2` | $0.65 | $0.75 | unknown | `system` | ⚠ |  |
+| `deepinfra/thinkingmachines/inkling` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/thinkingmachines/inkling-small` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/xiaomimimo/mimo-v2.5` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/xiaomimimo/mimo-v2.5-pro` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/zai-org/glm-4.6` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/zai-org/glm-4.7` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/zai-org/glm-4.7-flash` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/zai-org/glm-5` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/zai-org/glm-5.1` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `deepinfra/zai-org/glm-5.2` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `deepseek/deepseek-v4-flash` | $0.44 | $1.32 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepseek/deepseek-v4-flash-vision-exp` | unknown | unknown | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepseek/deepseek-v4-pro` | $1.32 | $3.96 | unknown | `system` | ⚠ | `reasoning_budget` |
@@ -169,11 +260,13 @@ Single generated table, refreshed by CI.
 | `gemini/gemini-robotics-er-1.6-preview` | $1.00 | $5.00 | unknown | `prefill` | ⚠ |  |
 | `gemini/gemini-robotics-er-2-preview` | $2.00 | $10.00 | unknown | `system` | ⚠ |  |
 | `gemini/gemma-4-26b-a4b-it` | $0.07 | $0.34 | 2026-04-03 | `system` | ⚠ | `reasoning_budget` |
-| `gemini/gemma-4-31b-it` | $0.10 | $0.34 | 2026-04-02 | `system` | ⚠ | `reasoning_budget` |
+| `gemini/gemma-4-31b-it` | $0.09 | $0.34 | 2026-04-02 | `system` | ⚠ | `reasoning_budget` |
 | `gemini/nano-banana-pro-preview` | unknown | unknown | unknown | `prefill` | ⚠ |  |
 | `groq/allam-2-7b` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `groq/groq/compound` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `groq/groq/compound-mini` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `groq/openai/gpt-oss-120b` | $0.15 | $0.60 | unknown | `system` | ⚠ |  |
+| `groq/openai/gpt-oss-20b` | $0.07 | $0.30 | unknown | `system` | ⚠ |  |
 | `groq/qwen/qwen3.6-27b` | $0.60 | $3.00 | 2026-04-22 | `system` | ✓ |  |
 | `moonshot/kimi-k2-0905-preview` | $0.60 | $2.50 | 2025-07-11 | `system` | ⚠ |  |
 | `moonshot/kimi-k2.5` | $0.60 | $3.00 | 2026-01-27 | `system` | ⚠ | `no_temperature` |
@@ -188,6 +281,96 @@ Single generated table, refreshed by CI.
 | `moonshot/moonshot-v1-8k` | $0.20 | $2.00 | unknown | `system` | ⚠ |  |
 | `moonshot/moonshot-v1-8k-vision-preview` | $0.20 | $2.00 | unknown | `system` | ⚠ |  |
 | `moonshot/moonshot-v1-auto` | $2.00 | $5.00 | 2023-11-08 | `system` | ⚠ |  |
+| `novita/baidu/ernie-4.5-vl-424b-a47b` | $0.42 | $1.25 | unknown | `system` | ⚠ |  |
+| `novita/deepseek/deepseek-r1` | $0.55 | $2.19 | unknown | `system` | ⚠ |  |
+| `novita/deepseek/deepseek-r1-0528` | $0.70 | $2.50 | unknown | `system` | ⚠ |  |
+| `novita/deepseek/deepseek-r1-distill-llama-70b` | $0.80 | $0.80 | unknown | `system` | ⚠ |  |
+| `novita/deepseek/deepseek-r1-turbo` | $0.70 | $2.50 | unknown | `system` | ⚠ |  |
+| `novita/deepseek/deepseek-v3-0324` | $0.27 | $1.12 | unknown | `system` | ⚠ |  |
+| `novita/deepseek/deepseek-v3-turbo` | $0.40 | $1.30 | unknown | `system` | ⚠ |  |
+| `novita/deepseek/deepseek-v3.1` | $0.27 | $1.00 | unknown | `system` | ⚠ |  |
+| `novita/deepseek/deepseek-v3.1-terminus` | $0.27 | $1.00 | unknown | `system` | ⚠ |  |
+| `novita/deepseek/deepseek-v3.2` | $0.27 | $0.40 | unknown | `system` | ⚠ |  |
+| `novita/deepseek/deepseek-v3.2-exp` | $0.27 | $0.41 | unknown | `system` | ⚠ |  |
+| `novita/deepseek/deepseek-v4-flash` | $0.44 | $1.32 | unknown | `system` | ⚠ |  |
+| `novita/deepseek/deepseek-v4-flash-0731` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/deepseek/deepseek-v4-flash-vision-exp` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/deepseek/deepseek-v4-pro` | $1.32 | $3.96 | unknown | `system` | ⚠ |  |
+| `novita/deepseek/deepseek-v4-pro-0813` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/deepseek/deepseek_v3` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/google/gemma-3-27b-it` | $0.12 | $0.20 | unknown | `system` | ⚠ |  |
+| `novita/google/gemma-4-26b-a4b-it` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/google/gemma-4-31b-it` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/inclusionai/ling-3.0-flash` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/inclusionai/ling-3.0-flash-fast` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/inclusionai/ling-3.0-flash-fin` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/kwaipilot/kat-coder-pro` | $0.30 | $1.20 | unknown | `system` | ⚠ |  |
+| `novita/meta-llama/llama-3.1-8b-instruct` | $0.02 | $0.05 | unknown | `system` | ⚠ |  |
+| `novita/meta-llama/llama-3.3-70b-instruct` | $0.14 | $0.40 | unknown | `system` | ⚠ |  |
+| `novita/meta-llama/llama-4-maverick-17b-128e-instruct-fp8` | $0.27 | $0.85 | unknown | `system` | ⚠ |  |
+| `novita/meta-llama/llama-4-scout-17b-16e-instruct` | $0.18 | $0.59 | unknown | `system` | ⚠ |  |
+| `novita/microsoft/wizardlm-2-8x22b` | $0.62 | $0.62 | unknown | `system` | ⚠ |  |
+| `novita/mindai/macaron-v1-venti` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/minimax/m2-her` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/minimax/minimax-m2` | $0.30 | $1.20 | unknown | `system` | ⚠ |  |
+| `novita/minimax/minimax-m2.1` | $0.30 | $1.20 | unknown | `system` | ⚠ |  |
+| `novita/minimax/minimax-m2.5` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/minimax/minimax-m2.5-highspeed` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/minimax/minimax-m2.7` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/minimax/minimax-m2.7-highspeed` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/minimax/minimax-m3` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/minimaxai/minimax-m1-80k` | $0.55 | $2.20 | unknown | `system` | ⚠ |  |
+| `novita/mistralai/mistral-nemo` | $0.04 | $0.17 | unknown | `system` | ⚠ |  |
+| `novita/moonshotai/kimi-k2-0905` | $0.60 | $2.50 | unknown | `system` | ⚠ |  |
+| `novita/moonshotai/kimi-k2-instruct` | $0.57 | $2.30 | unknown | `system` | ⚠ |  |
+| `novita/moonshotai/kimi-k2.5` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/moonshotai/kimi-k2.6` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/moonshotai/kimi-k2.7-code` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/moonshotai/kimi-k3` | unknown | unknown | unknown | `prefill` | ⚠ |  |
+| `novita/nvidia/nemotron-3-nano-30b-a3b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/openai/gpt-oss-120b` | $0.05 | $0.25 | unknown | `system` | ⚠ |  |
+| `novita/openai/gpt-oss-20b` | $0.04 | $0.15 | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen-2.5-72b-instruct` | $0.38 | $0.40 | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3-235b-a22b-fp8` | $0.20 | $0.80 | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3-235b-a22b-instruct-2507` | $0.09 | $0.58 | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3-235b-a22b-thinking-2507` | $0.30 | $3.00 | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3-coder-30b-a3b-instruct` | $0.07 | $0.27 | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3-coder-480b-a35b-instruct` | $0.30 | $1.30 | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3-coder-next` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3-max` | $2.11 | $8.45 | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3-next-80b-a3b-instruct` | $0.15 | $1.50 | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3-omni-30b-a3b-instruct` | $0.25 | $0.97 | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3-omni-30b-a3b-thinking` | $0.25 | $0.97 | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3-vl-235b-a22b-instruct` | $0.30 | $1.50 | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3-vl-235b-a22b-thinking` | $0.98 | $3.95 | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3-vl-30b-a3b-instruct` | $0.20 | $0.70 | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3.5-122b-a10b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3.5-27b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3.5-35b-a3b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3.5-397b-a17b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3.5-plus` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3.6-27b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3.6-35b-a3b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3.6-plus` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3.7-max` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3.8-27b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3.8-flash` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3.8-max` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/sao10k/l3-8b-lunaris` | $0.05 | $0.05 | unknown | `system` | ⚠ |  |
+| `novita/sao10k/l31-70b-euryale-v2.2` | $1.48 | $1.48 | unknown | `system` | ⚠ |  |
+| `novita/thudm/glm-4-32b-0414` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/xiaomimimo/mimo-v2.5` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/xiaomimimo/mimo-v2.5-pro` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/zai-org/autoglm-phone-9b-multilingual` | $0.04 | $0.14 | unknown | `system` | ⚠ |  |
+| `novita/zai-org/glm-4.5-air` | $0.13 | $0.85 | unknown | `system` | ⚠ |  |
+| `novita/zai-org/glm-4.5v` | $0.60 | $1.80 | unknown | `system` | ⚠ |  |
+| `novita/zai-org/glm-4.7` | $0.60 | $2.20 | unknown | `system` | ⚠ |  |
+| `novita/zai-org/glm-5` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/zai-org/glm-5-turbo` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/zai-org/glm-5.1` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/zai-org/glm-5.2` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/zai-org/glm-5.3` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/zai-org/glm-5v-turbo` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `openai/gpt-4-turbo-2024-04-09` | $10.00 | $30.00 | 2024-04-09 | `system` | ⚠ |  |
 | `openai/gpt-4.1` | $2.00 | $8.00 | 2025-04-14 | `system` | ✓ |  |
 | `openai/gpt-4.1-2025-04-14` | $2.00 | $8.00 | 2025-04-14 | `system` | ✓ |  |
@@ -219,7 +402,7 @@ Single generated table, refreshed by CI.
 | `openai/gpt-5.6-sol` | $4.00 | $20.00 | 2026-07-09 | `system` | ✓ | `no_temperature` |
 | `openai/gpt-5.6-terra` | $2.00 | $12.00 | 2026-07-09 | `system` | ✓ | `no_temperature` |
 | `openrouter/moonshotai/kimi-k2.6` | $0.95 | $4.00 | 2026-04-20 | `system` | ⚠ | `no_temperature` |
-| `together_ai/deepseek-ai/DeepSeek-V4-Pro-0813` | unknown | unknown | unknown | `system` | ⚠ | `reasoning_budget` |
+| `together_ai/deepseek-ai/DeepSeek-V4-Pro-0813` | $1.32 | $3.96 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `xai/grok-4.20-0309-non-reasoning` | $1.25 | $2.50 | 2026-03-09 | `system` | ✓ |  |
 | `xai/grok-4.20-0309-reasoning` | $1.25 | $2.50 | 2026-03-09 | `system` | ✓ |  |
 | `xai/grok-4.3` | $1.25 | $2.50 | 2026-04-30 | `system` | ✓ |  |
@@ -233,7 +416,7 @@ Single generated table, refreshed by CI.
 | `zai/glm-5` | $1.00 | $3.20 | 2026-02-11 | `system` | ✓ |  |
 | `zai/glm-5-turbo` | $1.20 | $4.00 | 2026-03-15 | `system` | ⚠ |  |
 | `zai/glm-5.1` | $1.40 | $4.40 | 2026-04-06 | `system` | ✓ |  |
-| `zai/glm-5.2` | $0.97 | $3.04 | 2026-06-16 | `system` | ⚠ |  |
+| `zai/glm-5.2` | $1.19 | $3.74 | 2026-06-16 | `system` | ⚠ |  |
 
 Legend: `✓` = LiteLLM pricing present and release date available; `⚠` = missing/approximate field or known issue.
 

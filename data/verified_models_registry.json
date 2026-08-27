@@ -77,6 +77,370 @@
       "quirks": ["no_prefill", "no_temperature"]
     },
     {
+      "model": "cerebras/gemma-4-31b",
+      "pricing_url": "https://www.cerebras.ai/pricing"
+    },
+    {
+      "model": "cerebras/gpt-oss-120b",
+      "pricing_url": "https://www.cerebras.ai/pricing"
+    },
+    {
+      "model": "deepinfra/anthropic/claude-fable-5",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/anthropic/claude-haiku-4-5",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/anthropic/claude-opus-4-7",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/anthropic/claude-opus-4-8",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/anthropic/claude-opus-5",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/anthropic/claude-sonnet-4-6",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/anthropic/claude-sonnet-5",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/bytedance/seed-1.8",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/bytedance/seed-2.0-code",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/bytedance/seed-2.0-mini",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/bytedance/seed-2.0-pro",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/deepseek-ai/deepseek-r1-0528",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/deepseek-ai/deepseek-v3",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/deepseek-ai/deepseek-v3-0324",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/deepseek-ai/deepseek-v3.1",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/deepseek-ai/deepseek-v3.2",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/deepseek-ai/deepseek-v4-flash",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/deepseek-ai/deepseek-v4-flash-0731",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/deepseek-ai/deepseek-v4-pro",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/deepseek-ai/deepseek-v4-pro-0813",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/google/gemini-2.5-flash",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/google/gemini-2.5-pro",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/google/gemini-3.1-flash-lite",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/google/gemini-3.1-pro",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/google/gemma-3-12b-it",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/google/gemma-3-27b-it",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/google/gemma-3-4b-it",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/google/gemma-4-26b-a4b-it",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/google/gemma-4-31b-it",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/google/gemma-4-31b-it-turbo",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/google/gemma-4-31b-it-ultra",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/google/gemma-4-e4b-it",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/gryphe/mythomax-l2-13b",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/inclusionai/ling-3.0-flash",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/meta-llama/llama-3.3-70b-instruct-turbo",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/meta-llama/llama-4-scout-17b-16e-instruct",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/meta-llama/meta-llama-3.1-70b-instruct-turbo",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/meta-llama/meta-llama-3.1-8b-instruct-turbo",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/microsoft/phi-4",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/minimaxai/minimax-m2.7",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/minimaxai/minimax-m3",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/mistralai/mistral-nemo-instruct-2407",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/mistralai/mistral-small-24b-instruct-2501",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/mistralai/mistral-small-3.2-24b-instruct-2506",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/moonshotai/kimi-k2.5",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/moonshotai/kimi-k2.6",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/moonshotai/kimi-k2.7-code",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/moonshotai/kimi-k3",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/nousresearch/hermes-3-llama-3.1-405b",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/nousresearch/hermes-3-llama-3.1-70b",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/nvidia/nemotron-3-nano-30b-a3b",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/nvidia/nvidia-nemotron-3-super-120b-a12b",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/nvidia/nvidia-nemotron-3.5-lightning",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/openai/gpt-oss-120b-turbo",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/openai/gpt-oss-120b-ultra",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/openai/gpt-oss-20b",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen2.5-72b-instruct",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3-14b",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3-235b-a22b-instruct-2507",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3-30b-a3b",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3-32b",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3-coder-480b-a35b-instruct-turbo",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3-max",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3-max-thinking",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3-next-80b-a3b-instruct",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3-vl-235b-a22b-instruct",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3-vl-30b-a3b-instruct",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3.5-122b-a10b",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3.5-27b",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3.5-35b-a3b",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3.5-397b-a17b",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3.5-9b",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3.6-35b-a3b",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3.7-max",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3.8-2.4t-a95b",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3.8-27b",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/qwen/qwen3.8-max",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/sao10k/l3-8b-lunaris-v1-turbo",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/sao10k/l3.1-70b-euryale-v2.2",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/thinkingmachines/inkling",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/thinkingmachines/inkling-small",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/xiaomimimo/mimo-v2.5",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/xiaomimimo/mimo-v2.5-pro",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/zai-org/glm-4.6",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/zai-org/glm-4.7",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/zai-org/glm-4.7-flash",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/zai-org/glm-5",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/zai-org/glm-5.1",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/zai-org/glm-5.2",
+      "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
       "model": "deepseek/deepseek-v4-flash",
       "quirks": ["reasoning_budget"]
     },
@@ -199,6 +563,14 @@
       "model": "groq/groq/compound-mini"
     },
     {
+      "model": "groq/openai/gpt-oss-120b",
+      "pricing_url": "https://groq.com/pricing/"
+    },
+    {
+      "model": "groq/openai/gpt-oss-20b",
+      "pricing_url": "https://groq.com/pricing/"
+    },
+    {
       "model": "groq/qwen/qwen3.6-27b",
       "openrouter_id": "qwen/qwen3.6-27b"
     },
@@ -253,6 +625,366 @@
     {
       "model": "moonshot/moonshot-v1-auto",
       "openrouter_id": "openrouter/auto"
+    },
+    {
+      "model": "novita/baidu/ernie-4.5-vl-424b-a47b",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/deepseek/deepseek-r1",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/deepseek/deepseek-r1-0528",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/deepseek/deepseek-r1-distill-llama-70b",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/deepseek/deepseek-r1-turbo",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/deepseek/deepseek-v3-0324",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/deepseek/deepseek-v3-turbo",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/deepseek/deepseek-v3.1",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/deepseek/deepseek-v3.1-terminus",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/deepseek/deepseek-v3.2",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/deepseek/deepseek-v3.2-exp",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/deepseek/deepseek-v4-flash",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/deepseek/deepseek-v4-flash-0731",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/deepseek/deepseek-v4-flash-vision-exp",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/deepseek/deepseek-v4-pro",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/deepseek/deepseek-v4-pro-0813",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/deepseek/deepseek_v3",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/google/gemma-3-27b-it",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/google/gemma-4-26b-a4b-it",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/google/gemma-4-31b-it",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/inclusionai/ling-3.0-flash",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/inclusionai/ling-3.0-flash-fast",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/inclusionai/ling-3.0-flash-fin",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/kwaipilot/kat-coder-pro",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/meta-llama/llama-3.1-8b-instruct",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/meta-llama/llama-3.3-70b-instruct",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/meta-llama/llama-4-maverick-17b-128e-instruct-fp8",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/meta-llama/llama-4-scout-17b-16e-instruct",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/microsoft/wizardlm-2-8x22b",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/mindai/macaron-v1-venti",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/minimax/m2-her",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/minimax/minimax-m2",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/minimax/minimax-m2.1",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/minimax/minimax-m2.5",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/minimax/minimax-m2.5-highspeed",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/minimax/minimax-m2.7",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/minimax/minimax-m2.7-highspeed",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/minimax/minimax-m3",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/minimaxai/minimax-m1-80k",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/mistralai/mistral-nemo",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/moonshotai/kimi-k2-0905",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/moonshotai/kimi-k2-instruct",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/moonshotai/kimi-k2.5",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/moonshotai/kimi-k2.6",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/moonshotai/kimi-k2.7-code",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/moonshotai/kimi-k3",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/nvidia/nemotron-3-nano-30b-a3b",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/openai/gpt-oss-120b",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/openai/gpt-oss-20b",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen-2.5-72b-instruct",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3-235b-a22b-fp8",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3-235b-a22b-instruct-2507",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3-235b-a22b-thinking-2507",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3-coder-30b-a3b-instruct",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3-coder-480b-a35b-instruct",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3-coder-next",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3-max",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3-next-80b-a3b-instruct",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3-omni-30b-a3b-instruct",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3-omni-30b-a3b-thinking",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3-vl-235b-a22b-instruct",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3-vl-235b-a22b-thinking",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3-vl-30b-a3b-instruct",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3.5-122b-a10b",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3.5-27b",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3.5-35b-a3b",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3.5-397b-a17b",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3.5-plus",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3.6-27b",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3.6-35b-a3b",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3.6-plus",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3.7-max",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3.8-27b",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3.8-flash",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/qwen/qwen3.8-max",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/sao10k/l3-8b-lunaris",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/sao10k/l31-70b-euryale-v2.2",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/thudm/glm-4-32b-0414",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/xiaomimimo/mimo-v2.5",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/xiaomimimo/mimo-v2.5-pro",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/zai-org/autoglm-phone-9b-multilingual",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/zai-org/glm-4.5-air",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/zai-org/glm-4.5v",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/zai-org/glm-4.7",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/zai-org/glm-5",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/zai-org/glm-5-turbo",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/zai-org/glm-5.1",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/zai-org/glm-5.2",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/zai-org/glm-5.3",
+      "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/zai-org/glm-5v-turbo",
+      "pricing_url": "https://novita.ai/pricing"
     },
     {
       "model": "openai/gpt-4-turbo-2024-04-09",
