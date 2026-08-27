@@ -2,6 +2,7 @@ import asyncio
 import logging
 from collections.abc import AsyncGenerator, Callable
 from dataclasses import replace
+from typing import TYPE_CHECKING
 
 import litellm
 
@@ -16,6 +17,9 @@ from .healing import (
 from .health import EMPTY_RESPONSE, classify_error, error_details, record_outcome
 from .keys import load_into_environ
 from .params import GenerationParams
+
+if TYPE_CHECKING:
+    from .strategies.base import ContinuationStrategy
 
 log = logging.getLogger(__name__)
 
@@ -83,82 +87,47 @@ async def continue_text(
         len(context),
         len(prefix),
     )
-    token_count = 0
     usage_capture.begin_capture()
     generation_prefix, rewind_fragment = _generation_prefix(prefix, strat.name, rewind)
-    attempt_params = params
-    retried_reasoning_off = False
+    token_counter = [0]
+    stream = _stream_with_empty_retry(
+        strat,
+        model,
+        prefix,
+        generation_prefix,
+        rewind_fragment,
+        params,
+        retry_empty_completion=retry_empty_completion,
+        strict_max_tokens=strict_max_tokens,
+        max_tokens=max_tokens,
+        on_raw_head=on_raw_head,
+        raw_head_chars=raw_head_chars,
+        token_counter=token_counter,
+    )
     try:
-        while True:
-            try:
-                raw_tokens = _stream_tokens(
-                    strat, prefix, generation_prefix, rewind_fragment, attempt_params
-                )
-                if on_raw_head is not None:
-                    raw_tokens = _capture_head(raw_tokens, on_raw_head, raw_head_chars)
-                stream = normalize_stream_newlines(prefix, raw_tokens)
-                if strict_max_tokens:
-                    stream = _enforce_visible_token_cap(stream, model, max_tokens)
-                async for token in stream:
-                    token_count += 1
-                    yield token
-                break
-            except EmptyCompletionError:
-                # OpenRouter often proxies a model whose reasoning is on by
-                # default and consumes the whole visible token budget, so
-                # nothing comes out (`finish_reason="length"`) even though
-                # the request itself was fine. Retry once with reasoning
-                # switched off before giving up — a model that requires
-                # reasoning just rejects this immediately as a 400, which
-                # `except Exception` below still handles.
-                eligible = (
-                    retry_empty_completion
-                    and not retried_reasoning_off
-                    and token_count == 0
-                    and model.lower().startswith("openrouter/")
-                    and "reasoning" not in attempt_params.extra
-                )
-                if not eligible:
-                    raise
-                retried_reasoning_off = True
-                attempt_params = replace(
-                    attempt_params,
-                    extra={**attempt_params.extra, "reasoning": {"enabled": False}},
-                )
-                log.debug(
-                    "continue_text: %s produced nothing, retrying with reasoning off",
-                    model,
-                )
+        async for token in stream:
+            yield token
     except (GeneratorExit, asyncio.CancelledError):
         # The consumer walked away. Tokens already delivered still count as
         # the model having worked; an immediate cancel is not a verdict.
-        if record_health and token_count:
+        if record_health and token_counter[0]:
             record_outcome(model, ok=True)
         _report_usage(on_usage)
         raise
     except Exception as exc:
         if record_health:
-            category, status = classify_error(exc)
-            error_code, error_param = error_details(exc)
-            record_outcome(
-                model,
-                ok=False,
-                category=category,
-                status=status,
-                error_code=error_code,
-                error_param=error_param,
-            )
-        log.exception("continue_text: stream error after %d tokens", token_count)
+            _record_failure(model, exc)
+        log.exception("continue_text: stream error after %d tokens", token_counter[0])
         _report_usage(on_usage)
         raise
     if record_health:
         record_outcome(
             model,
-            ok=bool(token_count),
-            category=None if token_count else EMPTY_RESPONSE,
+            ok=bool(token_counter[0]),
+            category=None if token_counter[0] else EMPTY_RESPONSE,
         )
     _report_usage(on_usage)
-    log.debug("continue_text: done, %d tokens", token_count)
+    log.debug("continue_text: done, %d tokens", token_counter[0])
 
 
 def _report_usage(on_usage: Callable[[list[dict]], None] | None) -> None:
@@ -168,6 +137,85 @@ def _report_usage(on_usage: Callable[[list[dict]], None] | None) -> None:
         on_usage(usage_capture.collect())
     except Exception:
         log.warning("on_usage sink raised; ignoring", exc_info=True)
+
+
+def _record_failure(model: str, exc: BaseException) -> None:
+    category, status = classify_error(exc)
+    error_code, error_param = error_details(exc)
+    record_outcome(
+        model,
+        ok=False,
+        category=category,
+        status=status,
+        error_code=error_code,
+        error_param=error_param,
+    )
+
+
+async def _stream_with_empty_retry(
+    strat: "ContinuationStrategy",
+    model: str,
+    prefix: str,
+    generation_prefix: str,
+    fragment: str,
+    params: GenerationParams,
+    *,
+    retry_empty_completion: bool,
+    strict_max_tokens: bool,
+    max_tokens: int,
+    on_raw_head: Callable[[str], None] | None,
+    raw_head_chars: int,
+    token_counter: list[int],
+) -> AsyncGenerator[str, None]:
+    """Stream a continuation, retrying once on an empty completion.
+
+    `token_counter` is a single-element list the caller owns, so it can keep
+    reading the running token count after this generator has finished (or
+    been cancelled) — an async generator can't return a value alongside what
+    it yields.
+    """
+    attempt_params = params
+    retried_reasoning_off = False
+    while True:
+        try:
+            raw_tokens = _stream_tokens(
+                strat, prefix, generation_prefix, fragment, attempt_params
+            )
+            if on_raw_head is not None:
+                raw_tokens = _capture_head(raw_tokens, on_raw_head, raw_head_chars)
+            stream = normalize_stream_newlines(prefix, raw_tokens)
+            if strict_max_tokens:
+                stream = _enforce_visible_token_cap(stream, model, max_tokens)
+            async for token in stream:
+                token_counter[0] += 1
+                yield token
+            return
+        except EmptyCompletionError:
+            # OpenRouter often proxies a model whose reasoning is on by
+            # default and consumes the whole visible token budget, so
+            # nothing comes out (`finish_reason="length"`) even though
+            # the request itself was fine. Retry once with reasoning
+            # switched off before giving up — a model that requires
+            # reasoning just rejects this immediately as a 400, which
+            # `except Exception` in the caller still handles.
+            eligible = (
+                retry_empty_completion
+                and not retried_reasoning_off
+                and token_counter[0] == 0
+                and model.lower().startswith("openrouter/")
+                and "reasoning" not in attempt_params.extra
+            )
+            if not eligible:
+                raise
+            retried_reasoning_off = True
+            attempt_params = replace(
+                attempt_params,
+                extra={**attempt_params.extra, "reasoning": {"enabled": False}},
+            )
+            log.debug(
+                "%s produced nothing, retrying with reasoning off",
+                model,
+            )
 
 
 async def branch_text(
@@ -181,6 +229,7 @@ async def branch_text(
     rewind: bool = False,
     strict_max_tokens: bool = False,
     record_health: bool = True,
+    retry_empty_completion: bool = True,
     on_usage: Callable[[int, list[dict]], None] | None = None,
     **extra,
 ) -> AsyncGenerator[tuple[int, str], None]:
@@ -208,65 +257,39 @@ async def branch_text(
     generation_prefix, rewind_fragment = _generation_prefix(prefix, strat.name, rewind)
 
     async def run_branch(idx: int) -> None:
-        token_count = 0
         usage_capture.begin_capture()
-        branch_params = params
-        retried_reasoning_off = False
+        token_counter = [0]
+        stream = _stream_with_empty_retry(
+            strat,
+            model,
+            prefix,
+            generation_prefix,
+            rewind_fragment,
+            params,
+            retry_empty_completion=retry_empty_completion,
+            strict_max_tokens=strict_max_tokens,
+            max_tokens=max_tokens,
+            on_raw_head=None,
+            raw_head_chars=RAW_HEAD_CHARS,
+            token_counter=token_counter,
+        )
         try:
-            while True:
-                try:
-                    raw_tokens = _stream_tokens(
-                        strat, prefix, generation_prefix, rewind_fragment, branch_params
-                    )
-                    stream = normalize_stream_newlines(prefix, raw_tokens)
-                    if strict_max_tokens:
-                        stream = _enforce_visible_token_cap(stream, model, max_tokens)
-                    async for token in stream:
-                        token_count += 1
-                        await queue.put((idx, token))
-                    break
-                except EmptyCompletionError:
-                    # See continue_text's matching retry: OpenRouter often
-                    # defaults reasoning on and it eats the whole visible
-                    # budget. A model that requires reasoning just 400s
-                    # immediately on the retry, handled by `except Exception`
-                    # below.
-                    eligible = (
-                        not retried_reasoning_off
-                        and token_count == 0
-                        and model.lower().startswith("openrouter/")
-                        and "reasoning" not in branch_params.extra
-                    )
-                    if not eligible:
-                        raise
-                    retried_reasoning_off = True
-                    branch_params = replace(
-                        branch_params,
-                        extra={**branch_params.extra, "reasoning": {"enabled": False}},
-                    )
+            async for token in stream:
+                await queue.put((idx, token))
         except asyncio.CancelledError:
-            if record_health and token_count:
+            if record_health and token_counter[0]:
                 record_outcome(model, ok=True)
             raise
         except Exception as exc:
             if record_health:
-                category, status = classify_error(exc)
-                error_code, error_param = error_details(exc)
-                record_outcome(
-                    model,
-                    ok=False,
-                    category=category,
-                    status=status,
-                    error_code=error_code,
-                    error_param=error_param,
-                )
+                _record_failure(model, exc)
             await queue.put(exc)
         else:
             if record_health:
                 record_outcome(
                     model,
-                    ok=bool(token_count),
-                    category=None if token_count else EMPTY_RESPONSE,
+                    ok=bool(token_counter[0]),
+                    category=None if token_counter[0] else EMPTY_RESPONSE,
                 )
         finally:
             if on_usage is not None:
@@ -332,7 +355,11 @@ async def _capture_head(
 
 
 async def _stream_tokens(
-    strat, prefix: str, generation_prefix: str, fragment: str, params
+    strat: "ContinuationStrategy",
+    prefix: str,
+    generation_prefix: str,
+    fragment: str,
+    params: GenerationParams,
 ) -> AsyncGenerator[str, None]:
     """Stream a continuation, undoing a rewind that the model did not take up.
 

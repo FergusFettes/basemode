@@ -1,5 +1,6 @@
 """Unit tests for prefix normalization edge cases."""
 
+from dataclasses import FrozenInstanceError
 from pathlib import Path
 
 import pytest
@@ -678,3 +679,84 @@ async def test_the_stream_drops_a_newline_inside_a_split_word() -> None:
     streamed = "".join([t async for t in normalize_stream_newlines(prefix, tokens())])
 
     assert streamed.startswith("ynamic sense")
+
+
+# --- GenerationParams value semantics ---
+
+
+def test_generation_params_is_frozen() -> None:
+    from basemode.params import GenerationParams
+
+    params = GenerationParams(model="gpt-4o-mini")
+    with pytest.raises(FrozenInstanceError):
+        params.model = "other-model"  # type: ignore[misc]
+
+
+# --- branch_text's empty-completion retry ---
+
+
+class _AlwaysEmptyStrategy:
+    """Raises EmptyCompletionError on every call; records how it was asked."""
+
+    name = "system"
+
+    def __init__(self) -> None:
+        self.calls: list[dict] = []
+
+    async def stream(self, prefix, params):
+        from basemode.exceptions import EmptyCompletionError
+
+        self.calls.append(
+            {"prefix": prefix, "reasoning": params.extra.get("reasoning")}
+        )
+        if False:
+            yield ""  # pragma: no cover - makes this an async generator
+        raise EmptyCompletionError(
+            model=params.model, strategy="system", finish_reason="length"
+        )
+
+
+async def _drain_branch_text(**kwargs):
+    from basemode.continue_ import branch_text
+
+    tokens = []
+    with pytest.raises(RuntimeError):
+        async for item in branch_text(**kwargs):
+            tokens.append(item)
+    return tokens
+
+
+async def test_branch_text_retries_empty_completion_by_default(monkeypatch) -> None:
+    from basemode import continue_
+
+    strat = _AlwaysEmptyStrategy()
+    monkeypatch.setattr(continue_, "detect_strategy", lambda model, strategy: strat)
+
+    await _drain_branch_text(
+        prefix="hello",
+        model="openrouter/some-model",
+        n=1,
+        record_health=False,
+    )
+
+    # One initial attempt, one retry with reasoning forced off.
+    assert len(strat.calls) == 2
+    assert strat.calls[0]["reasoning"] is None
+    assert strat.calls[1]["reasoning"] == {"enabled": False}
+
+
+async def test_branch_text_does_not_retry_when_disabled(monkeypatch) -> None:
+    from basemode import continue_
+
+    strat = _AlwaysEmptyStrategy()
+    monkeypatch.setattr(continue_, "detect_strategy", lambda model, strategy: strat)
+
+    await _drain_branch_text(
+        prefix="hello",
+        model="openrouter/some-model",
+        n=1,
+        record_health=False,
+        retry_empty_completion=False,
+    )
+
+    assert len(strat.calls) == 1
