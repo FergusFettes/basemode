@@ -41,6 +41,9 @@ class LiveModel:
     supported_methods: tuple[str, ...] = ()
     provider_type: str | None = None
     supported_parameters: tuple[str, ...] = ()
+    # USD per million tokens, where the provider's own /v1/models exposes it.
+    input_price_per_m: float | None = None
+    output_price_per_m: float | None = None
 
 
 def _strings(value: object) -> tuple[str, ...]:
@@ -62,6 +65,11 @@ def _anthropic_headers(key: str) -> dict[str, str]:
     return {"x-api-key": key, "anthropic-version": "2023-06-01"}
 
 
+def _novita_headers(key: str) -> dict[str, str]:
+    # Novita's edge (Cloudflare) 403s the default urllib User-Agent.
+    return {"Authorization": f"Bearer {key}", "User-Agent": "curl/8.4.0"}
+
+
 def _unix_to_date(value: object) -> str | None:
     if not isinstance(value, int | float) or value <= 0:
         return None
@@ -81,23 +89,97 @@ def _iso_to_date(value: object) -> str | None:
         return None
 
 
-def _parse_openai_style(payload: dict | list) -> list[LiveModel]:
+def _as_float(value: object) -> float | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int | float):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value)
+        except ValueError:
+            return None
+    return None
+
+
+def _no_pricing(model: dict) -> tuple[float | None, float | None]:
+    return (None, None)
+
+
+def _price_together(model: dict) -> tuple[float | None, float | None]:
+    # together's own /v1/models: pricing.input/output are already $ per 1M tokens.
+    pricing = model.get("pricing")
+    pricing = pricing if isinstance(pricing, dict) else {}
+    return (_as_float(pricing.get("input")), _as_float(pricing.get("output")))
+
+
+def _price_deepinfra(model: dict) -> tuple[float | None, float | None]:
+    # deepinfra nests pricing under metadata.pricing, in $ per 1M tokens.
+    metadata = model.get("metadata")
+    metadata = metadata if isinstance(metadata, dict) else {}
+    pricing = metadata.get("pricing")
+    pricing = pricing if isinstance(pricing, dict) else {}
+    return (
+        _as_float(pricing.get("input_tokens")),
+        _as_float(pricing.get("output_tokens")),
+    )
+
+
+def _price_novita(model: dict) -> tuple[float | None, float | None]:
+    # novita's raw *_token_price_per_m ints are in an undocumented minor unit;
+    # pricing.prompt/completion.price_per_m_decimal is the actual $ per 1M.
+    pricing = model.get("pricing")
+    pricing = pricing if isinstance(pricing, dict) else {}
+    prompt = pricing.get("prompt")
+    prompt = prompt if isinstance(prompt, dict) else {}
+    completion = pricing.get("completion")
+    completion = completion if isinstance(completion, dict) else {}
+    return (
+        _as_float(prompt.get("price_per_m_decimal")),
+        _as_float(completion.get("price_per_m_decimal")),
+    )
+
+
+def _price_openrouter(model: dict) -> tuple[float | None, float | None]:
+    # openrouter's pricing.prompt/completion are $ per single token.
+    pricing = model.get("pricing")
+    pricing = pricing if isinstance(pricing, dict) else {}
+    input_per_token = _as_float(pricing.get("prompt"))
+    output_per_token = _as_float(pricing.get("completion"))
+    return (
+        input_per_token * 1_000_000 if input_per_token is not None else None,
+        output_per_token * 1_000_000 if output_per_token is not None else None,
+    )
+
+
+def _parse_openai_style(
+    payload: dict | list,
+    price_fn: Callable[[dict], tuple[float | None, float | None]] = _no_pricing,
+) -> list[LiveModel]:
     # Most providers wrap the list as {"data": [...]}; a couple (e.g.
     # together_ai) return the bare list.
     data = payload.get("data", []) if isinstance(payload, dict) else payload
-    return [
-        LiveModel(
-            id=str(m["id"]),
-            release_date=_unix_to_date(m.get("created")),
-            release_date_confidence="registered",
-            input_modalities=_strings(_architecture(m).get("input_modalities")),
-            output_modalities=_strings(_architecture(m).get("output_modalities")),
-            provider_type=m.get("type") if isinstance(m.get("type"), str) else None,
-            supported_parameters=_strings(m.get("supported_parameters")),
+    models = []
+    for m in data:
+        if not (isinstance(m, dict) and "id" in m):
+            continue
+        input_price, output_price = price_fn(m)
+        models.append(
+            LiveModel(
+                id=str(m["id"]),
+                release_date=_unix_to_date(m.get("created")),
+                release_date_confidence="registered",
+                input_modalities=_strings(_architecture(m).get("input_modalities")),
+                output_modalities=_strings(_architecture(m).get("output_modalities")),
+                provider_type=(
+                    m.get("type") if isinstance(m.get("type"), str) else None
+                ),
+                supported_parameters=_strings(m.get("supported_parameters")),
+                input_price_per_m=input_price,
+                output_price_per_m=output_price,
+            )
         )
-        for m in data
-        if isinstance(m, dict) and "id" in m
-    ]
+    return models
 
 
 def _parse_anthropic(payload: dict) -> list[LiveModel]:
@@ -144,13 +226,17 @@ PROVIDER_ENDPOINTS: dict[str, _Endpoint] = {
         "https://api.anthropic.com/v1/models", _anthropic_headers, _parse_anthropic
     ),
     "openrouter": _Endpoint(
-        "https://openrouter.ai/api/v1/models", None, _parse_openai_style
+        "https://openrouter.ai/api/v1/models",
+        None,
+        lambda payload: _parse_openai_style(payload, _price_openrouter),
     ),
     "groq": _Endpoint(
         "https://api.groq.com/openai/v1/models", _bearer_headers, _parse_openai_style
     ),
     "together_ai": _Endpoint(
-        "https://api.together.xyz/v1/models", _bearer_headers, _parse_openai_style
+        "https://api.together.xyz/v1/models",
+        _bearer_headers,
+        lambda payload: _parse_openai_style(payload, _price_together),
     ),
     "moonshot": _Endpoint(
         "https://api.moonshot.ai/v1/models", _bearer_headers, _parse_openai_style
@@ -173,7 +259,12 @@ PROVIDER_ENDPOINTS: dict[str, _Endpoint] = {
     "deepinfra": _Endpoint(
         "https://api.deepinfra.com/v1/openai/models",
         _bearer_headers,
-        _parse_openai_style,
+        lambda payload: _parse_openai_style(payload, _price_deepinfra),
+    ),
+    "novita": _Endpoint(
+        "https://api.novita.ai/v3/openai/models",
+        _novita_headers,
+        lambda payload: _parse_openai_style(payload, _price_novita),
     ),
 }
 

@@ -399,7 +399,13 @@ def _print_live_models(provider: str | None, search: str | None) -> None:
     reliable_dates = dates_look_trustworthy(live)
 
     table = Table(
-        "Model", "Release Date", "In litellm?", show_header=True, header_style="bold"
+        "Model",
+        "Release Date",
+        "$/M in",
+        "$/M out",
+        "In litellm?",
+        show_header=True,
+        header_style="bold",
     )
     for m in live:
         in_litellm = m.id in known_display or m.id in known
@@ -408,6 +414,8 @@ def _print_live_models(provider: str | None, search: str | None) -> None:
             m.id,
             release_date
             or ("unknown" if m.release_date_confidence != "unknown" else ""),
+            f"{m.input_price_per_m:.2f}" if m.input_price_per_m is not None else "",
+            f"{m.output_price_per_m:.2f}" if m.output_price_per_m is not None else "",
             "" if in_litellm else "[bold yellow]NEW[/bold yellow]",
         )
     console.print(table)

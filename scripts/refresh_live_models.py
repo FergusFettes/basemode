@@ -69,6 +69,8 @@ def main() -> int:
                     "supported_methods": list(m.supported_methods),
                     "provider_type": m.provider_type,
                     "supported_parameters": list(m.supported_parameters),
+                    "input_price_per_m": m.input_price_per_m,
+                    "output_price_per_m": m.output_price_per_m,
                 }
                 for m in live
             },
