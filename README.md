@@ -146,7 +146,7 @@ Single generated table, refreshed by CI.
 | `anthropic/claude-sonnet-4-6` | $3.00 | $15.00 | 2026-02-17 | `system` | ✓ | `no_prefill` |
 | `anthropic/claude-sonnet-5` | $2.00 | $10.00 | 2026-06-30 | `system` | ✓ | `no_prefill`, `no_temperature` |
 | `cerebras/gemma-4-31b` | unknown | unknown | unknown | `system` | ⚠ |  |
-| `cerebras/gpt-oss-120b` | $0.35 | $0.75 | unknown | `system` | ⚠ |  |
+| `cerebras/gpt-oss-120b` | $0.35 | $0.75 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/anthropic/claude-fable-5` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `deepinfra/anthropic/claude-haiku-4-5` | unknown | unknown | unknown | `prefill` | ⚠ |  |
 | `deepinfra/anthropic/claude-opus-4-7` | unknown | unknown | unknown | `system` | ⚠ |  |
@@ -200,9 +200,9 @@ Single generated table, refreshed by CI.
 | `deepinfra/nvidia/nemotron-3-nano-30b-a3b` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `deepinfra/nvidia/nvidia-nemotron-3-super-120b-a12b` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `deepinfra/nvidia/nvidia-nemotron-3.5-lightning` | $0.05 | $0.20 | unknown | `system` | ⚠ |  |
-| `deepinfra/openai/gpt-oss-120b-turbo` | unknown | unknown | unknown | `system` | ⚠ |  |
-| `deepinfra/openai/gpt-oss-120b-ultra` | unknown | unknown | unknown | `system` | ⚠ |  |
-| `deepinfra/openai/gpt-oss-20b` | $0.04 | $0.15 | unknown | `system` | ⚠ |  |
+| `deepinfra/openai/gpt-oss-120b-turbo` | unknown | unknown | unknown | `system` | ⚠ | `reasoning_budget` |
+| `deepinfra/openai/gpt-oss-120b-ultra` | unknown | unknown | unknown | `system` | ⚠ | `reasoning_budget` |
+| `deepinfra/openai/gpt-oss-20b` | $0.04 | $0.15 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/qwen/qwen2.5-72b-instruct` | $0.12 | $0.39 | unknown | `system` | ⚠ |  |
 | `deepinfra/qwen/qwen3-14b` | $0.06 | $0.24 | unknown | `system` | ⚠ |  |
 | `deepinfra/qwen/qwen3-235b-a22b-instruct-2507` | $0.09 | $0.60 | unknown | `system` | ⚠ |  |
@@ -265,8 +265,8 @@ Single generated table, refreshed by CI.
 | `groq/allam-2-7b` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `groq/groq/compound` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `groq/groq/compound-mini` | unknown | unknown | unknown | `system` | ⚠ |  |
-| `groq/openai/gpt-oss-120b` | $0.15 | $0.60 | unknown | `system` | ⚠ |  |
-| `groq/openai/gpt-oss-20b` | $0.07 | $0.30 | unknown | `system` | ⚠ |  |
+| `groq/openai/gpt-oss-120b` | $0.15 | $0.60 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `groq/openai/gpt-oss-20b` | $0.07 | $0.30 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `groq/qwen/qwen3.6-27b` | $0.60 | $3.00 | 2026-04-22 | `system` | ✓ |  |
 | `moonshot/kimi-k2-0905-preview` | $0.60 | $2.50 | 2025-07-11 | `system` | ⚠ |  |
 | `moonshot/kimi-k2.5` | $0.60 | $3.00 | 2026-01-27 | `system` | ⚠ | `no_temperature` |
@@ -328,8 +328,8 @@ Single generated table, refreshed by CI.
 | `novita/moonshotai/kimi-k2.7-code` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `novita/moonshotai/kimi-k3` | unknown | unknown | unknown | `prefill` | ⚠ |  |
 | `novita/nvidia/nemotron-3-nano-30b-a3b` | unknown | unknown | unknown | `system` | ⚠ |  |
-| `novita/openai/gpt-oss-120b` | $0.05 | $0.25 | unknown | `system` | ⚠ |  |
-| `novita/openai/gpt-oss-20b` | $0.04 | $0.15 | unknown | `system` | ⚠ |  |
+| `novita/openai/gpt-oss-120b` | $0.05 | $0.25 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `novita/openai/gpt-oss-20b` | $0.04 | $0.15 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `novita/qwen/qwen-2.5-72b-instruct` | $0.38 | $0.40 | unknown | `system` | ⚠ |  |
 | `novita/qwen/qwen3-235b-a22b-fp8` | $0.20 | $0.80 | unknown | `system` | ⚠ |  |
 | `novita/qwen/qwen3-235b-a22b-instruct-2507` | $0.09 | $0.58 | unknown | `system` | ⚠ |  |

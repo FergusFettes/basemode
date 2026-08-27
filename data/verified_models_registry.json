@@ -82,7 +82,8 @@
     },
     {
       "model": "cerebras/gpt-oss-120b",
-      "pricing_url": "https://www.cerebras.ai/pricing"
+      "pricing_url": "https://www.cerebras.ai/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/anthropic/claude-fable-5",
@@ -298,15 +299,18 @@
     },
     {
       "model": "deepinfra/openai/gpt-oss-120b-turbo",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/openai/gpt-oss-120b-ultra",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/openai/gpt-oss-20b",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/qwen/qwen2.5-72b-instruct",
@@ -564,11 +568,13 @@
     },
     {
       "model": "groq/openai/gpt-oss-120b",
-      "pricing_url": "https://groq.com/pricing/"
+      "pricing_url": "https://groq.com/pricing/",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "groq/openai/gpt-oss-20b",
-      "pricing_url": "https://groq.com/pricing/"
+      "pricing_url": "https://groq.com/pricing/",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "groq/qwen/qwen3.6-27b",
@@ -816,11 +822,13 @@
     },
     {
       "model": "novita/openai/gpt-oss-120b",
-      "pricing_url": "https://novita.ai/pricing"
+      "pricing_url": "https://novita.ai/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "novita/openai/gpt-oss-20b",
-      "pricing_url": "https://novita.ai/pricing"
+      "pricing_url": "https://novita.ai/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "novita/qwen/qwen-2.5-72b-instruct",

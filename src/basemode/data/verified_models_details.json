@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-08-27T21:15:38.797558+00:00",
+  "generated_at_utc": "2026-08-27T21:30:01.458232+00:00",
   "rows": [
     {
       "model": "anthropic/claude-fable-5",
@@ -247,7 +247,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://www.cerebras.ai/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/anthropic/claude-fable-5",
@@ -1198,7 +1200,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/openai/gpt-oss-120b-ultra",
@@ -1216,7 +1220,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/openai/gpt-oss-20b",
@@ -1233,7 +1239,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/qwen/qwen2.5-72b-instruct",
@@ -2294,7 +2302,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://groq.com/pricing/"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "groq/openai/gpt-oss-20b",
@@ -2311,7 +2321,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://groq.com/pricing/"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "groq/qwen/qwen3.6-27b",
@@ -3382,7 +3394,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://novita.ai/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "novita/openai/gpt-oss-20b",
@@ -3399,7 +3413,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://novita.ai/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "novita/qwen/qwen-2.5-72b-instruct",
