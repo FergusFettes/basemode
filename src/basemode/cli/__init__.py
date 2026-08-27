@@ -2,6 +2,7 @@ import click
 import typer
 import typer.core
 
+from ..logging_setup import setup_file_logging
 from .render import console
 
 _GROUP_FLAGS = {"--help", "-h", "--install-completion", "--show-completion"}
@@ -28,6 +29,19 @@ app = typer.Typer(
     help="Make any LLM do raw text continuation.",
     cls=_default_to("run"),
 )
+
+
+@app.callback()
+def _main() -> None:
+    """Set up CLI-only side effects before any command runs.
+
+    File logging lives here rather than at package import because importing
+    `basemode` as a library must not create a state directory or attach a
+    handler to someone else's logging config. The CLI is the one context
+    that owns the user's terminal, so it is the one that opts in.
+    """
+    setup_file_logging()
+
 
 # Importing these modules registers their commands on `app` via decorators.
 # Re-exported here so `basemode.cli.<name>` keeps working for anything that
