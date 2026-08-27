@@ -229,6 +229,26 @@ async def test_normalize_stream_newlines_preserves_poetry_like_prefixes() -> Non
     assert result == " signal\nand the wires hum"
 
 
+async def test_normalize_stream_newlines_preserves_first_capitalized_line_break() -> (
+    None
+):
+    result = await _collect_stream(
+        "Seeing himself an atom in a shroud—",
+        ["\nMan hears himself an engine in a cloud!"],
+    )
+
+    assert result == "\nMan hears himself an engine in a cloud!"
+
+
+async def test_normalize_stream_newlines_collapses_capitalized_sentence_wrap() -> None:
+    result = await _collect_stream(
+        "This is a prose paragraph that ends.",
+        ["\nThe next sentence starts here."],
+    )
+
+    assert result == " The next sentence starts here."
+
+
 async def test_normalize_stream_repairs_split_compound_across_chunks() -> None:
     result = await _collect_stream(
         "It was not",

@@ -301,13 +301,21 @@ def _looks_line_oriented(text: str) -> bool:
 def _should_collapse_single_newline(
     prefix: str, prev_char: str, next_char: str
 ) -> bool:
-    if _looks_line_oriented(prefix):
-        return False
     if not prev_char or not next_char:
         return False
     if prev_char.isspace() or next_char.isspace():
         return False
     if next_char in "#>-*+`|":
+        return False
+    if next_char.isupper() and prev_char not in ".!?":
+        # A capitalized word opening the new line, with the old line not
+        # ending on a sentence boundary, is the signature of a real line
+        # break (verse, dialogue tags, etc.) rather than a soft wrap — and
+        # unlike _looks_line_oriented this needs no lookback, so it also
+        # catches the very first line break of a poem before any history
+        # has accumulated to judge it by.
+        return False
+    if _looks_line_oriented(prefix):
         return False
     return True
 
