@@ -275,7 +275,8 @@
     },
     {
       "model": "deepinfra/moonshotai/kimi-k3",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["no_temperature"]
     },
     {
       "model": "deepinfra/nousresearch/hermes-3-llama-3.1-405b",
@@ -814,7 +815,8 @@
     },
     {
       "model": "novita/moonshotai/kimi-k3",
-      "pricing_url": "https://novita.ai/pricing"
+      "pricing_url": "https://novita.ai/pricing",
+      "quirks": ["no_temperature"]
     },
     {
       "model": "novita/nvidia/nemotron-3-nano-30b-a3b",

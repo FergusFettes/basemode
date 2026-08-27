@@ -194,7 +194,7 @@ Single generated table, refreshed by CI.
 | `deepinfra/moonshotai/kimi-k2.5` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `deepinfra/moonshotai/kimi-k2.6` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `deepinfra/moonshotai/kimi-k2.7-code` | unknown | unknown | unknown | `system` | ⚠ |  |
-| `deepinfra/moonshotai/kimi-k3` | unknown | unknown | unknown | `prefill` | ⚠ |  |
+| `deepinfra/moonshotai/kimi-k3` | unknown | unknown | unknown | `prefill` | ⚠ | `no_temperature` |
 | `deepinfra/nousresearch/hermes-3-llama-3.1-405b` | $1.00 | $1.00 | unknown | `system` | ⚠ |  |
 | `deepinfra/nousresearch/hermes-3-llama-3.1-70b` | $0.30 | $0.30 | unknown | `system` | ⚠ |  |
 | `deepinfra/nvidia/nemotron-3-nano-30b-a3b` | unknown | unknown | unknown | `system` | ⚠ |  |
@@ -326,7 +326,7 @@ Single generated table, refreshed by CI.
 | `novita/moonshotai/kimi-k2.5` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `novita/moonshotai/kimi-k2.6` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `novita/moonshotai/kimi-k2.7-code` | unknown | unknown | unknown | `system` | ⚠ |  |
-| `novita/moonshotai/kimi-k3` | unknown | unknown | unknown | `prefill` | ⚠ |  |
+| `novita/moonshotai/kimi-k3` | unknown | unknown | unknown | `prefill` | ⚠ | `no_temperature` |
 | `novita/nvidia/nemotron-3-nano-30b-a3b` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `novita/openai/gpt-oss-120b` | $0.05 | $0.25 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `novita/openai/gpt-oss-20b` | $0.04 | $0.15 | unknown | `system` | ⚠ | `reasoning_budget` |
