@@ -233,3 +233,295 @@ def test_info_shows_the_rating_and_observed_health() -> None:
 
     assert "thumbs up" in result.output
     assert "1 attempts, no failures" in result.output
+
+
+# -- extracted render helpers -----------------------------------------------
+
+
+def test_score_color_thresholds() -> None:
+    from basemode.cli.render import _score_color
+
+    assert _score_color(0.9) == "green"
+    assert _score_color(0.75) == "green"
+    assert _score_color(0.5) == "yellow"
+    assert _score_color(0.4) == "yellow"
+    assert _score_color(0.1) == "red"
+
+
+def test_preview_truncates_long_text_and_collapses_whitespace() -> None:
+    from basemode.cli.render import _preview
+
+    assert _preview("hello   world\n\nagain") == "hello world again"
+    long_text = "x" * 100
+    truncated = _preview(long_text, limit=10)
+    assert truncated == "xxxxxxx..."
+    assert len(truncated) == 10
+
+
+def test_format_float() -> None:
+    from basemode.cli.render import _format_float
+
+    assert _format_float(1.0) == "1.00"
+    assert _format_float(3.14159) == "3.14"
+
+
+def test_health_summary_reports_no_failures() -> None:
+    from basemode.cli.render import _health_summary
+
+    assert _health_summary({"failure_rate": 0, "attempts": 5}) == (
+        "5 attempts, no failures"
+    )
+
+
+def test_health_summary_reports_failure_details() -> None:
+    from basemode.cli.render import _health_summary
+
+    summary = _health_summary(
+        {
+            "failure_rate": 0.5,
+            "attempts": 4,
+            "failures": 2,
+            "last_category": "timeout",
+            "last_failure_at": "2026-01-01T00:00:00+00:00",
+        }
+    )
+    assert summary == (
+        "4 attempts, 2 failed (50%); last timeout at 2026-01-01T00:00:00+00:00"
+    )
+
+
+def test_display_id_strips_matching_provider_prefix() -> None:
+    from basemode.cli.models_cmd import _display_id
+
+    assert _display_id("openai", "openai/gpt-4o-mini") == "gpt-4o-mini"
+    assert _display_id("openai", "anthropic/claude-opus-5") == "anthropic/claude-opus-5"
+
+
+def test_run_streams_a_single_completion(monkeypatch) -> None:
+    from basemode import continue_ as continue_module
+
+    async def fake_continue_text(prefix, model, **kwargs):
+        on_usage = kwargs.get("on_usage")
+        if on_usage:
+            on_usage([{"prompt_tokens": 3, "completion_tokens": 2}])
+        for tok in [" and", " more"]:
+            yield tok
+
+    monkeypatch.setattr(continue_module, "continue_text", fake_continue_text)
+
+    result = runner.invoke(
+        app, ["run", "hello", "-M", "5", "--show-strategy", "--show-usage"]
+    )
+
+    assert result.exit_code == 0
+    assert "and more" in result.output
+    assert "strategy:" in result.output
+    assert "Prompt tokens" in result.output
+
+
+def test_run_reads_stdin_when_no_prefix_given(monkeypatch) -> None:
+    from basemode import continue_ as continue_module
+
+    async def fake_continue_text(prefix, model, **kwargs):
+        yield "!"
+
+    monkeypatch.setattr(continue_module, "continue_text", fake_continue_text)
+    monkeypatch.setattr("sys.stdin.isatty", lambda: False)
+    monkeypatch.setattr("sys.stdin.read", lambda: "piped text")
+
+    result = runner.invoke(app, ["run"])
+
+    assert result.exit_code == 0
+    assert "!" in result.output
+
+
+def test_models_command_lists_entries() -> None:
+    result = runner.invoke(app, ["models", "-p", "openai", "-s", "gpt-4o-mini"])
+
+    assert result.exit_code == 0
+    assert "gpt-4o-mini" in result.output
+
+
+def test_models_command_json_output() -> None:
+    import json
+
+    result = runner.invoke(
+        app, ["models", "-p", "openai", "-s", "gpt-4o-mini", "--json"]
+    )
+
+    assert result.exit_code == 0
+    payload = json.loads(result.output)
+    assert isinstance(payload, list)
+
+
+def test_models_command_rejects_bad_since() -> None:
+    result = runner.invoke(app, ["models", "--since", "not-a-duration"])
+
+    assert result.exit_code == 1
+
+
+def test_providers_command_lists_providers() -> None:
+    result = runner.invoke(app, ["providers"])
+
+    assert result.exit_code == 0
+    assert "openai" in result.output
+
+
+def test_rate_lists_none_rated_yet() -> None:
+    result = runner.invoke(app, ["rate"])
+
+    assert result.exit_code == 0
+    assert "No models rated yet" in result.output
+
+
+def test_health_verification_view(monkeypatch) -> None:
+    from basemode import health as health_module
+
+    monkeypatch.setenv("COLUMNS", "200")
+
+    def fake_history(model=None, days=None):
+        return {
+            "openai/gpt-4o-mini": {
+                "attempts": 2,
+                "failures": 1,
+                "looks_transient": True,
+                "cost_usd": 0.001,
+                "categories": {"timeout": 1},
+                "last_at": "2026-01-01T00:00:00+00:00",
+            }
+        }
+
+    monkeypatch.setattr(health_module, "verification_history", fake_history)
+    monkeypatch.setattr("basemode.cli.health_cmd.verification_history", fake_history)
+
+    result = runner.invoke(app, ["health", "--verification"])
+
+    assert result.exit_code == 0
+    assert "openai/gpt-4o-mini" in result.output
+    assert "timeout" in result.output
+
+
+def test_keys_set_list_and_get() -> None:
+    result = runner.invoke(app, ["keys", "set", "openai", "sk-test-value"])
+    assert result.exit_code == 0
+
+    listed = runner.invoke(app, ["keys", "list"])
+    assert listed.exit_code == 0
+    assert "openai" in listed.output
+
+    got = runner.invoke(app, ["keys", "get", "openai"])
+    assert got.exit_code == 0
+    assert "sk-test-value" in got.output
+
+    bad = runner.invoke(app, ["keys", "bogus"])
+    assert bad.exit_code == 1
+
+
+def test_default_model_show_set_and_unset() -> None:
+    none_set = runner.invoke(app, ["default"])
+    assert none_set.exit_code == 0
+    assert "No default model set" in none_set.output
+
+    set_result = runner.invoke(app, ["default", "gpt-4o-mini"])
+    assert set_result.exit_code == 0
+    assert "Default model set" in set_result.output
+
+    shown = runner.invoke(app, ["default"])
+    assert "gpt-4o-mini" in shown.output
+
+    unset = runner.invoke(app, ["default", "--unset"])
+    assert unset.exit_code == 0
+    assert "cleared" in unset.output.lower()
+
+
+def test_verify_dry_run_prints_plan_table(monkeypatch) -> None:
+    monkeypatch.setenv("COLUMNS", "200")
+    from basemode.verification_plan import PlannedTarget, VerificationPlan
+
+    plan = VerificationPlan(
+        suite="quick",
+        targets=(
+            PlannedTarget(
+                model="openai/gpt-4o-mini",
+                provider="openai",
+                stage="never-tested",
+                prior_status="never-tested",
+                catalog_available=True,
+                release_date="2026-01-01",
+                last_checked_at=None,
+                logical_probes=2,
+                maximum_requests=2,
+                estimated_max_cost_usd=0.001,
+            ),
+        ),
+        logical_probes=2,
+        maximum_requests=2,
+        provider_counts={"openai": 1},
+        estimated_known_max_cost_usd=0.001,
+        priced_targets=1,
+        unpriced_targets=0,
+    )
+    monkeypatch.setattr(
+        "basemode.verification_plan.plan_verification", lambda *a, **kw: plan
+    )
+
+    result = runner.invoke(app, ["verify", "openai/gpt-4o-mini", "--dry-run"])
+
+    assert result.exit_code == 0
+    assert "openai/gpt-4o-mini" in result.output
+    assert "targets" in result.output
+
+
+def test_verify_plan_table_renders_a_row_per_target() -> None:
+    from basemode.cli.verify_cmd import _verify_plan_table
+    from basemode.verification_plan import PlannedTarget, VerificationPlan
+
+    plan = VerificationPlan(
+        suite="quick",
+        targets=(
+            PlannedTarget(
+                model="openai/gpt-4o-mini",
+                provider="openai",
+                stage="never-tested",
+                prior_status="never-tested",
+                catalog_available=True,
+                release_date="2026-01-01",
+                last_checked_at=None,
+                logical_probes=2,
+                maximum_requests=2,
+                estimated_max_cost_usd=0.001,
+            ),
+            PlannedTarget(
+                model="anthropic/claude-opus-5",
+                provider="anthropic",
+                stage="stale",
+                prior_status="verified",
+                catalog_available=None,
+                release_date=None,
+                last_checked_at="2026-01-01T00:00:00+00:00",
+                logical_probes=1,
+                maximum_requests=1,
+                estimated_max_cost_usd=None,
+            ),
+        ),
+        logical_probes=3,
+        maximum_requests=3,
+        provider_counts={"openai": 1, "anthropic": 1},
+        estimated_known_max_cost_usd=0.001,
+        priced_targets=1,
+        unpriced_targets=1,
+    )
+
+    table = _verify_plan_table(plan)
+
+    assert table.row_count == 2
+    from rich.console import Console
+
+    console = Console(width=200, record=True)
+    console.print(table)
+    rendered = console.export_text()
+    assert "openai/gpt-4o-mini" in rendered
+    assert "anthropic/claude-opus-5" in rendered
+    assert "yes" in rendered
+    assert "2026-01-01" in rendered
+    assert "?" in rendered
