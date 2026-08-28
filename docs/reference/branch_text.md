@@ -30,3 +30,6 @@ Yields `(branch_idx, token)` tuples until all branches finish.
   This includes `EmptyCompletionError` (with `model`, `strategy`, and `finish_reason`) when
   a branch's stream ends without yielding any content.
 - `strict_max_tokens=True` stops each visible branch stream at `max_tokens` using client-side token counting.
+  Some models are sent a wider budget than requested, because their hidden reasoning
+  would otherwise consume it (see `basemode.strategies.compat`); pass this flag when the
+  visible length must match `max_tokens` exactly.

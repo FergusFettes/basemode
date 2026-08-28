@@ -283,9 +283,23 @@ def test_gemini_3_flash_disables_reasoning() -> None:
         "gemini/gemini-3.7-flash",
         "gemini/gemini-flash-latest",
     ):
-        kwargs = build_kwargs(GenerationParams(model=model, max_tokens=200))
+        kwargs = build_kwargs(GenerationParams(model=model, max_tokens=2000))
         assert kwargs["reasoning_effort"] == "none"
-        assert kwargs["max_tokens"] == 200
+        assert kwargs["max_tokens"] == 2000
+
+
+def test_gemini_3_flash_floors_the_budget_reasoning_can_eat() -> None:
+    """The "none" effort only holds for a short prompt. Probed live
+    2026-08-28 against gemini-3.6-flash with a ~4.4k-token prefix, the kwarg
+    is ignored and reasoning scales to the budget (14/17, 61/64, 118/128,
+    204/256 tokens), leaving a word or two of visible text. Reasoning
+    levelled off near 500 tokens, so a small request is floored above it."""
+    kwargs = build_kwargs(
+        GenerationParams(model="gemini/gemini-3.6-flash", max_tokens=17)
+    )
+
+    assert kwargs["reasoning_effort"] == "none"
+    assert kwargs["max_tokens"] == 1024
 
 
 def test_gemini_pro_latest_needs_a_nonzero_thinking_budget() -> None:

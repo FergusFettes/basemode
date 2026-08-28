@@ -27,6 +27,9 @@ Stream a single continuation token-by-token.
   generation so a word split across the boundary is rejoined exactly rather than
   heuristically; the request is reissued in full if the model does not re-emit it.
 - `strict_max_tokens=True` stops the visible stream at `max_tokens` using client-side token counting.
+  Some models are sent a wider budget than requested, because their hidden reasoning
+  would otherwise consume it (see `basemode.strategies.compat`); pass this flag when the
+  visible length must match `max_tokens` exactly.
 - `extra` is forwarded to LiteLLM request kwargs.
 - Raises `EmptyCompletionError` (with `model`, `strategy`, and `finish_reason`) if the
   provider stream ends without yielding any content.

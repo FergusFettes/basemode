@@ -131,6 +131,17 @@ _GEMINI_DISABLE_THINKING_STEMS = frozenset(
     {"gemini-3.5-flash", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-flash-latest"}
 )
 
+# `reasoning_effort="none"` only holds for a short prompt. Probed live
+# 2026-08-28 against gemini-3.6-flash: with a ~500-character prefix it spends
+# zero reasoning tokens, but with a ~4.4k-token prefix it ignores the kwarg
+# entirely and sizes its hidden reasoning to whatever budget it is given --
+# 14/17, 61/64, 118/128, 204/256 tokens -- leaving a word or two of visible
+# text. Reasoning levelled off around 500 tokens, so floor the provider-side
+# budget above that. Callers needing an exact visible limit pass
+# continue_text's strict_max_tokens=True, the same contract as
+# _ANTHROPIC_ADAPTIVE_MIN_TOKENS below.
+_GEMINI_DISABLE_THINKING_MIN_TOKENS = 1024
+
 _GLM_DISABLE_THINKING_PREFIXES = (
     "glm-4.5",
     "glm-4.6",
@@ -268,7 +279,10 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
     if via_anthropic and _ANTHROPIC_ADAPTIVE_ONLY_PATTERN.match(stem):
         return {"max_tokens": max(max_tokens, _ANTHROPIC_ADAPTIVE_MIN_TOKENS)}
     if stem in _GEMINI_DISABLE_THINKING_STEMS:
-        return {"reasoning_effort": "none"}
+        return {
+            "reasoning_effort": "none",
+            "max_tokens": max(max_tokens, _GEMINI_DISABLE_THINKING_MIN_TOKENS),
+        }
     for fragment, (budget, min_out) in _THINKING_MODELS.items():
         if fragment in stem:
             return _reasoning_budget_kwargs(
