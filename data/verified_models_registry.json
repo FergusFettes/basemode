@@ -427,11 +427,17 @@
     },
     {
       "model": "deepinfra/zai-org/glm-4.7",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/zai-org/glm-4.7-flash",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/zai-org/glm-5",

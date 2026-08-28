@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-08-27T21:54:24.456695+00:00",
+  "generated_at_utc": "2026-08-28T18:56:47.262219+00:00",
   "rows": [
     {
       "model": "anthropic/claude-fable-5",
@@ -253,13 +253,12 @@
     },
     {
       "model": "deepinfra/anthropic/claude-fable-5",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1e-05,
+      "output_cost_per_token": 5e-05,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -271,13 +270,12 @@
     },
     {
       "model": "deepinfra/anthropic/claude-haiku-4-5",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1e-06,
+      "output_cost_per_token": 5e-06,
       "release_date": null,
       "prompt_method": "prefill",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -289,13 +287,12 @@
     },
     {
       "model": "deepinfra/anthropic/claude-opus-4-7",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 5e-06,
+      "output_cost_per_token": 2.5e-05,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -307,13 +304,12 @@
     },
     {
       "model": "deepinfra/anthropic/claude-opus-4-8",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 5e-06,
+      "output_cost_per_token": 2.5e-05,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -325,13 +321,12 @@
     },
     {
       "model": "deepinfra/anthropic/claude-opus-5",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 5e-06,
+      "output_cost_per_token": 2.5e-05,
       "release_date": null,
       "prompt_method": "few_shot",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -343,13 +338,12 @@
     },
     {
       "model": "deepinfra/anthropic/claude-sonnet-4-6",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 3e-06,
+      "output_cost_per_token": 1.5e-05,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -361,13 +355,12 @@
     },
     {
       "model": "deepinfra/anthropic/claude-sonnet-5",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 1e-05,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -379,13 +372,12 @@
     },
     {
       "model": "deepinfra/bytedance/seed-1.8",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2.5e-07,
+      "output_cost_per_token": 2e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -397,13 +389,12 @@
     },
     {
       "model": "deepinfra/bytedance/seed-2.0-code",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 5e-07,
+      "output_cost_per_token": 3e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -415,13 +406,12 @@
     },
     {
       "model": "deepinfra/bytedance/seed-2.0-mini",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1e-07,
+      "output_cost_per_token": 4e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -433,13 +423,12 @@
     },
     {
       "model": "deepinfra/bytedance/seed-2.0-pro",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 5e-07,
+      "output_cost_per_token": 3e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -468,7 +457,7 @@
     },
     {
       "model": "deepinfra/deepseek-ai/deepseek-v3",
-      "input_cost_per_token": 3.8e-07,
+      "input_cost_per_token": 3.2e-07,
       "output_cost_per_token": 8.9e-07,
       "release_date": null,
       "prompt_method": "system",
@@ -485,8 +474,8 @@
     },
     {
       "model": "deepinfra/deepseek-ai/deepseek-v3-0324",
-      "input_cost_per_token": 2.5e-07,
-      "output_cost_per_token": 8.8e-07,
+      "input_cost_per_token": 2.4e-07,
+      "output_cost_per_token": 9e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -502,8 +491,8 @@
     },
     {
       "model": "deepinfra/deepseek-ai/deepseek-v3.1",
-      "input_cost_per_token": 2.7e-07,
-      "output_cost_per_token": 1e-06,
+      "input_cost_per_token": 2.5e-07,
+      "output_cost_per_token": 9.5e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -519,13 +508,12 @@
     },
     {
       "model": "deepinfra/deepseek-ai/deepseek-v3.2",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2.6e-07,
+      "output_cost_per_token": 3.8e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -537,13 +525,12 @@
     },
     {
       "model": "deepinfra/deepseek-ai/deepseek-v4-flash",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 9e-08,
+      "output_cost_per_token": 1.8e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -555,13 +542,12 @@
     },
     {
       "model": "deepinfra/deepseek-ai/deepseek-v4-flash-0731",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 8e-08,
+      "output_cost_per_token": 1.8e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -573,13 +559,12 @@
     },
     {
       "model": "deepinfra/deepseek-ai/deepseek-v4-pro",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.3e-06,
+      "output_cost_per_token": 2.6e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -591,13 +576,12 @@
     },
     {
       "model": "deepinfra/deepseek-ai/deepseek-v4-pro-0813",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.3e-06,
+      "output_cost_per_token": 2.6e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -643,13 +627,12 @@
     },
     {
       "model": "deepinfra/google/gemini-3.1-flash-lite",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2.5e-07,
+      "output_cost_per_token": 1.5e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -661,13 +644,12 @@
     },
     {
       "model": "deepinfra/google/gemini-3.1-pro",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 1.2e-05,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -680,7 +662,7 @@
     {
       "model": "deepinfra/google/gemma-3-12b-it",
       "input_cost_per_token": 5e-08,
-      "output_cost_per_token": 1e-07,
+      "output_cost_per_token": 1.5e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -696,7 +678,7 @@
     },
     {
       "model": "deepinfra/google/gemma-3-27b-it",
-      "input_cost_per_token": 9e-08,
+      "input_cost_per_token": 8e-08,
       "output_cost_per_token": 1.6e-07,
       "release_date": null,
       "prompt_method": "system",
@@ -713,8 +695,8 @@
     },
     {
       "model": "deepinfra/google/gemma-3-4b-it",
-      "input_cost_per_token": 4e-08,
-      "output_cost_per_token": 8e-08,
+      "input_cost_per_token": 5e-08,
+      "output_cost_per_token": 1e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -730,13 +712,12 @@
     },
     {
       "model": "deepinfra/google/gemma-4-26b-a4b-it",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 7e-08,
+      "output_cost_per_token": 3.4e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -748,13 +729,12 @@
     },
     {
       "model": "deepinfra/google/gemma-4-31b-it",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.3e-07,
+      "output_cost_per_token": 3.8e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -766,13 +746,12 @@
     },
     {
       "model": "deepinfra/google/gemma-4-31b-it-turbo",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 9e-08,
+      "output_cost_per_token": 3.4e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -784,13 +763,12 @@
     },
     {
       "model": "deepinfra/google/gemma-4-31b-it-ultra",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2.7e-07,
+      "output_cost_per_token": 7.6e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -802,13 +780,12 @@
     },
     {
       "model": "deepinfra/google/gemma-4-e4b-it",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2e-08,
+      "output_cost_per_token": 1e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -820,8 +797,8 @@
     },
     {
       "model": "deepinfra/gryphe/mythomax-l2-13b",
-      "input_cost_per_token": 8e-08,
-      "output_cost_per_token": 9e-08,
+      "input_cost_per_token": 4e-07,
+      "output_cost_per_token": 4e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -837,13 +814,12 @@
     },
     {
       "model": "deepinfra/inclusionai/ling-3.0-flash",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 6e-08,
+      "output_cost_per_token": 1.8e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -855,8 +831,8 @@
     },
     {
       "model": "deepinfra/meta-llama/llama-3.3-70b-instruct-turbo",
-      "input_cost_per_token": 1.3e-07,
-      "output_cost_per_token": 3.9e-07,
+      "input_cost_per_token": 1e-07,
+      "output_cost_per_token": 3.2e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -872,7 +848,7 @@
     },
     {
       "model": "deepinfra/meta-llama/llama-4-scout-17b-16e-instruct",
-      "input_cost_per_token": 8e-08,
+      "input_cost_per_token": 1e-07,
       "output_cost_per_token": 3e-07,
       "release_date": null,
       "prompt_method": "system",
@@ -889,8 +865,8 @@
     },
     {
       "model": "deepinfra/meta-llama/meta-llama-3.1-70b-instruct-turbo",
-      "input_cost_per_token": 1e-07,
-      "output_cost_per_token": 2.8e-07,
+      "input_cost_per_token": 4e-07,
+      "output_cost_per_token": 4e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -907,7 +883,7 @@
     {
       "model": "deepinfra/meta-llama/meta-llama-3.1-8b-instruct-turbo",
       "input_cost_per_token": 2e-08,
-      "output_cost_per_token": 3e-08,
+      "output_cost_per_token": 4e-08,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -940,13 +916,12 @@
     },
     {
       "model": "deepinfra/minimaxai/minimax-m2.7",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2.5e-07,
+      "output_cost_per_token": 1e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -958,13 +933,12 @@
     },
     {
       "model": "deepinfra/minimaxai/minimax-m3",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2.8e-07,
+      "output_cost_per_token": 1.1e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -976,8 +950,8 @@
     },
     {
       "model": "deepinfra/mistralai/mistral-nemo-instruct-2407",
-      "input_cost_per_token": 2e-08,
-      "output_cost_per_token": 4e-08,
+      "input_cost_per_token": 1.9e-08,
+      "output_cost_per_token": 3e-08,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -1027,13 +1001,12 @@
     },
     {
       "model": "deepinfra/moonshotai/kimi-k2.5",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 4.5e-07,
+      "output_cost_per_token": 2.25e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1045,13 +1018,12 @@
     },
     {
       "model": "deepinfra/moonshotai/kimi-k2.6",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 7.5e-07,
+      "output_cost_per_token": 3.5e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1063,13 +1035,12 @@
     },
     {
       "model": "deepinfra/moonshotai/kimi-k2.7-code",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 6.8e-07,
+      "output_cost_per_token": 3.4e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1081,13 +1052,12 @@
     },
     {
       "model": "deepinfra/moonshotai/kimi-k3",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2.85e-06,
+      "output_cost_per_token": 1.425e-05,
       "release_date": null,
       "prompt_method": "prefill",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1118,8 +1088,8 @@
     },
     {
       "model": "deepinfra/nousresearch/hermes-3-llama-3.1-70b",
-      "input_cost_per_token": 3e-07,
-      "output_cost_per_token": 3e-07,
+      "input_cost_per_token": 7e-07,
+      "output_cost_per_token": 7e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -1135,42 +1105,6 @@
     },
     {
       "model": "deepinfra/nvidia/nemotron-3-nano-30b-a3b",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
-      "release_date": null,
-      "prompt_method": "system",
-      "reliability": "\u26a0",
-      "issues": [
-        "missing_price",
-        "missing_release_date"
-      ],
-      "sources": [
-        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
-        "https://openrouter.ai/docs/api-reference/models/get-models",
-        "https://deepinfra.com/pricing"
-      ],
-      "quirks": []
-    },
-    {
-      "model": "deepinfra/nvidia/nvidia-nemotron-3-super-120b-a12b",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
-      "release_date": null,
-      "prompt_method": "system",
-      "reliability": "\u26a0",
-      "issues": [
-        "missing_price",
-        "missing_release_date"
-      ],
-      "sources": [
-        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
-        "https://openrouter.ai/docs/api-reference/models/get-models",
-        "https://deepinfra.com/pricing"
-      ],
-      "quirks": []
-    },
-    {
-      "model": "deepinfra/nvidia/nvidia-nemotron-3.5-lightning",
       "input_cost_per_token": 5e-08,
       "output_cost_per_token": 2e-07,
       "release_date": null,
@@ -1187,14 +1121,47 @@
       "quirks": []
     },
     {
-      "model": "deepinfra/openai/gpt-oss-120b-turbo",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "model": "deepinfra/nvidia/nvidia-nemotron-3-super-120b-a12b",
+      "input_cost_per_token": 8.5e-08,
+      "output_cost_per_token": 4e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://deepinfra.com/pricing"
+      ],
+      "quirks": []
+    },
+    {
+      "model": "deepinfra/nvidia/nvidia-nemotron-3.5-lightning",
+      "input_cost_per_token": 8e-08,
+      "output_cost_per_token": 2e-07,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://deepinfra.com/pricing"
+      ],
+      "quirks": []
+    },
+    {
+      "model": "deepinfra/openai/gpt-oss-120b-turbo",
+      "input_cost_per_token": 1.5e-07,
+      "output_cost_per_token": 6e-07,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
         "missing_release_date"
       ],
       "sources": [
@@ -1208,13 +1175,12 @@
     },
     {
       "model": "deepinfra/openai/gpt-oss-120b-ultra",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2e-07,
+      "output_cost_per_token": 9.5e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1228,8 +1194,8 @@
     },
     {
       "model": "deepinfra/openai/gpt-oss-20b",
-      "input_cost_per_token": 4e-08,
-      "output_cost_per_token": 1.5e-07,
+      "input_cost_per_token": 3e-08,
+      "output_cost_per_token": 1.4e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -1247,8 +1213,8 @@
     },
     {
       "model": "deepinfra/qwen/qwen2.5-72b-instruct",
-      "input_cost_per_token": 1.2e-07,
-      "output_cost_per_token": 3.9e-07,
+      "input_cost_per_token": 3.6e-07,
+      "output_cost_per_token": 4e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -1264,7 +1230,7 @@
     },
     {
       "model": "deepinfra/qwen/qwen3-14b",
-      "input_cost_per_token": 6e-08,
+      "input_cost_per_token": 1.2e-07,
       "output_cost_per_token": 2.4e-07,
       "release_date": null,
       "prompt_method": "system",
@@ -1282,7 +1248,7 @@
     {
       "model": "deepinfra/qwen/qwen3-235b-a22b-instruct-2507",
       "input_cost_per_token": 9e-08,
-      "output_cost_per_token": 6e-07,
+      "output_cost_per_token": 5.5e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -1298,8 +1264,8 @@
     },
     {
       "model": "deepinfra/qwen/qwen3-30b-a3b",
-      "input_cost_per_token": 8e-08,
-      "output_cost_per_token": 2.9e-07,
+      "input_cost_per_token": 1.2e-07,
+      "output_cost_per_token": 5e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -1315,7 +1281,7 @@
     },
     {
       "model": "deepinfra/qwen/qwen3-32b",
-      "input_cost_per_token": 1e-07,
+      "input_cost_per_token": 8e-08,
       "output_cost_per_token": 2.8e-07,
       "release_date": null,
       "prompt_method": "system",
@@ -1332,8 +1298,8 @@
     },
     {
       "model": "deepinfra/qwen/qwen3-coder-480b-a35b-instruct-turbo",
-      "input_cost_per_token": 2.9e-07,
-      "output_cost_per_token": 1.2e-06,
+      "input_cost_per_token": 3e-07,
+      "output_cost_per_token": 1e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -1349,13 +1315,12 @@
     },
     {
       "model": "deepinfra/qwen/qwen3-max",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.2e-06,
+      "output_cost_per_token": 6e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1367,13 +1332,12 @@
     },
     {
       "model": "deepinfra/qwen/qwen3-max-thinking",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.2e-06,
+      "output_cost_per_token": 6e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1385,8 +1349,8 @@
     },
     {
       "model": "deepinfra/qwen/qwen3-next-80b-a3b-instruct",
-      "input_cost_per_token": 1.4e-07,
-      "output_cost_per_token": 1.4e-06,
+      "input_cost_per_token": 9e-08,
+      "output_cost_per_token": 1.1e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -1402,13 +1366,12 @@
     },
     {
       "model": "deepinfra/qwen/qwen3-vl-235b-a22b-instruct",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2e-07,
+      "output_cost_per_token": 8.8e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1420,13 +1383,12 @@
     },
     {
       "model": "deepinfra/qwen/qwen3-vl-30b-a3b-instruct",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.5e-07,
+      "output_cost_per_token": 6e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1438,13 +1400,12 @@
     },
     {
       "model": "deepinfra/qwen/qwen3.5-122b-a10b",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2.9e-07,
+      "output_cost_per_token": 2.4e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1456,13 +1417,12 @@
     },
     {
       "model": "deepinfra/qwen/qwen3.5-27b",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2.6e-07,
+      "output_cost_per_token": 2.6e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1474,13 +1434,12 @@
     },
     {
       "model": "deepinfra/qwen/qwen3.5-35b-a3b",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.4e-07,
+      "output_cost_per_token": 1e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1492,13 +1451,12 @@
     },
     {
       "model": "deepinfra/qwen/qwen3.5-397b-a17b",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 4.5e-07,
+      "output_cost_per_token": 3e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1510,13 +1468,12 @@
     },
     {
       "model": "deepinfra/qwen/qwen3.5-9b",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1e-07,
+      "output_cost_per_token": 1.5e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1528,13 +1485,12 @@
     },
     {
       "model": "deepinfra/qwen/qwen3.6-35b-a3b",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1e-07,
+      "output_cost_per_token": 9.5e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1546,13 +1502,12 @@
     },
     {
       "model": "deepinfra/qwen/qwen3.7-max",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2.5e-06,
+      "output_cost_per_token": 7.5e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1564,13 +1519,12 @@
     },
     {
       "model": "deepinfra/qwen/qwen3.8-2.4t-a95b",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 6e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1582,13 +1536,12 @@
     },
     {
       "model": "deepinfra/qwen/qwen3.8-27b",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 4e-07,
+      "output_cost_per_token": 3e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1600,13 +1553,12 @@
     },
     {
       "model": "deepinfra/qwen/qwen3.8-max",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.65e-06,
+      "output_cost_per_token": 4.951e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1635,8 +1587,8 @@
     },
     {
       "model": "deepinfra/sao10k/l3.1-70b-euryale-v2.2",
-      "input_cost_per_token": 6.5e-07,
-      "output_cost_per_token": 7.5e-07,
+      "input_cost_per_token": 8.5e-07,
+      "output_cost_per_token": 8.5e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -1652,13 +1604,12 @@
     },
     {
       "model": "deepinfra/thinkingmachines/inkling",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 9.5e-07,
+      "output_cost_per_token": 4.05e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1670,13 +1621,12 @@
     },
     {
       "model": "deepinfra/thinkingmachines/inkling-small",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 4.5e-07,
+      "output_cost_per_token": 1.2e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1688,13 +1638,12 @@
     },
     {
       "model": "deepinfra/xiaomimimo/mimo-v2.5",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 4e-07,
+      "output_cost_per_token": 2e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1706,13 +1655,12 @@
     },
     {
       "model": "deepinfra/xiaomimimo/mimo-v2.5-pro",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1e-06,
+      "output_cost_per_token": 3e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1724,13 +1672,12 @@
     },
     {
       "model": "deepinfra/zai-org/glm-4.6",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 5e-07,
+      "output_cost_per_token": 2e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1742,13 +1689,12 @@
     },
     {
       "model": "deepinfra/zai-org/glm-4.7",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 4e-07,
+      "output_cost_per_token": 1.75e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1756,17 +1702,18 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/zai-org/glm-4.7-flash",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 6e-08,
+      "output_cost_per_token": 4e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1774,17 +1721,18 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/zai-org/glm-5",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 6e-07,
+      "output_cost_per_token": 2.08e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1796,13 +1744,12 @@
     },
     {
       "model": "deepinfra/zai-org/glm-5.1",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.05e-06,
+      "output_cost_per_token": 3.5e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1814,13 +1761,12 @@
     },
     {
       "model": "deepinfra/zai-org/glm-5.2",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 7.5e-07,
+      "output_cost_per_token": 2.4e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -1850,13 +1796,12 @@
     },
     {
       "model": "deepseek/deepseek-v4-flash-vision-exp",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 4.4e-07,
+      "output_cost_per_token": 1.32e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -2580,8 +2525,8 @@
     },
     {
       "model": "novita/deepseek/deepseek-r1",
-      "input_cost_per_token": 5.5e-07,
-      "output_cost_per_token": 2.19e-06,
+      "input_cost_per_token": 4e-06,
+      "output_cost_per_token": 4e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -2750,6 +2695,23 @@
     },
     {
       "model": "novita/deepseek/deepseek-v4-flash",
+      "input_cost_per_token": 1.4e-07,
+      "output_cost_per_token": 2.8e-07,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://novita.ai/pricing"
+      ],
+      "quirks": []
+    },
+    {
+      "model": "novita/deepseek/deepseek-v4-flash-0731",
       "input_cost_per_token": 4.4e-07,
       "output_cost_per_token": 1.32e-06,
       "release_date": null,
@@ -2766,32 +2728,13 @@
       "quirks": []
     },
     {
-      "model": "novita/deepseek/deepseek-v4-flash-0731",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
-      "release_date": null,
-      "prompt_method": "system",
-      "reliability": "\u26a0",
-      "issues": [
-        "missing_price",
-        "missing_release_date"
-      ],
-      "sources": [
-        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
-        "https://openrouter.ai/docs/api-reference/models/get-models",
-        "https://novita.ai/pricing"
-      ],
-      "quirks": []
-    },
-    {
       "model": "novita/deepseek/deepseek-v4-flash-vision-exp",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 4.4e-07,
+      "output_cost_per_token": 1.32e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -2803,6 +2746,23 @@
     },
     {
       "model": "novita/deepseek/deepseek-v4-pro",
+      "input_cost_per_token": 1.6000000000000001e-06,
+      "output_cost_per_token": 3.2000000000000003e-06,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://novita.ai/pricing"
+      ],
+      "quirks": []
+    },
+    {
+      "model": "novita/deepseek/deepseek-v4-pro-0813",
       "input_cost_per_token": 1.32e-06,
       "output_cost_per_token": 3.96e-06,
       "release_date": null,
@@ -2819,32 +2779,13 @@
       "quirks": []
     },
     {
-      "model": "novita/deepseek/deepseek-v4-pro-0813",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
-      "release_date": null,
-      "prompt_method": "system",
-      "reliability": "\u26a0",
-      "issues": [
-        "missing_price",
-        "missing_release_date"
-      ],
-      "sources": [
-        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
-        "https://openrouter.ai/docs/api-reference/models/get-models",
-        "https://novita.ai/pricing"
-      ],
-      "quirks": []
-    },
-    {
       "model": "novita/deepseek/deepseek_v3",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 8.900000000000001e-07,
+      "output_cost_per_token": 8.900000000000001e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -2873,13 +2814,12 @@
     },
     {
       "model": "novita/google/gemma-4-26b-a4b-it",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.3e-07,
+      "output_cost_per_token": 4.0000000000000003e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -2891,13 +2831,12 @@
     },
     {
       "model": "novita/google/gemma-4-31b-it",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.4e-07,
+      "output_cost_per_token": 4.0000000000000003e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -2909,13 +2848,12 @@
     },
     {
       "model": "novita/inclusionai/ling-3.0-flash",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 6e-08,
+      "output_cost_per_token": 1.8e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -2927,13 +2865,12 @@
     },
     {
       "model": "novita/inclusionai/ling-3.0-flash-fast",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 6e-08,
+      "output_cost_per_token": 1.8e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3065,13 +3002,12 @@
     },
     {
       "model": "novita/mindai/macaron-v1-venti",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.5e-06,
+      "output_cost_per_token": 4.5e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3135,13 +3071,12 @@
     },
     {
       "model": "novita/minimax/minimax-m2.5",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 3e-07,
+      "output_cost_per_token": 1.2e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3153,13 +3088,12 @@
     },
     {
       "model": "novita/minimax/minimax-m2.5-highspeed",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 6e-07,
+      "output_cost_per_token": 2.4e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3171,13 +3105,12 @@
     },
     {
       "model": "novita/minimax/minimax-m2.7",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 3e-07,
+      "output_cost_per_token": 1.2e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3189,13 +3122,12 @@
     },
     {
       "model": "novita/minimax/minimax-m2.7-highspeed",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 6e-07,
+      "output_cost_per_token": 2.4e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3207,13 +3139,12 @@
     },
     {
       "model": "novita/minimax/minimax-m3",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 3e-07,
+      "output_cost_per_token": 1.2e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3293,13 +3224,12 @@
     },
     {
       "model": "novita/moonshotai/kimi-k2.5",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 6e-07,
+      "output_cost_per_token": 3e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3311,13 +3241,12 @@
     },
     {
       "model": "novita/moonshotai/kimi-k2.6",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 8.000000000000001e-07,
+      "output_cost_per_token": 3.4e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3329,13 +3258,12 @@
     },
     {
       "model": "novita/moonshotai/kimi-k2.7-code",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 9.499999999999999e-07,
+      "output_cost_per_token": 4e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3347,13 +3275,12 @@
     },
     {
       "model": "novita/moonshotai/kimi-k3",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 3e-06,
+      "output_cost_per_token": 1.5e-05,
       "release_date": null,
       "prompt_method": "prefill",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3367,13 +3294,12 @@
     },
     {
       "model": "novita/nvidia/nemotron-3-nano-30b-a3b",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 5.0000000000000004e-08,
+      "output_cost_per_token": 2.0000000000000002e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3508,8 +3434,8 @@
     },
     {
       "model": "novita/qwen/qwen3-coder-480b-a35b-instruct",
-      "input_cost_per_token": 3e-07,
-      "output_cost_per_token": 1.3e-06,
+      "input_cost_per_token": 3.8e-07,
+      "output_cost_per_token": 1.55e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
@@ -3525,13 +3451,12 @@
     },
     {
       "model": "novita/qwen/qwen3-coder-next",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2.0000000000000002e-07,
+      "output_cost_per_token": 1.5e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3662,13 +3587,12 @@
     },
     {
       "model": "novita/qwen/qwen3.5-122b-a10b",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 4.0000000000000003e-07,
+      "output_cost_per_token": 3.2000000000000003e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3680,13 +3604,12 @@
     },
     {
       "model": "novita/qwen/qwen3.5-27b",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 3e-07,
+      "output_cost_per_token": 2.4e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3698,13 +3621,12 @@
     },
     {
       "model": "novita/qwen/qwen3.5-35b-a3b",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2.5e-07,
+      "output_cost_per_token": 2e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3716,13 +3638,12 @@
     },
     {
       "model": "novita/qwen/qwen3.5-397b-a17b",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 6e-07,
+      "output_cost_per_token": 3.6000000000000003e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3752,13 +3673,12 @@
     },
     {
       "model": "novita/qwen/qwen3.6-27b",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 6e-07,
+      "output_cost_per_token": 3.6000000000000003e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3770,13 +3690,12 @@
     },
     {
       "model": "novita/qwen/qwen3.6-35b-a3b",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2.48e-07,
+      "output_cost_per_token": 1.4850000000000002e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3806,13 +3725,12 @@
     },
     {
       "model": "novita/qwen/qwen3.7-max",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.25e-06,
+      "output_cost_per_token": 3.75e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3860,13 +3778,12 @@
     },
     {
       "model": "novita/qwen/qwen3.8-max",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 6e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3912,13 +3829,12 @@
     },
     {
       "model": "novita/thudm/glm-4-32b-0414",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 5.5e-07,
+      "output_cost_per_token": 1.66e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3930,13 +3846,12 @@
     },
     {
       "model": "novita/xiaomimimo/mimo-v2.5",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.6800000000000002e-07,
+      "output_cost_per_token": 3.3600000000000004e-07,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -3948,13 +3863,12 @@
     },
     {
       "model": "novita/xiaomimimo/mimo-v2.5-pro",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 5.22e-07,
+      "output_cost_per_token": 1.044e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -4034,13 +3948,12 @@
     },
     {
       "model": "novita/zai-org/glm-5",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1e-06,
+      "output_cost_per_token": 3.2000000000000003e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -4052,13 +3965,12 @@
     },
     {
       "model": "novita/zai-org/glm-5-turbo",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.2e-06,
+      "output_cost_per_token": 4e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -4070,13 +3982,12 @@
     },
     {
       "model": "novita/zai-org/glm-5.1",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.38e-06,
+      "output_cost_per_token": 4.4e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -4088,13 +3999,12 @@
     },
     {
       "model": "novita/zai-org/glm-5.2",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.4e-06,
+      "output_cost_per_token": 4.4e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -4106,13 +4016,12 @@
     },
     {
       "model": "novita/zai-org/glm-5.3",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.4e-06,
+      "output_cost_per_token": 4.4e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -4124,13 +4033,12 @@
     },
     {
       "model": "novita/zai-org/glm-5v-turbo",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 1.2e-06,
+      "output_cost_per_token": 4e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
