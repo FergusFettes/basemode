@@ -131,19 +131,31 @@ _GEMINI_DISABLE_THINKING_STEMS = frozenset(
     {"gemini-3.5-flash", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-flash-latest"}
 )
 
-_ZAI_DISABLE_THINKING_PREFIXES = (
+_GLM_DISABLE_THINKING_PREFIXES = (
     "glm-4.5",
     "glm-4.6",
     "glm-4.7",
     "glm-5",
 )
 
-# glm-5.3, probed live 2026-08-24: unlike the rest of the glm-5.x family
-# above, it rejects `thinking.type: "disabled"` outright ("This model always
-# engages in thinking and cannot be disabled; please use low, high, or max")
-# and needs an effort level plus a wider budget instead -- checked before
-# the prefix match above, which would otherwise catch it via "glm-5".
-_ZAI_MANDATORY_THINKING_STEMS = frozenset({"glm-5.3"})
+# Providers confirmed live (2026-08-28) to honour z.ai's `thinking: {"type":
+# "disabled"}` body for glm models. Resellers host the same stems and the
+# hidden reasoning is just as expensive there: probed on novita, `glm-4.7`
+# spends a whole 64-token allowance on reasoning and returns
+# finish_reason="length" with no visible text, while the disable body yields
+# clean output with zero reasoning tokens (same for `glm-5.1` and `glm-5.2`).
+_GLM_DISABLE_THINKING_PROVIDERS = frozenset({"zai", "novita"})
+
+# glm-5.3 cannot have thinking turned off, on any provider that hosts it:
+#   - z.ai (probed 2026-08-24) rejects `thinking.type: "disabled"` outright
+#     ("This model always engages in thinking and cannot be disabled; please
+#     use low, high, or max"), so it gets an effort level instead.
+#   - novita (probed 2026-08-28) accepts the disable body but ignores it and
+#     reasons anyway, as it does for `thinking.type: "enabled"` with any
+#     effort -- so there the only fix is token headroom.
+# Either way this stem needs a widened budget, and is checked before the
+# disable-prefix match above, which would otherwise catch it via "glm-5".
+_MANDATORY_THINKING_STEMS = frozenset({"glm-5.3"})
 
 # Claude 5.x (opus-5, sonnet-5, ...), probed live 2026-08-24: this family
 # rejects the older `thinking.type: "enabled"` shape outright ("Use
@@ -239,13 +251,19 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
     via_zai = provider == "zai"
     via_anthropic = provider == "anthropic"
     via_gemma = stem.startswith("gemma-")
-    if via_zai and stem in _ZAI_MANDATORY_THINKING_STEMS:
+    if stem in _MANDATORY_THINKING_STEMS:
         budget, min_out = _GENERIC_REASONING_BUDGET
-        return {
-            "extra_body": {"thinking": {"type": "enabled", "effort": "low"}},
-            "max_tokens": max(max_tokens, budget + min_out),
-        }
-    if via_zai and stem.startswith(_ZAI_DISABLE_THINKING_PREFIXES):
+        widened = max(max_tokens, budget + min_out)
+        if via_zai:
+            return {
+                "extra_body": {"thinking": {"type": "enabled", "effort": "low"}},
+                "max_tokens": widened,
+            }
+        # No thinking control this provider honours -- reserve headroom only.
+        return {"max_tokens": widened}
+    if provider in _GLM_DISABLE_THINKING_PROVIDERS and stem.startswith(
+        _GLM_DISABLE_THINKING_PREFIXES
+    ):
         return {"extra_body": {"thinking": {"type": "disabled"}}}
     if via_anthropic and _ANTHROPIC_ADAPTIVE_ONLY_PATTERN.match(stem):
         return {"max_tokens": max(max_tokens, _ANTHROPIC_ADAPTIVE_MIN_TOKENS)}

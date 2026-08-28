@@ -355,6 +355,34 @@ def test_zai_glm_5_3_cannot_disable_thinking() -> None:
     assert kwargs["max_tokens"] > 200
 
 
+def test_novita_glm_disables_thinking_via_extra_body() -> None:
+    """Novita hosts the glm family under the same stems and defaults
+    reasoning on: probed live 2026-08-28, `novita/zai-org/glm-4.7` spent a
+    whole 64-token allowance on hidden reasoning and returned
+    finish_reason="length" with no visible text, while the disable body
+    produced clean output and zero reasoning tokens."""
+    for model in ("novita/zai-org/glm-4.7", "novita/zai-org/glm-5.2"):
+        kwargs = build_kwargs(GenerationParams(model=model, max_tokens=200))
+
+        assert kwargs["max_tokens"] == 200
+        assert kwargs["extra_body"] == {"thinking": {"type": "disabled"}}
+        assert "thinking" not in kwargs
+
+
+def test_novita_glm_5_3_widens_budget_instead_of_disabling() -> None:
+    """Novita accepts the disable body for glm-5.3 but ignores it and reasons
+    anyway (probed live 2026-08-28: reasoning_content still streamed, empty
+    text, finish_reason="length" at max_tokens=10). With no thinking control
+    that provider honours, the only fix is token headroom."""
+    kwargs = build_kwargs(
+        GenerationParams(model="novita/zai-org/glm-5.3", max_tokens=10)
+    )
+
+    assert kwargs["max_tokens"] > 4096
+    assert "extra_body" not in kwargs
+    assert "thinking" not in kwargs
+
+
 async def test_continue_text_loads_persisted_keys(monkeypatch) -> None:
     from basemode import continue_ as cont
     from basemode.params import GenerationParams
