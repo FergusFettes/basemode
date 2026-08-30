@@ -1,5 +1,11 @@
 # basemode
 
+[![PyPI](https://img.shields.io/pypi/v/basemode.svg)](https://pypi.org/project/basemode/)
+[![Python](https://img.shields.io/pypi/pyversions/basemode.svg)](https://pypi.org/project/basemode/)
+[![CI](https://github.com/FergusFettes/basemode/actions/workflows/ci.yml/badge.svg)](https://github.com/FergusFettes/basemode/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-mkdocs-blue.svg)](https://fergusfettes.github.io/basemode/)
+[![License](https://img.shields.io/pypi/l/basemode.svg)](https://github.com/FergusFettes/basemode/blob/main/LICENSE)
+
 Make any LLM do raw text continuation.
 
 `basemode` coerces chat-tuned models into clean next-token continuation mode (instead of assistant-style replies), with strategy selection handled per model/provider.

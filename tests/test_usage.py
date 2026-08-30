@@ -15,11 +15,20 @@ def test_get_price_info_known_model() -> None:
     assert info.output_cost_per_token is not None
 
 
-def test_get_price_info_unknown_pricing_model() -> None:
+def test_get_price_info_normalizes_alias() -> None:
     info = get_price_info("gemma-4")
 
     assert info.model == "gemini/gemma-4-26b-a4b-it"
+
+
+def test_get_price_info_unknown_pricing_model() -> None:
+    # Deliberately not a real model: litellm's pricing map gains entries over
+    # time, so a name it could plausibly learn makes this test drift.
+    info = get_price_info("basemode-nonexistent-test-model")
+
     assert not info.pricing_available
+    assert info.input_cost_per_token is None
+    assert info.output_cost_per_token is None
 
 
 def test_estimate_usage_known_model_has_cost() -> None:
