@@ -1,6 +1,6 @@
 # Verified Models
 
-Single generated table, refreshed by CI.
+This table lists every endpoint in the verified-model registry. Its `Prompt method` and `Quirks` columns are runtime configuration; the remaining fields help compare endpoints and identify incomplete metadata. The page is regenerated from the registry by CI.
 
 | Model | Input cost (/1M) | Output cost (/1M) | Release date | Prompt method | Reliability | Quirks |
 |---|---:|---:|---|---|---|---|
@@ -133,7 +133,7 @@ Single generated table, refreshed by CI.
 | `gemini/gemini-robotics-er-2-preview` | $2.00 | $10.00 | unknown | `system` | ⚠ |  |
 | `gemini/gemma-4-26b-a4b-it` | $0.07 | $0.34 | 2026-04-03 | `system` | ⚠ | `reasoning_budget` |
 | `gemini/gemma-4-31b-it` | $0.09 | $0.34 | 2026-04-02 | `system` | ⚠ | `reasoning_budget` |
-| `gemini/nano-banana-pro-preview` | unknown | unknown | unknown | `prefill` | ⚠ |  |
+| `gemini/nano-banana-pro-preview` | $2.00 | $12.00 | unknown | `prefill` | ⚠ |  |
 | `groq/allam-2-7b` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `groq/groq/compound` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `groq/groq/compound-mini` | unknown | unknown | unknown | `system` | ⚠ |  |
@@ -143,7 +143,7 @@ Single generated table, refreshed by CI.
 | `moonshot/kimi-k2-0905-preview` | $0.60 | $2.50 | 2025-07-11 | `system` | ⚠ |  |
 | `moonshot/kimi-k2.5` | $0.60 | $3.00 | 2026-01-27 | `system` | ⚠ | `no_temperature` |
 | `moonshot/kimi-k2.6` | $0.95 | $4.00 | 2026-04-20 | `system` | ✓ | `no_temperature` |
-| `moonshot/kimi-k2.7-code` | unknown | unknown | unknown | `system` | ⚠ | `no_temperature`, `reasoning_budget` |
+| `moonshot/kimi-k2.7-code` | $0.95 | $4.00 | unknown | `system` | ⚠ | `no_temperature`, `reasoning_budget` |
 | `moonshot/kimi-k2.7-code-highspeed` | unknown | unknown | unknown | `system` | ⚠ | `no_temperature`, `reasoning_budget` |
 | `moonshot/kimi-k3` | $3.00 | $15.00 | 2026-07-15 | `prefill` | ✓ | `no_temperature` |
 | `moonshot/moonshot-v1-128k` | $2.00 | $5.00 | unknown | `system` | ⚠ |  |

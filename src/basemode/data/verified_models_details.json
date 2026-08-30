@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-08-28T18:56:47.262219+00:00",
+  "generated_at_utc": "2026-08-30T11:25:54.943075+00:00",
   "rows": [
     {
       "model": "anthropic/claude-fable-5",
@@ -2168,13 +2168,12 @@
     },
     {
       "model": "gemini/nano-banana-pro-preview",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 2e-06,
+      "output_cost_per_token": 1.2e-05,
       "release_date": null,
       "prompt_method": "prefill",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -2340,13 +2339,12 @@
     },
     {
       "model": "moonshot/kimi-k2.7-code",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 9.5e-07,
+      "output_cost_per_token": 4e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [

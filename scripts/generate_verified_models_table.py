@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a unified verified-models table for README.
+"""Generate verified-model metadata and documentation.
 
 Data sources:
 - LiteLLM model metadata/pricing (primary)
@@ -84,7 +84,11 @@ def _pick_price(
     litellm_output: float | None,
     openrouter_meta: dict | None,
 ) -> tuple[float | None, float | None, str | None]:
-    if litellm_input is not None and litellm_output is not None:
+    if (
+        litellm_input is not None
+        and litellm_output is not None
+        and (litellm_input > 0 or litellm_output > 0)
+    ):
         return litellm_input, litellm_output, "litellm"
 
     if openrouter_meta:
@@ -214,18 +218,18 @@ def _render_table(rows: list[Row]) -> str:
     return "\n".join(lines)
 
 
-def _inject_readme(table: str) -> None:
+def _inject_readme(rows: list[Row]) -> None:
     readme = README_PATH.read_text()
     block = (
         f"{MARKER_START}\n"
         "\n"
-        "## Verified Models\n"
+        "## Verified models\n"
         "\n"
-        "Single generated table, refreshed by CI.\n"
-        "\n"
-        f"{table}\n"
-        "\n"
-        "Legend: `✓` = LiteLLM pricing present and release date available; `⚠` = missing/approximate field or known issue.\n"
+        f"The registry currently contains {len(rows)} model endpoints with a tested "
+        "prompt strategy. The "
+        "[full model table](https://fergusfettes.github.io/basemode/usage/Verified-Models/) "
+        "lists prices, release dates, strategies, and compatibility quirks. It is "
+        "generated from the same registry used at runtime.\n"
         "\n"
         f"{MARKER_END}"
     )
@@ -268,7 +272,10 @@ def _write_details(rows: list[Row]) -> None:
 def _write_docs_page(table: str) -> None:
     content = (
         "# Verified Models\n\n"
-        "Single generated table, refreshed by CI.\n\n"
+        "This table lists every endpoint in the verified-model registry. Its "
+        "`Prompt method` and `Quirks` columns are runtime configuration; the "
+        "remaining fields help compare endpoints and identify incomplete metadata. "
+        "The page is regenerated from the registry by CI.\n\n"
         f"{table}\n\n"
         "Legend: `✓` = LiteLLM pricing present and release date available; "
         "`⚠` = missing/approximate field or known issue.\n"
@@ -280,7 +287,7 @@ def _write_docs_page(table: str) -> None:
 def main() -> int:
     rows = _build_rows()
     table = _render_table(rows)
-    _inject_readme(table)
+    _inject_readme(rows)
     _write_details(rows)
     _write_docs_page(table)
     return 0
