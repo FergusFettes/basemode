@@ -25,6 +25,101 @@ make test-integration
 They skip providers without keys and write a health report under `dist/`. Never
 print or commit provider credentials; see [[Keys and Defaults]].
 
+## How a request flows
+
+Almost every change lands somewhere on this path. Read it once before touching
+the strategy or detection code.
+
+```
+continue_text(prefix, model)          src/basemode/continue_.py
+  |
+  |  normalize_model()                src/basemode/detect.py
+  |    "claude-opus-5" -> "anthropic/claude-opus-5"
+  |    aliases, provider-prefix inference, Anthropic "4.6" -> "4-6"
+  v
+  |  select_strategy()                src/basemode/detect.py
+  |    explicit arg > user pin > verified registry > name heuristic
+  |    returns a StrategyChoice carrying *which* of those applied
+  v
+  |  Strategy.stream(prefix, params)  src/basemode/strategies/*.py
+  |    the model-specific prompt shape: prefill / system / few_shot / fim
+  v
+  |  build_kwargs()                   src/basemode/strategies/compat.py
+  |    drops or rewrites params the model rejects (no_temperature,
+  |    no_prefill, reasoning_budget floors)
+  v
+  |  litellm.acompletion(...)         the actual provider call
+  v
+  |  healing                          src/basemode/healing.py
+  |    seam repair at the prefix/continuation boundary, newline normalization
+  v
+  |  record_outcome()                 src/basemode/health.py
+  |    per-model success/failure history, surfaced by `basemode info`
+  v
+  streamed tokens
+```
+
+Two things about this path are easy to get wrong:
+
+- **`select_strategy` reports its own provenance.** It returns a
+  `StrategyChoice` with a source string, not a bare name, because `basemode
+  info` has to explain *why* a model got the strategy it did. Preserve that
+  when adding a precedence level.
+- **`on_raw_head` fires before healing.** It is the only hook that sees text as
+  the strategy produced it. That is what distinguishes "the model never emitted
+  the space" from "healing ate the space" — do not move it downstream of
+  `healing.py`.
+
+## Adding a strategy
+
+1. Subclass `ContinuationStrategy` in `src/basemode/strategies/`, set a `name`
+   class attribute, and implement `async def stream(self, prefix, params)`.
+   Build provider kwargs with `compat.build_kwargs(params)` rather than passing
+   `params` straight to litellm — that is where quirk handling lives.
+2. Register the class in `REGISTRY` in `strategies/__init__.py`. The dict is
+   keyed off each class's `name`, so the attribute is the public identifier
+   used by `--strategy`, the registry's `prompt_method`, and pins.
+3. Add it to the heuristic fallback in `detect._heuristic_strategy` only if a
+   model-name pattern should reach for it *without* verification.
+4. Add a regression in `tests/` covering the prompt shape it builds.
+5. Document it in [[Strategies]] — that page is the user-facing contract for
+   what each strategy costs and when it fails.
+
+`basemode bench` picks the new strategy up automatically; it enumerates
+`REGISTRY`, so no separate registration is needed there.
+
+## Adding a model or provider quirk
+
+A model that misbehaves needs data, not code. Edit
+`data/verified_models_registry.json`:
+
+- `prompt_method` — the strategy that verifiably works. Read at runtime by
+  `select_strategy`, so this field *is* the shipped behaviour.
+- `quirks` — parameter-level workarounds consumed by `compat.build_kwargs`.
+  Existing ones: `no_prefill`, `no_temperature`, `reasoning_budget`.
+
+Then run `make models-table` to regenerate the README table, the docs page, and
+the packaged JSON. Never hand-edit those three.
+
+A genuinely new *kind* of misbehaviour — a parameter no existing quirk covers —
+needs a new quirk name handled in `compat.py` plus a test, then the registry
+entry. Prefer an existing quirk where one fits; the vocabulary is deliberately
+small.
+
+## Gotchas
+
+- **Never let litellm's exceptions reach stdout.** Some failures print
+  provider-help text as a side effect, which corrupts CLI output that callers
+  parse. `normalize_model` deliberately checks local aliases before probing
+  litellm for this reason.
+- **Integration tests cost real money.** They are excluded from `make check` by
+  the `not integration` marker. Keep it that way.
+- **`uv.lock` is checked in and CI runs `uv sync --locked`.** A dependency
+  change without `uv lock` fails CI rather than silently resolving.
+- **Version bumps trigger publishing.** `publish.yml` compares the
+  `pyproject.toml` version against PyPI on every push to `main` and uploads
+  when they differ. Bump the version only when you intend a release.
+
 ## Repository map
 
 | Area | Start here | Use it when |

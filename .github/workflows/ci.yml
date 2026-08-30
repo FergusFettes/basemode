@@ -6,6 +6,9 @@ on:
   pull_request:
 
 jobs:
+  # Full gate (lint, tests, strict docs build, wheel/sdist) on the lowest
+  # supported Python. Other versions run tests only -- lint and docs are
+  # version-independent, so repeating them buys nothing.
   lint-test-docs:
     runs-on: ubuntu-latest
 
@@ -26,3 +29,27 @@ jobs:
 
       - name: Check
         run: make check
+
+  # Backs the "Programming Language :: Python :: X.Y" classifiers in
+  # pyproject.toml. Keep this list and those classifiers in step.
+  test-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.12', '3.13', '3.14']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: uv sync --locked --group dev --extra server
+
+      - name: Test
+        run: uv run pytest -q -m "not integration"

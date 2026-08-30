@@ -4,6 +4,20 @@
 
 Most modern models want to answer prompts. `basemode` does the opposite: it coerces models to continue raw text naturally, with no assistant preamble.
 
+## The problem
+
+Hand a chat-tuned model a fragment of prose and it replies to you instead of
+continuing it — "I'd be happy to help! Here's one possibility:", the passage in
+quotation marks, an offer to try another style. Base models continue text
+natively; instruction tuning trains it out.
+
+`basemode` puts it back, by wrapping your prefix in whatever prompt shape a
+given model will actually continue: a prefilled assistant turn, a system
+instruction, a few-shot frame, an FIM template. No single trick works
+everywhere — Anthropic models took a prefill until they didn't, and some
+providers reject the parameter outright — so the choice is per-model data
+rather than a guess. See [[How It Works]].
+
 ## What it does
 
 - Auto-selects a continuation strategy per model (`completion`, `prefill`, `system`, `few_shot`, `fim`), preferring the method verified for that model over a guess

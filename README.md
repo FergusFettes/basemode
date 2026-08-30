@@ -10,6 +10,63 @@ Make any LLM do raw text continuation.
 
 `basemode` coerces chat-tuned models into clean next-token continuation mode (instead of assistant-style replies), with strategy selection handled per model/provider.
 
+## The problem
+
+Ask a chat-tuned model to continue a piece of text and it answers you instead:
+
+```
+> The ship rounded the headland and
+
+I'd be happy to help continue this passage! Here's one possibility:
+
+"The ship rounded the headland and the harbour opened before them..."
+
+Would you like me to continue in a different style?
+```
+
+You wanted prose. You got a customer-service interaction wrapped around it.
+
+`basemode` gets you the prose:
+
+```console
+$ basemode "The ship rounded the headland and"
+The ship rounded the headland and the wind dropped all at once, as though
+the cliffs had swallowed it. Sails that had been drum-tight for three days
+went slack, and in the sudden quiet the crew could hear water moving along
+the hull.
+```
+
+No preamble, no offer to help, no quotation marks. Just the continuation.
+
+## How
+
+Base models do this natively; chat-tuned models have it trained out of them. `basemode` puts it back by wrapping the prefix in whatever prompt shape a given model will actually continue — a prefilled assistant turn, a system instruction, a few-shot frame, an FIM template — because no single trick works everywhere. Anthropic models took a prefill until they didn't; some providers reject the parameter outright.
+
+So the strategy is per-model data, not a guess. `basemode bench` scores each strategy against a model on real continuations and pins the winner; the results ship in the [verified-model table](#verified-models) below.
+
+```console
+$ basemode info claude-opus-5
+```
+
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Field                  ┃ Value                                               ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Resolved               │ anthropic/claude-opus-5                             │
+│ Strategy               │ few_shot                                            │
+│ Strategy source        │ verified models registry                            │
+│ Quirks                 │ no_prefill, no_temperature                          │
+│ Input price            │ $5.00/1M                                            │
+│ Output price           │ $25.00/1M                                           │
+│ Your rating            │ unrated                                             │
+│ Observed health        │ 181 attempts, 1 failed (1%); last empty_response at │
+│                        │ 2026-08-24T20:49:09.033360+00:00                    │
+└────────────────────────┴─────────────────────────────────────────────────────┘
+```
+
+Strategy, quirks, pricing, and your own observed success rate for that model, in
+one place — so a bad continuation is diagnosable rather than mysterious.
+
 ## Install
 
 ```bash
