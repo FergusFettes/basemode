@@ -12,7 +12,8 @@ normalize_model("gpt-4o-mini")        # "openai/gpt-4o-mini"
 normalize_model("kimi-k2")            # "moonshot/kimi-k2-0905-preview"
 ```
 
-The point is that you should be able to type the name you actually remember.
+This lets the CLI accept familiar short names while the rest of the pipeline
+uses provider-qualified IDs.
 
 ## Resolution order
 
@@ -28,13 +29,13 @@ The point is that you should be able to type the name you actually remember.
    (cohere), `kimi` (moonshot), `deepseek`.
 4. **LiteLLM's own resolution**, as a last resort.
 
-Local aliases are checked *before* LiteLLM is asked. This is deliberate and
-worth preserving: some LiteLLM resolution failures print provider-help text to
-stdout as a side effect, which corrupts CLI output that other tools parse.
+Local aliases are checked before LiteLLM. Some LiteLLM resolution failures
+print provider guidance to stdout, which would corrupt machine-readable CLI
+output.
 
 ## Anthropic-specific handling
 
-Anthropic IDs use dashes between version digits, but everyone types dots:
+Anthropic IDs use dashes between version digits; dotted versions are accepted:
 
 ```python
 normalize_model("claude-opus-4.6")  # "anthropic/claude-opus-4-6"
@@ -48,9 +49,8 @@ normalize_model("sonnet-4-5")  # "anthropic/claude-sonnet-4-5-20250929"
 normalize_model("opus-4-7")    # "anthropic/claude-opus-4-7"
 ```
 
-Expansion only fires when the fragment matches **exactly one** known model. An
-ambiguous or unknown fragment passes through untouched and the provider returns
-a 404 — normalization guesses, but it never guesses between two candidates.
+Expansion requires exactly one known match. Ambiguous or unknown fragments pass
+through unchanged and may be rejected by the provider.
 
 ## Checking what you got
 
@@ -60,8 +60,8 @@ a 404 — normalization guesses, but it never guesses between two candidates.
 basemode info sonnet-4-5
 ```
 
-If a model 404s unexpectedly, that is the first thing to look at: normalization
-may have passed an ambiguous fragment through unchanged.
+If a model unexpectedly returns 404, check whether normalization left an
+ambiguous fragment unchanged.
 
 ## Adding an alias
 

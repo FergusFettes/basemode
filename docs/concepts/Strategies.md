@@ -24,15 +24,12 @@ strategy instance. Precedence, highest first:
 | `registry` | The verified-models registry's `prompt_method` | Shipped with the package |
 | `heuristic` | Model-name rules in `detect.py` | Anything unregistered |
 
-The registry layer matters most: `prompt_method` records the strategy a model
-was *observed* to work with when `scripts/discover_new_models.py` probed it,
-so a model whose behavior doesn't match its name still gets the right
-treatment. It is also what the [[Verified Models]] table publishes — the table
-and the runtime read the same field, so what is documented is what runs.
+The registry's `prompt_method` records a strategy that passed model discovery.
+The [[Verified Models]] table and runtime selection read the same field.
 
 A registry or user choice of `prefill` is skipped for any model carrying the
-`no_prefill` quirk. Providers withdraw prefill support between releases, and a
-stale entry should degrade to the heuristic rather than to a hard error.
+`no_prefill` quirk. Providers can withdraw prefill support between releases;
+an incompatible entry therefore falls back to the heuristic.
 
 The name heuristics are the last resort, for models nobody has probed:
 
@@ -47,7 +44,7 @@ Check what a given model will do, and why:
 basemode info claude-opus-5
 ```
 
-## Measuring, instead of guessing
+## Comparing strategies
 
 `basemode bench` runs the candidate strategies against the same model and
 ranks them by how cleanly they continue text.
@@ -66,21 +63,18 @@ basemode bench claude-opus-5 --samples
 └──────────┴───────┴──────────────────────────────┴────────┘
 ```
 
-Each strategy runs against four probe prefixes — narrative prose, technical
-instructions, poetry, and dialogue — because a strategy that only holds up on
-plain narrative isn't one worth pinning. Poetry and dialogue are where chat
-models most often break character and start explaining themselves.
+Each strategy runs against narrative prose, technical instructions, poetry,
+and dialogue. The different registers expose prompt shapes that only work for
+plain prose.
 
-`--save` pins the winner for that model in `~/.config/basemode/auth.json`; see
-[[Keys and Defaults]]. A tie is never a reason to switch: ranking breaks ties on
-latency, so `bench` only recommends a change when a strategy scores strictly
-better than the one in use.
+`--save` pins the winner in `~/.config/basemode/auth.json`; see [[Keys and
+Defaults]]. Latency breaks ranking ties, but `bench` recommends changing the
+current strategy only when another strategy has a higher score.
 
 ## Continuation scoring
 
-`basemode.scoring.score_continuation(prefix, text)` turns "did that come back
-as a continuation?" into a number between 0.0 and 1.0, plus flags naming every
-problem found. It is what `bench` ranks with, and what
+`basemode.scoring.score_continuation(prefix, text)` returns a number between
+0.0 and 1.0 plus flags for detected problems. It is what `bench` ranks with and what
 `scripts/discover_new_models.py` uses to decide whether a newly-listed model is
 worth registering at all.
 
@@ -103,9 +97,8 @@ the ranking. Anything at 0.75 or above counts as clean. `bad_boundary` is only
 reported when nothing else fired — on top of a preamble it would double-count a
 failure already accounted for.
 
-The scorer is heuristic and deliberately blunt. It recognizes the shape of
-assistant behavior, not the quality of the prose; a fluent continuation and a
-dull one both score 1.0.
+The scorer detects assistant behavior, not prose quality. Fluent and dull
+continuations can both score 1.0.
 
 ## Manual override
 

@@ -1,31 +1,27 @@
 # basemode
 
-**basemode** makes chat-tuned LLMs behave like continuation engines.
+**basemode** makes chat-tuned LLMs continue text instead of answering it.
 
-Most modern models want to answer prompts. `basemode` does the opposite: it coerces models to continue raw text naturally, with no assistant preamble.
+It provides streaming continuation through a CLI and async Python API, plus an
+OpenAI-compatible completions server.
 
 ## The problem
 
-Hand a chat-tuned model a fragment of prose and it replies to you instead of
-continuing it — "I'd be happy to help! Here's one possibility:", the passage in
-quotation marks, an offer to try another style. Base models continue text
-natively; instruction tuning trains it out.
-
-`basemode` puts it back, by wrapping your prefix in whatever prompt shape a
-given model will actually continue: a prefilled assistant turn, a system
-instruction, a few-shot frame, an FIM template. No single trick works
-everywhere — Anthropic models took a prefill until they didn't, and some
-providers reject the parameter outright — so the choice is per-model data
-rather than a guess. See [[How It Works]].
+Chat models often introduce, quote, or discuss a requested continuation.
+`basemode` instead wraps the prefix in a model-appropriate prompt: native
+completion, assistant prefill, a system instruction, few-shot examples, or an
+FIM template. Verified models carry a recorded strategy and compatibility
+quirks. Unregistered models use conservative name-based defaults. See
+[[How It Works]].
 
 ## What it does
 
-- Auto-selects a continuation strategy per model (`completion`, `prefill`, `system`, `few_shot`, `fim`), preferring the method verified for that model over a guess
+- Selects a continuation strategy per model (`completion`, `prefill`, `system`, `few_shot`, `fim`)
 - Streams text token-by-token from CLI or Python
 - Supports parallel branching (`-n/--branches`)
-- Normalizes model names across providers (`claude-*`, `gemini-*`, etc.)
+- Normalizes common model aliases and provider prefixes
 - Includes usage and cost estimates using LiteLLM metadata
-- Scores how cleanly a model continues text, so strategy choice can be measured (`basemode bench`)
+- Measures and stores strategy compatibility with live probes
 
 ## Interfaces
 
@@ -34,6 +30,7 @@ rather than a guess. See [[How It Works]].
 | [[CLI Reference]] | Terminal usage, streaming output, branch generation |
 | [[Python API]] | Integration into applications and scripts |
 | [[Keys and Defaults]] | Manage API keys and preferred model |
+| [[Model Evidence]] | Verification, compatibility evidence, and model status |
 
 ## Quick example
 
@@ -45,10 +42,10 @@ basemode "The ship rounded the headland and"
 # Parallel branches
 basemode "The ship rounded the headland and" -n 4
 
-# Inspect strategy + pricing metadata
+# Inspect strategy and pricing metadata
 basemode info claude-sonnet-4-6
 
-# Rank coercion strategies for a model, then pin the winner
+# Compare strategies and pin the winner
 basemode bench claude-sonnet-4-6 --save
 ```
 

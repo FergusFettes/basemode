@@ -2,17 +2,15 @@
 
 ## Core flow
 
-`basemode` runs a small pipeline:
+Each continuation passes through this pipeline:
 
 1. Normalize model name (`normalize_model`)
 2. Select a strategy (`select_strategy` / `detect_strategy`)
 3. Stream tokens via that strategy
 4. Heal token boundaries/newlines so `prefix + tokens` is clean text
 
-Step 2 prefers a verified answer to a guess: the strategy recorded for the
-model in the verified-models registry, or one pinned locally by
-`basemode bench --save`, before falling back to model-name heuristics. See
-[[Strategies]].
+Selection uses an explicit override first, followed by a local pin, verified
+registry data, and finally model-name heuristics. See [[Strategies]].
 
 ## Strategy abstraction
 
@@ -20,27 +18,25 @@ Every strategy implements a shared interface:
 
 - `stream(prefix, params) -> AsyncGenerator[str, None]`
 
-This keeps provider-specific behavior behind a common API.
+Provider-specific prompting stays behind this interface.
 
 ## Transport and model data
 
-Continuation strategies send chat or text-completion requests through a small
-transport interface. LiteLLM is the default transport: it translates request
-and streaming response shapes for many providers without requiring basemode to
-depend on every provider SDK. A different transport can be installed for a
-provider whose protocol cannot be represented safely by LiteLLM.
+Strategies send chat or text-completion requests through a transport interface.
+LiteLLM is the default transport and normalizes request and streaming response
+shapes across providers. Providers whose protocols cannot be represented by
+LiteLLM can supply another transport.
 
-The transport is not the model catalog. Basemode owns endpoint identity,
-verified strategies, compatibility quirks, and model evidence. Live provider
-catalogs and direct verification take precedence over LiteLLM's bundled model
-metadata. Consequently, a provider-qualified model can be called even when it
-has not yet appeared in LiteLLM's model list; the qualified ID is passed to the
-transport unchanged. LiteLLM pricing and token metadata remain best-effort
-fallbacks and are reported as unavailable when they are missing.
+Basemode owns endpoint identity, verified strategies, compatibility quirks,
+and model evidence. Live provider catalogs and direct verification take
+precedence over LiteLLM's bundled model metadata. A provider-qualified ID can
+therefore be called before it appears in LiteLLM's catalog. Pricing and token
+metadata from LiteLLM are best-effort and may be unavailable.
 
 ## Why continuation needs coercion
 
-Most chat models default to assistant behavior (acknowledgments, headings, commentary). `basemode` avoids that by:
+Chat models tend to acknowledge, format, or discuss a prompt. Strategies reduce
+that behavior using:
 
 - Using native completions APIs when available
 - Using Anthropic-style prefill where supported
@@ -49,22 +45,18 @@ Most chat models default to assistant behavior (acknowledgments, headings, comme
 
 ## Scoring coercion
 
-Whether coercion actually worked is measurable, not a matter of taste. The
-recognizable failures — preamble, refusal, echoed prefix, a chat transcript,
-stray markdown — are scored by `basemode.scoring` into a single number per
-continuation. That score is what `basemode bench` ranks strategies with and
-what model discovery uses to accept or reject a newly-listed model, so the
-same definition of "clean" governs both.
+`basemode.scoring` assigns each continuation a score based on recognizable
+failures: preambles, refusals, echoed prefixes, chat transcripts, and stray
+formatting. `basemode bench` uses the score to rank strategies; model discovery
+uses it when deciding whether an endpoint is suitable for registration.
 
 ## Token healing
 
-A chat model cannot be shown where the prefix ends without also being handed a
-trailing space, and its first token comes back without one. The space has to be
-put back, and sometimes it lands inside a word the model was in the middle of
-finishing: `counted, a` + `nd` renders as `a nd` rather than `and`. Stream
-output is post-processed to undo that and a few related artifacts:
+Prompt wrappers can remove the space at the prefix boundary or place it inside
+a word the model is finishing: `counted, a` + `nd` can render as `a nd`.
+Stream output repairs this seam and related artifacts:
 
-- Missing space between prefix and first token.
+- Missing spaces between the prefix and first token.
 - Split words at the generation boundary. The two halves are rejoined when the
   evidence says they are one word: the fragment cannot stand alone as a word
   (`nd`, `anks`, `urgery`) and either the merged form is a real word or the
@@ -83,33 +75,19 @@ output is post-processed to undo that and a few related artifacts:
   `thermodynamic`. The evidence required is the same as for the space case, so
   a real break after a complete word is never touched.
 
-The dictionary these rules consult ships with the package: Webster's Second
-International, the BSD `web2` list whose 1934 copyright has lapsed, held as a
-compressed word list in `basemode/data/`. It used to be read from
-`/usr/share/dict/words`, which meant that on a host without that file — most
-Linux images, every stock CI runner — no word was known, every prefix looked
-like it ended mid-word, and boundaries were joined that should have been left
-alone. Packaging the list makes healing behave identically everywhere; the
-system dictionary is now only a fallback for an install whose package data
-went missing. The list is extended two ways, because on its own it is a poor judge of running prose: it lists `flank`
-but not `flanks`, so plurals and past tenses are checked against their stems,
-and it knows nothing of invented or proper nouns, so the words already used in
-the document count as words too. That second source is what lets a coinage like
-`Xenosurgery` be repaired once the document has used it.
+The package includes a compressed copy of the public-domain BSD `web2` word
+list, avoiding platform-dependent behavior from `/usr/share/dict/words`.
+Inflected forms are checked against their stems, and words already present in
+the document are treated as known. This covers plurals, past tenses, proper
+nouns, and repeated coinages without joining every unfamiliar boundary.
 
 ### Exact joins with `rewind`
 
-Repair is inference, and inference has a ceiling: `for` + `ever` is ambiguous
-from the text alone. `rewind=True` removes the guesswork instead of improving
-it. The last short token is held back rather than sent — the model continues
-from `counted, ` — and if it comes back with `and`, the `a` already on the page
-is stripped from the output and the join is exact, whatever the word was.
+Some joins are inherently ambiguous: `for` + `ever` may be one word or two.
+With `rewind=True`, the last short token is held back before generation. If the
+model repeats it as part of the continuation, the duplicate prefix is removed,
+giving an exact join.
 
-When the model writes something else, its text was composed to follow a prefix
-the reader never sees, and pasting it on would read as a non-sequitur rather
-than a spacing glitch. The request is therefore reissued with the full prefix
-before anything has been shown, and the heuristics above take over. The cost is
-a second request whenever the model declines the rewind, which is why it is
-off by default.
-
-This is why `prefix + ''.join(tokens)` remains readable and stable across providers.
+If the model does not repeat the held-back text, basemode reissues the request
+with the full prefix before yielding output and falls back to heuristic repair.
+This can add a second provider request, so rewind is disabled by default.

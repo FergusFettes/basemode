@@ -41,6 +41,10 @@ basemode models [--provider openai] [--search claude] [--available] [--verified]
 
 - `--available` limits to providers with configured keys.
 - `--verified` limits to models tracked in the verified-models registry.
+- `--full` retains dated snapshots that are collapsed in the default view.
+- `--all-modes` includes image, audio, embedding, and other non-text models.
+- `--since 6m` limits results by release age; ISO dates are also accepted.
+- `--live` queries a provider's current catalog and requires `--provider`.
 - `--json` emits structured picker metadata (provider, availability, reliability, pricing fields when known).
 
 The `Rating` column shows your own thumbs (see `rate`); rated models sort to
@@ -66,8 +70,11 @@ rate, and the categories they failed with. Recorded automatically by every
 continuation; see [[Keys and Defaults]].
 
 ```bash
-basemode health [MODEL] [--days 7] [--json] [--clear]
+basemode health [MODEL] [--days 7] [--json] [--clear] [--verification]
 ```
+
+`--verification` shows durable verification-probe health instead of local
+generation history.
 
 ### `providers`
 
@@ -195,7 +202,15 @@ Run an OpenAI-completions-compatible server (`POST /v1/completions`), backed by 
 basemode serve [--host 127.0.0.1] [--port 8080]
 ```
 
-Point tools that expect a llama.cpp-style `/v1/completions` endpoint (e.g. [Tapestry Loom](https://github.com/transkatgirl/Tapestry-Loom)) at `http://<host>:<port>/v1/completions`. Also exposes `GET /v1/models`. `stream` requests are always answered synchronously (no SSE); no logprobs are returned, since this coerces chat models rather than serving a real base model.
+Set a compatible client's endpoint to
+`http://<host>:<port>/v1/completions`. Requests accept `model`, `prompt`,
+`max_tokens`, `temperature`, `n`, `echo`, and `strategy`. The server also
+exposes `GET /v1/models`.
+
+Responses are synchronous JSON, including when a request supplies `stream`;
+SSE and logprobs are not supported. The endpoint works with clients such as
+[Tapestry Loom](https://github.com/transkatgirl/Tapestry-Loom) that accept the
+classic completions format.
 
 ## Configuration
 

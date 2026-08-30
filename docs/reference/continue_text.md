@@ -13,6 +13,11 @@ async def continue_text(
     strategy: str | None = None,
     rewind: bool = False,
     strict_max_tokens: bool = False,
+    record_health: bool = True,
+    retry_empty_completion: bool = True,
+    on_raw_head: RawHeadCallback | None = None,
+    raw_head_chars: int = 32,
+    on_usage: UsageCallback | None = None,
     **extra,
 ) -> AsyncGenerator[str, None]
 ```
@@ -31,5 +36,9 @@ Stream a single continuation token-by-token.
   would otherwise consume it (see `basemode.strategies.compat`); pass this flag when the
   visible length must match `max_tokens` exactly.
 - `extra` is forwarded to LiteLLM request kwargs.
-- Raises `EmptyCompletionError` (with `model`, `strategy`, and `finish_reason`) if the
-  provider stream ends without yielding any content.
+- `record_health=False` prevents the call from writing to the local generation-health log.
+- `retry_empty_completion=False` disables the default retry after an empty first response.
+- `on_raw_head` receives up to `raw_head_chars` unprocessed opening characters; `on_usage`
+  receives every provider usage payload after the stream ends. See [[Python API]].
+- Raises `EmptyCompletionError` (with `model`, `strategy`, and `finish_reason`) if both the
+  initial request and enabled retry end without content.

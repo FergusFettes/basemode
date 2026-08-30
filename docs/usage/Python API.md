@@ -35,10 +35,10 @@ async for token in continue_text(
     print(token, end="", flush=True)
 ```
 
-If a provider stream ends without yielding any content — a content filter, a
-stop sequence hit immediately, a truncated response — the strategy raises
-`EmptyCompletionError` instead of silently completing with nothing. It carries
-`model`, `strategy`, and `finish_reason` (when the provider reported one):
+An empty provider response is retried once by default. If the retry is also
+empty, `EmptyCompletionError` is raised with `model`, `strategy`, and the
+provider's `finish_reason`, when available. Set
+`retry_empty_completion=False` to skip the retry.
 
 ```python
 from basemode import EmptyCompletionError, continue_text
@@ -136,14 +136,9 @@ params = GenerationParams(
 
 ## Diagnosing a boundary
 
-Stream normalization repairs the seam between a prefix and its continuation —
-restoring a space the model dropped, collapsing a wrapped newline, rejoining a
-word split across the boundary. When the seam still comes out wrong, the
-question is whether the model produced it that way or the repair did it, and
-the stream is gone by the time anyone reads the text.
-
-`on_raw_head` answers that. It is called once with the opening characters as
-the strategy produced them, before normalization:
+Stream normalization repairs the join between a prefix and its continuation.
+To diagnose a bad join, use `on_raw_head`; it receives the opening characters
+before normalization:
 
 ```python
 head: list[str] = []
@@ -153,12 +148,25 @@ async for token in continue_text(prefix, model, on_raw_head=head.append):
 head[0]        # " wield both. The sculptor does"  — model emitted the space
 ```
 
-If the stored text lost that space, the repair took it; if `head[0]` never had
-one, the model did. `raw_head_chars` sets the budget (32 by default) — a
-character count rather than a token count, since token sizes vary by provider.
-The sink is called once per call, including for a stream that ends early or
-raises, and an exception inside it is logged and swallowed rather than
-breaking the generation.
+`raw_head_chars` sets the character limit (32 by default). The callback runs
+once even if the stream ends early or raises. Callback exceptions are logged
+without interrupting generation.
+
+## Capturing provider usage
+
+`on_usage` receives provider-reported usage after a stream ends. It receives a
+list because rewind or empty-response recovery may make more than one billable
+request:
+
+```python
+usage: list[dict] = []
+async for token in continue_text(prefix, model, on_usage=usage.extend):
+    ...
+```
+
+For `branch_text`, the callback receives `(branch_idx, payloads)` once per
+branch. The list is empty when a provider does not report usage. Callback
+exceptions are logged without interrupting generation.
 
 ## Model picker helpers
 
