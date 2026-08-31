@@ -15,6 +15,7 @@ from time import monotonic
 from typing import Final
 
 from .health import classify_error, error_details
+from .usage import usage_from_events
 
 log = logging.getLogger(__name__)
 
@@ -205,6 +206,7 @@ class Operation:
         context: ObservationContext,
     ) -> None:
         self.id: int | None = None
+        self.model = model
         self._started = monotonic()
         self._attempts = 0
         self._finished = False
@@ -265,10 +267,19 @@ class Operation:
             return
         try:
             with _db() as conn:
+                totals = conn.execute(
+                    """SELECT
+                           SUM(prompt_tokens), SUM(completion_tokens),
+                           SUM(reasoning_tokens), SUM(cost_usd)
+                       FROM call_attempts WHERE operation_id=?""",
+                    (self.id,),
+                ).fetchone()
                 conn.execute(
                     """UPDATE call_operations SET
                            finished_at=?, logical_outcome=?, returned_content=?,
-                           attempt_count=?, total_latency_ms=?
+                           attempt_count=?, total_latency_ms=?,
+                           total_prompt_tokens=?, total_completion_tokens=?,
+                           total_reasoning_tokens=?, total_cost_usd=?, cost_source=?
                        WHERE id=?""",
                     (
                         _now(),
@@ -276,6 +287,11 @@ class Operation:
                         int(returned_content),
                         self._attempts,
                         (monotonic() - self._started) * 1000,
+                        totals[0],
+                        totals[1],
+                        totals[2],
+                        totals[3],
+                        "provider" if totals[3] is not None else None,
                         self.id,
                     ),
                 )
@@ -295,6 +311,7 @@ class Attempt:
         self.id: int | None = None
         self._started = monotonic()
         self._finished = False
+        self._first_content_at: float | None = None
         self.returned_content = False
         self.output_characters = 0
         if operation.id is None:
@@ -313,10 +330,18 @@ class Attempt:
 
     def saw_content(self, text: str) -> None:
         if text:
+            if self._first_content_at is None:
+                self._first_content_at = monotonic()
             self.returned_content = True
             self.output_characters += len(text)
 
-    def finish(self, outcome: str, error: BaseException | None = None) -> None:
+    def finish(
+        self,
+        outcome: str,
+        error: BaseException | None = None,
+        *,
+        usage_events: list[dict] | None = None,
+    ) -> None:
         if self._finished:
             return
         self._finished = True
@@ -326,11 +351,37 @@ class Attempt:
         status = None
         error_code = None
         error_param = None
+        finish_reason = None
         if error is not None:
             failure_class, status = classify_error(error)
             error_code, error_param = error_details(error)
+            raw_finish_reason = getattr(error, "finish_reason", None)
+            if isinstance(raw_finish_reason, str):
+                finish_reason = raw_finish_reason[:40]
         elif outcome == "failure" and not self.returned_content:
             failure_class = "empty_response"
+        try:
+            usage = usage_from_events(self.operation.model, usage_events or [])
+            reasoning_tokens = _reasoning_tokens(usage_events or [])
+        except Exception:
+            log.warning("could not parse attempt usage; ignoring", exc_info=True)
+            usage = None
+            reasoning_tokens = 0
+        now = monotonic()
+        latency_ms = (now - self._started) * 1000
+        ttft_ms = (
+            (self._first_content_at - self._started) * 1000
+            if self._first_content_at is not None
+            else None
+        )
+        generation_ms = (
+            (now - self._first_content_at) * 1000
+            if self._first_content_at is not None
+            else None
+        )
+        output_rate = None
+        if usage is not None and generation_ms and generation_ms > 0:
+            output_rate = usage.completion_tokens / (generation_ms / 1000)
         try:
             with _db() as conn:
                 conn.execute(
@@ -338,7 +389,9 @@ class Attempt:
                            finished_at=?, outcome=?, returned_content=?,
                            failure_class=?, failure_attribution=?, http_status=?,
                            safe_error_code=?, safe_error_parameter=?, latency_ms=?,
-                           output_characters=?
+                           output_characters=?, finish_reason=?, ttft_ms=?, generation_ms=?,
+                           prompt_tokens=?, completion_tokens=?, reasoning_tokens=?,
+                           output_tokens_per_second=?, cost_usd=?, cost_source=?
                        WHERE id=?""",
                     (
                         _now(),
@@ -349,8 +402,19 @@ class Attempt:
                         status,
                         error_code,
                         error_param,
-                        (monotonic() - self._started) * 1000,
+                        latency_ms,
                         self.output_characters,
+                        finish_reason,
+                        ttft_ms,
+                        generation_ms,
+                        usage.prompt_tokens if usage is not None else None,
+                        usage.completion_tokens if usage is not None else None,
+                        reasoning_tokens if usage is not None else None,
+                        output_rate,
+                        usage.cost_usd if usage is not None else None,
+                        "provider"
+                        if usage is not None and not usage.is_estimate
+                        else None,
                         self.id,
                     ),
                 )
@@ -366,3 +430,12 @@ def observe_operation(
 ) -> Operation:
     """Begin one operation without allowing recorder failure to escape."""
     return Operation(model, strategy, strategy_source, context or ObservationContext())
+
+
+def _reasoning_tokens(events: list[dict]) -> int:
+    total = 0
+    for event in events:
+        details = event.get("completion_tokens_details") or {}
+        if isinstance(details, dict):
+            total += int(details.get("reasoning_tokens") or 0)
+    return total

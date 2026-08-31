@@ -46,6 +46,18 @@ def collect() -> list[dict]:
     return list(events) if events else []
 
 
+def mark() -> int:
+    """Return a stable offset for attributing later usage to one attempt."""
+    events = _events.get()
+    return len(events) if events is not None else 0
+
+
+def collect_since(offset: int) -> list[dict]:
+    """Return usage events recorded after ``offset`` in the current capture."""
+    events = _events.get()
+    return list(events[offset:]) if events else []
+
+
 def _to_dict(usage: object) -> dict:
     if isinstance(usage, dict):
         return usage

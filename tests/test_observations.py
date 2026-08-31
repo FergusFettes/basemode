@@ -3,7 +3,13 @@ from collections.abc import AsyncGenerator
 
 import pytest
 
-from basemode import ObservationContext, branch_text, continue_text, observations
+from basemode import (
+    ObservationContext,
+    branch_text,
+    continue_text,
+    observations,
+    usage_capture,
+)
 from basemode.exceptions import EmptyCompletionError
 
 pytestmark = pytest.mark.asyncio
@@ -138,3 +144,34 @@ async def test_recorder_failure_never_breaks_generation(monkeypatch) -> None:
     )
 
     assert await _drain(continue_text("Seed")) == [" hello"]
+
+
+async def test_provider_usage_rolls_up_from_attempt_to_operation(monkeypatch) -> None:
+    class UsageStrategy:
+        name = "system"
+
+        async def stream(self, prefix, params):
+            usage_capture.record(
+                {
+                    "prompt_tokens": 12,
+                    "completion_tokens": 7,
+                    "completion_tokens_details": {"reasoning_tokens": 2},
+                }
+            )
+            yield " measured"
+
+    monkeypatch.setattr(
+        "basemode.continue_.detect_strategy", lambda *args: UsageStrategy()
+    )
+
+    await _drain(continue_text("Seed", model="openai/gpt-4o-mini"))
+
+    operation = _rows("call_operations")[0]
+    attempt = _rows("call_attempts")[0]
+    assert attempt["prompt_tokens"] == operation["total_prompt_tokens"] == 12
+    assert attempt["completion_tokens"] == operation["total_completion_tokens"] == 7
+    assert attempt["reasoning_tokens"] == operation["total_reasoning_tokens"] == 2
+    assert attempt["ttft_ms"] is not None
+    assert attempt["generation_ms"] is not None
+    assert attempt["cost_source"] == "provider"
+    assert operation["cost_source"] == "provider"
