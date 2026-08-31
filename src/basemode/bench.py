@@ -106,6 +106,7 @@ async def _run_probe(
     temperature: float,
 ) -> ProbeResult:
     from .continue_ import continue_text
+    from .observations import ObservationContext
 
     started = time.monotonic()
 
@@ -119,6 +120,7 @@ async def _run_probe(
                     max_tokens=max_tokens,
                     temperature=temperature,
                     strategy=strategy,
+                    observation=ObservationContext(source="verification"),
                 )
             ]
         )

@@ -22,6 +22,7 @@ from .evidence import (
     transient_recheck_models,
 )
 from .health import classify_error, error_details
+from .observations import ObservationContext
 from .transport import litellm_version
 from .usage import estimate_usage, get_price_info, usage_from_events
 
@@ -354,6 +355,7 @@ async def _probe(
                     temperature=0.7,
                     record_health=False,
                     retry_empty_completion=False,
+                    observation=ObservationContext(source="verification"),
                     on_usage=usage_events.extend,
                     **extra,
                 ):

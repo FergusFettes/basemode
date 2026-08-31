@@ -85,6 +85,7 @@ async def _stream_one(
     strict_max_tokens: bool = False,
 ) -> tuple[str, list[dict]]:
     from ..continue_ import continue_text
+    from ..observations import ObservationContext
 
     console.print(f"[dim]{prefix}[/dim]", end="")
     chunks: list[str] = []
@@ -97,6 +98,7 @@ async def _stream_one(
         strategy=strategy,
         rewind=rewind,
         strict_max_tokens=strict_max_tokens,
+        observation=ObservationContext(source="cli"),
         on_usage=usage_events.extend,
     ):
         chunks.append(token)
@@ -116,6 +118,7 @@ async def _stream_branches(
     strict_max_tokens: bool = False,
 ) -> tuple[list[str], list[dict]]:
     from ..continue_ import branch_text
+    from ..observations import ObservationContext
 
     buffers: list[list[str]] = [[] for _ in range(n)]
     usage_events: list[dict] = []
@@ -134,6 +137,7 @@ async def _stream_branches(
             strategy=strategy,
             rewind=rewind,
             strict_max_tokens=strict_max_tokens,
+            observation=ObservationContext(source="cli"),
             on_usage=lambda _idx, events: usage_events.extend(events),
         ):
             buffers[idx].append(token)

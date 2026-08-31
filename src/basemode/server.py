@@ -16,6 +16,7 @@ from pydantic import BaseModel
 
 from .continue_ import branch_text, continue_text
 from .keys import get_default_model
+from .observations import ObservationContext
 
 app = FastAPI(title="basemode completions server")
 
@@ -71,6 +72,7 @@ async def completions(request: CompletionRequest) -> dict[str, Any]:
                         temperature=request.temperature,
                         strategy=request.strategy,
                         strict_max_tokens=True,
+                        observation=ObservationContext(source="server"),
                     )
                 ]
             )
@@ -85,6 +87,7 @@ async def completions(request: CompletionRequest) -> dict[str, Any]:
                 temperature=request.temperature,
                 strategy=request.strategy,
                 strict_max_tokens=True,
+                observation=ObservationContext(source="server"),
             ):
                 texts[idx] += token
             choices = [
