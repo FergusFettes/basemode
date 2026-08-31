@@ -74,6 +74,7 @@ class ObservationContext:
     source: str = "python"
     source_version: str | None = None
     contribution_eligible: bool = False
+    verification_probe_id: int | None = None
 
     def __post_init__(self) -> None:
         if self.source not in _SOURCES:
@@ -85,6 +86,8 @@ class ObservationContext:
             self.source_version
         ):
             raise ValueError("source_version must be a safe package-version identifier")
+        if self.verification_probe_id is not None and self.source != "verification":
+            raise ValueError("verification_probe_id requires source='verification'")
 
 
 def _now() -> str:
@@ -306,24 +309,13 @@ class Operation:
             route, provider_model_id = _endpoint_parts(model)
             now = _now()
             with _db() as conn:
-                conn.execute(
-                    """INSERT INTO model_endpoints(
-                           provider_route, provider_model_id, first_seen, last_seen
-                       ) VALUES (?, ?, ?, ?)
-                       ON CONFLICT(provider_route, provider_model_id)
-                       DO UPDATE SET last_seen = excluded.last_seen""",
-                    (route, provider_model_id, now, now),
-                )
-                endpoint_id = conn.execute(
-                    "SELECT id FROM model_endpoints WHERE provider_route=? AND provider_model_id=?",
-                    (route, provider_model_id),
-                ).fetchone()["id"]
+                endpoint_id = _ensure_endpoint(conn, route, provider_model_id, now)
                 cursor = conn.execute(
                     """INSERT INTO call_operations(
                            event_id, endpoint_id, started_at, source, source_version,
                            basemode_version, strategy, strategy_source,
-                           contribution_eligible
-                       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                           contribution_eligible, verification_probe_id
+                       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
                         str(uuid.uuid4()),
                         endpoint_id,
@@ -334,9 +326,15 @@ class Operation:
                         strategy,
                         strategy_source,
                         int(context.contribution_eligible),
+                        context.verification_probe_id,
                     ),
                 )
                 self.id = int(cursor.lastrowid)
+                if context.verification_probe_id is not None:
+                    conn.execute(
+                        "UPDATE verification_probes SET operation_id=? WHERE id=?",
+                        (self.id, context.verification_probe_id),
+                    )
         except Exception:
             log.warning(
                 "could not begin observation operation; ignoring", exc_info=True
@@ -533,6 +531,81 @@ def observe_operation(
 ) -> Operation:
     """Begin one operation without allowing recorder failure to escape."""
     return Operation(model, strategy, strategy_source, context or ObservationContext())
+
+
+def begin_verification_run(
+    suite: str,
+    suite_version: str,
+    *,
+    litellm_version: str | None = None,
+    target_policy: str | None = None,
+) -> int:
+    """Create controlled-run structure without duplicating call outcomes."""
+    now = _now()
+    with _db() as conn:
+        cursor = conn.execute(
+            """INSERT INTO verification_runs(
+                   event_id, suite, suite_version, basemode_version,
+                   litellm_version, target_policy, lifecycle_status, started_at
+               ) VALUES (?, ?, ?, ?, ?, ?, 'running', ?)""",
+            (
+                str(uuid.uuid4()),
+                suite,
+                suite_version,
+                _package_version(),
+                litellm_version,
+                target_policy,
+                now,
+            ),
+        )
+        return int(cursor.lastrowid)
+
+
+def finish_verification_run(run_id: int, status: str) -> None:
+    with _db() as conn:
+        conn.execute(
+            "UPDATE verification_runs SET lifecycle_status=?, finished_at=? WHERE id=?",
+            (status, _now(), run_id),
+        )
+
+
+def begin_verification_probe(
+    run_id: int,
+    model: str,
+    probe_identifier: str,
+    *,
+    repetition: int = 0,
+    required: bool = True,
+) -> int:
+    route, provider_model_id = _endpoint_parts(model.lower())
+    with _db() as conn:
+        endpoint_id = _ensure_endpoint(conn, route, provider_model_id, _now())
+        cursor = conn.execute(
+            """INSERT INTO verification_probes(
+                   run_id, endpoint_id, probe_identifier, repetition, required_status
+               ) VALUES (?, ?, ?, ?, ?)""",
+            (run_id, endpoint_id, probe_identifier, repetition, int(required)),
+        )
+        return int(cursor.lastrowid)
+
+
+def _ensure_endpoint(
+    conn: sqlite3.Connection, route: str, provider_model_id: str, now: str
+) -> int:
+    conn.execute(
+        """INSERT INTO model_endpoints(
+               provider_route, provider_model_id, first_seen, last_seen
+           ) VALUES (?, ?, ?, ?)
+           ON CONFLICT(provider_route, provider_model_id)
+           DO UPDATE SET last_seen = excluded.last_seen""",
+        (route, provider_model_id, now, now),
+    )
+    return int(
+        conn.execute(
+            "SELECT id FROM model_endpoints WHERE provider_route=? AND provider_model_id=?",
+            (route, provider_model_id),
+        ).fetchone()["id"]
+    )
 
 
 def _reasoning_tokens(events: list[dict]) -> int:

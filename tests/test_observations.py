@@ -235,3 +235,28 @@ async def test_provider_usage_rolls_up_from_attempt_to_operation(monkeypatch) ->
     assert attempt["generation_ms"] is not None
     assert attempt["cost_source"] == "provider"
     assert operation["cost_source"] == "provider"
+
+
+async def test_verification_probe_links_to_ordinary_operation(monkeypatch) -> None:
+    _install(monkeypatch, [[" verified"]])
+    run_id = observations.begin_verification_run("quick", "1")
+    probe_id = observations.begin_verification_probe(
+        run_id, "openai/gpt-4o-mini", "continuation-1"
+    )
+
+    await _drain(
+        continue_text(
+            "Seed",
+            observation=ObservationContext(
+                source="verification", verification_probe_id=probe_id
+            ),
+        )
+    )
+    observations.finish_verification_run(run_id, "completed")
+
+    operation = _rows("call_operations")[0]
+    probe = _rows("verification_probes")[0]
+    run = _rows("verification_runs")[0]
+    assert operation["verification_probe_id"] == probe_id
+    assert probe["operation_id"] == operation["id"]
+    assert run["lifecycle_status"] == "completed"
