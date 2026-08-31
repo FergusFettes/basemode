@@ -4,7 +4,7 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from basemode import health
+from basemode import health, observations
 
 
 def test_an_unseen_model_has_no_health() -> None:
@@ -232,25 +232,35 @@ def test_recording_never_raises_at_the_call_site(monkeypatch) -> None:
 
 
 class _FakeStrategy:
-    """Stands in for a real strategy; only its name is read once _stream_tokens
-    is patched out."""
-
     name = "system"
+
+    def __init__(self, tokens=(), error=None) -> None:
+        self.tokens = tokens
+        self.error = error
+
+    async def stream(self, prefix, params):
+        for token in self.tokens:
+            yield token
+        if self.error is not None:
+            raise self.error
 
 
 def _patch_stream(monkeypatch, tokens=(), error=None):
     from basemode import continue_ as continue_module
 
-    async def fake_stream_tokens(strat, prefix, generation_prefix, fragment, params):
-        for token in tokens:
-            yield token
-        if error is not None:
-            raise error
-
-    monkeypatch.setattr(continue_module, "_stream_tokens", fake_stream_tokens)
     monkeypatch.setattr(
-        continue_module, "detect_strategy", lambda model, strategy: _FakeStrategy()
+        continue_module,
+        "detect_strategy",
+        lambda model, strategy: _FakeStrategy(tokens, error),
     )
+
+
+def _observation_row(table: str):
+    conn = observations._connect()
+    try:
+        return conn.execute(f"SELECT * FROM {table} ORDER BY id DESC").fetchone()
+    finally:
+        conn.close()
 
 
 async def _drain(agen):
@@ -264,9 +274,10 @@ async def test_a_successful_continuation_is_recorded(monkeypatch) -> None:
 
     await _drain(continue_text("Seed", "gpt-4o-mini"))
 
-    summary = health.model_health("openai/gpt-4o-mini")
-    assert summary["attempts"] == 1
-    assert summary["successes"] == 1
+    operation = _observation_row("call_operations")
+    attempt = _observation_row("call_attempts")
+    assert operation["logical_outcome"] == "success"
+    assert attempt["outcome"] == "success"
 
 
 async def test_a_failed_continuation_is_recorded_with_its_category(monkeypatch) -> None:
@@ -282,10 +293,11 @@ async def test_a_failed_continuation_is_recorded_with_its_category(monkeypatch) 
     with pytest.raises(RateLimitError):
         await _drain(continue_text("Seed", "gpt-4o-mini"))
 
-    summary = health.model_health("openai/gpt-4o-mini")
-    assert summary["failures"] == 1
-    assert summary["categories"] == {"rate_limit": 1}
-    assert summary["last_status"] == 429
+    operation = _observation_row("call_operations")
+    attempt = _observation_row("call_attempts")
+    assert operation["logical_outcome"] == "failure"
+    assert attempt["failure_class"] == "rate_limit"
+    assert attempt["http_status"] == 429
 
 
 async def test_a_stream_that_yields_nothing_counts_as_an_empty_response(
@@ -297,9 +309,11 @@ async def test_a_stream_that_yields_nothing_counts_as_an_empty_response(
 
     await _drain(continue_text("Seed", "gpt-4o-mini"))
 
-    summary = health.model_health("openai/gpt-4o-mini")
-    assert summary["failures"] == 1
-    assert summary["categories"] == {"empty_response": 1}
+    operation = _observation_row("call_operations")
+    attempt = _observation_row("call_attempts")
+    assert operation["logical_outcome"] == "failure"
+    assert attempt["outcome"] == "failure"
+    assert attempt["failure_class"] == "empty_response"
 
 
 async def test_a_caller_that_classifies_for_itself_can_opt_out(monkeypatch) -> None:

@@ -329,6 +329,8 @@ class Attempt:
         if error is not None:
             failure_class, status = classify_error(error)
             error_code, error_param = error_details(error)
+        elif outcome == "failure" and not self.returned_content:
+            failure_class = "empty_response"
         try:
             with _db() as conn:
                 conn.execute(
