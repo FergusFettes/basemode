@@ -203,16 +203,32 @@ machine, or `None` if it has never been generated with. `continue_text` and
 `branch_text` record their own outcomes, so this fills in on its own:
 
 ```python
-from basemode.health import list_model_health, model_health, record_outcome
+from basemode.observation_queries import endpoint_health, list_endpoint_health
 
-model_health("openai/gpt-4o", days=7)
-# {"attempts": 84, "failures": 9, "failure_rate": 0.1071,
-#  "categories": {"rate_limit": 8, "timeout": 1}, ...}
+endpoint_health("openai/gpt-4o", days=7)
+# {"operations": 84, "successful_operations": 75,
+#  "logical_success_rate": 0.8928,
+#  "failures": {"rate_limit": 8, "timeout": 1}, ...}
 
-list_model_health()
+list_endpoint_health()
 ```
 
-A caller that classifies failures itself passes `record_health=False` to
-`continue_text` and records with `record_outcome(model, ok=False,
-category=..., status=...)`, so one attempt is never counted twice. Pass
-`health_days=` to `list_model_picker_entries` to window the breakdown.
+Callers attach their identity through `ObservationContext`; basemode remains the sole
+owner of provider-outcome classification. The legacy `record_health` keyword remains
+accepted for compatibility but does not bypass the unified ledger. For example:
+
+```python
+from basemode import ObservationContext, continue_text
+
+observation = ObservationContext(
+    source="loom",
+    source_version="0.8.0",
+    contribution_eligible=False,
+)
+async for token in continue_text(prefix, observation=observation):
+    ...
+```
+
+Use the documented global opt-out to disable local observation recording.
+Callers must not classify or record the same provider outcome independently.
+Pass `health_days=` to `list_model_picker_entries` to window the breakdown.

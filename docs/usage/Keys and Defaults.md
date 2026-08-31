@@ -106,7 +106,8 @@ done here: every continuation records its outcome against the model it ran on,
 so a failure rate builds up from real usage rather than from the weekly
 registry probe.
 
-This lives in `~/.config/basemode/health.sqlite` rather than in `auth.json`,
+New call observations live in `~/.local/share/basemode/observations.sqlite`
+rather than in `auth.json`,
 because branches generate in parallel and read-modify-write on a JSON file
 loses counts under exactly that load.
 
@@ -119,9 +120,10 @@ basemode health --clear            # forget everything
 basemode info gpt-4o               # health and rating alongside pricing
 ```
 
-Failures are recorded by category — `authentication`, `rate_limit`, `timeout`,
-`provider_unavailable`, `invalid_request`, `network`, `empty_response`, or
-`provider_error` — which is the difference between "fix your key", "wait",
+Failures are recorded by category — `authentication`, `quota`, `rate_limit`,
+`timeout`, `network`, `provider_unavailable`, `invalid_request`,
+`empty_response`, `content_filter`, `provider_error`, `cancelled`, or `unknown`
+— which is the difference between "fix your key", "wait",
 and "pick another model". All-time totals are kept forever; the per-category
 breakdown comes from an event log pruned after 30 days.
 

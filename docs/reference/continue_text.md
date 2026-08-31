@@ -14,6 +14,7 @@ async def continue_text(
     rewind: bool = False,
     strict_max_tokens: bool = False,
     record_health: bool = True,
+    observation: ObservationContext | None = None,
     retry_empty_completion: bool = True,
     on_raw_head: RawHeadCallback | None = None,
     raw_head_chars: int = 32,
@@ -36,7 +37,10 @@ Stream a single continuation token-by-token.
   would otherwise consume it (see `basemode.strategies.compat`); pass this flag when the
   visible length must match `max_tokens` exactly.
 - `extra` is forwarded to LiteLLM request kwargs.
-- `record_health=False` prevents the call from writing to the local generation-health log.
+- `observation` attaches allow-listed caller provenance such as `source="loom"` and a
+  package version. It never carries prompt or response content.
+- `record_health` is retained for source compatibility but no longer bypasses the unified
+  observation ledger. Set the documented global recording opt-out to disable local recording.
 - `retry_empty_completion=False` disables the default retry after an empty first response.
 - `on_raw_head` receives up to `raw_head_chars` unprocessed opening characters; `on_usage`
   receives every provider usage payload after the stream ends. See [[Python API]].

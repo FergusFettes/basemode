@@ -14,6 +14,7 @@ async def branch_text(
     rewind: bool = False,
     strict_max_tokens: bool = False,
     record_health: bool = True,
+    observation: ObservationContext | None = None,
     retry_empty_completion: bool = True,
     on_usage: BranchUsageCallback | None = None,
     **extra,
@@ -36,6 +37,8 @@ Yields `(branch_idx, token)` tuples until all branches finish.
   Some models are sent a wider budget than requested, because their hidden reasoning
   would otherwise consume it (see `basemode.strategies.compat`); pass this flag when the
   visible length must match `max_tokens` exactly.
-- `record_health=False` disables local health recording for every branch.
+- `observation` attaches the same allow-listed caller provenance to each independent branch
+  operation. It never carries prompt or response content.
+- `record_health` is retained for source compatibility but does not bypass the unified ledger.
 - `retry_empty_completion=False` disables the default retry after an empty response.
 - `on_usage` is called once per branch with its index and provider usage payloads.
