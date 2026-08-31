@@ -6,10 +6,12 @@ from rich.table import Table
 
 from ..health import (
     EVENT_RETENTION_DAYS,
-    clear_model_health,
-    list_model_health,
-    model_health,
     verification_history,
+)
+from ..observation_queries import (
+    clear_endpoint_health,
+    endpoint_health,
+    list_endpoint_health,
 )
 from . import app
 from .render import console
@@ -52,7 +54,7 @@ def health(
     resolved = normalize_model(model) if model else None
 
     if clear:
-        clear_model_health(resolved)
+        clear_endpoint_health(resolved)
         target = f"[bold]{resolved}[/bold]" if resolved else "every model"
         console.print(f"[green]✓[/green] Cleared health history for {target}")
         return
@@ -121,13 +123,13 @@ def health(
         return
 
     if resolved:
-        observed = model_health(resolved, days=days)
+        observed = endpoint_health(resolved, days=days)
         if observed is None:
             console.print(f"[yellow]No generations recorded for {resolved}.[/yellow]")
             raise typer.Exit(1)
         records = {resolved: observed}
     else:
-        records = list_model_health(days=days)
+        records = list_endpoint_health(days=days)
         if not records:
             console.print("[yellow]No generations recorded yet.[/yellow]")
             return
@@ -147,21 +149,23 @@ def health(
         header_style="bold",
     )
     for model_id, observed in sorted(
-        records.items(), key=lambda kv: (-(kv[1]["failure_rate"] or 0), kv[0])
+        records.items(),
+        key=lambda kv: (-(1 - (kv[1]["logical_success_rate"] or 0)), kv[0]),
     ):
-        rate = observed["failure_rate"]
+        success_rate = observed["logical_success_rate"]
+        rate = None if success_rate is None else 1 - success_rate
         rate_text = "" if rate is None else f"{rate:.0%}"
         if rate:
             rate_text = f"[red]{rate_text}[/red]" if rate >= 0.2 else rate_text
         table.add_row(
             model_id,
-            str(observed["attempts"]),
-            str(observed["failures"]),
+            str(observed["operations"]),
+            str(observed["operations"] - observed["successful_operations"]),
             rate_text,
             ", ".join(
-                f"{name} x{count}" for name, count in observed["categories"].items()
+                f"{name} x{count}" for name, count in observed["failures"].items()
             ),
-            observed["last_failure_at"] or "",
+            observed["last_failed_at"] or "",
         )
     console.print(table)
     window = f" over the last {days} days" if days else ""

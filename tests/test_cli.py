@@ -175,14 +175,32 @@ def test_rate_rejects_an_unknown_rating() -> None:
     assert "Unknown rating" in result.output
 
 
+def _record_observation(observations, *, ok: bool) -> None:
+    operation = observations.observe_operation(
+        "openai/gpt-4o-mini", "system", "heuristic", None
+    )
+    attempt = operation.begin_attempt("initial")
+    if ok:
+        attempt.saw_content("safe count only")
+        attempt.finish("success")
+        operation.finish("success", returned_content=True)
+        return
+
+    class RateLimitError(RuntimeError):
+        status_code = 429
+
+    attempt.finish("failure", RateLimitError("not persisted"))
+    operation.finish("failure", returned_content=False)
+
+
 def test_health_reports_recorded_outcomes(monkeypatch) -> None:
-    from basemode import health
+    from basemode import observations
 
     # The table is rendered by rich, which elides columns at the default test
     # terminal width; give it room so the assertions see real values.
     monkeypatch.setenv("COLUMNS", "200")
-    health.record_outcome("openai/gpt-4o-mini", ok=True)
-    health.record_outcome("openai/gpt-4o-mini", ok=False, category="rate_limit")
+    _record_observation(observations, ok=True)
+    _record_observation(observations, ok=False)
 
     listed = runner.invoke(app, ["health"])
 
@@ -199,27 +217,28 @@ def test_health_for_an_unseen_model_exits_nonzero() -> None:
 
 
 def test_health_clear_forgets_the_history() -> None:
-    from basemode import health
+    from basemode import observations
+    from basemode.observation_queries import list_endpoint_health
 
-    health.record_outcome("openai/gpt-4o-mini", ok=True)
+    _record_observation(observations, ok=True)
 
     result = runner.invoke(app, ["health", "--clear"])
 
     assert result.exit_code == 0
-    assert health.list_model_health() == {}
+    assert list_endpoint_health() == {}
 
 
 def test_health_json_is_machine_readable() -> None:
     import json
 
-    from basemode import health
+    from basemode import observations
 
-    health.record_outcome("openai/gpt-4o-mini", ok=False, category="timeout")
+    _record_observation(observations, ok=False)
 
     result = runner.invoke(app, ["health", "--json"])
 
     payload = json.loads(result.output)
-    assert payload["openai/gpt-4o-mini"]["failures"] == 1
+    assert payload["openai/gpt-4o-mini"]["failures"] == {"rate_limit": 1}
 
 
 def test_info_shows_the_rating_and_observed_health() -> None:

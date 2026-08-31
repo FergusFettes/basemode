@@ -47,6 +47,43 @@ def list_endpoint_health(*, days: int | None = None) -> dict[str, dict[str, Any]
         conn.close()
 
 
+def clear_endpoint_health(model: str | None = None) -> None:
+    """Delete local operations for one endpoint, or the whole fresh ledger."""
+    if not observations._DB_FILE.exists():
+        return
+    conn = sqlite3.connect(observations._DB_FILE)
+    conn.execute("PRAGMA foreign_keys=ON")
+    try:
+        if model is None:
+            operation_ids = [
+                row[0] for row in conn.execute("SELECT id FROM call_operations")
+            ]
+        else:
+            route, provider_model = observations._endpoint_parts(model.lower())
+            operation_ids = [
+                row[0]
+                for row in conn.execute(
+                    """SELECT o.id FROM call_operations o
+                       JOIN model_endpoints e ON e.id=o.endpoint_id
+                       WHERE e.provider_route=? AND e.provider_model_id=?""",
+                    (route, provider_model),
+                )
+            ]
+        if operation_ids:
+            placeholders = ",".join("?" for _ in operation_ids)
+            conn.execute(
+                f"DELETE FROM call_attempts WHERE operation_id IN ({placeholders})",
+                operation_ids,
+            )
+            conn.execute(
+                f"DELETE FROM call_operations WHERE id IN ({placeholders})",
+                operation_ids,
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def _summarize(
     conn: sqlite3.Connection,
     endpoint_id: int,
