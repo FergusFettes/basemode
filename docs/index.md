@@ -1,5 +1,7 @@
 # basemode
 
+[![PyPI version](https://img.shields.io/pypi/v/basemode.svg)](https://pypi.org/project/basemode/)
+
 **basemode** makes chat-tuned LLMs continue text instead of answering it.
 
 It provides streaming continuation through a CLI and async Python API, plus an

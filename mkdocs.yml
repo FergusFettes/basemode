@@ -37,6 +37,7 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Models: usage/Verified Models.md
+  - Releases: https://pypi.org/project/basemode/
   - Getting Started:
     - Installation: getting-started/Installation.md
     - Quickstart: getting-started/Quickstart.md
@@ -50,6 +51,7 @@ nav:
     - CLI Reference: usage/CLI Reference.md
     - Python API: usage/Python API.md
     - Keys and Defaults: usage/Keys and Defaults.md
+    - Verification: usage/Verification.md
     - Provider Health: usage/Provider Health.md
     - Model Evidence: usage/Model Evidence.md
   - Reference:

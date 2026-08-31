@@ -110,7 +110,8 @@ basemode info claude-sonnet-4-6
 
 Run durable quick, thorough, or transient-failure verification. This makes
 real provider requests and stores each attempt in the shared model-evidence
-database. See [[Model Evidence]].
+database. See [[Verification]] for suite selection, planning, limits, recovery,
+and status effects.
 
 ```bash
 basemode verify [MODEL...] [--suite quick|thorough|transient-recheck] [--attempts N] [--max-tokens N]

@@ -11,89 +11,40 @@ and privacy-preserving corpus aggregates published by applications such as
 Loom. Provider routes for the same upstream model remain separate because
 their availability, request compatibility, speed, and price can differ.
 
-## Verification suites
+## Inspecting evidence
 
-The quick suite performs an inexpensive continuation health check. The
-thorough suite uses several prefixes and a larger output allowance; only a
-completed thorough suite can add evidence-backed verified status. The
-transient-recheck suite selects endpoints whose rate limit, timeout, network
-error, or provider outage is due for another check.
+`basemode evidence` is read-only. Its views cover the overall dataset,
+providers, current statuses, failure classes, operational rechecks, runs, Loom
+corpus quality, and individual endpoint history:
 
 ```bash
-basemode verify --suite quick openai/gpt-4o-mini
-basemode verify --suite thorough --attempts 3 openai/gpt-4o-mini
-basemode verify --suite transient-recheck
-basemode verify --from-catalog --provider openai --status never-tested --dry-run
-basemode verify --from-catalog --released-since 2026-08-01 --dry-run --json
-```
-
-Verification planning is deterministic: transient and durable failures come
-first, followed by never-tested, stale, reachable, and verified endpoints;
-ties are ordered by provider and model ID. Selectors cover catalog availability,
-provider, release date/age, and prior status. Explicit model IDs can be combined
-with the same filters. Text eligibility is always enforced.
-
-Dry runs never initialize a verification run or contact a provider. Their cost
-figure is a conservative ceiling for the maximum three self-healing requests
-per logical probe. It is best-effort LiteLLM pricing metadata, clearly split
-into priced and unpriced target counts; it is not treated as model truth.
-
-Large runs are resumable and provider-fair. For example, the following permits
-at most 100 logical probes and 200 total requests (including self-healing
-retries), with no more than two simultaneous requests to one provider:
-
-```bash
-basemode verify openai/gpt-4o-mini anthropic/claude-sonnet-4 \
-  --max-probes 100 --max-requests 200 --concurrency 8 \
-  --per-provider-concurrency 2 --max-elapsed 1800 --max-cost-usd 2
-basemode verify --resume RUN_ID --max-requests 200
-```
-
-Attempts commit individually. Cancellation marks a run `aborted`, while a
-deadline or work/request/cost ceiling marks it `limited`; either can be resumed.
-
-Use `basemode evidence` for read-only summaries and sanitized exports. Views
-cover the overall dataset, providers, current statuses, failure classes, the
-transient queue, runs, Loom corpus quality (including depth buckets), and a
-single endpoint's history. `basemode evidence export` writes JSONL; add
-`--json` for one JSON array. Reports are text-model-only.
-
-These commands make provider requests and may incur cost. Every request and
-self-healing step is retained, including parameters, safe structured failure
-details, latency, TTFT, usage, estimated or provider-derived cost, and output
-fingerprints. Prompt and response text and provider error bodies are not
-stored.
-
-On request-shape failure or empty output, verification can retry with
-reasoning disabled and with a larger output budget. Operational errors such as
-rate limits are recorded for later rechecking rather than being mistaken for
-model incompatibility.
-
-## Operational rechecks
-
-Suspected transient failures receive durable next-check timestamps. The
-default backoff is 15 minutes, 2 hours, then 24 hours. Three failures observed
-in separate verification runs become `persistent_operational` and move to a
-weekly check. A later success becomes `recovered`; authentication and quota
-failures become `account_limited` and are not automatically retried. When one
-provider route repeatedly reports an unavailable model while another endpoint
-for the same known model family succeeds, the assessment is
-`provider_route_unavailable`.
-
-Inspect the full queue, including recovered and account-limited endpoints:
-
-```bash
+basemode evidence
+basemode evidence providers
+basemode evidence statuses
+basemode evidence failures
+basemode evidence runs
+basemode evidence endpoint openai/gpt-4o-mini
 basemode evidence rechecks --json
 ```
 
-The scheduled GitHub workflow is inert unless the repository secret
-`BASEMODE_SCHEDULED_RECHECKS` is exactly `1`. It checks only due endpoints with
-a configured provider key and uploads a sanitized result containing structured
-outcomes and timings—not keys, prompts, responses, account fingerprints, or
-request configuration. Its evidence SQLite directory is restored through the
-GitHub Actions cache so backoff and recovery survive ephemeral runners; an
-empty cache is seeded only from sanitized repository evidence. Running
-verification can incur provider cost.
+See [[Verification]] for suites, target planning, limits, recovery requests,
+resuming runs, and the operational recheck lifecycle.
+
+## Derived status
+
+Status is calculated from completed runs and status-eligible attempts. The
+latest eligible result determines current reachability and whether a failure
+looks durable or transient. A model is verified only when every logical probe
+in its latest thorough run has a successful attempt. Missing or expired
+evidence never counts as success.
+
+An unsupported parameter or value is compatibility evidence about basemode's
+request shape, not evidence that the endpoint is unhealthy. Such attempts are
+retained but excluded from current status. An older invalid request is also
+excluded when a later request to the same endpoint succeeds. Other invalid
+requests and genuine provider failures continue to affect status.
+
+## Text endpoint scope
 
 Verification and derived status are text-generation-only. Provider modality is
 preferred where it exists; conservative model-family classification excludes
@@ -101,23 +52,22 @@ clear image, video, audio, embedding, reranking, transcription, and moderation
 endpoints when catalogs omit modality. Unknown models remain eligible because
 many provider chat catalogs do not publish this field.
 
-Live catalog snapshots preserve structured capability metadata when providers
-publish it. OpenRouter input/output modalities and supported parameters, Gemini
-generation methods, and generic provider model types are retained with their
-catalog observation. Text eligibility is based on output capability: a model
-that accepts images but generates text remains eligible, while an image-only
-output model does not. Older cache files whose model values are plain release
-dates remain importable. Sparse catalogs still fall back to conservative model
-family classification.
+Live catalog snapshots retain available capability metadata, including
+OpenRouter modalities and supported parameters, Gemini generation methods, and
+generic provider model types. Output capability decides eligibility: a model
+that accepts images and generates text is included; an image-only model is not.
 
-`enforce_text_only_and_supersede_obsolete_failures()` is an idempotent evidence
-maintenance operation. It retains every raw observation while excluding
-non-text endpoints from model lists, status, and transient rechecks. It also
-marks an old `invalid_request` attempt as status-ineligible when a later request
-to the same endpoint succeeded. Explicit provider rejections of unsupported
-parameters or values are also retained as compatibility evidence but excluded
-from endpoint health. Other invalid requests without demonstrated recovery, and
-genuine provider availability failures, remain status-bearing evidence.
+## Sanitized exports
+
+```bash
+basemode evidence export > evidence.jsonl
+basemode evidence export --json
+```
+
+Exports contain structured outcomes, timings, text-endpoint metadata, and
+aggregated corpus quality. They omit keys, account identifiers, prompts,
+responses, provider error bodies, request configuration, and output
+fingerprints.
 
 ## Importing existing evidence
 
