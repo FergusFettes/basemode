@@ -1,0 +1,140 @@
+import sqlite3
+from collections.abc import AsyncGenerator
+
+import pytest
+
+from basemode import ObservationContext, branch_text, continue_text, observations
+from basemode.exceptions import EmptyCompletionError
+
+pytestmark = pytest.mark.asyncio
+
+
+class _Strategy:
+    name = "system"
+
+    def __init__(self, scripts: list[list[str] | BaseException]) -> None:
+        self.scripts = scripts
+
+    async def stream(self, prefix, params) -> AsyncGenerator[str, None]:
+        script = self.scripts.pop(0)
+        if isinstance(script, BaseException):
+            raise script
+        for token in script:
+            yield token
+
+
+def _install(monkeypatch, scripts: list[list[str] | BaseException]) -> _Strategy:
+    strategy = _Strategy(scripts)
+    monkeypatch.setattr("basemode.continue_.detect_strategy", lambda *args: strategy)
+    return strategy
+
+
+async def _drain(stream):
+    return [item async for item in stream]
+
+
+def _rows(table: str) -> list[sqlite3.Row]:
+    conn = sqlite3.connect(observations._DB_FILE)
+    conn.row_factory = sqlite3.Row
+    try:
+        return list(conn.execute(f"SELECT * FROM {table} ORDER BY id"))
+    finally:
+        conn.close()
+
+
+async def test_success_records_one_operation_and_attempt(monkeypatch) -> None:
+    _install(monkeypatch, [[" hello"]])
+
+    assert await _drain(
+        continue_text(
+            "Seed",
+            observation=ObservationContext(
+                source="loom", source_version="0.8.0", contribution_eligible=True
+            ),
+        )
+    ) == [" hello"]
+
+    operations = _rows("call_operations")
+    attempts = _rows("call_attempts")
+    assert len(operations) == len(attempts) == 1
+    assert operations[0]["source"] == "loom"
+    assert operations[0]["source_version"] == "0.8.0"
+    assert operations[0]["contribution_eligible"] == 1
+    assert operations[0]["logical_outcome"] == "success"
+    assert operations[0]["attempt_count"] == 1
+    assert attempts[0]["attempt_kind"] == "initial"
+    assert attempts[0]["outcome"] == "success"
+    assert attempts[0]["output_characters"] == 6
+
+
+async def test_branches_record_independent_operations(monkeypatch) -> None:
+    _install(monkeypatch, [[" a"], [" b"], [" c"]])
+
+    await _drain(branch_text("Seed", n=3))
+
+    assert len(_rows("call_operations")) == 3
+    assert len(_rows("call_attempts")) == 3
+
+
+async def test_empty_recovery_is_two_attempts_under_one_operation(monkeypatch) -> None:
+    _install(
+        monkeypatch,
+        [
+            EmptyCompletionError(model="openrouter/example", strategy="system"),
+            [" recovered"],
+        ],
+    )
+
+    assert await _drain(continue_text("Seed", model="openrouter/example")) == [
+        " recovered"
+    ]
+
+    operations = _rows("call_operations")
+    attempts = _rows("call_attempts")
+    assert len(operations) == 1
+    assert operations[0]["logical_outcome"] == "success"
+    assert operations[0]["attempt_count"] == 2
+    assert [row["attempt_kind"] for row in attempts] == ["initial", "reasoning_off"]
+    assert [row["outcome"] for row in attempts] == ["failure", "success"]
+    assert attempts[0]["failure_class"] == "empty_response"
+
+
+async def test_provider_exception_finalizes_operation_and_attempt(monkeypatch) -> None:
+    class RateLimitError(RuntimeError):
+        status_code = 429
+
+    _install(monkeypatch, [RateLimitError("do not store this body")])
+
+    with pytest.raises(RateLimitError):
+        await _drain(continue_text("Seed"))
+
+    operation = _rows("call_operations")[0]
+    attempt = _rows("call_attempts")[0]
+    assert operation["logical_outcome"] == "failure"
+    assert attempt["failure_class"] == "rate_limit"
+    assert attempt["http_status"] == 429
+    assert "do not store" not in str(dict(attempt))
+
+
+async def test_consumer_close_after_content_is_cancelled_success(monkeypatch) -> None:
+    _install(monkeypatch, [[" first", " second"]])
+    stream = continue_text("Seed")
+
+    assert await anext(stream) == " first second"
+    await stream.aclose()
+
+    operation = _rows("call_operations")[0]
+    attempt = _rows("call_attempts")[0]
+    assert operation["logical_outcome"] == "cancelled"
+    assert operation["returned_content"] == 1
+    # The provider stream had completed before healing emitted its buffered head.
+    assert attempt["outcome"] == "success"
+
+
+async def test_recorder_failure_never_breaks_generation(monkeypatch) -> None:
+    _install(monkeypatch, [[" hello"]])
+    monkeypatch.setattr(
+        observations, "_connect", lambda: (_ for _ in ()).throw(OSError("disk down"))
+    )
+
+    assert await _drain(continue_text("Seed")) == [" hello"]

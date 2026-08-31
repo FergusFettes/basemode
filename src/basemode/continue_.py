@@ -1,21 +1,22 @@
 import asyncio
 import logging
 from collections.abc import AsyncGenerator, Callable
+from contextvars import ContextVar
 from dataclasses import replace
 from typing import TYPE_CHECKING
 
 import litellm
 
 from . import usage_capture
-from .detect import detect_strategy, normalize_model
+from .detect import detect_strategy, normalize_model, select_strategy
 from .exceptions import EmptyCompletionError
 from .healing import (
     normalize_stream_newlines,
     probe_rewind_overlap,
     rewind_prefix_to_word_boundary,
 )
-from .health import EMPTY_RESPONSE, classify_error, error_details, record_outcome
 from .keys import load_into_environ
+from .observations import ObservationContext, Operation, observe_operation
 from .params import GenerationParams
 
 if TYPE_CHECKING:
@@ -27,6 +28,13 @@ log = logging.getLogger(__name__)
 #: Token sizes vary wildly between providers, so this is a character budget
 #: rather than a token count.
 RAW_HEAD_CHARS = 32
+
+_current_operation: ContextVar[Operation | None] = ContextVar(
+    "basemode_observation_operation", default=None
+)
+_current_attempt_kind: ContextVar[str] = ContextVar(
+    "basemode_observation_attempt_kind", default="initial"
+)
 
 
 async def continue_text(
@@ -40,6 +48,7 @@ async def continue_text(
     rewind: bool = False,
     strict_max_tokens: bool = False,
     record_health: bool = True,
+    observation: ObservationContext | None = None,
     retry_empty_completion: bool = True,
     on_raw_head: Callable[[str], None] | None = None,
     raw_head_chars: int = RAW_HEAD_CHARS,
@@ -48,9 +57,11 @@ async def continue_text(
 ) -> AsyncGenerator[str, None]:
     """Stream a single continuation.
 
-    The outcome is recorded against the model (see :mod:`basemode.health`)
-    unless `record_health=False` — which a caller that classifies failures
-    itself should pass, so one attempt is not counted twice.
+    `observation` identifies the calling application without attaching prompt
+    or response content. Recording is best-effort and cannot break generation.
+    `record_health` is retained for source compatibility but no longer permits
+    supported provider calls to bypass the unified observation ledger; use the
+    global recording opt-out instead.
 
     `on_raw_head` is called once with the opening `raw_head_chars` characters
     as the strategy produced them, before stream normalization touches the
@@ -78,7 +89,9 @@ async def continue_text(
         context=context,
         extra=extra,
     )
+    choice = select_strategy(model, strategy)
     strat = detect_strategy(model, strategy)
+    operation = observe_operation(model, strat.name, choice.source, observation)
     log.debug(
         "continue_text: model=%s strategy=%s max_tokens=%d context_len=%d prefix_len=%d",
         model,
@@ -103,6 +116,7 @@ async def continue_text(
         on_raw_head=on_raw_head,
         raw_head_chars=raw_head_chars,
         token_counter=token_counter,
+        operation=operation,
     )
     try:
         async for token in stream:
@@ -110,22 +124,21 @@ async def continue_text(
     except (GeneratorExit, asyncio.CancelledError):
         # The consumer walked away. Tokens already delivered still count as
         # the model having worked; an immediate cancel is not a verdict.
-        if record_health and token_counter[0]:
-            record_outcome(model, ok=True)
+        operation.finish(
+            "cancelled" if token_counter[0] else "inconclusive",
+            returned_content=bool(token_counter[0]),
+        )
         _report_usage(on_usage)
         raise
-    except Exception as exc:
-        if record_health:
-            _record_failure(model, exc)
+    except Exception:
+        operation.finish("failure", returned_content=bool(token_counter[0]))
         log.exception("continue_text: stream error after %d tokens", token_counter[0])
         _report_usage(on_usage)
         raise
-    if record_health:
-        record_outcome(
-            model,
-            ok=bool(token_counter[0]),
-            category=None if token_counter[0] else EMPTY_RESPONSE,
-        )
+    operation.finish(
+        "success" if token_counter[0] else "failure",
+        returned_content=bool(token_counter[0]),
+    )
     _report_usage(on_usage)
     log.debug("continue_text: done, %d tokens", token_counter[0])
 
@@ -137,19 +150,6 @@ def _report_usage(on_usage: Callable[[list[dict]], None] | None) -> None:
         on_usage(usage_capture.collect())
     except Exception:
         log.warning("on_usage sink raised; ignoring", exc_info=True)
-
-
-def _record_failure(model: str, exc: BaseException) -> None:
-    category, status = classify_error(exc)
-    error_code, error_param = error_details(exc)
-    record_outcome(
-        model,
-        ok=False,
-        category=category,
-        status=status,
-        error_code=error_code,
-        error_param=error_param,
-    )
 
 
 async def _stream_with_empty_retry(
@@ -166,6 +166,7 @@ async def _stream_with_empty_retry(
     on_raw_head: Callable[[str], None] | None,
     raw_head_chars: int,
     token_counter: list[int],
+    operation: Operation,
 ) -> AsyncGenerator[str, None]:
     """Stream a continuation, retrying once on an empty completion.
 
@@ -176,10 +177,19 @@ async def _stream_with_empty_retry(
     """
     attempt_params = params
     retried_reasoning_off = False
+    attempt_kind = "initial"
     while True:
         try:
-            raw_tokens = _stream_tokens(
-                strat, prefix, generation_prefix, fragment, attempt_params
+            raw_tokens = _with_observation_context(
+                _stream_tokens(
+                    strat,
+                    prefix,
+                    generation_prefix,
+                    fragment,
+                    attempt_params,
+                ),
+                operation,
+                attempt_kind,
             )
             if on_raw_head is not None:
                 raw_tokens = _capture_head(raw_tokens, on_raw_head, raw_head_chars)
@@ -208,6 +218,7 @@ async def _stream_with_empty_retry(
             if not eligible:
                 raise
             retried_reasoning_off = True
+            attempt_kind = "reasoning_off"
             attempt_params = replace(
                 attempt_params,
                 extra={**attempt_params.extra, "reasoning": {"enabled": False}},
@@ -229,14 +240,16 @@ async def branch_text(
     rewind: bool = False,
     strict_max_tokens: bool = False,
     record_health: bool = True,
+    observation: ObservationContext | None = None,
     retry_empty_completion: bool = True,
     on_usage: Callable[[int, list[dict]], None] | None = None,
     **extra,
 ) -> AsyncGenerator[tuple[int, str], None]:
     """Stream n parallel continuations as (branch_idx, token) tuples.
 
-    Each branch is recorded as its own attempt (see :mod:`basemode.health`)
-    unless `record_health=False`.
+    Each branch creates an independent logical observation operation.
+    `record_health` is retained for source compatibility but does not disable
+    the unified ledger; use the global recording opt-out instead.
 
     `on_usage`, if given, is called once per branch with its index and every
     provider-reported usage payload seen for it (see `continue_text` for
@@ -251,12 +264,14 @@ async def branch_text(
     params = GenerationParams(
         model=model, max_tokens=max_tokens, temperature=temperature, extra=extra
     )
+    choice = select_strategy(model, strategy)
     strat = detect_strategy(model, strategy)
 
     queue: asyncio.Queue[tuple[int, str] | BaseException | None] = asyncio.Queue()
     generation_prefix, rewind_fragment = _generation_prefix(prefix, strat.name, rewind)
 
     async def run_branch(idx: int) -> None:
+        operation = observe_operation(model, strat.name, choice.source, observation)
         usage_capture.begin_capture()
         token_counter = [0]
         stream = _stream_with_empty_retry(
@@ -272,25 +287,25 @@ async def branch_text(
             on_raw_head=None,
             raw_head_chars=RAW_HEAD_CHARS,
             token_counter=token_counter,
+            operation=operation,
         )
         try:
             async for token in stream:
                 await queue.put((idx, token))
         except asyncio.CancelledError:
-            if record_health and token_counter[0]:
-                record_outcome(model, ok=True)
+            operation.finish(
+                "cancelled" if token_counter[0] else "inconclusive",
+                returned_content=bool(token_counter[0]),
+            )
             raise
         except Exception as exc:
-            if record_health:
-                _record_failure(model, exc)
+            operation.finish("failure", returned_content=bool(token_counter[0]))
             await queue.put(exc)
         else:
-            if record_health:
-                record_outcome(
-                    model,
-                    ok=bool(token_counter[0]),
-                    category=None if token_counter[0] else EMPTY_RESPONSE,
-                )
+            operation.finish(
+                "success" if token_counter[0] else "failure",
+                returned_content=bool(token_counter[0]),
+            )
         finally:
             if on_usage is not None:
                 try:
@@ -370,11 +385,11 @@ async def _stream_tokens(
     reissued with the full prefix.
     """
     if not fragment:
-        async for token in strat.stream(prefix, params):
+        async for token in _observe_current_attempt(strat.stream(prefix, params)):
             yield token
         return
 
-    stream = strat.stream(generation_prefix, params)
+    stream = _observe_current_attempt(strat.stream(generation_prefix, params))
     matched, head = await probe_rewind_overlap(stream, fragment)
     if matched:
         log.debug("_stream_tokens: rewind of %r matched", fragment)
@@ -386,8 +401,58 @@ async def _stream_tokens(
 
     log.debug("_stream_tokens: rewind of %r not taken up, retrying", fragment)
     await stream.aclose()
-    async for token in strat.stream(prefix, params):
+    async for token in _observe_current_attempt(
+        strat.stream(prefix, params), "rewind_retry"
+    ):
         yield token
+
+
+async def _with_observation_context(
+    stream: AsyncGenerator[str, None], operation: Operation, kind: str
+) -> AsyncGenerator[str, None]:
+    operation_token = _current_operation.set(operation)
+    kind_token = _current_attempt_kind.set(kind)
+    try:
+        async for token in stream:
+            yield token
+    finally:
+        _current_attempt_kind.reset(kind_token)
+        _current_operation.reset(operation_token)
+
+
+async def _observe_current_attempt(
+    stream: AsyncGenerator[str, None], kind: str | None = None
+) -> AsyncGenerator[str, None]:
+    operation = _current_operation.get()
+    if operation is None:
+        async for token in stream:
+            yield token
+        return
+    async for token in _observe_attempt(
+        stream, operation, kind or _current_attempt_kind.get()
+    ):
+        yield token
+
+
+async def _observe_attempt(
+    stream: AsyncGenerator[str, None],
+    operation: Operation,
+    kind: str,
+) -> AsyncGenerator[str, None]:
+    """Finalize exactly one attempt around one strategy/provider invocation."""
+    attempt = operation.begin_attempt(kind)
+    try:
+        async for token in stream:
+            attempt.saw_content(token)
+            yield token
+    except (GeneratorExit, asyncio.CancelledError) as exc:
+        attempt.finish("cancelled", exc)
+        raise
+    except Exception as exc:
+        attempt.finish("failure", exc)
+        raise
+    else:
+        attempt.finish("success" if attempt.returned_content else "failure")
 
 
 def _generation_prefix(

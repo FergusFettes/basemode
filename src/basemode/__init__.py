@@ -19,6 +19,7 @@ _LAZY: dict[str, str] = {
     "build_model_picker_state": ".models",
     "GenerationParams": ".params",
     "EmptyCompletionError": ".exceptions",
+    "ObservationContext": ".observations",
 }
 
 __all__ = sorted(_LAZY)
