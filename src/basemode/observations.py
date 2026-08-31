@@ -37,6 +37,14 @@ _ATTEMPT_KINDS: Final = {
     "reasoning_off",
     "larger_budget",
 }
+_TRANSIENT_FAILURES: Final = {
+    "rate_limit",
+    "timeout",
+    "network",
+    "provider_unavailable",
+    "empty_response",
+    "provider_error",
+}
 
 
 def _package_version() -> str:
@@ -360,6 +368,10 @@ class Attempt:
                 finish_reason = raw_finish_reason[:40]
         elif outcome == "failure" and not self.returned_content:
             failure_class = "empty_response"
+        attribution = _failure_attribution(failure_class)
+        transience = _failure_transience(failure_class)
+        status_eligible = attribution not in {"account", "basemode", "client"}
+        exclusion_reason = None if status_eligible else f"{attribution}_attributed"
         try:
             usage = usage_from_events(self.operation.model, usage_events or [])
             reasoning_tokens = _reasoning_tokens(usage_events or [])
@@ -387,18 +399,21 @@ class Attempt:
                 conn.execute(
                     """UPDATE call_attempts SET
                            finished_at=?, outcome=?, returned_content=?,
-                           failure_class=?, failure_attribution=?, http_status=?,
+                           failure_class=?, failure_transience=?, failure_attribution=?,
+                           http_status=?,
                            safe_error_code=?, safe_error_parameter=?, latency_ms=?,
                            output_characters=?, finish_reason=?, ttft_ms=?, generation_ms=?,
                            prompt_tokens=?, completion_tokens=?, reasoning_tokens=?,
-                           output_tokens_per_second=?, cost_usd=?, cost_source=?
+                           output_tokens_per_second=?, cost_usd=?, cost_source=?,
+                           status_eligible=?, status_exclusion_reason=?
                        WHERE id=?""",
                     (
                         _now(),
                         outcome,
                         int(self.returned_content),
                         failure_class,
-                        "unknown" if error is not None else None,
+                        transience,
+                        attribution,
                         status,
                         error_code,
                         error_param,
@@ -415,6 +430,8 @@ class Attempt:
                         "provider"
                         if usage is not None and not usage.is_estimate
                         else None,
+                        int(status_eligible),
+                        exclusion_reason,
                         self.id,
                     ),
                 )
@@ -439,3 +456,34 @@ def _reasoning_tokens(events: list[dict]) -> int:
         if isinstance(details, dict):
             total += int(details.get("reasoning_tokens") or 0)
     return total
+
+
+def _failure_attribution(failure_class: str | None) -> str | None:
+    if failure_class is None:
+        return None
+    if failure_class in {"authentication", "quota"}:
+        return "account"
+    if failure_class == "invalid_request":
+        return "basemode"
+    if failure_class == "cancelled":
+        return "client"
+    if failure_class in {
+        "provider_unavailable",
+        "provider_error",
+        "content_filter",
+        "rate_limit",
+    }:
+        return "provider"
+    if failure_class == "empty_response":
+        return "endpoint"
+    return "unknown"
+
+
+def _failure_transience(failure_class: str | None) -> str | None:
+    if failure_class is None:
+        return None
+    if failure_class in _TRANSIENT_FAILURES:
+        return "transient"
+    if failure_class in {"authentication", "quota", "invalid_request"}:
+        return "persistent"
+    return "unknown"

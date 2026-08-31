@@ -118,8 +118,27 @@ async def test_provider_exception_finalizes_operation_and_attempt(monkeypatch) -
     attempt = _rows("call_attempts")[0]
     assert operation["logical_outcome"] == "failure"
     assert attempt["failure_class"] == "rate_limit"
+    assert attempt["failure_transience"] == "transient"
+    assert attempt["failure_attribution"] == "provider"
+    assert attempt["status_eligible"] == 1
     assert attempt["http_status"] == 429
     assert "do not store" not in str(dict(attempt))
+
+
+async def test_account_and_basemode_failures_are_not_status_eligible(
+    monkeypatch,
+) -> None:
+    class AuthenticationError(RuntimeError):
+        status_code = 401
+
+    _install(monkeypatch, [AuthenticationError("secret provider body")])
+    with pytest.raises(AuthenticationError):
+        await _drain(continue_text("Seed"))
+
+    attempt = _rows("call_attempts")[0]
+    assert attempt["failure_attribution"] == "account"
+    assert attempt["status_eligible"] == 0
+    assert attempt["status_exclusion_reason"] == "account_attributed"
 
 
 async def test_consumer_close_after_content_is_cancelled_success(monkeypatch) -> None:
