@@ -48,6 +48,47 @@ def _rows(table: str) -> list[sqlite3.Row]:
         conn.close()
 
 
+async def test_schema_has_operational_tables_and_no_content_columns() -> None:
+    operation = observations.observe_operation(
+        "openai/gpt-4o-mini", "system", "heuristic", None
+    )
+    operation.finish("inconclusive", returned_content=False)
+    expected = {
+        "model_endpoints",
+        "call_operations",
+        "call_attempts",
+        "verification_runs",
+        "verification_probes",
+        "probe_metrics",
+        "recheck_schedules",
+        "operational_assessments",
+        "daily_call_aggregates",
+        "contribution_batches",
+    }
+    conn = sqlite3.connect(observations._DB_FILE)
+    try:
+        tables = {
+            row[0]
+            for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        }
+        assert expected <= tables
+        for table in expected:
+            columns = {
+                row[1].lower() for row in conn.execute(f"PRAGMA table_info({table})")
+            }
+            assert not columns & {
+                "prompt",
+                "prefix",
+                "response",
+                "content",
+                "content_hash",
+                "document_id",
+                "account_id",
+            }
+    finally:
+        conn.close()
+
+
 async def test_success_records_one_operation_and_attempt(monkeypatch) -> None:
     _install(monkeypatch, [[" hello"]])
 

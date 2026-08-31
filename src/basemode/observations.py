@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import sqlite3
 import uuid
 from contextlib import contextmanager
@@ -45,6 +46,18 @@ _TRANSIENT_FAILURES: Final = {
     "empty_response",
     "provider_error",
 }
+_SAFE_FINISH_REASONS: Final = {
+    "stop",
+    "length",
+    "content_filter",
+    "tool_calls",
+    "end_turn",
+    "max_tokens",
+    "error",
+    "cancelled",
+    "unknown",
+}
+_VERSION_RE: Final = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._+\-]{0,119}$")
 
 
 def _package_version() -> str:
@@ -68,8 +81,10 @@ class ObservationContext:
             raise ValueError(
                 f"Unknown observation source {self.source!r}. Valid: {allowed}"
             )
-        if self.source_version is not None and len(self.source_version) > 120:
-            raise ValueError("source_version must be at most 120 characters")
+        if self.source_version is not None and not _VERSION_RE.fullmatch(
+            self.source_version
+        ):
+            raise ValueError("source_version must be a safe package-version identifier")
 
 
 def _now() -> str:
@@ -167,6 +182,73 @@ def _connect() -> sqlite3.Connection:
             ON call_operations(endpoint_id, started_at);
         CREATE INDEX IF NOT EXISTS idx_attempts_operation
             ON call_attempts(operation_id, attempt_index);
+        CREATE TABLE IF NOT EXISTS verification_runs (
+            id INTEGER PRIMARY KEY,
+            event_id TEXT NOT NULL UNIQUE,
+            suite TEXT NOT NULL,
+            suite_version TEXT NOT NULL,
+            basemode_version TEXT NOT NULL,
+            litellm_version TEXT,
+            target_policy TEXT,
+            lifecycle_status TEXT NOT NULL,
+            started_at TEXT NOT NULL,
+            finished_at TEXT
+        );
+        CREATE TABLE IF NOT EXISTS verification_probes (
+            id INTEGER PRIMARY KEY,
+            run_id INTEGER NOT NULL REFERENCES verification_runs(id),
+            endpoint_id INTEGER NOT NULL REFERENCES model_endpoints(id),
+            probe_identifier TEXT NOT NULL,
+            repetition INTEGER NOT NULL DEFAULT 0,
+            required_status INTEGER NOT NULL DEFAULT 1,
+            operation_id INTEGER UNIQUE REFERENCES call_operations(id),
+            UNIQUE(run_id, endpoint_id, probe_identifier, repetition)
+        );
+        CREATE TABLE IF NOT EXISTS probe_metrics (
+            id INTEGER PRIMARY KEY,
+            probe_id INTEGER NOT NULL REFERENCES verification_probes(id),
+            metric_name TEXT NOT NULL,
+            metric_value REAL NOT NULL,
+            UNIQUE(probe_id, metric_name)
+        );
+        CREATE TABLE IF NOT EXISTS recheck_schedules (
+            endpoint_id INTEGER PRIMARY KEY REFERENCES model_endpoints(id),
+            due_at TEXT NOT NULL,
+            reason TEXT NOT NULL,
+            failure_count INTEGER NOT NULL DEFAULT 0,
+            updated_at TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS operational_assessments (
+            id INTEGER PRIMARY KEY,
+            endpoint_id INTEGER NOT NULL REFERENCES model_endpoints(id),
+            assessed_at TEXT NOT NULL,
+            status TEXT NOT NULL,
+            rules_version INTEGER NOT NULL,
+            triggering_operation_id INTEGER REFERENCES call_operations(id)
+        );
+        CREATE TABLE IF NOT EXISTS daily_call_aggregates (
+            id INTEGER PRIMARY KEY,
+            endpoint_id INTEGER NOT NULL REFERENCES model_endpoints(id),
+            utc_day TEXT NOT NULL,
+            strategy TEXT NOT NULL,
+            source TEXT NOT NULL,
+            source_version TEXT,
+            operations INTEGER NOT NULL,
+            successful_operations INTEGER NOT NULL,
+            attempts INTEGER NOT NULL,
+            failed_attempts INTEGER NOT NULL,
+            UNIQUE(endpoint_id, utc_day, strategy, source, source_version)
+        );
+        CREATE TABLE IF NOT EXISTS contribution_batches (
+            id INTEGER PRIMARY KEY,
+            bundle_id TEXT NOT NULL UNIQUE,
+            window_start TEXT NOT NULL,
+            window_end TEXT NOT NULL,
+            path TEXT,
+            status TEXT NOT NULL,
+            pr_url TEXT,
+            created_at TEXT NOT NULL
+        );
         """
     )
     existing = conn.execute(
@@ -365,7 +447,11 @@ class Attempt:
             error_code, error_param = error_details(error)
             raw_finish_reason = getattr(error, "finish_reason", None)
             if isinstance(raw_finish_reason, str):
-                finish_reason = raw_finish_reason[:40]
+                finish_reason = (
+                    raw_finish_reason
+                    if raw_finish_reason in _SAFE_FINISH_REASONS
+                    else "unknown"
+                )
         elif outcome == "failure" and not self.returned_content:
             failure_class = "empty_response"
         attribution = _failure_attribution(failure_class)
