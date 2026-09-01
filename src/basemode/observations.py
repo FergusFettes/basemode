@@ -74,7 +74,7 @@ class ObservationContext:
 
     source: str = "python"
     source_version: str | None = None
-    contribution_eligible: bool = False
+    contribution_eligible: bool | None = None
     verification_probe_id: int | None = None
 
     def __post_init__(self) -> None:
@@ -83,6 +83,10 @@ class ObservationContext:
             raise ValueError(
                 f"Unknown observation source {self.source!r}. Valid: {allowed}"
             )
+        if self.contribution_eligible is None:
+            from .keys import contribution_enabled
+
+            object.__setattr__(self, "contribution_eligible", contribution_enabled())
         if self.source_version is not None and not _VERSION_RE.fullmatch(
             self.source_version
         ):

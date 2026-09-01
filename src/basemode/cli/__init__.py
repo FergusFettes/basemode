@@ -50,6 +50,7 @@ from .bench_cmd import bench as bench  # noqa: E402
 from .config_cmd import default as default  # noqa: E402
 from .config_cmd import keys as keys  # noqa: E402
 from .config_cmd import serve as serve  # noqa: E402
+from .contribute_cmd import contribute_app as contribute_app  # noqa: E402
 from .evidence_cmd import evidence_command as evidence_command  # noqa: E402
 from .health_cmd import health as health  # noqa: E402
 from .models_cmd import info as info  # noqa: E402
@@ -66,6 +67,7 @@ __all__ = [
     "app",
     "bench",
     "console",
+    "contribute_app",
     "default",
     "evidence_command",
     "health",

@@ -74,6 +74,7 @@ def _normalize(raw: dict) -> dict:
             "default_model": raw.get("default_model"),
             "strategy_overrides": overrides if isinstance(overrides, dict) else {},
             "model_ratings": ratings,
+            "contribution_enabled": raw.get("contribution_enabled") is True,
         }
     # Legacy flat format: every top-level string value is a key.
     keys = {k: v for k, v in raw.items() if isinstance(v, str)}
@@ -82,6 +83,7 @@ def _normalize(raw: dict) -> dict:
         "default_model": None,
         "strategy_overrides": {},
         "model_ratings": ratings,
+        "contribution_enabled": False,
     }
 
 
@@ -95,6 +97,8 @@ def _write(data: dict) -> None:
         out["strategy_overrides"] = data["strategy_overrides"]
     if data.get("model_ratings"):
         out["model_ratings"] = data["model_ratings"]
+    if data.get("contribution_enabled"):
+        out["contribution_enabled"] = True
     _AUTH_FILE.write_text(json.dumps(out, indent=2) + "\n")
     _AUTH_FILE.chmod(0o600)
 
@@ -133,6 +137,16 @@ def get_default_model() -> str | None:
 def set_default_model(model: str | None) -> None:
     data = _load()
     data["default_model"] = model
+    _write(data)
+
+
+def contribution_enabled() -> bool:
+    return bool(_load().get("contribution_enabled"))
+
+
+def set_contribution_enabled(enabled: bool) -> None:
+    data = _load()
+    data["contribution_enabled"] = enabled
     _write(data)
 
 

@@ -1,0 +1,77 @@
+import json
+import subprocess
+import sys
+from collections.abc import AsyncGenerator
+from datetime import UTC, datetime, timedelta
+from pathlib import Path
+
+from basemode import ObservationContext, continue_text
+from basemode.contributions import build_bundle, export_bundle
+
+
+class _Strategy:
+    name = "system"
+
+    async def stream(self, prefix, params) -> AsyncGenerator[str, None]:
+        yield " continuation"
+
+
+async def test_export_is_aggregate_only_and_matches_evidence_contract(
+    monkeypatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr("basemode.continue_.detect_strategy", lambda *args: _Strategy())
+    started = datetime.now(UTC) - timedelta(seconds=1)
+    assert [
+        token
+        async for token in continue_text(
+            "private seed",
+            model="openai/example",
+            observation=ObservationContext(
+                source="loom",
+                source_version="0.8.0",
+                contribution_eligible=True,
+            ),
+        )
+    ] == [" continuation"]
+    ended = datetime.now(UTC)
+
+    bundle = build_bundle(since=started, until=ended)
+    output = export_bundle(bundle, tmp_path / f"{bundle['bundle_id']}.json")
+
+    serialized = output.read_text()
+    assert "private seed" not in serialized
+    assert bundle["observations"][0]["endpoint"] == "openai/example"
+    assert bundle["observations"][0]["operations"] == 1
+    assert json.loads(serialized) == bundle
+
+    evidence = Path(__file__).parents[2] / "basemode-evidence"
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "basemode_evidence.cli",
+            "validate",
+            str(output),
+            "--no-path-check",
+        ],
+        cwd=evidence,
+        env={"PYTHONPATH": str(evidence / "src")},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr or result.stdout
+
+
+async def test_ineligible_operations_are_not_exported(monkeypatch) -> None:
+    monkeypatch.setattr("basemode.continue_.detect_strategy", lambda *args: _Strategy())
+    async for _ in continue_text("private seed", model="openai/example"):
+        pass
+
+    now = datetime.now(UTC)
+    try:
+        build_bundle(since=now - timedelta(minutes=1), until=now)
+    except ValueError as error:
+        assert str(error) == "no contribution-eligible observations in window"
+    else:
+        raise AssertionError("ineligible operation was exported")
