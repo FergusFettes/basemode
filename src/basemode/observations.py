@@ -15,7 +15,7 @@ from pathlib import Path
 from time import monotonic
 from typing import Final
 
-from .health import classify_error, error_details
+from .failure_taxonomy import classify_error, error_details
 from .health_rules import recheck_due_at
 from .usage import usage_from_events
 

@@ -12,7 +12,7 @@ from typing import Any
 from .continue_ import continue_text
 from .detect import normalize_model, select_strategy
 from .evidence import classify_text_endpoint, connect
-from .health import classify_error
+from .failure_taxonomy import classify_error
 from .observation_queries import due_recheck_models
 from .observations import (
     ObservationContext,
