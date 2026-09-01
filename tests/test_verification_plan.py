@@ -3,18 +3,19 @@ from types import SimpleNamespace
 import pytest
 from typer.testing import CliRunner
 
-from basemode import evidence, verification_plan
+from basemode import observations, verification_plan
 from basemode.cli import app
 
 
 def _catalog(
     model: str, *, release: str = "2026-08-01", modality: str = "text"
 ) -> None:
-    evidence.record_catalog_observation(
+    observations.record_endpoint_metadata(
         model,
-        source="test",
-        available=True,
-        metadata={"release_date": release, "modality": modality},
+        text_eligible=modality == "text",
+        modality=modality,
+        release_date=release,
+        catalog_available=True,
     )
 
 
@@ -22,16 +23,12 @@ def test_plan_is_text_only_staged_and_stably_ordered(monkeypatch) -> None:
     _catalog("zeta/new")
     _catalog("alpha/old")
     _catalog("alpha/image", modality="image")
-    run = evidence.start_run("quick")
-    evidence.record_attempt(
-        run,
-        "alpha/old",
-        probe_kind="continuation",
-        attempt_number=1,
-        outcome="failure",
-        failure_class="rate_limit",
-    )
-    evidence.finish_run(run)
+    operation = observations.observe_operation("alpha/old", "system", "heuristic", None)
+    attempt = operation.begin_attempt("initial")
+    error = RuntimeError("limited")
+    error.status_code = 429
+    attempt.finish("failure", error)
+    operation.finish("failure", returned_content=False)
     monkeypatch.setattr(
         verification_plan,
         "get_price_info",

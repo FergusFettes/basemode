@@ -7,7 +7,9 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
-from .evidence import classify_text_endpoint, connect, current_status
+from .model_modality import classify_text_endpoint
+from .observation_queries import list_controlled_status, list_endpoint_health
+from .observations import list_endpoint_metadata
 from .usage import get_price_info
 from .verify import QUICK_PREFIXES, THOROUGH_PREFIXES
 
@@ -84,12 +86,34 @@ def plan_verification(
         age_since = datetime.now(UTC).date() - timedelta(days=max_release_age_days)
         since = max(filter(None, (since, age_since)), default=None)
 
-    with connect() as db:
-        derived = current_status(conn=db)
-        rows = db.execute(
-            """SELECT normalized_model_id,provider,release_date,text_eligible
-               FROM model_endpoints ORDER BY normalized_model_id"""
-        ).fetchall()
+    operational = list_endpoint_health()
+    controlled = list_controlled_status(stale_after_days=stale_after_days)
+    derived: dict[str, dict[str, Any]] = {}
+    rows = []
+    for metadata in list_endpoint_metadata():
+        model = str(metadata["model"])
+        local = operational.get(model, {})
+        checked = controlled.get(model, {})
+        controlled_status = checked.get("controlled_status")
+        operational_status = local.get("operational_status")
+        derived[model] = {
+            "available": metadata["catalog_available"],
+            "last_checked_at": checked.get("last_run_at") or local.get("window_end"),
+            "transient_failure": operational_status == "suspected_transient",
+            "currently_broken": operational_status == "failing"
+            or controlled_status == "failed",
+            "verified": controlled_status == "verified",
+            "reachable": controlled_status in {"reachable", "verified"}
+            or operational_status in {"healthy", "recovered"},
+        }
+        rows.append(
+            {
+                "normalized_model_id": model,
+                "provider": metadata["provider"],
+                "release_date": metadata["release_date"],
+                "text_eligible": metadata["text_eligible"],
+            }
+        )
     known_models = {row["normalized_model_id"] for row in rows}
     for model in sorted(explicit - known_models):
         eligible, _ = classify_text_endpoint(model)

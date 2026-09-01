@@ -22,7 +22,7 @@ from .usage import usage_from_events
 log = logging.getLogger(__name__)
 
 _DB_FILE = Path.home() / ".local" / "share" / "basemode" / "observations.sqlite"
-_SCHEMA_VERSION: Final = 1
+_SCHEMA_VERSION: Final = 2
 _SOURCES: Final = {
     "cli",
     "python",
@@ -126,7 +126,9 @@ def _connect() -> sqlite3.Connection:
             provider_route TEXT NOT NULL,
             provider_model_id TEXT NOT NULL,
             upstream_family TEXT,
+            modality TEXT,
             text_eligible INTEGER NOT NULL DEFAULT 1,
+            catalog_available INTEGER,
             release_date TEXT,
             first_seen TEXT NOT NULL,
             last_seen TEXT NOT NULL,
@@ -259,12 +261,24 @@ def _connect() -> sqlite3.Connection:
         );
         """
     )
+    endpoint_columns = {
+        str(row["name"]) for row in conn.execute("PRAGMA table_info(model_endpoints)")
+    }
+    if "modality" not in endpoint_columns:
+        conn.execute("ALTER TABLE model_endpoints ADD COLUMN modality TEXT")
+    if "catalog_available" not in endpoint_columns:
+        conn.execute("ALTER TABLE model_endpoints ADD COLUMN catalog_available INTEGER")
     existing = conn.execute(
         "SELECT value FROM schema_metadata WHERE key = 'schema_version'"
     ).fetchone()
     if existing is None:
         conn.execute(
             "INSERT INTO schema_metadata(key, value) VALUES ('schema_version', ?)",
+            (str(_SCHEMA_VERSION),),
+        )
+    elif int(existing["value"]) == 1:
+        conn.execute(
+            "UPDATE schema_metadata SET value=? WHERE key='schema_version'",
             (str(_SCHEMA_VERSION),),
         )
     elif int(existing["value"]) != _SCHEMA_VERSION:
@@ -624,17 +638,59 @@ def observe_operation(
 
 
 def record_endpoint_metadata(
-    model: str, *, text_eligible: bool, release_date: str | None = None
+    model: str,
+    *,
+    text_eligible: bool,
+    modality: str | None = None,
+    release_date: str | None = None,
+    catalog_available: bool = True,
 ) -> None:
     """Retain runtime-relevant catalog facts without a duplicate catalog ledger."""
     route, provider_model_id = _endpoint_parts(model.lower())
     with _db() as conn:
         endpoint_id = _ensure_endpoint(conn, route, provider_model_id, _now())
         conn.execute(
-            """UPDATE model_endpoints SET text_eligible=?,
-                   release_date=COALESCE(?,release_date) WHERE id=?""",
-            (int(text_eligible), release_date, endpoint_id),
+            """UPDATE model_endpoints SET text_eligible=?,modality=COALESCE(?,modality),
+                   release_date=COALESCE(?,release_date),catalog_available=? WHERE id=?""",
+            (
+                int(text_eligible),
+                modality,
+                release_date,
+                int(catalog_available),
+                endpoint_id,
+            ),
         )
+
+
+def list_endpoint_metadata() -> list[dict[str, object]]:
+    """List normalized endpoint facts needed by model selection and planning."""
+    if not _DB_FILE.exists():
+        return []
+    with _db() as conn:
+        rows = conn.execute(
+            """SELECT provider_route,provider_model_id,modality,text_eligible,
+                      catalog_available,release_date FROM model_endpoints
+               ORDER BY provider_route,provider_model_id"""
+        ).fetchall()
+    return [
+        {
+            "model": (
+                row["provider_model_id"]
+                if row["provider_route"] == "unknown"
+                else f"{row['provider_route']}/{row['provider_model_id']}"
+            ),
+            "provider": row["provider_route"],
+            "modality": row["modality"],
+            "text_eligible": bool(row["text_eligible"]),
+            "catalog_available": (
+                None
+                if row["catalog_available"] is None
+                else bool(row["catalog_available"])
+            ),
+            "release_date": row["release_date"],
+        }
+        for row in rows
+    ]
 
 
 def endpoint_text_eligibility(models: list[str]) -> dict[str, bool]:
