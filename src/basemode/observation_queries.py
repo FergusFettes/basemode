@@ -16,6 +16,27 @@ def endpoint_health(model: str, *, days: int | None = None) -> dict[str, Any] | 
     return list_endpoint_health(days=days).get(model.lower())
 
 
+def due_recheck_models(*, now: str | None = None) -> list[str]:
+    """Return endpoints whose unified-ledger recheck schedule is due."""
+    if not observations._DB_FILE.exists():
+        return []
+    conn = sqlite3.connect(observations._DB_FILE)
+    try:
+        rows = conn.execute(
+            """SELECT e.provider_route,e.provider_model_id
+               FROM recheck_schedules s
+               JOIN model_endpoints e ON e.id=s.endpoint_id
+               WHERE s.due_at<=? ORDER BY e.provider_route,e.provider_model_id""",
+            (now or datetime.now(UTC).isoformat(),),
+        ).fetchall()
+        return [
+            model_id if route == "unknown" else f"{route}/{model_id}"
+            for route, model_id in rows
+        ]
+    finally:
+        conn.close()
+
+
 def list_endpoint_health(*, days: int | None = None) -> dict[str, dict[str, Any]]:
     if not observations._DB_FILE.exists():
         return {}

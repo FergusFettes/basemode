@@ -2,10 +2,24 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta
+
 RULES_VERSION = 1
 MIN_CLASSIFIED_SAMPLE = 3
 HEALTHY_SUCCESS_RATE = 0.95
 DEGRADED_SUCCESS_RATE = 0.70
+RECHECK_DELAYS = (timedelta(minutes=15), timedelta(hours=2), timedelta(days=1))
+PERSISTENT_RECHECK_DELAY = timedelta(days=7)
+
+
+def recheck_due_at(observed_at: str, failure_count: int) -> str:
+    """Return the next due time under the versioned operational policy."""
+    delay = (
+        RECHECK_DELAYS[failure_count - 1]
+        if failure_count <= len(RECHECK_DELAYS)
+        else PERSISTENT_RECHECK_DELAY
+    )
+    return (datetime.fromisoformat(observed_at) + delay).isoformat()
 
 
 def operational_status(

@@ -16,6 +16,7 @@ from time import monotonic
 from typing import Final
 
 from .health import classify_error, error_details
+from .health_rules import recheck_due_at
 from .usage import usage_from_events
 
 log = logging.getLogger(__name__)
@@ -414,10 +415,64 @@ class Operation:
                         self.id,
                     ),
                 )
+                _update_recheck_schedule(conn, self.id, outcome, _now())
         except Exception:
             log.warning(
                 "could not finish observation operation; ignoring", exc_info=True
             )
+
+
+def _update_recheck_schedule(
+    conn: sqlite3.Connection, operation_id: int, outcome: str, observed_at: str
+) -> None:
+    """Advance derived organic recheck state after a completed operation."""
+    operation = conn.execute(
+        "SELECT endpoint_id,source FROM call_operations WHERE id=?", (operation_id,)
+    ).fetchone()
+    if operation is None or operation["source"] not in {
+        "cli",
+        "python",
+        "server",
+        "loom",
+        "other",
+    }:
+        return
+    if outcome == "success":
+        conn.execute(
+            "DELETE FROM recheck_schedules WHERE endpoint_id=?",
+            (operation["endpoint_id"],),
+        )
+        return
+    attempt = conn.execute(
+        """SELECT failure_class,status_eligible FROM call_attempts
+           WHERE operation_id=? ORDER BY attempt_index DESC LIMIT 1""",
+        (operation_id,),
+    ).fetchone()
+    if (
+        attempt is None
+        or not attempt["status_eligible"]
+        or attempt["failure_class"] not in _TRANSIENT_FAILURES
+    ):
+        return
+    prior = conn.execute(
+        "SELECT failure_count FROM recheck_schedules WHERE endpoint_id=?",
+        (operation["endpoint_id"],),
+    ).fetchone()
+    failure_count = (int(prior["failure_count"]) if prior else 0) + 1
+    conn.execute(
+        """INSERT INTO recheck_schedules(
+               endpoint_id,due_at,reason,failure_count,updated_at
+           ) VALUES(?,?,?,?,?) ON CONFLICT(endpoint_id) DO UPDATE SET
+               due_at=excluded.due_at,reason=excluded.reason,
+               failure_count=excluded.failure_count,updated_at=excluded.updated_at""",
+        (
+            operation["endpoint_id"],
+            recheck_due_at(observed_at, failure_count),
+            attempt["failure_class"],
+            failure_count,
+            observed_at,
+        ),
+    )
 
 
 class Attempt:

@@ -11,6 +11,7 @@ from basemode import (
     usage_capture,
 )
 from basemode.exceptions import EmptyCompletionError
+from basemode.observation_queries import due_recheck_models
 
 pytestmark = pytest.mark.asyncio
 
@@ -164,6 +165,42 @@ async def test_provider_exception_finalizes_operation_and_attempt(monkeypatch) -
     assert attempt["status_eligible"] == 1
     assert attempt["http_status"] == 429
     assert "do not store" not in str(dict(attempt))
+
+
+async def test_organic_transient_failures_schedule_rechecks(monkeypatch) -> None:
+    class RateLimitError(RuntimeError):
+        status_code = 429
+
+    _install(monkeypatch, [RateLimitError("limited"), RateLimitError("limited")])
+    for _ in range(2):
+        with pytest.raises(RateLimitError):
+            await _drain(continue_text("Seed", model="openai/example"))
+
+    conn = sqlite3.connect(observations._DB_FILE)
+    conn.row_factory = sqlite3.Row
+    try:
+        schedule = conn.execute("SELECT * FROM recheck_schedules").fetchone()
+    finally:
+        conn.close()
+    assert schedule["reason"] == "rate_limit"
+    assert schedule["failure_count"] == 2
+    assert due_recheck_models(now="9999-12-31T00:00:00+00:00") == ["openai/example"]
+
+
+async def test_organic_success_resolves_recheck_schedule(monkeypatch) -> None:
+    class RateLimitError(RuntimeError):
+        status_code = 429
+
+    _install(monkeypatch, [RateLimitError("limited"), [" recovered"]])
+    with pytest.raises(RateLimitError):
+        await _drain(continue_text("Seed", model="openai/example"))
+    await _drain(continue_text("Seed", model="openai/example"))
+
+    conn = sqlite3.connect(observations._DB_FILE)
+    try:
+        assert conn.execute("SELECT COUNT(*) FROM recheck_schedules").fetchone()[0] == 0
+    finally:
+        conn.close()
 
 
 async def test_account_and_basemode_failures_are_not_status_eligible(

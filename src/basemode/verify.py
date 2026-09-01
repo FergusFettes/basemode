@@ -11,12 +11,9 @@ from typing import Any
 
 from .continue_ import continue_text
 from .detect import normalize_model, select_strategy
-from .evidence import (
-    classify_text_endpoint,
-    connect,
-    transient_recheck_models,
-)
+from .evidence import classify_text_endpoint, connect
 from .health import classify_error
+from .observation_queries import due_recheck_models
 from .observations import (
     ObservationContext,
     Operation,
@@ -147,7 +144,7 @@ async def verify_models(
         max_tokens = int(saved["max_tokens"])
         models = list(saved["models"])
     if suite == "transient-recheck" and not models:
-        models = transient_recheck_models()
+        models = due_recheck_models()
     models = list(dict.fromkeys(models or []))
     db = connect()
     try:
