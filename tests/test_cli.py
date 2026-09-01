@@ -394,24 +394,22 @@ def test_rate_lists_none_rated_yet() -> None:
 
 
 def test_health_verification_view(monkeypatch) -> None:
-    from basemode import health as health_module
-
     monkeypatch.setenv("COLUMNS", "200")
 
-    def fake_history(model=None, days=None):
+    def fake_status():
         return {
             "openai/gpt-4o-mini": {
+                "controlled_status": "reachable",
+                "suite": "quick",
+                "required_probes": 1,
+                "successful_probes": 1,
                 "attempts": 2,
-                "failures": 1,
-                "looks_transient": True,
-                "cost_usd": 0.001,
-                "categories": {"timeout": 1},
-                "last_at": "2026-01-01T00:00:00+00:00",
+                "failures": {"timeout": 1},
+                "last_run_at": "2026-01-01T00:00:00+00:00",
             }
         }
 
-    monkeypatch.setattr(health_module, "verification_history", fake_history)
-    monkeypatch.setattr("basemode.cli.health_cmd.verification_history", fake_history)
+    monkeypatch.setattr("basemode.cli.health_cmd.list_controlled_status", fake_status)
 
     result = runner.invoke(app, ["health", "--verification"])
 

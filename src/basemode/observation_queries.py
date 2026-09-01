@@ -84,6 +84,102 @@ def clear_endpoint_health(model: str | None = None) -> None:
         conn.close()
 
 
+def controlled_status(model: str, *, stale_after_days: int = 30) -> dict[str, Any]:
+    return list_controlled_status(stale_after_days=stale_after_days).get(
+        model.lower(),
+        {
+            "controlled_status": "never_tested",
+            "suite": None,
+            "required_probes": 0,
+            "successful_probes": 0,
+            "attempts": 0,
+            "failures": {},
+            "last_run_at": None,
+        },
+    )
+
+
+def list_controlled_status(*, stale_after_days: int = 30) -> dict[str, dict[str, Any]]:
+    """Project the latest completed controlled run independently from health."""
+    if not observations._DB_FILE.exists():
+        return {}
+    conn = sqlite3.connect(observations._DB_FILE)
+    conn.row_factory = sqlite3.Row
+    try:
+        endpoints = conn.execute(
+            """SELECT DISTINCT e.id,e.provider_route,e.provider_model_id
+               FROM verification_probes p
+               JOIN model_endpoints e ON e.id=p.endpoint_id"""
+        ).fetchall()
+        result: dict[str, dict[str, Any]] = {}
+        for endpoint in endpoints:
+            run = conn.execute(
+                """SELECT r.* FROM verification_runs r
+                   JOIN verification_probes p ON p.run_id=r.id
+                   WHERE p.endpoint_id=? AND r.lifecycle_status='completed'
+                   ORDER BY r.finished_at DESC,r.id DESC LIMIT 1""",
+                (endpoint["id"],),
+            ).fetchone()
+            if run is None:
+                continue
+            probes = conn.execute(
+                """SELECT p.*,o.logical_outcome,o.returned_content,o.id operation_id
+                   FROM verification_probes p
+                   LEFT JOIN call_operations o ON o.id=p.operation_id
+                   WHERE p.run_id=? AND p.endpoint_id=?""",
+                (run["id"], endpoint["id"]),
+            ).fetchall()
+            required = [probe for probe in probes if probe["required_status"]]
+            successes = [
+                probe
+                for probe in required
+                if probe["logical_outcome"] in {"success", "cancelled"}
+                and probe["returned_content"]
+            ]
+            operation_ids = [
+                int(probe["operation_id"])
+                for probe in probes
+                if probe["operation_id"] is not None
+            ]
+            attempts: list[sqlite3.Row] = []
+            if operation_ids:
+                placeholders = ",".join("?" for _ in operation_ids)
+                attempts = conn.execute(
+                    f"SELECT * FROM call_attempts WHERE operation_id IN ({placeholders})",
+                    operation_ids,
+                ).fetchall()
+            failures = Counter(
+                str(attempt["failure_class"])
+                for attempt in attempts
+                if attempt["failure_class"]
+            )
+            status = (
+                "verified"
+                if run["suite"] == "thorough"
+                and required
+                and len(successes) == len(required)
+                else "reachable"
+                if successes
+                else "failed"
+            )
+            finished_at = datetime.fromisoformat(str(run["finished_at"]))
+            if datetime.now(UTC) - finished_at > timedelta(days=stale_after_days):
+                status = "stale"
+            model = _model_name(endpoint)
+            result[model] = {
+                "controlled_status": status,
+                "suite": run["suite"],
+                "required_probes": len(required),
+                "successful_probes": len(successes),
+                "attempts": len(attempts),
+                "failures": dict(sorted(failures.items())),
+                "last_run_at": run["finished_at"],
+            }
+        return result
+    finally:
+        conn.close()
+
+
 def _summarize(
     conn: sqlite3.Connection,
     endpoint_id: int,

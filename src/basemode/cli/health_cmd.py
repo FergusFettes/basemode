@@ -4,13 +4,12 @@ from typing import Annotated
 import typer
 from rich.table import Table
 
-from ..health import (
-    EVENT_RETENTION_DAYS,
-    verification_history,
-)
+from ..health import EVENT_RETENTION_DAYS
 from ..observation_queries import (
     clear_endpoint_health,
+    controlled_status,
     endpoint_health,
+    list_controlled_status,
     list_endpoint_health,
 )
 from . import app
@@ -60,9 +59,15 @@ def health(
         return
 
     if verification:
-        from ..usage import format_usd
-
-        records = verification_history(model=resolved, days=days)
+        if resolved:
+            observed = controlled_status(resolved)
+            records = (
+                {}
+                if observed["controlled_status"] == "never_tested"
+                else {resolved: observed}
+            )
+        else:
+            records = list_controlled_status()
         if not records:
             console.print("[yellow]No verification probes recorded.[/yellow]")
             return
@@ -71,54 +76,30 @@ def health(
             return
         table = Table(
             "Model",
+            "Status",
+            "Suite",
+            "Passed",
             "Attempts",
-            "Failed",
-            "Transient?",
             "Failures seen",
-            "Cost",
-            "Last probe",
+            "Last run",
             show_header=True,
             header_style="bold",
         )
-        total_cost = 0.0
-        any_cost_known = False
-        for model_id, observed in sorted(
-            records.items(),
-            key=lambda kv: (-kv[1]["failures"], kv[0]),
-        ):
-            transient = ""
-            if observed["failures"]:
-                transient = (
-                    "[yellow]maybe[/yellow]"
-                    if observed["looks_transient"]
-                    else "[red]no[/red]"
-                )
-            cost = observed["cost_usd"]
-            if cost is not None:
-                total_cost += cost
-                any_cost_known = True
+        for model_id, observed in sorted(records.items()):
             table.add_row(
                 model_id,
+                observed["controlled_status"],
+                observed["suite"],
+                f"{observed['successful_probes']}/{observed['required_probes']}",
                 str(observed["attempts"]),
-                str(observed["failures"]),
-                transient,
                 ", ".join(
-                    f"{name} x{count}" for name, count in observed["categories"].items()
+                    f"{name} x{count}" for name, count in observed["failures"].items()
                 ),
-                format_usd(cost) if cost is not None else "",
-                observed["last_at"],
+                observed["last_run_at"],
             )
         console.print(table)
-        window = f" over the last {days} days" if days else ""
-        cost_line = (
-            f" total cost {format_usd(total_cost)}"
-            if any_cost_known
-            else " cost unavailable for these probes"
-        )
-        console.print(f"[dim]{len(records)} models probed{window};{cost_line}[/dim]")
         console.print(
-            "[dim]'Transient?' is 'maybe' only when every failure seen was "
-            "rate_limit/timeout/provider_unavailable/network[/dim]"
+            f"[dim]{len(records)} models with completed controlled runs[/dim]"
         )
         return
 

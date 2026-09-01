@@ -1,7 +1,7 @@
 import pytest
 
-from basemode import continue_text
-from basemode.observation_queries import endpoint_health
+from basemode import ObservationContext, continue_text, observations
+from basemode.observation_queries import controlled_status, endpoint_health
 
 pytestmark = pytest.mark.asyncio
 
@@ -64,3 +64,34 @@ async def test_account_failure_is_visible_but_excluded_from_endpoint_rate(
     assert health["attempts"] == 0
     assert health["account_failures"] == 1
     assert health["operational_status"] == "account_limited"
+
+
+async def test_thorough_controlled_status_is_derived_from_linked_operation(
+    monkeypatch,
+) -> None:
+    strategy = _Strategy([" verified"])
+    monkeypatch.setattr("basemode.continue_.detect_strategy", lambda *args: strategy)
+    run_id = observations.begin_verification_run("thorough", "1")
+    probe_id = observations.begin_verification_probe(
+        run_id, "openai/example", "openai/example", repetition=1
+    )
+
+    await _drain(
+        continue_text(
+            "Seed",
+            model="openai/example",
+            observation=ObservationContext(
+                source="verification", verification_probe_id=probe_id
+            ),
+        )
+    )
+    observations.finish_verification_run(run_id, "completed")
+
+    status = controlled_status("openai/example")
+    assert status["controlled_status"] == "verified"
+    assert status["successful_probes"] == status["required_probes"] == 1
+    assert status["attempts"] == 1
+
+
+async def test_unseen_endpoint_has_never_tested_status() -> None:
+    assert controlled_status("openai/unseen")["controlled_status"] == "never_tested"
