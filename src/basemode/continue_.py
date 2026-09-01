@@ -53,6 +53,9 @@ async def continue_text(
     on_raw_head: Callable[[str], None] | None = None,
     raw_head_chars: int = RAW_HEAD_CHARS,
     on_usage: Callable[[list[dict]], None] | None = None,
+    _observation_operation: Operation | None = None,
+    _observation_attempt_kind: str = "initial",
+    _finalize_observation: bool = True,
     **extra,
 ) -> AsyncGenerator[str, None]:
     """Stream a single continuation.
@@ -91,7 +94,9 @@ async def continue_text(
     )
     choice = select_strategy(model, strategy)
     strat = detect_strategy(model, strategy)
-    operation = observe_operation(model, strat.name, choice.source, observation)
+    operation = _observation_operation or observe_operation(
+        model, strat.name, choice.source, observation
+    )
     log.debug(
         "continue_text: model=%s strategy=%s max_tokens=%d context_len=%d prefix_len=%d",
         model,
@@ -117,6 +122,7 @@ async def continue_text(
         raw_head_chars=raw_head_chars,
         token_counter=token_counter,
         operation=operation,
+        initial_attempt_kind=_observation_attempt_kind,
     )
     try:
         async for token in stream:
@@ -124,21 +130,24 @@ async def continue_text(
     except (GeneratorExit, asyncio.CancelledError):
         # The consumer walked away. Tokens already delivered still count as
         # the model having worked; an immediate cancel is not a verdict.
-        operation.finish(
-            "cancelled" if token_counter[0] else "inconclusive",
-            returned_content=bool(token_counter[0]),
-        )
+        if _finalize_observation:
+            operation.finish(
+                "cancelled" if token_counter[0] else "inconclusive",
+                returned_content=bool(token_counter[0]),
+            )
         _report_usage(on_usage)
         raise
     except Exception:
-        operation.finish("failure", returned_content=bool(token_counter[0]))
+        if _finalize_observation:
+            operation.finish("failure", returned_content=bool(token_counter[0]))
         log.exception("continue_text: stream error after %d tokens", token_counter[0])
         _report_usage(on_usage)
         raise
-    operation.finish(
-        "success" if token_counter[0] else "failure",
-        returned_content=bool(token_counter[0]),
-    )
+    if _finalize_observation:
+        operation.finish(
+            "success" if token_counter[0] else "failure",
+            returned_content=bool(token_counter[0]),
+        )
     _report_usage(on_usage)
     log.debug("continue_text: done, %d tokens", token_counter[0])
 
@@ -167,6 +176,7 @@ async def _stream_with_empty_retry(
     raw_head_chars: int,
     token_counter: list[int],
     operation: Operation,
+    initial_attempt_kind: str = "initial",
 ) -> AsyncGenerator[str, None]:
     """Stream a continuation, retrying once on an empty completion.
 
@@ -177,7 +187,7 @@ async def _stream_with_empty_retry(
     """
     attempt_params = params
     retried_reasoning_off = False
-    attempt_kind = "initial"
+    attempt_kind = initial_attempt_kind
     while True:
         try:
             raw_tokens = _with_observation_context(
@@ -288,6 +298,7 @@ async def branch_text(
             raw_head_chars=RAW_HEAD_CHARS,
             token_counter=token_counter,
             operation=operation,
+            initial_attempt_kind="initial",
         )
         try:
             async for token in stream:

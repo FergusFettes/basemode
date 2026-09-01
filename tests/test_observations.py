@@ -260,3 +260,40 @@ async def test_verification_probe_links_to_ordinary_operation(monkeypatch) -> No
     assert operation["verification_probe_id"] == probe_id
     assert probe["operation_id"] == operation["id"]
     assert run["lifecycle_status"] == "completed"
+
+
+async def test_internal_recovery_calls_share_one_logical_operation(monkeypatch) -> None:
+    class RequestShapeError(RuntimeError):
+        status_code = 400
+
+    strategy = _install(monkeypatch, [RequestShapeError("bad shape"), [" recovered"]])
+    operation = observations.observe_operation(
+        "openai/gpt-4o-mini",
+        strategy.name,
+        "registry",
+        ObservationContext(source="verification"),
+    )
+
+    with pytest.raises(RequestShapeError):
+        await _drain(
+            continue_text(
+                "Seed",
+                _observation_operation=operation,
+                _finalize_observation=False,
+            )
+        )
+    await _drain(
+        continue_text(
+            "Seed",
+            _observation_operation=operation,
+            _observation_attempt_kind="reasoning_off",
+            _finalize_observation=False,
+        )
+    )
+    operation.finish("success", returned_content=True)
+
+    operations = _rows("call_operations")
+    attempts = _rows("call_attempts")
+    assert len(operations) == 1
+    assert operations[0]["attempt_count"] == 2
+    assert [row["attempt_kind"] for row in attempts] == ["initial", "reasoning_off"]
