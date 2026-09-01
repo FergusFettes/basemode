@@ -2,11 +2,14 @@ import json
 import subprocess
 import sys
 from collections.abc import AsyncGenerator
+from copy import deepcopy
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+import pytest
+
 from basemode import ObservationContext, continue_text
-from basemode.contributions import build_bundle, export_bundle
+from basemode.contributions import build_bundle, export_bundle, validate_bundle
 
 
 class _Strategy:
@@ -75,3 +78,33 @@ async def test_ineligible_operations_are_not_exported(monkeypatch) -> None:
         assert str(error) == "no contribution-eligible observations in window"
     else:
         raise AssertionError("ineligible operation was exported")
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda row: row.update(recovered_operations=2),
+        lambda row: row.update(successful_initial_attempts=2),
+        lambda row: row.update(operations=-1),
+        lambda row: row["failures"].update(not_public=1),
+        lambda row: row.update(latency_ms={"count": 2, "p50": 2, "p95": 1}),
+        lambda row: row.update(cost_usd=float("inf")),
+    ],
+)
+async def test_local_validation_rejects_public_semantic_violations(
+    monkeypatch, mutate
+) -> None:
+    monkeypatch.setattr("basemode.continue_.detect_strategy", lambda *args: _Strategy())
+    started = datetime.now(UTC) - timedelta(seconds=1)
+    async for _ in continue_text(
+        "private seed",
+        model="openai/example",
+        observation=ObservationContext(contribution_eligible=True),
+    ):
+        pass
+    bundle = build_bundle(since=started, until=datetime.now(UTC))
+    invalid = deepcopy(bundle)
+    mutate(invalid["observations"][0])
+
+    with pytest.raises(ValueError):
+        validate_bundle(invalid)

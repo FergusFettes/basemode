@@ -139,9 +139,10 @@ def _aggregate(
     ).fetchall()
     initial = [row for row in attempts if row["attempt_index"] == 0]
     failures = Counter(
-        row["failure_class"] or "unknown"
-        for row in attempts
-        if row["outcome"] == "failure"
+        failure if failure in FAILURES else "unknown"
+        for item in attempts
+        if item["outcome"] == "failure"
+        for failure in [item["failure_class"] or "unknown"]
     )
     row: dict[str, Any] = {
         "endpoint": endpoint,
@@ -160,7 +161,7 @@ def _aggregate(
             for item in operations
         ),
         "attempts": len(attempts),
-        "failures": {key: failures[key] for key in sorted(failures) if key in FAILURES},
+        "failures": {key: failures[key] for key in sorted(failures)},
     }
     if source_version:
         row["source_version"] = source_version
@@ -190,15 +191,11 @@ def _aggregate(
         ("input_tokens", "total_prompt_tokens"),
         ("output_tokens", "total_completion_tokens"),
     ):
-        values = [item[column] for item in operations if item[column] is not None]
-        if values:
+        values = [item[column] for item in operations]
+        if all(value is not None for value in values):
             row[key] = sum(values)
-    costs = [
-        item["total_cost_usd"]
-        for item in operations
-        if item["total_cost_usd"] is not None
-    ]
-    if costs:
+    costs = [item["total_cost_usd"] for item in operations]
+    if all(cost is not None for cost in costs):
         row["cost_usd"] = sum(costs)
     return row
 
@@ -224,6 +221,7 @@ def validate_bundle(bundle: dict[str, Any]) -> None:
         raise ValueError("generated_at must not precede window_end")
     if not 1 <= len(bundle["observations"]) <= 1000:
         raise ValueError("bundle must contain 1 to 1000 aggregate rows")
+    dimensions: set[tuple[str, str, str, str | None]] = set()
     for row in bundle["observations"]:
         allowed = {
             "endpoint",
@@ -259,12 +257,68 @@ def validate_bundle(bundle: dict[str, Any]) -> None:
             raise ValueError("invalid contribution-v1 observation fields")
         if row["source"] not in PUBLIC_SOURCES:
             raise ValueError("invalid public contribution source")
-        if row["successful_operations"] > row["operations"]:
-            raise ValueError("successful operations exceed operations")
-        if row["initial_attempts"] > row["attempts"]:
-            raise ValueError("initial attempts exceed attempts")
+        count_fields = {
+            "operations",
+            "successful_operations",
+            "initial_attempts",
+            "successful_initial_attempts",
+            "recovered_operations",
+            "attempts",
+            "input_tokens",
+            "output_tokens",
+        }
+        if any(
+            key in row
+            and (
+                not isinstance(row[key], int)
+                or isinstance(row[key], bool)
+                or row[key] < 0
+            )
+            for key in count_fields
+        ):
+            raise ValueError("contribution counts must be nonnegative integers")
+        comparisons = (
+            ("successful_operations", "operations"),
+            ("recovered_operations", "successful_operations"),
+            ("successful_initial_attempts", "initial_attempts"),
+            ("initial_attempts", "attempts"),
+        )
+        if any(row[smaller] > row[larger] for smaller, larger in comparisons):
+            raise ValueError("contribution count invariant violated")
+        if set(row["failures"]) - FAILURES or any(
+            not isinstance(value, int) or isinstance(value, bool) or value < 0
+            for value in row["failures"].values()
+        ):
+            raise ValueError("invalid failure counts")
         if sum(row["failures"].values()) > row["attempts"]:
             raise ValueError("failures exceed attempts")
+        for metric, population in (
+            ("latency_ms", "successful_operations"),
+            ("ttft_ms", "successful_operations"),
+        ):
+            if metric not in row:
+                continue
+            value = row[metric]
+            if (
+                value.get("count", -1) < 0
+                or value["count"] > row[population]
+                or value["p50"] > value["p95"]
+                or not all(math.isfinite(value[key]) for key in ("p50", "p95"))
+            ):
+                raise ValueError(f"invalid {metric} summary")
+        if "cost_usd" in row and (
+            not math.isfinite(row["cost_usd"]) or row["cost_usd"] < 0
+        ):
+            raise ValueError("invalid cost_usd")
+        dimension = (
+            row["endpoint"],
+            row["strategy"],
+            row["source"],
+            row.get("source_version"),
+        )
+        if dimension in dimensions:
+            raise ValueError("duplicate observation dimensions")
+        dimensions.add(dimension)
 
 
 def export_bundle(bundle: dict[str, Any], path: Path) -> Path:
