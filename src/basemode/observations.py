@@ -347,6 +347,37 @@ class Operation:
         self._attempts += 1
         return Attempt(self, index, kind)
 
+    @classmethod
+    def resume(cls, operation_id: int) -> Operation:
+        """Reopen an unfinished operation so a resumed run can append attempts."""
+        with _db() as conn:
+            row = conn.execute(
+                """SELECT o.id,o.finished_at,e.provider_route,e.provider_model_id,
+                          COALESCE(MAX(a.attempt_index), -1) AS last_attempt
+                   FROM call_operations o
+                   JOIN model_endpoints e ON e.id=o.endpoint_id
+                   LEFT JOIN call_attempts a ON a.operation_id=o.id
+                   WHERE o.id=? GROUP BY o.id""",
+                (operation_id,),
+            ).fetchone()
+        if row is None:
+            raise ValueError(f"unknown observation operation: {operation_id}")
+        if row["finished_at"] is not None:
+            raise ValueError(
+                f"observation operation is already finished: {operation_id}"
+            )
+        operation = cls.__new__(cls)
+        operation.id = int(row["id"])
+        operation.model = (
+            str(row["provider_model_id"])
+            if row["provider_route"] == "unknown"
+            else f"{row['provider_route']}/{row['provider_model_id']}"
+        )
+        operation._started = monotonic()
+        operation._attempts = int(row["last_attempt"]) + 1
+        operation._finished = False
+        return operation
+
     def finish(self, outcome: str, *, returned_content: bool) -> None:
         if self._finished:
             return
@@ -569,6 +600,24 @@ def finish_verification_run(run_id: int, status: str) -> None:
         )
 
 
+def resume_verification_run(run_id: int | str) -> sqlite3.Row:
+    local_id = int(run_id)
+    with _db() as conn:
+        row = conn.execute(
+            "SELECT * FROM verification_runs WHERE id=?", (local_id,)
+        ).fetchone()
+        if row is None:
+            raise ValueError(f"unknown verification run: {run_id}")
+        if row["lifecycle_status"] == "completed":
+            raise ValueError(f"verification run is already completed: {run_id}")
+        conn.execute(
+            """UPDATE verification_runs SET lifecycle_status='running',finished_at=NULL
+               WHERE id=?""",
+            (local_id,),
+        )
+        return row
+
+
 def begin_verification_probe(
     run_id: int,
     model: str,
@@ -587,6 +636,45 @@ def begin_verification_probe(
             (run_id, endpoint_id, probe_identifier, repetition, int(required)),
         )
         return int(cursor.lastrowid)
+
+
+def verification_probe(
+    run_id: int,
+    model: str,
+    probe_identifier: str,
+    *,
+    repetition: int = 0,
+) -> sqlite3.Row | None:
+    route, provider_model_id = _endpoint_parts(model.lower())
+    with _db() as conn:
+        return conn.execute(
+            """SELECT p.* FROM verification_probes p
+               JOIN model_endpoints e ON e.id=p.endpoint_id
+               WHERE p.run_id=? AND e.provider_route=? AND e.provider_model_id=?
+                 AND p.probe_identifier=? AND p.repetition=?""",
+            (run_id, route, provider_model_id, probe_identifier, repetition),
+        ).fetchone()
+
+
+def completed_verification_probes(run_id: int) -> set[tuple[str, int]]:
+    with _db() as conn:
+        rows = conn.execute(
+            """SELECT p.probe_identifier,p.repetition
+               FROM verification_probes p
+               JOIN call_operations o ON o.id=p.operation_id
+               WHERE p.run_id=? AND o.finished_at IS NOT NULL""",
+            (run_id,),
+        ).fetchall()
+    return {(str(row["probe_identifier"]), int(row["repetition"])) for row in rows}
+
+
+def operation_attempt_kinds(operation_id: int) -> set[str]:
+    with _db() as conn:
+        rows = conn.execute(
+            "SELECT attempt_kind FROM call_attempts WHERE operation_id=?",
+            (operation_id,),
+        ).fetchall()
+    return {str(row["attempt_kind"]) for row in rows}
 
 
 def _ensure_endpoint(

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import json
 import time
 from collections import defaultdict, deque
@@ -11,18 +10,25 @@ from dataclasses import dataclass
 from typing import Any
 
 from .continue_ import continue_text
+from .detect import normalize_model, select_strategy
 from .evidence import (
     classify_text_endpoint,
     connect,
-    finish_run,
-    record_attempt,
-    record_probe_result,
-    resume_run,
-    start_run,
     transient_recheck_models,
 )
-from .health import classify_error, error_details
-from .observations import ObservationContext
+from .health import classify_error
+from .observations import (
+    ObservationContext,
+    Operation,
+    begin_verification_probe,
+    begin_verification_run,
+    completed_verification_probes,
+    finish_verification_run,
+    observe_operation,
+    operation_attempt_kinds,
+    resume_verification_run,
+    verification_probe,
+)
 from .transport import litellm_version
 from .usage import estimate_usage, get_price_info, usage_from_events
 
@@ -134,13 +140,12 @@ async def verify_models(
         raise ValueError("max_cost_usd must be positive")
     resumed = None
     if run_id:
-        resumed = resume_run(run_id)
-        saved = json.loads(resumed["configuration_json"])
-        saved_targets = json.loads(resumed["target_policy_json"])
+        resumed = resume_verification_run(run_id)
+        saved = json.loads(resumed["target_policy"])
         suite = resumed["suite"]
         attempts = int(saved["attempts"])
         max_tokens = int(saved["max_tokens"])
-        models = list(saved_targets["models"])
+        models = list(saved["models"])
     if suite == "transient-recheck" and not models:
         models = transient_recheck_models()
     models = list(dict.fromkeys(models or []))
@@ -172,13 +177,8 @@ async def verify_models(
         )
     token_budget = max_tokens or (160 if suite == "thorough" else 64)
     prefixes = THOROUGH_PREFIXES if suite == "thorough" else QUICK_PREFIXES
-    try:
-        from importlib.metadata import version
-
-        basemode_version = version("basemode")
-    except Exception:  # pragma: no cover - editable source without metadata
-        basemode_version = None
     configuration = {
+        "models": models,
         "attempts": attempts,
         "max_tokens": token_budget,
         "prefix_count": len(prefixes),
@@ -193,15 +193,18 @@ async def verify_models(
         },
     }
     if run_id is None:
-        run_id = start_run(
-            suite,
-            configuration=configuration,
-            target_policy={"models": models},
-            basemode_version=basemode_version,
-            litellm_version=litellm_version(),
+        run_id = str(
+            begin_verification_run(
+                suite,
+                "1",
+                litellm_version=litellm_version(),
+                target_policy=json.dumps(
+                    configuration, sort_keys=True, separators=(",", ":")
+                ),
+            )
         )
     probes = _fair_probes(models, prefixes, attempts)
-    completed = _completed_probes(run_id)
+    completed = _completed_probes(int(run_id))
     skipped = len(
         [probe for probe in probes if (probe.model, probe.number) in completed]
     )
@@ -225,7 +228,12 @@ async def verify_models(
         # provider must not occupy scarce global capacity.
         async with provider_semaphores[provider], global_semaphore:
             return await _probe(
-                run_id, probe.model, probe.prefix, probe.number, token_budget, limits
+                int(run_id),
+                probe.model,
+                probe.prefix,
+                probe.number,
+                token_budget,
+                limits,
             )
 
     try:
@@ -233,9 +241,9 @@ async def verify_models(
         total = sum(result is not None for result in results)
         successes = sum(result is True for result in results)
         status = "limited" if limits.limited or limited_by_probe_count else "completed"
-        finish_run(run_id, status)
+        finish_verification_run(int(run_id), status)
     except BaseException:
-        finish_run(run_id, "aborted")
+        finish_verification_run(int(run_id), "aborted")
         raise
     return VerificationSummary(
         run_id,
@@ -271,67 +279,57 @@ def _fair_probes(
     return ordered
 
 
-def _completed_probes(run_id: str) -> set[tuple[str, int]]:
-    # A logical probe is complete only after success or exhausting all three heals.
-    grouped: dict[tuple[str, int], list[int]] = defaultdict(list)
-    with connect() as db:
-        outcomes = db.execute(
-            """SELECT e.normalized_model_id,a.attempt_number,a.outcome FROM verification_attempts a
-            JOIN model_endpoints e ON e.id=a.endpoint_id WHERE a.run_id=?""",
-            (run_id,),
-        ).fetchall()
-    done: set[tuple[str, int]] = set()
-    for row in outcomes:
-        logical = row["attempt_number"] // 10
-        key = (row["normalized_model_id"], logical)
-        grouped[key].append(row["attempt_number"] % 10)
-        if row["outcome"] == "success":
-            done.add(key)
-    done.update(key for key, heals in grouped.items() if max(heals) >= 2)
-    return done
+def _completed_probes(run_id: int) -> set[tuple[str, int]]:
+    return completed_verification_probes(run_id)
 
 
 async def _probe(
-    run_id: str, model: str, prefix: str, number: int, max_tokens: int, limits: _Limits
+    run_id: int, model: str, prefix: str, number: int, max_tokens: int, limits: _Limits
 ) -> bool | None:
-    configurations: list[tuple[int, dict[str, Any], list[dict[str, Any]]]] = [
-        (max_tokens, {}, []),
+    configurations: list[tuple[str, int, dict[str, Any]]] = [
+        ("initial", max_tokens, {}),
         (
+            "reasoning_off",
             max_tokens,
             {"reasoning": {"enabled": False}},
-            [{"action": "disable_reasoning"}],
         ),
         (
+            "larger_budget",
             max(max_tokens * 4, 256),
             {},
-            [
-                {
-                    "action": "increase_token_budget",
-                    "from": max_tokens,
-                    "to": max(max_tokens * 4, 256),
-                }
-            ],
         ),
     ]
-    actions: list[dict[str, Any]] = []
-    existing: set[int] = set()
-    with connect() as db:
-        endpoint = db.execute(
-            "SELECT id FROM model_endpoints WHERE normalized_model_id=?",
-            (model.lower(),),
-        ).fetchone()
-        if endpoint:
-            existing = {
-                row[0] % 10
-                for row in db.execute(
-                    "SELECT attempt_number FROM verification_attempts WHERE run_id=? AND endpoint_id=? AND attempt_number BETWEEN ? AND ?",
-                    (run_id, endpoint[0], number * 10, number * 10 + 2),
-                )
-            }
-    for heal_index, (budget, extra, proposed) in enumerate(configurations):
-        if heal_index:
-            actions.extend(proposed)
-        if heal_index in existing:
+    probe = verification_probe(run_id, model, model, repetition=number)
+    if probe is None:
+        probe_id = begin_verification_probe(run_id, model, model, repetition=number)
+        choice = select_strategy(normalize_model(model))
+        operation = observe_operation(
+            normalize_model(model),
+            choice.name,
+            choice.source,
+            ObservationContext(source="verification", verification_probe_id=probe_id),
+        )
+        existing: set[str] = set()
+    else:
+        probe_id = int(probe["id"])
+        operation_id = probe["operation_id"]
+        if operation_id is None:
+            choice = select_strategy(normalize_model(model))
+            operation = observe_operation(
+                normalize_model(model),
+                choice.name,
+                choice.source,
+                ObservationContext(
+                    source="verification", verification_probe_id=probe_id
+                ),
+            )
+            existing = set()
+        else:
+            operation = Operation.resume(int(operation_id))
+            existing = operation_attempt_kinds(int(operation_id))
+
+    for attempt_kind, budget, extra in configurations:
+        if attempt_kind in existing:
             continue
         price = get_price_info(model)
         known_cost_bound = None
@@ -342,8 +340,6 @@ async def _probe(
             )
         if not await limits.reserve_request(known_cost_bound):
             return None
-        started = time.perf_counter()
-        first_token: float | None = None
         pieces: list[str] = []
         usage_events: list[dict] = []
         try:
@@ -355,100 +351,29 @@ async def _probe(
                     temperature=0.7,
                     record_health=False,
                     retry_empty_completion=False,
-                    observation=ObservationContext(source="verification"),
                     on_usage=usage_events.extend,
+                    _observation_operation=operation,
+                    _observation_attempt_kind=attempt_kind,
+                    _finalize_observation=False,
                     **extra,
                 ):
-                    if first_token is None:
-                        first_token = time.perf_counter()
                     pieces.append(token)
-            finished = time.perf_counter()
             output = "".join(pieces)
             ok = bool(output.strip())
             usage = usage_from_events(model, usage_events) or estimate_usage(
                 model, prefix, output
             )
-            attempt_id = record_attempt(
-                run_id,
-                model,
-                probe_kind="continuation",
-                attempt_number=number * 10 + heal_index,
-                outcome="success" if ok else "failure",
-                failure_class=None if ok else "empty_response",
-                request_params={
-                    "max_tokens": budget,
-                    "temperature": 0.7,
-                    "reasoning": extra.get("reasoning"),
-                },
-                compatibility_actions=[
-                    *actions,
-                    {"result": "success" if ok else "failed"},
-                ]
-                if actions
-                else [],
-                latency_ms=(finished - started) * 1000,
-                ttft_ms=(first_token - started) * 1000 if first_token else None,
-                generation_ms=(finished - (first_token or started)) * 1000,
-                prompt_tokens=usage.prompt_tokens,
-                completion_tokens=usage.completion_tokens,
-                output_characters=len(output),
-                cost_usd=usage.cost_usd,
-                cost_source="estimated" if usage.is_estimate else "provider",
-                output_fingerprint=hashlib.sha256(output.encode()).hexdigest()
-                if output
-                else None,
-            )
-            record_probe_result(attempt_id, "non_empty", ok, ok)
             await limits.add_cost(usage.cost_usd, known_cost_bound)
             if ok:
+                operation.finish("success", returned_content=True)
                 return True
         except asyncio.CancelledError:
             await limits.add_cost(None, known_cost_bound)
-            record_attempt(
-                run_id,
-                model,
-                probe_kind="continuation",
-                attempt_number=number * 10 + heal_index,
-                outcome="aborted",
-                failure_class="cancelled",
-                status_eligible=False,
-                status_exclusion_reason="verification run interrupted",
-                request_params={
-                    "max_tokens": budget,
-                    "temperature": 0.7,
-                    "reasoning": extra.get("reasoning"),
-                },
-                compatibility_actions=[*actions, {"result": "aborted"}]
-                if actions
-                else [],
-                latency_ms=(time.perf_counter() - started) * 1000,
-            )
+            operation.finish("inconclusive", returned_content=False)
             raise
         except Exception as exc:
             await limits.add_cost(None, known_cost_bound)
-            finished = time.perf_counter()
-            category, status = classify_error(exc)
-            code, param = error_details(exc)
-            record_attempt(
-                run_id,
-                model,
-                probe_kind="continuation",
-                attempt_number=number * 10 + heal_index,
-                outcome="failure",
-                failure_class=category,
-                http_status=status,
-                safe_error_code=code,
-                safe_error_parameter=param,
-                request_params={
-                    "max_tokens": budget,
-                    "temperature": 0.7,
-                    "reasoning": extra.get("reasoning"),
-                },
-                compatibility_actions=[*actions, {"result": "failed"}]
-                if actions
-                else [],
-                latency_ms=(finished - started) * 1000,
-            )
+            category, _status = classify_error(exc)
             # Authentication and rate limiting are not request-shape defects.
             if category in {
                 "authentication",
@@ -457,5 +382,7 @@ async def _probe(
                 "provider_unavailable",
                 "timeout",
             }:
+                operation.finish("failure", returned_content=False)
                 return False
+    operation.finish("failure", returned_content=False)
     return False

@@ -2,12 +2,28 @@ from types import SimpleNamespace
 
 import pytest
 
-from basemode import evidence, verify
+from basemode import evidence, observations, verify
+
+
+def _record_success(kwargs, text: str) -> None:
+    attempt = kwargs["_observation_operation"].begin_attempt(
+        kwargs["_observation_attempt_kind"]
+    )
+    attempt.saw_content(text)
+    attempt.finish("success")
+
+
+def _record_failure(kwargs, error: BaseException) -> None:
+    attempt = kwargs["_observation_operation"].begin_attempt(
+        kwargs["_observation_attempt_kind"]
+    )
+    attempt.finish("failure", error)
 
 
 @pytest.mark.asyncio
 async def test_known_catalog_eligibility_overrides_name_fallback(monkeypatch) -> None:
     async def continuation(*args, **kwargs):
+        _record_success(kwargs, " text output")
         yield " text output"
 
     monkeypatch.setattr(verify, "continue_text", continuation)
@@ -35,6 +51,7 @@ async def test_quick_verification_records_success(monkeypatch) -> None:
     async def continuation(*args, **kwargs):
         callback = kwargs["on_usage"]
         callback([])
+        _record_success(kwargs, " onward")
         yield " onward"
 
     monkeypatch.setattr(verify, "continue_text", continuation)
@@ -50,13 +67,15 @@ async def test_quick_verification_records_success(monkeypatch) -> None:
     )
     summary = await verify.verify_models(["openai/test"], suite="quick")
     assert summary.successes == 1
-    with evidence.connect() as db:
-        run = db.execute("SELECT suite,status FROM verification_runs").fetchone()
+    with observations._db() as db:
+        run = db.execute(
+            "SELECT suite,lifecycle_status FROM verification_runs"
+        ).fetchone()
         attempt = db.execute(
-            "SELECT outcome,output_characters,cost_source FROM verification_attempts"
+            "SELECT outcome,output_characters,cost_source FROM call_attempts"
         ).fetchone()
     assert tuple(run) == ("quick", "completed")
-    assert tuple(attempt) == ("success", 7, "estimated")
+    assert tuple(attempt) == ("success", 7, None)
 
 
 @pytest.mark.asyncio
@@ -67,7 +86,10 @@ async def test_verification_records_self_healing_steps(monkeypatch) -> None:
         nonlocal calls
         calls += 1
         if calls == 1:
-            raise ValueError("unsupported parameter: `thinking`")
+            error = ValueError("unsupported parameter: `thinking`")
+            _record_failure(kwargs, error)
+            raise error
+        _record_success(kwargs, " recovered")
         yield " recovered"
 
     monkeypatch.setattr(verify, "continue_text", continuation)
@@ -83,12 +105,12 @@ async def test_verification_records_self_healing_steps(monkeypatch) -> None:
     )
     summary = await verify.verify_models(["openai/test"])
     assert summary.successes == 1
-    with evidence.connect() as db:
+    with observations._db() as db:
         rows = db.execute(
-            "SELECT outcome,compatibility_actions_json FROM verification_attempts ORDER BY id"
+            "SELECT outcome,attempt_kind FROM call_attempts ORDER BY id"
         ).fetchall()
     assert [row["outcome"] for row in rows] == ["failure", "success"]
-    assert "disable_reasoning" in rows[1]["compatibility_actions_json"]
+    assert rows[1]["attempt_kind"] == "reasoning_off"
 
 
 @pytest.mark.asyncio
@@ -99,7 +121,10 @@ async def test_request_limit_is_hard_and_run_resumes(monkeypatch) -> None:
         nonlocal calls
         calls += 1
         if calls == 1:
-            raise ValueError("unsupported parameter")
+            error = ValueError("unsupported parameter")
+            _record_failure(kwargs, error)
+            raise error
+        _record_success(kwargs, " recovered")
         yield " recovered"
 
     monkeypatch.setattr(verify, "continue_text", continuation)
@@ -120,11 +145,14 @@ async def test_request_limit_is_hard_and_run_resumes(monkeypatch) -> None:
 
     resumed = await verify.verify_models(None, run_id=first.run_id, max_requests=1)
     assert (resumed.status, resumed.requests, resumed.successes) == ("completed", 1, 1)
-    with evidence.connect() as db:
+    with observations._db() as db:
         rows = db.execute(
-            "SELECT attempt_number,outcome FROM verification_attempts ORDER BY attempt_number"
+            "SELECT attempt_index,attempt_kind,outcome FROM call_attempts ORDER BY attempt_index"
         ).fetchall()
-    assert [tuple(row) for row in rows] == [(10, "failure"), (11, "success")]
+    assert [tuple(row) for row in rows] == [
+        (0, "initial", "failure"),
+        (1, "reasoning_off", "success"),
+    ]
 
 
 @pytest.mark.asyncio
@@ -145,6 +173,7 @@ async def test_provider_and_global_concurrency_are_bounded(monkeypatch) -> None:
         await __import__("asyncio").sleep(0.01)
         active -= 1
         provider_active[provider] -= 1
+        _record_success(kwargs, " ok")
         yield " ok"
 
     monkeypatch.setattr(verify, "continue_text", continuation)
