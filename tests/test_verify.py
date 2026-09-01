@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from basemode import evidence, observations, verify
+from basemode import observations, verify
 
 
 def _record_success(kwargs, text: str) -> None:
@@ -34,11 +34,8 @@ async def test_known_catalog_eligibility_overrides_name_fallback(monkeypatch) ->
             prompt_tokens=1, completion_tokens=1, cost_usd=None, is_estimate=True
         ),
     )
-    evidence.record_catalog_observation(
-        "openrouter/acme/image-reasoner",
-        source="test-catalog",
-        available=True,
-        metadata={"input_modalities": ["image"], "output_modalities": ["text"]},
+    observations.record_endpoint_metadata(
+        "openrouter/acme/image-reasoner", text_eligible=True
     )
 
     summary = await verify.verify_models(["openrouter/acme/image-reasoner"])

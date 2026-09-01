@@ -623,6 +623,38 @@ def observe_operation(
     return Operation(model, strategy, strategy_source, context or ObservationContext())
 
 
+def record_endpoint_metadata(
+    model: str, *, text_eligible: bool, release_date: str | None = None
+) -> None:
+    """Retain runtime-relevant catalog facts without a duplicate catalog ledger."""
+    route, provider_model_id = _endpoint_parts(model.lower())
+    with _db() as conn:
+        endpoint_id = _ensure_endpoint(conn, route, provider_model_id, _now())
+        conn.execute(
+            """UPDATE model_endpoints SET text_eligible=?,
+                   release_date=COALESCE(?,release_date) WHERE id=?""",
+            (int(text_eligible), release_date, endpoint_id),
+        )
+
+
+def endpoint_text_eligibility(models: list[str]) -> dict[str, bool]:
+    """Return known catalog eligibility from the unified endpoint table."""
+    if not models or not _DB_FILE.exists():
+        return {}
+    with _db() as conn:
+        result: dict[str, bool] = {}
+        for model in models:
+            route, provider_model_id = _endpoint_parts(model.lower())
+            row = conn.execute(
+                """SELECT text_eligible FROM model_endpoints
+                   WHERE provider_route=? AND provider_model_id=?""",
+                (route, provider_model_id),
+            ).fetchone()
+            if row is not None:
+                result[model] = bool(row["text_eligible"])
+        return result
+
+
 def begin_verification_run(
     suite: str,
     suite_version: str,

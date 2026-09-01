@@ -11,8 +11,8 @@ from typing import Any
 
 from .continue_ import continue_text
 from .detect import normalize_model, select_strategy
-from .evidence import classify_text_endpoint, connect
 from .failure_taxonomy import classify_error
+from .model_modality import classify_text_endpoint
 from .observation_queries import due_recheck_models
 from .observations import (
     ObservationContext,
@@ -20,6 +20,7 @@ from .observations import (
     begin_verification_probe,
     begin_verification_run,
     completed_verification_probes,
+    endpoint_text_eligibility,
     finish_verification_run,
     observe_operation,
     operation_attempt_kinds,
@@ -146,22 +147,7 @@ async def verify_models(
     if suite == "transient-recheck" and not models:
         models = due_recheck_models()
     models = list(dict.fromkeys(models or []))
-    db = connect()
-    try:
-        known_eligibility = (
-            {
-                row["normalized_model_id"]: bool(row["text_eligible"])
-                for row in db.execute(
-                    f"SELECT normalized_model_id,text_eligible FROM model_endpoints "
-                    f"WHERE normalized_model_id IN ({','.join('?' for _ in models)})",
-                    models,
-                )
-            }
-            if models
-            else {}
-        )
-    finally:
-        db.close()
+    known_eligibility = endpoint_text_eligibility(models)
     non_text = [
         model
         for model in models
