@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import json
 import math
+import shutil
 import sqlite3
+import subprocess
+import tempfile
 import uuid
 from collections import Counter, defaultdict
 from datetime import UTC, datetime, timedelta
@@ -341,3 +344,77 @@ def export_bundle(bundle: dict[str, Any], path: Path) -> Path:
             ),
         )
     return path
+
+
+def open_contribution_pr(
+    bundle: dict[str, Any],
+    *,
+    repo: str,
+    exported_path: Path,
+    run: Any = subprocess.run,
+) -> str:
+    """Submit one already-approved bundle through authenticated GitHub CLI."""
+    export_bundle(bundle, exported_path)
+
+    def command(
+        args: list[str], *, cwd: Path | None = None
+    ) -> subprocess.CompletedProcess:
+        try:
+            return run(
+                args,
+                cwd=cwd,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+        except (FileNotFoundError, subprocess.CalledProcessError) as error:
+            detail = getattr(error, "stderr", "") or str(error)
+            raise RuntimeError(
+                f"GitHub submission stopped; bundle remains at {exported_path}. "
+                f"Resolve gh authentication/access and submit it manually. {detail.strip()}"
+            ) from error
+
+    command(["gh", "auth", "status"])
+    with tempfile.TemporaryDirectory(prefix="basemode-contribution-") as temporary:
+        work = Path(temporary)
+        command(["gh", "repo", "fork", repo, "--clone", "--remote"], cwd=work)
+        checkout = work / repo.rsplit("/", 1)[-1]
+        branch = f"basemode-contribution-{bundle['bundle_id']}"
+        command(["git", "switch", "-c", branch], cwd=checkout)
+        end = datetime.fromisoformat(bundle["window_end"].replace("Z", "+00:00"))
+        relative = Path(
+            f"contributions/v1/{end:%Y}/{end:%m}/{bundle['bundle_id']}.json"
+        )
+        target = checkout / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(exported_path, target)
+        command(["git", "add", "--", str(relative)], cwd=checkout)
+        command(
+            ["git", "commit", "-m", f"Add contribution {bundle['bundle_id']}"],
+            cwd=checkout,
+        )
+        command(["git", "push", "-u", "origin", branch], cwd=checkout)
+        result = command(
+            [
+                "gh",
+                "pr",
+                "create",
+                "--repo",
+                repo,
+                "--title",
+                f"Evidence contribution {bundle['bundle_id']}",
+                "--body",
+                "Aggregate-only Basemode contribution generated locally.",
+                "--head",
+                branch,
+            ],
+            cwd=checkout,
+        )
+    pr_url = result.stdout.strip().splitlines()[-1]
+    with observations._db() as conn:
+        conn.execute(
+            """UPDATE contribution_batches SET status='submitted',pr_url=?
+               WHERE bundle_id=?""",
+            (pr_url, bundle["bundle_id"]),
+        )
+    return pr_url

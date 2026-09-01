@@ -10,7 +10,7 @@ from typing import Annotated
 import typer
 
 from .. import observations
-from ..contributions import build_bundle, export_bundle
+from ..contributions import build_bundle, export_bundle, open_contribution_pr
 from ..keys import contribution_enabled, set_contribution_enabled
 from . import app
 from .render import console
@@ -76,6 +76,28 @@ def export(
     target = output or Path(f"basemode-contribution-{bundle['bundle_id']}.json")
     export_bundle(bundle, target)
     console.print(str(target))
+
+
+@contribute_app.command("pr")
+def pr(
+    repo: Annotated[str, typer.Option("--repo")] = "FergusFettes/basemode-evidence",
+    since: Annotated[datetime | None, typer.Option("--since")] = None,
+    until: Annotated[datetime | None, typer.Option("--until")] = None,
+    yes: Annotated[bool, typer.Option("--yes", "-y")] = False,
+) -> None:
+    """Preview, confirm, and submit one aggregate bundle using authenticated gh."""
+    start, end = _window(since, until)
+    bundle = build_bundle(since=start, until=end)
+    console.print_json(json.dumps(bundle))
+    if not yes and not typer.confirm("Submit exactly this aggregate bundle?"):
+        raise typer.Abort()
+    exported = Path(f"basemode-contribution-{bundle['bundle_id']}.json")
+    try:
+        url = open_contribution_pr(bundle, repo=repo, exported_path=exported)
+    except RuntimeError as error:
+        console.print(f"[red]{error}[/red]")
+        raise typer.Exit(1) from error
+    console.print(url)
 
 
 @contribute_app.command("clear-pending")

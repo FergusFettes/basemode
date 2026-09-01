@@ -9,7 +9,12 @@ from pathlib import Path
 import pytest
 
 from basemode import ObservationContext, continue_text
-from basemode.contributions import build_bundle, export_bundle, validate_bundle
+from basemode.contributions import (
+    build_bundle,
+    export_bundle,
+    open_contribution_pr,
+    validate_bundle,
+)
 
 
 class _Strategy:
@@ -108,3 +113,41 @@ async def test_local_validation_rejects_public_semantic_violations(
 
     with pytest.raises(ValueError):
         validate_bundle(invalid)
+
+
+async def test_pr_workflow_commits_only_the_exported_bundle(
+    monkeypatch, tmp_path
+) -> None:
+    monkeypatch.setattr("basemode.continue_.detect_strategy", lambda *args: _Strategy())
+    started = datetime.now(UTC) - timedelta(seconds=1)
+    async for _ in continue_text(
+        "private seed",
+        model="openai/example",
+        observation=ObservationContext(contribution_eligible=True),
+    ):
+        pass
+    bundle = build_bundle(since=started, until=datetime.now(UTC))
+    commands = []
+
+    def fake_run(args, *, cwd=None, **kwargs):
+        commands.append(args)
+        if args[:3] == ["gh", "repo", "fork"]:
+            (cwd / "basemode-evidence").mkdir()
+        stdout = (
+            "https://github.com/FergusFettes/basemode-evidence/pull/1\n"
+            if args[:3] == ["gh", "pr", "create"]
+            else ""
+        )
+        return subprocess.CompletedProcess(args, 0, stdout=stdout, stderr="")
+
+    url = open_contribution_pr(
+        bundle,
+        repo="FergusFettes/basemode-evidence",
+        exported_path=tmp_path / "bundle.json",
+        run=fake_run,
+    )
+
+    assert url.endswith("/pull/1")
+    git_add = next(command for command in commands if command[:2] == ["git", "add"])
+    assert git_add[2] == "--"
+    assert git_add[3].endswith(f"/{bundle['bundle_id']}.json")
