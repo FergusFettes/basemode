@@ -5,8 +5,10 @@ from importlib import resources
 
 import litellm
 
-from .health import list_model_health, verification_history
 from .keys import list_model_ratings
+from .model_modality import classify_text_endpoint
+from .observation_queries import list_controlled_status, list_endpoint_health
+from .observations import list_endpoint_metadata
 from .settings import settings
 from .strategies.compat import model_quirks
 
@@ -101,7 +103,19 @@ def _health_for(health: dict[str, dict], provider: str, model: str) -> dict | No
     """Observed health stored under either the bare or qualified model ID."""
     if not health:
         return None
-    return health.get(model.lower()) or health.get(f"{provider}/{model}".lower())
+    observed = health.get(model.lower()) or health.get(f"{provider}/{model}".lower())
+    if observed is None:
+        return None
+    failures = observed.get("failures", {})
+    operations = int(observed.get("operations", 0))
+    successful = int(observed.get("successful_operations", 0))
+    return {
+        **observed,
+        "successes": successful,
+        "failures": operations - successful,
+        "failure_rate": (operations - successful) / operations if operations else 0,
+        "categories": failures,
+    }
 
 
 def _display_model_id(provider: str, model: str) -> str:
@@ -348,24 +362,27 @@ def list_model_picker_entries(
     live = _live_rows_by_provider()
     cross_provider_dates = _cross_provider_release_dates(verified, live)
     thumbs = list_model_ratings() if ratings is None else _lowered(ratings)
-    health = list_model_health(days=health_days)
-    verification = verification_history()
-    from .evidence import classify_text_endpoint, excluded_non_text_models
-    from .evidence import current_status as evidence_current_status
-
-    durable_evidence = evidence_current_status()
-    evidence_non_text = excluded_non_text_models()
+    health = list_endpoint_health(days=health_days)
+    controlled = list_controlled_status()
+    endpoint_metadata = list_endpoint_metadata()
+    evidence_non_text = {
+        str(row["model"]) for row in endpoint_metadata if not row["text_eligible"]
+    }
     # A registry entry means a human confirmed this model works at some
     # point; a verification probe can contradict that with live evidence.
     # Only the versioned thorough suite can independently grant verified
     # status to an endpoint outside the curated registry. Quick and imported
     # probes establish reachability but are not equivalent to verification.
-    broken = {m for m, e in verification.items() if e["currently_broken"]}
-    # Thorough-suite evidence is durable and reproducible. Quick legacy
-    # probes remain a compatibility fallback, but cannot independently grant
-    # the stronger evidence-backed verified state.
-    broken |= {m for m, e in durable_evidence.items() if e.get("currently_broken")}
-    evidence_verified = {m for m, e in durable_evidence.items() if e.get("verified")}
+    broken = {
+        model
+        for model, status in controlled.items()
+        if status["controlled_status"] == "failed"
+    }
+    evidence_verified = {
+        model
+        for model, status in controlled.items()
+        if status["controlled_status"] == "verified"
+    }
     verified_models = (set(verified) | evidence_verified) - broken
 
     if verified_only:

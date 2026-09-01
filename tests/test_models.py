@@ -112,27 +112,38 @@ def test_live_listing_with_no_signal_keeps_litellm_as_is(monkeypatch) -> None:
 def test_verified_only_requires_thorough_evidence_for_an_unregistered_model() -> None:
     """A quick health probe proves reachability, while a thorough suite can
     grant the stronger verified status without a curated registry entry."""
-    from basemode import evidence
+    from basemode import ObservationContext, observations
 
     # Deliberately synthetic: a real model ID would silently invalidate this
     # test's premise the day the promotion script adds it to the registry.
-    health.record_outcome(
-        "deepinfra/some/Unregistered-Model", ok=True, source="verification"
+    quick = observations.observe_operation(
+        "deepinfra/some/Unregistered-Model",
+        "system",
+        "heuristic",
+        ObservationContext(source="verification"),
     )
+    quick_attempt = quick.begin_attempt("initial")
+    quick_attempt.saw_content("ok")
+    quick_attempt.finish("success")
+    quick.finish("success", returned_content=True)
     entries = list_model_picker_entries(verified_only=True, text_only=False)
     assert not any(e["model"] == "deepinfra/some/unregistered-model" for e in entries)
 
-    with evidence.connect() as db:
-        run = evidence.start_run("thorough", conn=db)
-        evidence.record_attempt(
-            run,
-            "deepinfra/some/Unregistered-Model",
-            probe_kind="continuation",
-            attempt_number=10,
-            outcome="success",
-            conn=db,
-        )
-        evidence.finish_run(run, conn=db)
+    run = observations.begin_verification_run("thorough", "1")
+    probe = observations.begin_verification_probe(
+        run, "deepinfra/some/Unregistered-Model", "continuation"
+    )
+    operation = observations.observe_operation(
+        "deepinfra/some/Unregistered-Model",
+        "system",
+        "heuristic",
+        ObservationContext(source="verification", verification_probe_id=probe),
+    )
+    attempt = operation.begin_attempt("initial")
+    attempt.saw_content("ok")
+    attempt.finish("success")
+    operation.finish("success", returned_content=True)
+    observations.finish_verification_run(run, "completed")
 
     entries = list_model_picker_entries(verified_only=True, text_only=False)
     assert any(e["model"] == "deepinfra/some/unregistered-model" for e in entries)
@@ -251,9 +262,16 @@ def test_rated_models_sort_ahead_of_and_behind_unrated_ones() -> None:
 
 
 def test_model_picker_entries_carry_observed_health() -> None:
-    from basemode import health
+    from basemode import observations
 
-    health.record_outcome("openai/gpt-4o-mini", ok=False, category="rate_limit")
+    operation = observations.observe_operation(
+        "openai/gpt-4o-mini", "system", "heuristic", None
+    )
+    attempt = operation.begin_attempt("initial")
+    error = RuntimeError("limited")
+    error.status_code = 429
+    attempt.finish("failure", error)
+    operation.finish("failure", returned_content=False)
 
     entries = list_model_picker_entries(search="gpt-4o-mini")
     rated = [e for e in entries if e["model"] in ("gpt-4o-mini", "openai/gpt-4o-mini")]
