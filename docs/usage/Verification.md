@@ -179,6 +179,6 @@ basemode evidence failures
 basemode evidence runs
 ```
 
-See [[Model Evidence]] for the database, derived-status rules, imports, and
-sanitized exports. See [[Strategies]] for the separate `basemode bench`
+See [[Model Evidence]] for the unified ledger, derived-status rules, and
+opt-in aggregate contributions. See [[Strategies]] for the separate `basemode bench`
 workflow, which compares prompt strategies for one model.
