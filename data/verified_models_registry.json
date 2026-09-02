@@ -44,7 +44,7 @@
       "openrouter_id": "anthropic/claude-opus-4.8-fast",
       "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing",
       "prompt_method": "system",
-      "quirks": ["no_temperature"]
+      "quirks": ["no_prefill", "no_temperature"]
     },
     {
       "model": "anthropic/claude-opus-5",
@@ -428,16 +428,12 @@
     {
       "model": "deepinfra/zai-org/glm-4.7",
       "pricing_url": "https://deepinfra.com/pricing",
-      "quirks": [
-        "reasoning_budget"
-      ]
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/zai-org/glm-4.7-flash",
       "pricing_url": "https://deepinfra.com/pricing",
-      "quirks": [
-        "reasoning_budget"
-      ]
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/zai-org/glm-5",
