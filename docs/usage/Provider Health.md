@@ -2,23 +2,23 @@
 
 Results from the weekly live-provider health check. Models without a configured API key are skipped. A quota/credit exhaustion is recorded as an expected failure so monitoring remains green; other errors are real failures.
 
-Latest recorded run: `2026-08-27T22:12:46.873861+00:00`
+Latest recorded run: `2026-09-02T11:41:55.584181+00:00`
 
 | Model | Runs | Success | Last status | Median TTFT | Median tok/s |
 |---|---:|---:|---|---:|---:|
-| `anthropic/claude-fable-5` | 2 | 100% | ok | 3.019s | 37.5 |
-| `anthropic/claude-haiku-4-5-20251001` | 5 | 100% | ok | 0.722s | 3516.6 |
-| `anthropic/claude-opus-4-1-20250805` | 2 | 0% | xfail_retired_model | — | — |
-| `anthropic/claude-opus-4-20250514` | 2 | 0% | xfail_retired_model | — | — |
-| `anthropic/claude-opus-4-5-20251101` | 2 | 100% | ok | 2.383s | 2720.5 |
-| `anthropic/claude-opus-4-6` | 5 | 100% | ok | 1.879s | 3440.1 |
-| `anthropic/claude-opus-4-7` | 10 | 100% | ok | 1.712s | 3040.2 |
-| `anthropic/claude-opus-4-8` | 2 | 100% | ok | 1.340s | 2065.3 |
-| `anthropic/claude-opus-5` | 2 | 100% | ok | 1.789s | 60.7 |
-| `anthropic/claude-sonnet-4-20250514` | 5 | 0% | xfail_retired_model | — | — |
-| `anthropic/claude-sonnet-4-5-20250929` | 5 | 100% | ok | 2.127s | 1066.2 |
-| `anthropic/claude-sonnet-4-6` | 10 | 100% | ok | 2.646s | 2416.8 |
-| `anthropic/claude-sonnet-5` | 2 | 100% | ok | 1.966s | 47.8 |
+| `anthropic/claude-fable-5` | 3 | 100% | ok | 2.943s | 35.2 |
+| `anthropic/claude-haiku-4-5-20251001` | 6 | 100% | ok | 0.681s | 2606.1 |
+| `anthropic/claude-opus-4-1-20250805` | 3 | 0% | xfail_retired_model | — | — |
+| `anthropic/claude-opus-4-20250514` | 3 | 0% | xfail_retired_model | — | — |
+| `anthropic/claude-opus-4-5-20251101` | 3 | 100% | ok | 1.758s | 2648.7 |
+| `anthropic/claude-opus-4-6` | 6 | 100% | ok | 2.017s | 3951.2 |
+| `anthropic/claude-opus-4-7` | 12 | 100% | ok | 1.712s | 3040.2 |
+| `anthropic/claude-opus-4-8` | 3 | 100% | ok | 1.236s | 2287.2 |
+| `anthropic/claude-opus-5` | 3 | 100% | ok | 1.880s | 49.8 |
+| `anthropic/claude-sonnet-4-20250514` | 6 | 0% | xfail_retired_model | — | — |
+| `anthropic/claude-sonnet-4-5-20250929` | 6 | 100% | ok | 1.912s | 2013.4 |
+| `anthropic/claude-sonnet-4-6` | 12 | 100% | ok | 2.321s | 2192.7 |
+| `anthropic/claude-sonnet-5` | 3 | 100% | ok | 2.122s | 45.3 |
 | `cerebras/gemma-4-31b` | 1 | 100% | ok | 0.450s | 1890.0 |
 | `cerebras/gpt-oss-120b` | 1 | 100% | ok | 0.276s | 1110.3 |
 | `deepinfra/anthropic/claude-fable-5` | 1 | 0% | error | — | — |
@@ -245,36 +245,36 @@ Latest recorded run: `2026-08-27T22:12:46.873861+00:00`
 | `novita/zai-org/glm-5.2` | 1 | 100% | ok | 5.830s | 1194.4 |
 | `novita/zai-org/glm-5.3` | 1 | 0% | error | — | — |
 | `novita/zai-org/glm-5v-turbo` | 1 | 0% | error | — | — |
-| `openai/gpt-4-turbo-2024-04-09` | 2 | 100% | ok | 3.985s | 2137.5 |
-| `openai/gpt-4.1` | 2 | 100% | ok | 1.514s | 2546.4 |
-| `openai/gpt-4.1-2025-04-14` | 2 | 100% | ok | 0.853s | 2628.7 |
-| `openai/gpt-4.1-mini` | 2 | 100% | ok | 1.050s | 1106.8 |
-| `openai/gpt-4.1-mini-2025-04-14` | 2 | 100% | ok | 0.766s | 1934.1 |
-| `openai/gpt-4.1-nano` | 2 | 100% | ok | 0.802s | 2654.6 |
-| `openai/gpt-4.1-nano-2025-04-14` | 2 | 100% | ok | 0.958s | 3559.3 |
-| `openai/gpt-4o` | 2 | 100% | ok | 0.941s | 2627.1 |
-| `openai/gpt-4o-2024-05-13` | 2 | 100% | ok | 0.674s | 2998.3 |
-| `openai/gpt-4o-2024-08-06` | 2 | 100% | ok | 0.768s | 2577.3 |
-| `openai/gpt-4o-2024-11-20` | 2 | 100% | ok | 0.659s | 2516.3 |
-| `openai/gpt-4o-mini` | 13 | 100% | ok | 0.744s | 1994.6 |
-| `openai/gpt-4o-mini-2024-07-18` | 2 | 100% | ok | 0.700s | 516.0 |
-| `openai/gpt-5.1` | 2 | 100% | ok | 0.645s | 282.2 |
-| `openai/gpt-5.1-2025-11-13` | 2 | 100% | ok | 0.585s | 95.0 |
-| `openai/gpt-5.2` | 2 | 100% | ok | 1.030s | 1797.2 |
-| `openai/gpt-5.2-2025-12-11` | 2 | 100% | ok | 0.869s | 1801.2 |
-| `openai/gpt-5.2-pro` | 2 | 0% | error | — | — |
-| `openai/gpt-5.2-pro-2025-12-11` | 2 | 0% | error | — | — |
-| `openai/gpt-5.3-codex` | 2 | 0% | error | — | — |
-| `openai/gpt-5.4` | 2 | 100% | ok | 0.933s | 1693.5 |
-| `openai/gpt-5.4-2026-03-05` | 2 | 100% | ok | 0.950s | 1891.9 |
-| `openai/gpt-5.4-mini` | 10 | 100% | ok | 0.620s | 823.5 |
-| `openai/gpt-5.4-mini-2026-03-17` | 2 | 100% | ok | 0.556s | 1808.7 |
-| `openai/gpt-5.4-nano` | 2 | 100% | ok | 0.637s | 2097.0 |
-| `openai/gpt-5.4-nano-2026-03-17` | 2 | 100% | ok | 0.615s | 1733.6 |
-| `openai/gpt-5.5` | 2 | 0% | error | — | — |
-| `openai/gpt-5.5-2026-04-23` | 2 | 0% | error | — | — |
-| `openai/gpt-5.6-sol` | 2 | 100% | ok | 1.524s | 232.9 |
-| `openai/gpt-5.6-terra` | 2 | 100% | ok | 1.300s | 3160.0 |
+| `openai/gpt-4-turbo-2024-04-09` | 3 | 100% | ok | 3.483s | 1481.2 |
+| `openai/gpt-4.1` | 3 | 100% | ok | 1.269s | 3282.6 |
+| `openai/gpt-4.1-2025-04-14` | 3 | 100% | ok | 0.955s | 3615.8 |
+| `openai/gpt-4.1-mini` | 3 | 100% | ok | 1.037s | 2157.1 |
+| `openai/gpt-4.1-mini-2025-04-14` | 3 | 100% | ok | 0.921s | 2094.6 |
+| `openai/gpt-4.1-nano` | 3 | 100% | ok | 0.913s | 3478.3 |
+| `openai/gpt-4.1-nano-2025-04-14` | 3 | 100% | ok | 0.928s | 3602.9 |
+| `openai/gpt-4o` | 3 | 100% | ok | 0.898s | 3580.6 |
+| `openai/gpt-4o-2024-05-13` | 3 | 100% | ok | 0.514s | 2859.6 |
+| `openai/gpt-4o-2024-08-06` | 3 | 100% | ok | 0.736s | 3086.1 |
+| `openai/gpt-4o-2024-11-20` | 3 | 100% | ok | 0.727s | 2978.6 |
+| `openai/gpt-4o-mini` | 15 | 100% | ok | 0.744s | 1940.3 |
+| `openai/gpt-4o-mini-2024-07-18` | 3 | 100% | ok | 0.637s | 896.4 |
+| `openai/gpt-5.1` | 3 | 100% | ok | 0.695s | 298.8 |
+| `openai/gpt-5.1-2025-11-13` | 3 | 100% | ok | 0.592s | 177.8 |
+| `openai/gpt-5.2` | 3 | 100% | ok | 0.962s | 2202.3 |
+| `openai/gpt-5.2-2025-12-11` | 3 | 100% | ok | 0.969s | 2536.9 |
+| `openai/gpt-5.2-pro` | 3 | 0% | error | — | — |
+| `openai/gpt-5.2-pro-2025-12-11` | 3 | 0% | error | — | — |
+| `openai/gpt-5.3-codex` | 3 | 0% | error | — | — |
+| `openai/gpt-5.4` | 3 | 100% | ok | 0.837s | 1302.8 |
+| `openai/gpt-5.4-2026-03-05` | 3 | 100% | ok | 1.003s | 2337.1 |
+| `openai/gpt-5.4-mini` | 12 | 100% | ok | 0.544s | 823.5 |
+| `openai/gpt-5.4-mini-2026-03-17` | 3 | 100% | ok | 0.575s | 2366.7 |
+| `openai/gpt-5.4-nano` | 3 | 100% | ok | 0.573s | 2233.7 |
+| `openai/gpt-5.4-nano-2026-03-17` | 3 | 100% | ok | 0.664s | 2135.9 |
+| `openai/gpt-5.5` | 3 | 0% | error | — | — |
+| `openai/gpt-5.5-2026-04-23` | 3 | 0% | error | — | — |
+| `openai/gpt-5.6-sol` | 3 | 100% | ok | 1.406s | 354.6 |
+| `openai/gpt-5.6-terra` | 3 | 100% | ok | 1.401s | 2383.0 |
 | `openrouter/deepseek/deepseek-v3.2` | 1 | 100% | ok | 2.429s | 161.1 |
 | `openrouter/minimax/minimax-m2.5` | 1 | 100% | ok | 2.979s | 100.5 |
 | `openrouter/moonshotai/kimi-k2.6` | 2 | 100% | ok | 2.452s | 1056.8 |
