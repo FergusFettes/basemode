@@ -24,9 +24,7 @@ class _Strategy:
         yield " continuation"
 
 
-async def test_export_is_aggregate_only_and_matches_evidence_contract(
-    monkeypatch, tmp_path: Path
-) -> None:
+async def test_export_is_aggregate_only(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.setattr("basemode.continue_.detect_strategy", lambda *args: _Strategy())
     started = datetime.now(UTC) - timedelta(seconds=1)
     assert [
@@ -52,7 +50,25 @@ async def test_export_is_aggregate_only_and_matches_evidence_contract(
     assert bundle["observations"][0]["operations"] == 1
     assert json.loads(serialized) == bundle
 
+
+async def test_export_matches_sibling_evidence_contract(
+    monkeypatch, tmp_path: Path
+) -> None:
     evidence = Path(__file__).parents[2] / "basemode-evidence"
+    if not evidence.is_dir():
+        pytest.skip("requires a sibling basemode-evidence checkout")
+
+    monkeypatch.setattr("basemode.continue_.detect_strategy", lambda *args: _Strategy())
+    started = datetime.now(UTC) - timedelta(seconds=1)
+    async for _ in continue_text(
+        "private seed",
+        model="openai/example",
+        observation=ObservationContext(contribution_eligible=True),
+    ):
+        pass
+    bundle = build_bundle(since=started, until=datetime.now(UTC))
+    output = export_bundle(bundle, tmp_path / f"{bundle['bundle_id']}.json")
+
     result = subprocess.run(
         [
             sys.executable,
