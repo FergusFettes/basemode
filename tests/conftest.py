@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from basemode import evidence, health, keys, observations
+from basemode import keys, observations
 
 
 @pytest.fixture(autouse=True)
@@ -23,9 +23,6 @@ def isolated_key_store(
         return
     monkeypatch.setattr(keys, "_CONFIG_DIR", tmp_path)
     monkeypatch.setattr(keys, "_AUTH_FILE", tmp_path / "auth.json")
-    monkeypatch.setattr(health, "_CONFIG_DIR", tmp_path)
-    monkeypatch.setattr(health, "_DB_FILE", tmp_path / "health.sqlite")
-    monkeypatch.setattr(evidence, "_DB_FILE", tmp_path / "model_evidence.sqlite")
     monkeypatch.setattr(observations, "_DB_FILE", tmp_path / "observations.sqlite")
 
 

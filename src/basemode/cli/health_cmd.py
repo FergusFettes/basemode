@@ -4,7 +4,6 @@ from typing import Annotated
 import typer
 from rich.table import Table
 
-from ..health import EVENT_RETENTION_DAYS
 from ..observation_queries import (
     clear_endpoint_health,
     controlled_status,
@@ -152,6 +151,5 @@ def health(
     window = f" over the last {days} days" if days else ""
     console.print(
         f"[dim]{len(records)} models with recorded generations; "
-        f"failure breakdown{window} from the last "
-        f"{EVENT_RETENTION_DAYS} days of events[/dim]"
+        f"failure breakdown{window} from unified observations[/dim]"
     )

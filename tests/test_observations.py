@@ -90,6 +90,44 @@ async def test_schema_has_operational_tables_and_no_content_columns() -> None:
         conn.close()
 
 
+async def test_fresh_database_starts_at_current_schema() -> None:
+    with observations._db() as conn:
+        version = conn.execute(
+            "SELECT value FROM schema_metadata WHERE key='schema_version'"
+        ).fetchone()[0]
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(model_endpoints)")}
+    assert version == "2"
+    assert {"modality", "catalog_available"} <= columns
+
+
+async def test_schema_v1_endpoint_metadata_migrates_in_place() -> None:
+    conn = sqlite3.connect(observations._DB_FILE)
+    conn.executescript(
+        """CREATE TABLE schema_metadata(key TEXT PRIMARY KEY,value TEXT NOT NULL);
+        INSERT INTO schema_metadata VALUES('schema_version','1');
+        CREATE TABLE model_endpoints(
+          id INTEGER PRIMARY KEY,provider_route TEXT NOT NULL,
+          provider_model_id TEXT NOT NULL,upstream_family TEXT,
+          text_eligible INTEGER NOT NULL DEFAULT 1,release_date TEXT,
+          first_seen TEXT NOT NULL,last_seen TEXT NOT NULL,
+          UNIQUE(provider_route,provider_model_id));"""
+    )
+    conn.close()
+
+    migrated = observations._connect()
+    try:
+        version = migrated.execute(
+            "SELECT value FROM schema_metadata WHERE key='schema_version'"
+        ).fetchone()[0]
+        columns = {
+            row[1] for row in migrated.execute("PRAGMA table_info(model_endpoints)")
+        }
+    finally:
+        migrated.close()
+    assert version == "2"
+    assert {"modality", "catalog_available"} <= columns
+
+
 async def test_success_records_one_operation_and_attempt(monkeypatch) -> None:
     _install(monkeypatch, [[" hello"]])
 

@@ -23,9 +23,6 @@ lint lint-core:
 models-table:
 	uv run python scripts/generate_verified_models_table.py
 
-health-report:
-	uv run python scripts/model_reliability.py --markdown --output "docs/usage/Provider Health.md"
-	uv run python scripts/model_reliability.py --html --output "dist/provider-health.html"
 	open "dist/provider-health.html"
 
 discover-models:

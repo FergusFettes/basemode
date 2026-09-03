@@ -4,7 +4,6 @@ from typing import Annotated
 import typer
 from rich.table import Table
 
-from ..health import model_health
 from ..keys import (
     RATING_UP,
     get_model_rating,
@@ -13,6 +12,7 @@ from ..keys import (
     set_model_rating,
     set_strategy_override,
 )
+from ..observation_queries import endpoint_health
 from . import app
 from .render import (
     _RATING_MARKS,
@@ -368,7 +368,18 @@ def info(model: Annotated[str, typer.Argument(help="Model name to inspect")]) ->
 
     rating = get_model_rating(resolved)
     table.add_row("Your rating", _RATING_WORDS_BY_VALUE.get(rating, "unrated"))
-    observed = model_health(resolved)
+    raw_health = endpoint_health(resolved)
+    observed = None
+    if raw_health is not None:
+        operations = int(raw_health["operations"])
+        successes = int(raw_health["successful_operations"])
+        observed = {
+            "attempts": operations,
+            "successes": successes,
+            "failures": operations - successes,
+            "failure_rate": (operations - successes) / operations if operations else 0,
+            "categories": raw_health["failures"],
+        }
     if observed is None:
         table.add_row("Observed health", "never generated with")
     else:

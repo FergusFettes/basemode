@@ -113,10 +113,9 @@ If a request fails because of its shape or returns no text, verification may
 retry with reasoning disabled and then with a larger output budget. Each
 provider request is stored as a separate attempt and counts toward limits.
 
-Recorded data includes parameters, structured safe error details, latency,
-time to first token, usage, cost, and an output fingerprint. Prompt text,
-generated text, provider error bodies, keys, and account identifiers are not
-stored.
+Recorded data includes structured safe error details, latency, time to first
+token, usage, and cost. Prompt text, generated text, request parameters,
+fingerprints, provider error bodies, keys, and account identifiers are not stored.
 
 ## Resume an interrupted or limited run
 
@@ -125,7 +124,6 @@ Attempts commit individually. Reaching a configured limit marks the run
 can be resumed without repeating completed probes:
 
 ```bash
-basemode evidence runs
 basemode verify --resume RUN_ID --max-requests 200
 ```
 
@@ -150,33 +148,11 @@ automatically. A later successful check becomes `recovered`. Repeated model
 unavailability on one provider may become `provider_route_unavailable` when
 another route to the same model family succeeds.
 
-Inspect the queue with:
-
-```bash
-basemode evidence transient
-basemode evidence rechecks --json
-```
-
-### Scheduled rechecks
-
-The scheduled GitHub workflow runs only when the repository secret
-`BASEMODE_SCHEDULED_RECHECKS` is `1`. It checks due endpoints for providers
-with configured keys and uploads sanitized outcomes and timings. The evidence
-database is restored through the GitHub Actions cache so backoff and recovery
-state survive between runners. An empty cache is seeded from sanitized
-repository evidence.
-
-Scheduled checks can incur provider cost. Their uploaded artifacts exclude
-keys, prompts, responses, account fingerprints, and request configuration.
-
 ## Read the results
 
 ```bash
 basemode health --verification
-basemode evidence statuses
-basemode evidence endpoint openai/gpt-4o-mini
-basemode evidence failures
-basemode evidence runs
+basemode health openai/gpt-4o-mini
 ```
 
 See [[Model Evidence]] for the unified ledger, derived-status rules, and

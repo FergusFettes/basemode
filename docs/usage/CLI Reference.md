@@ -137,29 +137,22 @@ or `stale`). Repeat provider and status options to form unions. `--dry-run`
 makes no provider requests and reports the ordered stages, provider counts,
 logical probes, maximum self-healing requests, and a best-effort price ceiling.
 
-### `evidence`
+### `health` and `contribute`
 
-Inspect the shared database without making provider requests. Reports exclude
-endpoints explicitly identified as image, video, audio, embedding, reranking,
-or moderation models.
+Inspect local unified observations, or explicitly export aggregate-only public
+evidence:
 
 ```bash
-basemode evidence
-basemode evidence providers
-basemode evidence statuses --json
-basemode evidence failures
-basemode evidence transient
-basemode evidence rechecks --json
-basemode evidence runs
-basemode evidence corpus
-basemode evidence endpoint openai/gpt-5.4
-basemode evidence export > evidence.jsonl
-basemode evidence export --json
+basemode health
+basemode health --verification
+basemode contribute status
+basemode contribute preview --since 2026-08-25T00:00:00Z
+basemode contribute export --output contribution.json
+basemode contribute pr --repo OWNER/basemode-evidence
 ```
 
-The export omits prompts, generated text, request/configuration JSON, output
-fingerprints, and account identifiers. It contains safe structured outcomes,
-measurements, text endpoint metadata, and aggregated corpus quality.
+Contribution is disabled by default. Exports contain only grouped counts,
+safe failure categories, and aggregate performance/usage/cost measurements.
 
 ### `bench`
 

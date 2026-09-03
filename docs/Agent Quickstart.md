@@ -53,8 +53,8 @@ continue_text(prefix, model)          src/basemode/continue_.py
   |  healing                          src/basemode/healing.py
   |    seam repair at the prefix/continuation boundary, newline normalization
   v
-  |  record_outcome()                 src/basemode/health.py
-  |    per-model success/failure history, surfaced by `basemode info`
+  |  Operation/Attempt recorder       src/basemode/observations.py
+  |    unified local health and verification provenance
   v
   streamed tokens
 ```
@@ -133,7 +133,7 @@ small.
 | Strategy bake-off | `src/basemode/bench.py` | Changing how `basemode bench` probes or ranks strategies |
 | Model listing metadata | `src/basemode/models.py`, `src/basemode/live_models.py` | Updating picker data or live-provider discovery |
 | User model opinion and history | `src/basemode/keys.py`, `src/basemode/health.py` | Changing stored ratings, or how generation outcomes are recorded |
-| Provider health | `tests/test_integration.py`, `scripts/model_reliability.py` | Maintaining live-provider checks and the [[Provider Health]] dashboard |
+| Provider checks | `tests/test_integration.py` | Running opt-in live-provider integration checks |
 | Interfaces | `src/basemode/cli.py`, `src/basemode/server.py` | Changing CLI or OpenAI-completions-compatible server behaviour |
 | Tests | `tests/` | Add a regression beside the feature area; real-API coverage is in `test_integration.py` |
 

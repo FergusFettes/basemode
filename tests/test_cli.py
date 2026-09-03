@@ -242,11 +242,11 @@ def test_health_json_is_machine_readable() -> None:
 
 
 def test_info_shows_the_rating_and_observed_health() -> None:
-    from basemode import health
+    from basemode import observations
     from basemode.keys import set_model_rating
 
     set_model_rating("openai/gpt-4o-mini", 1)
-    health.record_outcome("openai/gpt-4o-mini", ok=True)
+    _record_observation(observations, ok=True)
 
     result = runner.invoke(app, ["info", "gpt-4o-mini"])
 

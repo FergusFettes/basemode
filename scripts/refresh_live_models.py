@@ -15,7 +15,7 @@ provider is marked `reliable_dates: false` when more than one model shares
 identical distinct-looking timestamps across >50% of its catalog; its models
 are still cached (for the id/NEW signal) but with release_date stripped.
 
-Run this periodically (e.g. via CI, alongside record_provider_health.py) and
+Run this periodically (for example through the live-model refresh workflow) and
 commit the refreshed cache.
 """
 

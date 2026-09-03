@@ -52,7 +52,6 @@ nav:
     - Python API: usage/Python API.md
     - Keys and Defaults: usage/Keys and Defaults.md
     - Verification: usage/Verification.md
-    - Provider Health: usage/Provider Health.md
     - Model Evidence: usage/Model Evidence.md
   - Reference:
     - continue_text: reference/continue_text.md
