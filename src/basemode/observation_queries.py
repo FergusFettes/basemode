@@ -168,7 +168,7 @@ def list_controlled_status(*, stale_after_days: int = 30) -> dict[str, dict[str,
                 and len(successes) == len(required)
                 else "reachable"
                 if successes
-                else "failed"
+                else _unsuccessful_controlled_status(attempts)
             )
             finished_at = datetime.fromisoformat(str(run["finished_at"]))
             if datetime.now(UTC) - finished_at > timedelta(days=stale_after_days):
@@ -184,6 +184,25 @@ def list_controlled_status(*, stale_after_days: int = 30) -> dict[str, dict[str,
                 "last_run_at": run["finished_at"],
             }
         return result
+
+
+def _unsuccessful_controlled_status(attempts: list[sqlite3.Row]) -> str:
+    """Name why a run produced no successful probe, rather than blaming the model.
+
+    A key without access to an endpoint and a model ID the provider has
+    retired both look like "failed" from the outside, and both are wrong: one
+    is a fact about the account, the other means the endpoint is gone and
+    should stop being swept. Only say `failed` when the endpoint actually
+    answered and the answer was unusable.
+    """
+    failed = [attempt for attempt in attempts if attempt["outcome"] != "success"]
+    if not failed:
+        return "failed"
+    if all(attempt["failure_attribution"] == "account" for attempt in failed):
+        return "account_limited"
+    if all(attempt["http_status"] == 404 for attempt in failed):
+        return "retired"
+    return "failed"
 
 
 def _summarize(

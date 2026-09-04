@@ -98,6 +98,59 @@ async def test_thorough_controlled_status_is_derived_from_linked_operation(
     assert status["attempts"] == 1
 
 
+async def _run_controlled_probe(monkeypatch, model, error) -> None:
+    strategy = _Strategy([error])
+    monkeypatch.setattr("basemode.continue_.detect_strategy", lambda *args: strategy)
+    run_id = observations.begin_verification_run("quick", "1")
+    probe_id = observations.begin_verification_probe(
+        run_id, model, model, repetition=1
+    )
+    with pytest.raises(type(error)):
+        await _drain(
+            continue_text(
+                "Seed",
+                model=model,
+                observation=ObservationContext(
+                    source="verification", verification_probe_id=probe_id
+                ),
+            )
+        )
+    observations.finish_verification_run(run_id, "completed")
+
+
+async def test_account_failure_leaves_controlled_status_inconclusive(
+    monkeypatch,
+) -> None:
+    class PermissionDenied(RuntimeError):
+        status_code = 403
+
+    await _run_controlled_probe(
+        monkeypatch, "zai/glm-locked", PermissionDenied("no access")
+    )
+
+    status = controlled_status("zai/glm-locked")
+    assert status["controlled_status"] == "account_limited"
+
+
+async def test_missing_model_controlled_status_is_retired(monkeypatch) -> None:
+    class NotFound(RuntimeError):
+        status_code = 404
+
+    await _run_controlled_probe(monkeypatch, "gemini/gone-1.0", NotFound("no model"))
+
+    status = controlled_status("gemini/gone-1.0")
+    assert status["controlled_status"] == "retired"
+
+
+async def test_answering_endpoint_that_fails_is_still_failed(monkeypatch) -> None:
+    class Overloaded(RuntimeError):
+        status_code = 503
+
+    await _run_controlled_probe(monkeypatch, "openai/wobbly", Overloaded("busy"))
+
+    assert controlled_status("openai/wobbly")["controlled_status"] == "failed"
+
+
 async def test_unseen_endpoint_has_never_tested_status() -> None:
     assert controlled_status("openai/unseen")["controlled_status"] == "never_tested"
 

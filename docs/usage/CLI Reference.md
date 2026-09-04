@@ -134,7 +134,9 @@ model arguments override queue selection for a deliberate manual recheck.
 
 Selectors can plan deterministic catalog sweeps by provider, release date, and
 current status (`never-tested`, `reachable`, `broken`, `transient`, `verified`,
-or `stale`). Repeat provider and status options to form unions. `--dry-run`
+`stale`, `account-limited`, or `retired`). Repeat provider and status options to
+form unions. `account-limited` and `retired` endpoints are skipped unless named
+or asked for by status. `--dry-run`
 makes no provider requests and reports the ordered stages, provider counts,
 logical probes, maximum self-healing requests, and a best-effort price ceiling.
 `--available` supplies text-model candidates from every provider with a key on

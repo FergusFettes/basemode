@@ -67,7 +67,12 @@ Available selectors are:
 - `--stale-after-days N`, which defaults to 30
 
 Statuses are `never-tested`, `reachable`, `broken`, `transient`, `verified`,
-and `stale`. Multiple providers or statuses form a union within that selector.
+`stale`, `account-limited`, and `retired`. The last two are opt-in: an endpoint
+whose latest controlled run failed only because this account cannot reach it,
+or only with 404s, is left out of a sweep unless you name it or ask for that
+status. Both can change — a key gains access, a provider brings an ID back — so
+neither is permanent, just not worth paying to re-probe every week.
+Multiple providers or statuses form a union within that selector.
 Different selector types are combined, so an endpoint must satisfy all of them.
 `--priced` and `--unpriced` are mutually exclusive. Pricing is evaluated while
 the target list is built, before any run limits are applied.
@@ -85,7 +90,8 @@ basemode verify --available --unpriced --dry-run
 ```
 
 Targets are ordered by prior state: transient, broken, never-tested, stale,
-reachable, then verified. Provider and model ID break ties.
+reachable, verified, account-limited, then retired. Provider and model ID break
+ties.
 
 ### What a dry run reports
 

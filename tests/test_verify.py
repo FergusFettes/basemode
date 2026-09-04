@@ -3,6 +3,7 @@ from types import SimpleNamespace
 import pytest
 
 from basemode import observations, verify
+from basemode.exceptions import EmptyCompletionError
 
 
 def _record_success(kwargs, text: str) -> None:
@@ -11,6 +12,10 @@ def _record_success(kwargs, text: str) -> None:
     )
     attempt.saw_content(text)
     attempt.finish("success")
+
+
+class _MissingModel(Exception):
+    status_code = 404
 
 
 def _record_failure(kwargs, error: BaseException) -> None:
@@ -83,7 +88,7 @@ async def test_verification_records_self_healing_steps(monkeypatch) -> None:
         nonlocal calls
         calls += 1
         if calls == 1:
-            error = ValueError("unsupported parameter: `thinking`")
+            error = EmptyCompletionError(model="openai/test", strategy="system")
             _record_failure(kwargs, error)
             raise error
         _record_success(kwargs, " recovered")
@@ -110,6 +115,70 @@ async def test_verification_records_self_healing_steps(monkeypatch) -> None:
     assert rows[1]["attempt_kind"] == "reasoning_off"
 
 
+class _AccessDenied(Exception):
+    status_code = 403
+
+
+@pytest.mark.asyncio
+async def test_terminal_failure_is_not_retried(monkeypatch) -> None:
+    calls = 0
+
+    async def continuation(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        error = _MissingModel("model not found")
+        _record_failure(kwargs, error)
+        raise error
+        yield  # pragma: no cover - generator marker
+
+    monkeypatch.setattr(verify, "continue_text", continuation)
+    monkeypatch.setattr(
+        verify,
+        "estimate_usage",
+        lambda *args: SimpleNamespace(
+            prompt_tokens=1, completion_tokens=1, cost_usd=None, is_estimate=True
+        ),
+    )
+
+    summary = await verify.verify_models(["openai/retired"])
+
+    # A retired ID fails the same way whatever budget it is given; the
+    # self-healing configurations only ever repair a starved reasoning model.
+    assert calls == 1
+    assert (summary.attempts, summary.successes, summary.requests) == (1, 0, 1)
+
+
+@pytest.mark.asyncio
+async def test_account_failure_is_inconclusive_not_a_verdict(monkeypatch) -> None:
+    calls = 0
+
+    async def continuation(*args, **kwargs):
+        nonlocal calls
+        calls += 1
+        error = _AccessDenied("no permission for this model")
+        _record_failure(kwargs, error)
+        raise error
+        yield  # pragma: no cover - generator marker
+
+    monkeypatch.setattr(verify, "continue_text", continuation)
+    monkeypatch.setattr(
+        verify,
+        "estimate_usage",
+        lambda *args: SimpleNamespace(
+            prompt_tokens=1, completion_tokens=1, cost_usd=None, is_estimate=True
+        ),
+    )
+
+    summary = await verify.verify_models(["zai/glm-locked"])
+
+    assert calls == 1
+    assert summary.inconclusive == 1
+    assert summary.successes == 0
+    with observations._db() as db:
+        outcome = db.execute("SELECT logical_outcome FROM call_operations").fetchone()
+    assert outcome["logical_outcome"] == "inconclusive"
+
+
 @pytest.mark.asyncio
 async def test_request_limit_is_hard_and_run_resumes(monkeypatch) -> None:
     calls = 0
@@ -118,7 +187,7 @@ async def test_request_limit_is_hard_and_run_resumes(monkeypatch) -> None:
         nonlocal calls
         calls += 1
         if calls == 1:
-            error = ValueError("unsupported parameter")
+            error = EmptyCompletionError(model="openai/test", strategy="system")
             _record_failure(kwargs, error)
             raise error
         _record_success(kwargs, " recovered")

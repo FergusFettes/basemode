@@ -3,11 +3,24 @@
 from __future__ import annotations
 
 import re
-from typing import Any
+from typing import Any, Final
 
 from .exceptions import EmptyCompletionError
 
 EMPTY_RESPONSE = "empty_response"
+
+#: Failure classes worth retrying or rechecking: the endpoint may well work
+#: on the next request.
+TRANSIENT_FAILURES: Final = frozenset(
+    {
+        "rate_limit",
+        "timeout",
+        "network",
+        "provider_unavailable",
+        "empty_response",
+        "provider_error",
+    }
+)
 
 
 def classify_error(error: BaseException) -> tuple[str, int | None]:
@@ -94,3 +107,42 @@ def error_status(error: BaseException) -> int | None:
         ),
         None,
     )
+
+
+def failure_attribution(failure_class: str | None) -> str | None:
+    """Say whose problem a failure is, so it lands on the right ledger.
+
+    An account without access to a model says nothing about the model, and a
+    request basemode shaped wrongly says nothing about the provider. Only
+    provider- and endpoint-attributed failures belong in public endpoint
+    health.
+    """
+    if failure_class is None:
+        return None
+    if failure_class in {"authentication", "quota"}:
+        return "account"
+    if failure_class == "invalid_request":
+        return "basemode"
+    if failure_class == "cancelled":
+        return "client"
+    if failure_class in {
+        "provider_unavailable",
+        "provider_error",
+        "content_filter",
+        "rate_limit",
+    }:
+        return "provider"
+    if failure_class == "empty_response":
+        return "endpoint"
+    return "unknown"
+
+
+def failure_transience(failure_class: str | None) -> str | None:
+    """Say whether retrying the same request could plausibly succeed."""
+    if failure_class is None:
+        return None
+    if failure_class in TRANSIENT_FAILURES:
+        return "transient"
+    if failure_class in {"authentication", "quota", "invalid_request"}:
+        return "persistent"
+    return "unknown"

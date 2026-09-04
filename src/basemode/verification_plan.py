@@ -15,7 +15,16 @@ from .usage import get_price_info
 from .verify import QUICK_PREFIXES, THOROUGH_PREFIXES
 
 STATUSES = frozenset(
-    {"never-tested", "reachable", "broken", "transient", "verified", "stale"}
+    {
+        "never-tested",
+        "reachable",
+        "broken",
+        "transient",
+        "verified",
+        "stale",
+        "account-limited",
+        "retired",
+    }
 )
 _STAGE_ORDER = {
     "transient": 0,
@@ -24,7 +33,13 @@ _STAGE_ORDER = {
     "stale": 3,
     "reachable": 4,
     "verified": 5,
+    "account-limited": 6,
+    "retired": 7,
 }
+#: Endpoints no ordinary sweep should pay to re-probe: the provider has
+#: retired the ID, or this account cannot reach it. Both stay selectable by
+#: name or by an explicit `--status`, because either can change.
+_OPT_IN_STATUSES = frozenset({"account-limited", "retired"})
 
 
 @dataclass(frozen=True)
@@ -126,6 +141,8 @@ def plan_verification(
             "currently_broken": operational_status == "failing"
             or controlled_status == "failed",
             "verified": controlled_status == "verified",
+            "account_limited": controlled_status == "account_limited",
+            "retired": controlled_status == "retired",
             "reachable": controlled_status in {"reachable", "verified"}
             or operational_status in {"healthy", "recovered"},
         }
@@ -173,6 +190,12 @@ def plan_verification(
         if available_only and row["provider"] not in available_provider_names:
             continue
         if requested_statuses and prior not in requested_statuses:
+            continue
+        if (
+            prior in _OPT_IN_STATUSES
+            and not is_explicit
+            and prior not in requested_statuses
+        ):
             continue
         if suite == "transient-recheck" and not explicit and prior != "transient":
             continue
@@ -237,6 +260,10 @@ def _prior_status(state: dict[str, Any], stale_after_days: int) -> str:
             return "stale"
     except ValueError:
         pass
+    if state.get("retired"):
+        return "retired"
+    if state.get("account_limited"):
+        return "account-limited"
     if state.get("transient_failure"):
         return "transient"
     if state.get("currently_broken"):

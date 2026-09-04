@@ -11,7 +11,7 @@ from typing import Any
 
 from .continue_ import continue_text
 from .detect import normalize_model, select_strategy
-from .failure_taxonomy import classify_error
+from .failure_taxonomy import EMPTY_RESPONSE, classify_error, failure_attribution
 from .model_modality import classify_text_endpoint
 from .observation_queries import due_recheck_models
 from .observations import (
@@ -48,6 +48,7 @@ class VerificationSummary:
     skipped: int = 0
     cost_usd: float = 0.0
     status: str = "completed"
+    inconclusive: int = 0
 
 
 @dataclass(frozen=True)
@@ -203,9 +204,9 @@ async def verify_models(
         lambda: asyncio.Semaphore(per_provider_concurrency)
     )
     global_semaphore = asyncio.Semaphore(concurrency)
-    total = successes = 0
+    total = successes = inconclusive = 0
 
-    async def execute(probe: _LogicalProbe) -> bool | None:
+    async def execute(probe: _LogicalProbe) -> str:
         provider = probe.model.partition("/")[0]
         # Take the provider slot first: tasks queued behind a saturated
         # provider must not occupy scarce global capacity.
@@ -221,8 +222,9 @@ async def verify_models(
 
     try:
         results = await asyncio.gather(*(execute(probe) for probe in probes))
-        total = sum(result is not None for result in results)
-        successes = sum(result is True for result in results)
+        total = sum(result != "unattempted" for result in results)
+        successes = results.count("success")
+        inconclusive = results.count("inconclusive")
         status = "limited" if limits.limited or limited_by_probe_count else "completed"
         finish_verification_run(int(run_id), status)
     except BaseException:
@@ -237,6 +239,7 @@ async def verify_models(
         skipped,
         limits.cost,
         status,
+        inconclusive,
     )
 
 
@@ -268,7 +271,18 @@ def _completed_probes(run_id: int) -> set[tuple[str, int]]:
 
 async def _probe(
     run_id: int, model: str, prefix: str, number: int, max_tokens: int, limits: _Limits
-) -> bool | None:
+) -> str:
+    """Run one logical probe, returning its controlled outcome.
+
+    The two self-healing configurations below only ever vary the reasoning
+    budget, so the one failure they can repair is an endpoint that spent the
+    whole visible budget thinking. Anything else — a retired model ID, an
+    endpoint the account cannot reach, a parameter the model rejects — fails
+    the same way three times over, and the second and third requests were
+    only ever spending money to confirm the first (observed 2026-09-04: 335
+    provider requests for 217 logical calls, most of the excess exactly
+    this). Stop at the first terminal failure instead.
+    """
     configurations: list[tuple[str, int, dict[str, Any]]] = [
         ("initial", max_tokens, {}),
         (
@@ -322,7 +336,7 @@ async def _probe(
                 price.output_cost_per_token or 0.0
             )
         if not await limits.reserve_request(known_cost_bound):
-            return None
+            return "unattempted"
         pieces: list[str] = []
         usage_events: list[dict] = []
         try:
@@ -349,7 +363,7 @@ async def _probe(
             await limits.add_cost(usage.cost_usd, known_cost_bound)
             if ok:
                 operation.finish("success", returned_content=True)
-                return True
+                return "success"
         except asyncio.CancelledError:
             await limits.add_cost(None, known_cost_bound)
             operation.finish("inconclusive", returned_content=False)
@@ -357,15 +371,14 @@ async def _probe(
         except Exception as exc:
             await limits.add_cost(None, known_cost_bound)
             category, _status = classify_error(exc)
-            # Authentication and rate limiting are not request-shape defects.
-            if category in {
-                "authentication",
-                "rate_limit",
-                "network",
-                "provider_unavailable",
-                "timeout",
-            }:
+            if failure_attribution(category) == "account":
+                # The account cannot reach this endpoint. That is a fact
+                # about the key, not a verdict on the model, so it must not
+                # be recorded as a controlled failure.
+                operation.finish("inconclusive", returned_content=False)
+                return "inconclusive"
+            if category != EMPTY_RESPONSE:
                 operation.finish("failure", returned_content=False)
-                return False
+                return "failure"
     operation.finish("failure", returned_content=False)
-    return False
+    return "failure"

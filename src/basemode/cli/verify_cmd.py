@@ -65,7 +65,10 @@ def verify_command(
         list[str] | None,
         typer.Option(
             "--status",
-            help="never-tested, reachable, broken, transient, verified, or stale; repeatable.",
+            help=(
+                "never-tested, reachable, broken, transient, verified, stale, "
+                "account-limited, or retired; repeatable."
+            ),
         ),
     ] = None,
     from_catalog: Annotated[
@@ -227,7 +230,11 @@ def verify_command(
     if as_json:
         console.print(json.dumps(payload, indent=2))
     else:
+        inconclusive = (
+            f", {summary.inconclusive} inconclusive" if summary.inconclusive else ""
+        )
         console.print(
             f"[green]✓[/green] {summary.successes}/{summary.attempts} probes "
-            f"passed ({summary.requests} requests, {summary.status}); run {summary.run_id}"
+            f"passed ({summary.requests} requests{inconclusive}, {summary.status}); "
+            f"run {summary.run_id}"
         )

@@ -15,7 +15,13 @@ from pathlib import Path
 from time import monotonic
 from typing import Final
 
-from .failure_taxonomy import classify_error, error_details
+from .failure_taxonomy import (
+    TRANSIENT_FAILURES,
+    classify_error,
+    error_details,
+    failure_attribution,
+    failure_transience,
+)
 from .health_rules import recheck_due_at
 from .usage import usage_from_events
 
@@ -38,14 +44,6 @@ _ATTEMPT_KINDS: Final = {
     "empty_retry",
     "reasoning_off",
     "larger_budget",
-}
-_TRANSIENT_FAILURES: Final = {
-    "rate_limit",
-    "timeout",
-    "network",
-    "provider_unavailable",
-    "empty_response",
-    "provider_error",
 }
 _SAFE_FINISH_REASONS: Final = {
     "stop",
@@ -484,7 +482,7 @@ def _update_recheck_schedule(
     if (
         attempt is None
         or not attempt["status_eligible"]
-        or attempt["failure_class"] not in _TRANSIENT_FAILURES
+        or attempt["failure_class"] not in TRANSIENT_FAILURES
     ):
         return
     prior = conn.execute(
@@ -578,8 +576,8 @@ class Attempt:
                 )
         elif outcome == "failure" and not self.returned_content:
             failure_class = "empty_response"
-        attribution = _failure_attribution(failure_class)
-        transience = _failure_transience(failure_class)
+        attribution = failure_attribution(failure_class)
+        transience = failure_transience(failure_class)
         status_eligible = attribution not in {"account", "basemode", "client"}
         exclusion_reason = None if status_eligible else f"{attribution}_attributed"
         try:
@@ -887,34 +885,3 @@ def _reasoning_tokens(events: list[dict]) -> int:
         if isinstance(details, dict):
             total += int(details.get("reasoning_tokens") or 0)
     return total
-
-
-def _failure_attribution(failure_class: str | None) -> str | None:
-    if failure_class is None:
-        return None
-    if failure_class in {"authentication", "quota"}:
-        return "account"
-    if failure_class == "invalid_request":
-        return "basemode"
-    if failure_class == "cancelled":
-        return "client"
-    if failure_class in {
-        "provider_unavailable",
-        "provider_error",
-        "content_filter",
-        "rate_limit",
-    }:
-        return "provider"
-    if failure_class == "empty_response":
-        return "endpoint"
-    return "unknown"
-
-
-def _failure_transience(failure_class: str | None) -> str | None:
-    if failure_class is None:
-        return None
-    if failure_class in _TRANSIENT_FAILURES:
-        return "transient"
-    if failure_class in {"authentication", "quota", "invalid_request"}:
-        return "persistent"
-    return "unknown"

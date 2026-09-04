@@ -73,6 +73,43 @@ def test_plan_rejects_non_text_name_even_with_stale_text_metadata(model) -> None
     assert model not in {target.model for target in plan.targets}
 
 
+def _controlled_failure(model: str, status: int) -> None:
+    """Record one completed controlled run whose only probe failed."""
+    run_id = observations.begin_verification_run("quick", "1")
+    probe_id = observations.begin_verification_probe(run_id, model, model, repetition=1)
+    operation = observations.observe_operation(
+        model,
+        "system",
+        "heuristic",
+        observations.ObservationContext(
+            source="verification", verification_probe_id=probe_id
+        ),
+    )
+    attempt = operation.begin_attempt("initial")
+    error = RuntimeError("denied")
+    error.status_code = status
+    attempt.finish("failure", error)
+    operation.finish("failure", returned_content=False)
+    observations.finish_verification_run(run_id, "completed")
+
+
+@pytest.mark.parametrize(
+    ("status", "stage"),
+    [(404, "retired"), (403, "account-limited")],
+)
+def test_plan_skips_retired_and_account_limited_unless_asked(status, stage) -> None:
+    _catalog("gemini/gone")
+    _controlled_failure("gemini/gone", status)
+
+    assert not verification_plan.plan_verification(catalog_available=True).targets
+
+    by_status = verification_plan.plan_verification(statuses=[stage])
+    assert [target.stage for target in by_status.targets] == [stage]
+
+    by_name = verification_plan.plan_verification(["gemini/gone"])
+    assert [target.model for target in by_name.targets] == ["gemini/gone"]
+
+
 def test_plan_filters_provider_status_and_release(monkeypatch) -> None:
     _catalog("openai/new", release="2026-08-20")
     _catalog("openai/old", release="2025-01-01")
