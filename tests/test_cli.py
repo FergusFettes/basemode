@@ -489,6 +489,13 @@ def test_verify_dry_run_prints_plan_table(monkeypatch) -> None:
     assert "targets" in result.output
 
 
+def test_verify_rejects_combined_price_filters() -> None:
+    result = runner.invoke(app, ["verify", "--priced", "--unpriced", "--dry-run"])
+
+    assert result.exit_code == 2
+    assert "cannot be combined" in result.output
+
+
 def test_verify_plan_table_renders_a_row_per_target() -> None:
     from basemode.cli.verify_cmd import _verify_plan_table
     from basemode.verification_plan import PlannedTarget, VerificationPlan

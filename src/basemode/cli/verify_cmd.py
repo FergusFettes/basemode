@@ -78,6 +78,14 @@ def verify_command(
             "--available", help="Select models from providers with configured keys."
         ),
     ] = False,
+    priced: Annotated[
+        bool,
+        typer.Option("--priced", help="Only select models with known pricing."),
+    ] = False,
+    unpriced: Annotated[
+        bool,
+        typer.Option("--unpriced", help="Only select models without known pricing."),
+    ] = False,
     released_since: Annotated[
         str | None, typer.Option("--released-since", help="Minimum ISO release date.")
     ] = None,
@@ -128,11 +136,16 @@ def verify_command(
             "[red]--suite must be quick, thorough, or transient-recheck[/red]"
         )
         raise typer.Exit(2)
+    if priced and unpriced:
+        console.print("[red]--priced and --unpriced cannot be combined.[/red]")
+        raise typer.Exit(2)
     has_selector = bool(
         providers
         or statuses
         or from_catalog
         or available
+        or priced
+        or unpriced
         or released_since
         or max_release_age_days is not None
     )
@@ -154,6 +167,8 @@ def verify_command(
                 statuses=statuses,
                 catalog_available=from_catalog,
                 available_only=available,
+                priced_only=priced,
+                unpriced_only=unpriced,
                 released_since=released_since,
                 max_release_age_days=max_release_age_days,
                 stale_after_days=stale_after_days,

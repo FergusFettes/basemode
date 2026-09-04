@@ -60,6 +60,8 @@ Available selectors are:
 - `--provider NAME`, repeatable
 - `--status STATUS`, repeatable
 - `--from-catalog`, requiring the latest catalog observation to be available
+- `--priced`, selecting only models with known pricing
+- `--unpriced`, selecting only models without known pricing
 - `--released-since YYYY-MM-DD`
 - `--max-release-age-days N`
 - `--stale-after-days N`, which defaults to 30
@@ -67,11 +69,19 @@ Available selectors are:
 Statuses are `never-tested`, `reachable`, `broken`, `transient`, `verified`,
 and `stale`. Multiple providers or statuses form a union within that selector.
 Different selector types are combined, so an endpoint must satisfy all of them.
+`--priced` and `--unpriced` are mutually exclusive. Pricing is evaluated while
+the target list is built, before any run limits are applied.
 
 For a first local sweep, use `--available` rather than `--from-catalog`:
 
 ```bash
 basemode verify --available --status never-tested --dry-run
+```
+
+To inspect the pricing gaps without making requests:
+
+```bash
+basemode verify --available --unpriced --dry-run
 ```
 
 Targets are ordered by prior state: transient, broken, never-tested, stale,

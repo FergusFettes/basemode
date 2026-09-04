@@ -144,6 +144,35 @@ def test_available_discovers_configured_provider_models(monkeypatch) -> None:
     assert [target.model for target in plan.targets] == ["groq/available-model"]
 
 
+def test_plan_filters_by_known_or_unknown_pricing(monkeypatch) -> None:
+    _catalog("openai/priced")
+    _catalog("openai/unpriced")
+    monkeypatch.setattr(
+        verification_plan,
+        "get_price_info",
+        lambda model: SimpleNamespace(
+            pricing_available=model.endswith("/priced"),
+            input_cost_per_token=0.000001,
+            output_cost_per_token=0.000002,
+        ),
+    )
+
+    priced = verification_plan.plan_verification(priced_only=True)
+    unpriced = verification_plan.plan_verification(unpriced_only=True)
+
+    assert [target.model for target in priced.targets] == ["openai/priced"]
+    assert priced.priced_targets == 1
+    assert priced.unpriced_targets == 0
+    assert [target.model for target in unpriced.targets] == ["openai/unpriced"]
+    assert unpriced.priced_targets == 0
+    assert unpriced.unpriced_targets == 1
+
+
+def test_price_filters_are_mutually_exclusive() -> None:
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        verification_plan.plan_verification(priced_only=True, unpriced_only=True)
+
+
 def test_unknown_status_is_rejected() -> None:
     with pytest.raises(ValueError, match="unknown status"):
         verification_plan.plan_verification(statuses=["magic"])

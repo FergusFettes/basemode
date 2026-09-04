@@ -68,6 +68,8 @@ def plan_verification(
     statuses: list[str] | None = None,
     catalog_available: bool = False,
     available_only: bool = False,
+    priced_only: bool = False,
+    unpriced_only: bool = False,
     released_since: str | None = None,
     max_release_age_days: int | None = None,
     stale_after_days: int = 30,
@@ -77,6 +79,8 @@ def plan_verification(
         raise ValueError("suite must be quick, thorough, or transient-recheck")
     if attempts < 1:
         raise ValueError("attempts must be at least 1")
+    if priced_only and unpriced_only:
+        raise ValueError("priced_only and unpriced_only are mutually exclusive")
     requested_statuses = set(statuses or [])
     unknown = requested_statuses - STATUSES
     if unknown:
@@ -174,6 +178,10 @@ def plan_verification(
         if since and (release is None or release < since):
             continue
         cost = _estimate_max_cost(model, logical_per_model, max_tokens, suite)
+        if priced_only and cost is None:
+            continue
+        if unpriced_only and cost is not None:
+            continue
         targets.append(
             PlannedTarget(
                 model=model,
