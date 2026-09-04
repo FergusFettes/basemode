@@ -438,6 +438,12 @@ def release_bundle(bundle_id: str) -> int:
     return released
 
 
+def _owns_repository(command: Any, repo: str) -> bool:
+    """Whether the authenticated account owns the evidence repository."""
+    login = command(["gh", "api", "user", "--jq", ".login"]).stdout.strip()
+    return bool(login) and login.lower() == repo.split("/", 1)[0].lower()
+
+
 def open_contribution_pr(
     contribution: Contribution | dict[str, Any],
     *,
@@ -466,13 +472,20 @@ def open_contribution_pr(
             detail = getattr(error, "stderr", "") or str(error)
             raise RuntimeError(
                 f"GitHub submission stopped; bundle remains at {exported_path}. "
-                f"Resolve gh authentication/access and submit it manually. {detail.strip()}"
+                f"Resolve gh authentication/access and submit it manually, or run "
+                f"`basemode contribute release {bundle['bundle_id']}` to contribute "
+                f"those observations another time. {detail.strip()}"
             ) from error
 
     command(["gh", "auth", "status"])
     with tempfile.TemporaryDirectory(prefix="basemode-contribution-") as temporary:
         work = Path(temporary)
-        command(["gh", "repo", "fork", repo, "--clone", "--remote"], cwd=work)
+        if _owns_repository(command, repo):
+            # GitHub refuses to let one account own both a parent and a fork,
+            # so the repository's own owner contributes from a branch on it.
+            command(["gh", "repo", "clone", repo, "--"], cwd=work)
+        else:
+            command(["gh", "repo", "fork", repo, "--clone", "--remote"], cwd=work)
         checkout = work / repo.rsplit("/", 1)[-1]
         branch = f"basemode-contribution-{bundle['bundle_id']}"
         command(["git", "switch", "-c", branch], cwd=checkout)

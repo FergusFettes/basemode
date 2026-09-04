@@ -172,13 +172,13 @@ async def test_pr_workflow_commits_only_the_exported_bundle(
 
     def fake_run(args, *, cwd=None, **kwargs):
         commands.append(args)
-        if args[:3] == ["gh", "repo", "fork"]:
+        if args[:3] in (["gh", "repo", "fork"], ["gh", "repo", "clone"]):
             (cwd / "basemode-evidence").mkdir()
-        stdout = (
-            "https://github.com/FergusFettes/basemode-evidence/pull/1\n"
-            if args[:3] == ["gh", "pr", "create"]
-            else ""
-        )
+        stdout = ""
+        if args[:3] == ["gh", "pr", "create"]:
+            stdout = "https://github.com/FergusFettes/basemode-evidence/pull/1\n"
+        elif args[:3] == ["gh", "api", "user"]:
+            stdout = "SomeoneElse\n"
         return subprocess.CompletedProcess(args, 0, stdout=stdout, stderr="")
 
     url = open_contribution_pr(
@@ -192,6 +192,65 @@ async def test_pr_workflow_commits_only_the_exported_bundle(
     git_add = next(command for command in commands if command[:2] == ["git", "add"])
     assert git_add[2] == "--"
     assert git_add[3].endswith(f"/{bundle['bundle_id']}.json")
+
+
+async def test_repository_owner_contributes_from_a_branch_not_a_fork(
+    monkeypatch, tmp_path
+) -> None:
+    """GitHub refuses to let one account own both a parent and a fork.
+
+    The evidence repository's own owner hit `cannot be forked` and could not
+    contribute at all; they push a branch to it instead.
+    """
+    monkeypatch.setattr("basemode.continue_.detect_strategy", lambda *args: _Strategy())
+    started = datetime.now(UTC) - timedelta(seconds=1)
+    async for _ in continue_text("private seed", model="openai/example"):
+        pass
+    bundle = build_bundle(since=started, until=datetime.now(UTC))
+    commands = []
+
+    def fake_run(args, *, cwd=None, **kwargs):
+        commands.append(args)
+        if args[:3] == ["gh", "repo", "clone"]:
+            (cwd / "basemode-evidence").mkdir()
+        stdout = ""
+        if args[:3] == ["gh", "pr", "create"]:
+            stdout = "https://github.com/FergusFettes/basemode-evidence/pull/2\n"
+        elif args[:3] == ["gh", "api", "user"]:
+            stdout = "fergusfettes\n"
+        return subprocess.CompletedProcess(args, 0, stdout=stdout, stderr="")
+
+    url = open_contribution_pr(
+        bundle,
+        repo="FergusFettes/basemode-evidence",
+        exported_path=tmp_path / "bundle.json",
+        run=fake_run,
+    )
+
+    assert url.endswith("/pull/2")
+    assert not any(command[:3] == ["gh", "repo", "fork"] for command in commands)
+    assert any(command[:3] == ["gh", "repo", "clone"] for command in commands)
+
+
+async def test_failed_submission_names_the_release_command(
+    monkeypatch, tmp_path
+) -> None:
+    monkeypatch.setattr("basemode.continue_.detect_strategy", lambda *args: _Strategy())
+    started = datetime.now(UTC) - timedelta(seconds=1)
+    async for _ in continue_text("private seed", model="openai/example"):
+        pass
+    contribution = build_contribution(since=started, until=datetime.now(UTC))
+
+    def fake_run(args, *, cwd=None, **kwargs):
+        raise subprocess.CalledProcessError(1, args, stderr="cannot be forked")
+
+    with pytest.raises(RuntimeError, match="contribute release"):
+        open_contribution_pr(
+            contribution,
+            repo="FergusFettes/basemode-evidence",
+            exported_path=tmp_path / "bundle.json",
+            run=fake_run,
+        )
 
 
 async def test_contribution_window_accepts_the_documented_z_suffix(monkeypatch) -> None:

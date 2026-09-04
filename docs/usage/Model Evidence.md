@@ -57,10 +57,15 @@ repository can tell one bundle from another but never one contributor's
 Wednesday from another's. Basemode-evidence refuses a repeated `bundle_id`;
 avoiding a double count of the same observations is this machine's job.
 
-`preview` marks nothing. An export you decide not to submit would otherwise
-hold its observations back forever, so `basemode contribute release <bundle-id>`
-frees exactly the operations that bundle counted. It refuses once the bundle has
-been submitted upstream, where releasing it really would contribute twice. Rows are
+`preview` marks nothing. An export you decide not to submit — or one whose
+submission fails — would otherwise hold its observations back forever, so
+`basemode contribute release <bundle-id>` frees exactly the operations that
+bundle counted. It refuses once the bundle has been submitted upstream, where
+releasing it really would contribute twice.
+
+`basemode contribute pr` forks the evidence repository, unless the
+authenticated account already owns it: GitHub will not let one account own both
+a parent and a fork, so the owner pushes a branch to the repository itself. Rows are
 grouped by provider-qualified endpoint, strategy, source application, and source
 version. They contain counts, safe failure categories, aggregate percentiles,
 token totals, and cost totals where available. The output is validated against
