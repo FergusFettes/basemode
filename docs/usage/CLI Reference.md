@@ -164,7 +164,9 @@ basemode contribute pr --repo OWNER/basemode-evidence
 ```
 
 Preview, export, and PR submission work with existing stored observations; the
-explicit command is the contribution consent boundary. Exports contain only
+explicit command is the contribution consent boundary. `--since` and `--until`
+take a plain date or any ISO-8601 timestamp, with or without a trailing `Z`,
+and default to the last seven days. Exports contain only
 grouped counts, safe failure categories, and aggregate
 performance/usage/cost measurements.
 

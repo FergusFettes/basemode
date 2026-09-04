@@ -20,22 +20,35 @@ contribute_app = typer.Typer(
 app.add_typer(contribute_app, name="contribute")
 
 
-def _window(
-    since: datetime | None, until: datetime | None
-) -> tuple[datetime, datetime]:
-    end = until or datetime.now(UTC)
-    if end.tzinfo is None:
-        end = end.replace(tzinfo=UTC)
-    start = since or end - timedelta(days=7)
-    if start.tzinfo is None:
-        start = start.replace(tzinfo=UTC)
+#: Timestamps are taken as strings rather than Typer's `datetime`, whose
+#: fixed format list rejects the trailing `Z` that every documented example
+#: and every timestamp in the ledger itself carries.
+_TIMESTAMP = "A date, or an ISO-8601 timestamp (a trailing Z is accepted)."
+
+
+def _parse_timestamp(option: str, value: str | None) -> datetime | None:
+    if value is None:
+        return None
+    try:
+        parsed = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+    except ValueError as error:
+        console.print(
+            f"[red]{option} must be a date or ISO-8601 timestamp, not {value!r}[/red]"
+        )
+        raise typer.Exit(2) from error
+    return parsed if parsed.tzinfo else parsed.replace(tzinfo=UTC)
+
+
+def _window(since: str | None, until: str | None) -> tuple[datetime, datetime]:
+    end = _parse_timestamp("--until", until) or datetime.now(UTC)
+    start = _parse_timestamp("--since", since) or end - timedelta(days=7)
     return start, end
 
 
 @contribute_app.command("preview")
 def preview(
-    since: Annotated[datetime | None, typer.Option("--since")] = None,
-    until: Annotated[datetime | None, typer.Option("--until")] = None,
+    since: Annotated[str | None, typer.Option("--since", help=_TIMESTAMP)] = None,
+    until: Annotated[str | None, typer.Option("--until", help=_TIMESTAMP)] = None,
 ) -> None:
     """Print the exact validated JSON shape an export would write."""
     start, end = _window(since, until)
@@ -50,8 +63,8 @@ def preview(
 @contribute_app.command("export")
 def export(
     output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
-    since: Annotated[datetime | None, typer.Option("--since")] = None,
-    until: Annotated[datetime | None, typer.Option("--until")] = None,
+    since: Annotated[str | None, typer.Option("--since", help=_TIMESTAMP)] = None,
+    until: Annotated[str | None, typer.Option("--until", help=_TIMESTAMP)] = None,
 ) -> None:
     """Write a validated contribution bundle and record the exported window."""
     start, end = _window(since, until)
@@ -68,8 +81,8 @@ def export(
 @contribute_app.command("pr")
 def pr(
     repo: Annotated[str, typer.Option("--repo")] = "FergusFettes/basemode-evidence",
-    since: Annotated[datetime | None, typer.Option("--since")] = None,
-    until: Annotated[datetime | None, typer.Option("--until")] = None,
+    since: Annotated[str | None, typer.Option("--since", help=_TIMESTAMP)] = None,
+    until: Annotated[str | None, typer.Option("--until", help=_TIMESTAMP)] = None,
     yes: Annotated[bool, typer.Option("--yes", "-y")] = False,
 ) -> None:
     """Preview, confirm, and submit one aggregate bundle using authenticated gh."""

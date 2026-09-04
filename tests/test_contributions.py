@@ -7,8 +7,10 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
+from typer.testing import CliRunner
 
 from basemode import ObservationContext, continue_text
+from basemode.cli import app as cli_app
 from basemode.contributions import (
     build_bundle,
     export_bundle,
@@ -188,3 +190,29 @@ async def test_pr_workflow_commits_only_the_exported_bundle(
     git_add = next(command for command in commands if command[:2] == ["git", "add"])
     assert git_add[2] == "--"
     assert git_add[3].endswith(f"/{bundle['bundle_id']}.json")
+
+
+async def test_contribution_window_accepts_the_documented_z_suffix(monkeypatch) -> None:
+    """Every timestamp the docs and the ledger show ends in `Z`.
+
+    Typer's own datetime option takes a fixed list of formats that excludes
+    it, so the documented example was rejected before it reached the window.
+    """
+    monkeypatch.setattr("basemode.continue_.detect_strategy", lambda *args: _Strategy())
+    async for _ in continue_text("private seed", model="openai/example"):
+        pass
+    started = (datetime.now(UTC) - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    result = CliRunner().invoke(cli_app, ["contribute", "preview", "--since", started])
+
+    assert result.exit_code == 0, result.output
+    assert '"schema_version": 1' in result.output
+
+
+def test_contribution_window_rejects_unparseable_timestamps() -> None:
+    result = CliRunner().invoke(
+        cli_app, ["contribute", "preview", "--since", "not-a-date"]
+    )
+
+    assert result.exit_code == 2
+    assert "ISO-8601" in result.output
