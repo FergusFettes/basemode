@@ -53,6 +53,12 @@ def run(
     show_cost: Annotated[
         bool, typer.Option("--show-cost", help="Show estimated cost after generation")
     ] = False,
+    verbose: Annotated[
+        bool,
+        typer.Option(
+            "-v", "--verbose", help="Show content-free call and health events."
+        ),
+    ] = False,
 ) -> None:
     """Continue text with an LLM (default command)."""
     if prefix is None and not sys.stdin.isatty():
@@ -60,6 +66,10 @@ def run(
     if prefix is None:
         console.print(ctx.get_help())
         return
+    if verbose:
+        from ..logging_setup import setup_verbose_logging
+
+        setup_verbose_logging()
     _run_text(
         prefix,
         model,

@@ -70,3 +70,22 @@ def test_setup_file_logging_attaches_rotating_handler(tmp_path, monkeypatch) -> 
         len([h for h in logger.handlers if isinstance(h, RotatingFileHandler)])
         == handler_count
     )
+
+
+def test_setup_verbose_logging_is_content_free_stderr_handler(capsys) -> None:
+    from basemode.logging_setup import setup_verbose_logging
+
+    logger = logging.getLogger("basemode")
+    existing = list(logger.handlers)
+    try:
+        logger.handlers = []
+        setup_verbose_logging()
+        setup_verbose_logging()
+        assert len(logger.handlers) == 1
+
+        logger.info("operation recorded: model=openai/example outcome=success")
+        captured = capsys.readouterr()
+        assert captured.out == ""
+        assert "[basemode] operation recorded" in captured.err
+    finally:
+        logger.handlers = existing

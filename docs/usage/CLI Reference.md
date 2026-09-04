@@ -24,6 +24,7 @@ basemode [PREFIX] [OPTIONS]
 | `--show-strategy` | `false` | Print selected strategy |
 | `--show-usage` | `false` | Print token estimate after generation |
 | `--show-cost` | `false` | Print estimated cost after generation |
+| `-v`, `--verbose` | `false` | Show content-free operation, attempt, outcome, and ledger events on stderr |
 
 `PREFIX` can come from stdin when omitted.
 
@@ -109,15 +110,15 @@ basemode info claude-sonnet-4-6
 ### `verify`
 
 Run durable quick, thorough, or transient-failure verification. This makes
-real provider requests and stores each attempt in the shared model-evidence
-database. See [[Verification]] for suite selection, planning, limits, recovery,
+real provider requests and stores each attempt in the unified observation
+ledger. See [[Verification]] for suite selection, planning, limits, recovery,
 and status effects.
 
 ```bash
 basemode verify [MODEL...] [--suite quick|thorough|transient-recheck] [--attempts N] [--max-tokens N]
   [--provider NAME] [--status STATUS] [--from-catalog]
   [--released-since YYYY-MM-DD | --max-release-age-days N]
-  [--stale-after-days N] [--dry-run] [--json]
+  [--stale-after-days N] [--dry-run] [-v] [--json]
 ```
 
 Sweeps run with bounded global and per-provider concurrency (`--concurrency` and
@@ -136,6 +137,9 @@ current status (`never-tested`, `reachable`, `broken`, `transient`, `verified`,
 or `stale`). Repeat provider and status options to form unions. `--dry-run`
 makes no provider requests and reports the ordered stages, provider counts,
 logical probes, maximum self-healing requests, and a best-effort price ceiling.
+Add `-v` to a live run to see each content-free probe, attempt, retry, outcome,
+and ledger write as it happens. Logs go to stderr so generated text and JSON on
+stdout remain usable.
 
 ### `health` and `contribute`
 

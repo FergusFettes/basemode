@@ -153,6 +153,23 @@ async def test_success_records_one_operation_and_attempt(monkeypatch) -> None:
     assert attempts[0]["output_characters"] == 6
 
 
+async def test_observation_lifecycle_emits_content_free_verbose_events(
+    monkeypatch, caplog
+) -> None:
+    _install(monkeypatch, [[" private output"]])
+    caplog.set_level("INFO", logger="basemode.observations")
+
+    await _drain(continue_text("private prompt", model="openai/example"))
+
+    messages = "\n".join(record.getMessage() for record in caplog.records)
+    assert "operation 1 started: model=openai/example" in messages
+    assert "attempt 1.0 started: model=openai/example kind=initial" in messages
+    assert "attempt 1.0 recorded: model=openai/example" in messages
+    assert "operation 1 recorded: model=openai/example outcome=success" in messages
+    assert "private prompt" not in messages
+    assert "private output" not in messages
+
+
 async def test_branches_record_independent_operations(monkeypatch) -> None:
     _install(monkeypatch, [[" a"], [" b"], [" c"]])
 

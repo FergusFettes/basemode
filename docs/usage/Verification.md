@@ -89,9 +89,10 @@ Use limits for any sweep:
 ```bash
 basemode verify \
   --from-catalog --provider openai --status never-tested \
-  --concurrency 8 --per-provider-concurrency 2 \
-  --max-probes 100 --max-requests 200 \
-  --max-elapsed 1800 --max-cost-usd 2
+  --concurrency 2 --per-provider-concurrency 1 \
+  --max-probes 5 --max-requests 10 \
+  --max-elapsed 300 --max-cost-usd 0.25 \
+  -v
 ```
 
 | Option | Limits |
@@ -106,6 +107,15 @@ basemode verify \
 An unpriced endpoint cannot be guaranteed by the cost limit; use request and
 probe limits as well. Provider-specific queues are interleaved so a large
 provider does not monopolize the run.
+
+With `-v`, Basemode reports the model, strategy, attempt kind, safe failure
+class, status eligibility, latency, token counts, cost, and final logical
+outcome while the run is active. It never prints or records prompt or response
+content in these events. The same view is available for an ordinary generation:
+
+```bash
+basemode run -v "The next paragraph begins"
+```
 
 ## Recovery and retained attempts
 

@@ -8,6 +8,7 @@ from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
 from .model_modality import classify_text_endpoint
+from .models import list_catalog_endpoint_metadata
 from .observation_queries import list_controlled_status, list_endpoint_health
 from .observations import list_endpoint_metadata
 from .usage import get_price_info
@@ -89,8 +90,14 @@ def plan_verification(
     operational = list_endpoint_health()
     controlled = list_controlled_status(stale_after_days=stale_after_days)
     derived: dict[str, dict[str, Any]] = {}
+    metadata_rows = list_endpoint_metadata()
+    if catalog_available:
+        known = {str(row["model"]) for row in metadata_rows}
+        metadata_rows.extend(
+            row for row in list_catalog_endpoint_metadata() if row["model"] not in known
+        )
     rows = []
-    for metadata in list_endpoint_metadata():
+    for metadata in metadata_rows:
         model = str(metadata["model"])
         local = operational.get(model, {})
         checked = controlled.get(model, {})

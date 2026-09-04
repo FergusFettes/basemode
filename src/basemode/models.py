@@ -485,6 +485,33 @@ def list_model_picker_entries(
     return sorted(entries, key=sort_key)
 
 
+def list_catalog_endpoint_metadata() -> list[dict]:
+    """Return the current packaged/provider catalog in verification form."""
+    endpoints = []
+    for provider, catalog in _live_rows_by_provider().items():
+        for model_id, details in catalog.get("models", {}).items():
+            model = str(model_id).lower()
+            if not model.startswith(f"{provider}/"):
+                model = f"{provider}/{model}"
+            eligible, _ = classify_text_endpoint(
+                model, _model_mode(str(provider), str(model_id))
+            )
+            if not eligible:
+                continue
+            endpoints.append(
+                {
+                    "model": model,
+                    "provider": str(provider).lower(),
+                    "release_date": details.get("release_date")
+                    if isinstance(details, dict)
+                    else None,
+                    "text_eligible": True,
+                    "catalog_available": True,
+                }
+            )
+    return endpoints
+
+
 def _compact_entries(entries: list[dict]) -> list[dict]:
     """Collapse dated snapshots of the same base model into one entry."""
     groups: dict[tuple[str, str], list[dict]] = {}

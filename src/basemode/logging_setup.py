@@ -7,6 +7,7 @@ persisted logs (the CLI) to ask for explicitly.
 
 import logging
 import os
+import sys
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
@@ -34,3 +35,16 @@ def setup_file_logging() -> None:
     logger.setLevel(logging.DEBUG)
     if not any(isinstance(h, RotatingFileHandler) for h in logger.handlers):
         logger.addHandler(handler)
+
+
+def setup_verbose_logging() -> None:
+    """Show content-free Basemode lifecycle events on stderr."""
+    logger = logging.getLogger("basemode")
+    logger.setLevel(logging.INFO)
+    if any(getattr(handler, "_basemode_verbose", False) for handler in logger.handlers):
+        return
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setLevel(logging.INFO)
+    handler.setFormatter(logging.Formatter("[basemode] %(message)s"))
+    handler._basemode_verbose = True  # type: ignore[attr-defined]
+    logger.addHandler(handler)

@@ -98,6 +98,12 @@ def verify_command(
         float | None, typer.Option("--max-cost-usd", min=0.000001)
     ] = None,
     as_json: Annotated[bool, typer.Option("--json")] = False,
+    verbose: Annotated[
+        bool,
+        typer.Option(
+            "-v", "--verbose", help="Show content-free probe and health events."
+        ),
+    ] = False,
 ) -> None:
     """Probe models and retain every result in the shared evidence database."""
     from dataclasses import asdict
@@ -105,6 +111,11 @@ def verify_command(
     from ..usage import format_usd
     from ..verification_plan import plan_verification
     from ..verify import verify_models
+
+    if verbose:
+        from ..logging_setup import setup_verbose_logging
+
+        setup_verbose_logging()
 
     if suite not in {"quick", "thorough", "transient-recheck"}:
         console.print(
@@ -159,6 +170,19 @@ def verify_command(
     if not run_id and not selected_models:
         console.print("[yellow]No eligible verification targets.[/yellow]")
         return
+    if verbose:
+        import logging
+
+        logging.getLogger("basemode.verify").info(
+            "verification starting: suite=%s targets=%s max_probes=%s "
+            "max_requests=%s max_cost_usd=%s concurrency=%s",
+            suite,
+            len(selected_models or []),
+            max_probes or "unlimited",
+            max_requests or "unlimited",
+            max_cost_usd if max_cost_usd is not None else "unlimited",
+            concurrency,
+        )
     summary = asyncio.run(
         verify_models(
             selected_models,

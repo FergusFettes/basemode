@@ -354,6 +354,13 @@ class Operation:
                         "UPDATE verification_probes SET operation_id=? WHERE id=?",
                         (self.id, context.verification_probe_id),
                     )
+            log.info(
+                "operation %s started: model=%s strategy=%s source=%s",
+                self.id,
+                model,
+                strategy,
+                context.source,
+            )
         except Exception:
             log.warning(
                 "could not begin observation operation; ignoring", exc_info=True
@@ -434,6 +441,14 @@ class Operation:
                     ),
                 )
                 _update_recheck_schedule(conn, self.id, outcome, _now())
+            log.info(
+                "operation %s recorded: model=%s outcome=%s content=%s attempts=%s",
+                self.id,
+                self.model,
+                outcome,
+                returned_content,
+                self._attempts,
+            )
         except Exception:
             log.warning(
                 "could not finish observation operation; ignoring", exc_info=True
@@ -517,6 +532,13 @@ class Attempt:
                     (operation.id, index, _now(), kind),
                 )
                 self.id = int(cursor.lastrowid)
+            log.info(
+                "attempt %s.%s started: model=%s kind=%s",
+                operation.id,
+                index,
+                operation.model,
+                kind,
+            )
         except Exception:
             log.warning("could not begin observation attempt; ignoring", exc_info=True)
 
@@ -623,6 +645,21 @@ class Attempt:
                         self.id,
                     ),
                 )
+            log.info(
+                "attempt %s.%s recorded: model=%s kind=%s outcome=%s failure=%s "
+                "eligible=%s latency_ms=%.1f prompt_tokens=%s completion_tokens=%s cost_usd=%s",
+                self.operation.id,
+                self.index,
+                self.operation.model,
+                self.kind,
+                outcome,
+                failure_class or "none",
+                status_eligible,
+                latency_ms,
+                usage.prompt_tokens if usage is not None else "?",
+                usage.completion_tokens if usage is not None else "?",
+                usage.cost_usd if usage is not None else "?",
+            )
         except Exception:
             log.warning("could not finish observation attempt; ignoring", exc_info=True)
 

@@ -7,6 +7,11 @@ from basemode import observations, verification_plan
 from basemode.cli import app
 
 
+@pytest.fixture(autouse=True)
+def isolated_catalog(monkeypatch) -> None:
+    monkeypatch.setattr(verification_plan, "list_catalog_endpoint_metadata", lambda: [])
+
+
 def _catalog(
     model: str, *, release: str = "2026-08-01", modality: str = "text"
 ) -> None:
@@ -90,6 +95,28 @@ def test_dry_run_cli_never_calls_verifier(monkeypatch) -> None:
     assert result.exit_code == 0, result.output
     assert '"maximum_requests": 3' in result.output
     assert '"model": "openai/test"' in result.output
+
+
+def test_from_catalog_uses_packaged_models_on_a_fresh_ledger(monkeypatch) -> None:
+    monkeypatch.setattr(
+        verification_plan,
+        "list_catalog_endpoint_metadata",
+        lambda: [
+            {
+                "model": "openai/catalog-model",
+                "provider": "openai",
+                "release_date": "2026-08-01",
+                "text_eligible": True,
+                "catalog_available": True,
+            }
+        ],
+    )
+
+    plan = verification_plan.plan_verification(
+        catalog_available=True, statuses=["never-tested"]
+    )
+
+    assert [target.model for target in plan.targets] == ["openai/catalog-model"]
 
 
 def test_unknown_status_is_rejected() -> None:
