@@ -8,7 +8,7 @@ from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
 from .model_modality import classify_text_endpoint
-from .models import list_catalog_endpoint_metadata
+from .models import list_available_endpoint_metadata, list_catalog_endpoint_metadata
 from .observation_queries import list_controlled_status, list_endpoint_health
 from .observations import list_endpoint_metadata
 from .usage import get_price_info
@@ -67,6 +67,7 @@ def plan_verification(
     providers: list[str] | None = None,
     statuses: list[str] | None = None,
     catalog_available: bool = False,
+    available_only: bool = False,
     released_since: str | None = None,
     max_release_age_days: int | None = None,
     stale_after_days: int = 30,
@@ -90,12 +91,23 @@ def plan_verification(
     operational = list_endpoint_health()
     controlled = list_controlled_status(stale_after_days=stale_after_days)
     derived: dict[str, dict[str, Any]] = {}
-    metadata_rows = list_endpoint_metadata()
+    metadata_by_model = {
+        str(row["model"]): dict(row) for row in list_endpoint_metadata()
+    }
     if catalog_available:
-        known = {str(row["model"]) for row in metadata_rows}
-        metadata_rows.extend(
-            row for row in list_catalog_endpoint_metadata() if row["model"] not in known
-        )
+        for row in list_catalog_endpoint_metadata():
+            existing = metadata_by_model.setdefault(row["model"], row)
+            existing["catalog_available"] = True
+            existing["release_date"] = existing.get("release_date") or row.get(
+                "release_date"
+            )
+    available_provider_names: set[str] = set()
+    if available_only:
+        available_rows = list_available_endpoint_metadata()
+        available_provider_names = {row["provider"] for row in available_rows}
+        for row in available_rows:
+            metadata_by_model.setdefault(row["model"], row)
+    metadata_rows = list(metadata_by_model.values())
     rows = []
     for metadata in metadata_rows:
         model = str(metadata["model"])
@@ -149,6 +161,8 @@ def plan_verification(
         if explicit and not is_explicit:
             continue
         if provider_filter and row["provider"] not in provider_filter:
+            continue
+        if available_only and row["provider"] not in available_provider_names:
             continue
         if requested_statuses and prior not in requested_statuses:
             continue

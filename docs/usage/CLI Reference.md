@@ -116,7 +116,7 @@ and status effects.
 
 ```bash
 basemode verify [MODEL...] [--suite quick|thorough|transient-recheck] [--attempts N] [--max-tokens N]
-  [--provider NAME] [--status STATUS] [--from-catalog]
+  [--provider NAME] [--status STATUS] [--available] [--from-catalog]
   [--released-since YYYY-MM-DD | --max-release-age-days N]
   [--stale-after-days N] [--dry-run] [-v] [--json]
 ```
@@ -137,6 +137,8 @@ current status (`never-tested`, `reachable`, `broken`, `transient`, `verified`,
 or `stale`). Repeat provider and status options to form unions. `--dry-run`
 makes no provider requests and reports the ordered stages, provider counts,
 logical probes, maximum self-healing requests, and a best-effort price ceiling.
+`--available` supplies text-model candidates from every provider with a key on
+this machine; combine it with `--status never-tested` for a useful first sweep.
 Add `-v` to a live run to see each content-free probe, attempt, retry, outcome,
 and ledger write as it happens. Logs go to stderr so generated text and JSON on
 stdout remain usable.

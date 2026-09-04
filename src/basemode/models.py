@@ -512,6 +512,38 @@ def list_catalog_endpoint_metadata() -> list[dict]:
     return endpoints
 
 
+def list_available_endpoint_metadata() -> list[dict]:
+    """Return text endpoints belonging to providers configured on this machine."""
+    available = set(settings.available_providers)
+    verified = _verified_rows_by_model()
+    live = _live_rows_by_provider()
+    endpoints = []
+    for provider, model_id in _all_provider_pairs():
+        provider = str(provider).lower()
+        if provider not in available:
+            continue
+        model = str(model_id).lower()
+        if not model.startswith(f"{provider}/"):
+            model = f"{provider}/{model}"
+        eligible, _ = classify_text_endpoint(
+            model, _model_mode(provider, str(model_id))
+        )
+        if not eligible:
+            continue
+        endpoints.append(
+            {
+                "model": model,
+                "provider": provider,
+                "release_date": _known_release_date(
+                    provider, str(model_id), verified, live
+                ),
+                "text_eligible": True,
+                "catalog_available": None,
+            }
+        )
+    return endpoints
+
+
 def _compact_entries(entries: list[dict]) -> list[dict]:
     """Collapse dated snapshots of the same base model into one entry."""
     groups: dict[tuple[str, str], list[dict]] = {}

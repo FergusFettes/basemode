@@ -72,6 +72,12 @@ def verify_command(
         bool,
         typer.Option("--from-catalog", help="Require current catalog availability."),
     ] = False,
+    available: Annotated[
+        bool,
+        typer.Option(
+            "--available", help="Select models from providers with configured keys."
+        ),
+    ] = False,
     released_since: Annotated[
         str | None, typer.Option("--released-since", help="Minimum ISO release date.")
     ] = None,
@@ -126,6 +132,7 @@ def verify_command(
         providers
         or statuses
         or from_catalog
+        or available
         or released_since
         or max_release_age_days is not None
     )
@@ -146,6 +153,7 @@ def verify_command(
                 providers=providers,
                 statuses=statuses,
                 catalog_available=from_catalog,
+                available_only=available,
                 released_since=released_since,
                 max_release_age_days=max_release_age_days,
                 stale_after_days=stale_after_days,

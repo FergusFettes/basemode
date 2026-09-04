@@ -56,6 +56,7 @@ basemode verify \
 
 Available selectors are:
 
+- `--available`, selecting models from providers with configured keys
 - `--provider NAME`, repeatable
 - `--status STATUS`, repeatable
 - `--from-catalog`, requiring the latest catalog observation to be available
@@ -66,6 +67,12 @@ Available selectors are:
 Statuses are `never-tested`, `reachable`, `broken`, `transient`, `verified`,
 and `stale`. Multiple providers or statuses form a union within that selector.
 Different selector types are combined, so an endpoint must satisfy all of them.
+
+For a first local sweep, use `--available` rather than `--from-catalog`:
+
+```bash
+basemode verify --available --status never-tested --dry-run
+```
 
 Targets are ordered by prior state: transient, broken, never-tested, stale,
 reachable, then verified. Provider and model ID break ties.

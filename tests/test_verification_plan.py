@@ -10,6 +10,9 @@ from basemode.cli import app
 @pytest.fixture(autouse=True)
 def isolated_catalog(monkeypatch) -> None:
     monkeypatch.setattr(verification_plan, "list_catalog_endpoint_metadata", lambda: [])
+    monkeypatch.setattr(
+        verification_plan, "list_available_endpoint_metadata", lambda: []
+    )
 
 
 def _catalog(
@@ -117,6 +120,28 @@ def test_from_catalog_uses_packaged_models_on_a_fresh_ledger(monkeypatch) -> Non
     )
 
     assert [target.model for target in plan.targets] == ["openai/catalog-model"]
+
+
+def test_available_discovers_configured_provider_models(monkeypatch) -> None:
+    monkeypatch.setattr(
+        verification_plan,
+        "list_available_endpoint_metadata",
+        lambda: [
+            {
+                "model": "groq/available-model",
+                "provider": "groq",
+                "release_date": None,
+                "text_eligible": True,
+                "catalog_available": None,
+            }
+        ],
+    )
+
+    plan = verification_plan.plan_verification(
+        available_only=True, statuses=["never-tested"]
+    )
+
+    assert [target.model for target in plan.targets] == ["groq/available-model"]
 
 
 def test_unknown_status_is_rejected() -> None:
