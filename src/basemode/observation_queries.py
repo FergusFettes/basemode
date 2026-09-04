@@ -20,8 +20,7 @@ def due_recheck_models(*, now: str | None = None) -> list[str]:
     """Return endpoints whose unified-ledger recheck schedule is due."""
     if not observations._DB_FILE.exists():
         return []
-    conn = sqlite3.connect(observations._DB_FILE)
-    try:
+    with observations._db() as conn:
         rows = conn.execute(
             """SELECT e.provider_route,e.provider_model_id
                FROM recheck_schedules s
@@ -33,16 +32,12 @@ def due_recheck_models(*, now: str | None = None) -> list[str]:
             model_id if route == "unknown" else f"{route}/{model_id}"
             for route, model_id in rows
         ]
-    finally:
-        conn.close()
 
 
 def list_endpoint_health(*, days: int | None = None) -> dict[str, dict[str, Any]]:
     if not observations._DB_FILE.exists():
         return {}
-    conn = sqlite3.connect(observations._DB_FILE)
-    conn.row_factory = sqlite3.Row
-    try:
+    with observations._db() as conn:
         where = "WHERE o.finished_at IS NOT NULL"
         params: list[Any] = []
         if days is not None:
@@ -64,17 +59,13 @@ def list_endpoint_health(*, days: int | None = None) -> dict[str, dict[str, Any]
             model = _model_name(endpoint_rows[0])
             result[model] = _summarize(conn, endpoint_id, endpoint_rows)
         return result
-    finally:
-        conn.close()
 
 
 def clear_endpoint_health(model: str | None = None) -> None:
     """Delete local operations for one endpoint, or the whole fresh ledger."""
     if not observations._DB_FILE.exists():
         return
-    conn = sqlite3.connect(observations._DB_FILE)
-    conn.execute("PRAGMA foreign_keys=ON")
-    try:
+    with observations._db() as conn:
         if model is None:
             operation_ids = [
                 row[0] for row in conn.execute("SELECT id FROM call_operations")
@@ -101,8 +92,6 @@ def clear_endpoint_health(model: str | None = None) -> None:
                 operation_ids,
             )
         conn.commit()
-    finally:
-        conn.close()
 
 
 def controlled_status(model: str, *, stale_after_days: int = 30) -> dict[str, Any]:
@@ -124,9 +113,7 @@ def list_controlled_status(*, stale_after_days: int = 30) -> dict[str, dict[str,
     """Project the latest completed controlled run independently from health."""
     if not observations._DB_FILE.exists():
         return {}
-    conn = sqlite3.connect(observations._DB_FILE)
-    conn.row_factory = sqlite3.Row
-    try:
+    with observations._db() as conn:
         endpoints = conn.execute(
             """SELECT DISTINCT e.id,e.provider_route,e.provider_model_id
                FROM verification_probes p
@@ -197,8 +184,6 @@ def list_controlled_status(*, stale_after_days: int = 30) -> dict[str, dict[str,
                 "last_run_at": run["finished_at"],
             }
         return result
-    finally:
-        conn.close()
 
 
 def _summarize(

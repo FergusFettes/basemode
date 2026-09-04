@@ -1,7 +1,12 @@
 import pytest
 
 from basemode import ObservationContext, continue_text, observations
-from basemode.observation_queries import controlled_status, endpoint_health
+from basemode.observation_queries import (
+    controlled_status,
+    endpoint_health,
+    list_controlled_status,
+    list_endpoint_health,
+)
 
 pytestmark = pytest.mark.asyncio
 
@@ -95,3 +100,16 @@ async def test_thorough_controlled_status_is_derived_from_linked_operation(
 
 async def test_unseen_endpoint_has_never_tested_status() -> None:
     assert controlled_status("openai/unseen")["controlled_status"] == "never_tested"
+
+
+async def test_queries_initialize_an_existing_empty_ledger() -> None:
+    observations._DB_FILE.touch()
+
+    assert list_endpoint_health() == {}
+    assert list_controlled_status() == {}
+
+    with observations._db() as conn:
+        version = conn.execute(
+            "SELECT value FROM schema_metadata WHERE key='schema_version'"
+        ).fetchone()[0]
+    assert version == "2"
