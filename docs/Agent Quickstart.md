@@ -154,7 +154,11 @@ same field. Regenerate the packaged copy after editing it. Generated outputs are
 - `src/basemode/data/verified_models_details.json`
 
 Regenerate them with `make models-table`; do not hand-edit generated tables.
-`scripts/refresh_live_models.py` refreshes the packaged live-model cache.
+`scripts/refresh_live_models.py` refreshes the packaged live-model cache. It
+merges: only providers the running machine holds a key for can be fetched,
+so a run keeps the entries it could not reach rather than deleting them.
+Each provider carries a `refreshed_at`; `--prune-after-days` drops stale
+entries and `--replace` rebuilds from only what the run fetched.
 Scheduled workflows in `.github/workflows/` open pull requests for these
 updates. Read [[Verified Models]] for the user-facing meaning of that data.
 

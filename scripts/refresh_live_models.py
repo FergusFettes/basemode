@@ -15,12 +15,21 @@ provider is marked `reliable_dates: false` when more than one model shares
 identical distinct-looking timestamps across >50% of its catalog; its models
 are still cached (for the id/NEW signal) but with release_date stripped.
 
+The cache is merged rather than replaced. Only providers this machine holds a
+key for can be fetched, so a scheduled refresh that reaches three providers
+must not delete the twelve someone else contributed — that is how every
+Together model ended up unpriced. Each provider carries its own
+`refreshed_at`, so a kept entry can be seen aging; `--prune-after-days` drops
+the ones that have aged out, and `--replace` rebuilds from only what this run
+could reach.
+
 Run this periodically (for example through the live-model refresh workflow) and
 commit the refreshed cache.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from datetime import UTC, datetime
@@ -41,8 +50,49 @@ from basemode.settings import settings  # noqa: E402
 CACHE_PATH = ROOT / "src" / "basemode" / "data" / "live_models_cache.json"
 
 
-def main() -> int:
-    providers_out: dict[str, dict] = {}
+def _load_cache() -> dict:
+    try:
+        payload = json.loads(CACHE_PATH.read_text())
+    except (OSError, ValueError):
+        return {}
+    providers = payload.get("providers")
+    return providers if isinstance(providers, dict) else {}
+
+
+def _age_days(entry: dict, now: datetime) -> float | None:
+    stamp = entry.get("refreshed_at")
+    if not isinstance(stamp, str):
+        return None
+    try:
+        return (now - datetime.fromisoformat(stamp)).total_seconds() / 86400
+    except ValueError:
+        return None
+
+
+def _describe_age(entry: dict, now: datetime) -> str:
+    age = _age_days(entry, now)
+    return "age unknown" if age is None else f"{age:.0f}d old"
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--replace",
+        action="store_true",
+        help="Rebuild from only what this run fetched, dropping every other provider.",
+    )
+    parser.add_argument(
+        "--prune-after-days",
+        type=float,
+        default=None,
+        metavar="N",
+        help="Drop kept providers last refreshed more than N days ago.",
+    )
+    args = parser.parse_args(argv)
+
+    now = datetime.now(tz=UTC)
+    providers_out: dict[str, dict] = {} if args.replace else _load_cache()
+    fetched: set[str] = set()
 
     for provider in sorted(PROVIDER_ENDPOINTS):
         api_key = settings.api_key_for(provider)
@@ -57,6 +107,7 @@ def main() -> int:
 
         reliable = dates_look_trustworthy(live)
         providers_out[provider] = {
+            "refreshed_at": now.isoformat(),
             "reliable_dates": reliable,
             "models": {
                 m.id: {
@@ -75,13 +126,29 @@ def main() -> int:
                 for m in live
             },
         }
+        fetched.add(provider)
         flag = "" if reliable else " (dates look bogus, dropped)"
         print(f"{provider}: {len(live)} models{flag}")
+
+    for provider in sorted(set(providers_out) - fetched):
+        entry = providers_out[provider]
+        age = _age_days(entry, now)
+        if args.prune_after_days is not None and (
+            age is None or age > args.prune_after_days
+        ):
+            del providers_out[provider]
+            print(f"pruned {provider}: {_describe_age(entry, now)}")
+            continue
+        models = entry.get("models") or {}
+        print(
+            f"kept {provider}: {len(models)} models from an earlier refresh "
+            f"({_describe_age(entry, now)}; no key here)"
+        )
 
     CACHE_PATH.write_text(
         json.dumps(
             {
-                "generated_at_utc": datetime.now(tz=UTC).isoformat(),
+                "generated_at_utc": now.isoformat(),
                 "providers": providers_out,
             },
             indent=2,
