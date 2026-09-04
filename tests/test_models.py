@@ -176,6 +176,49 @@ def test_text_only_drops_gemini_audio_tts_and_music_despite_text_mode() -> None:
     assert all(not classify_text_endpoint(model, "text")[0] for model in models)
 
 
+def test_text_only_drops_protocol_specific_endpoint_families() -> None:
+    from basemode.model_modality import classify_text_endpoint
+
+    models = (
+        "gemini/gemini-3.1-flash-live-preview",
+        "gemini/gemini-3.5-live-translate-preview",
+        "gemini/gemini-omni-flash-preview",
+        "gemini/gemini-robotics-er-1.6-preview",
+        "gemini/gemini-2.5-computer-use-preview-10-2025",
+        "openai/gpt-realtime",
+    )
+
+    for model in models:
+        eligible, reason = classify_text_endpoint(model, "text")
+        assert not eligible
+        assert reason is not None and reason.startswith("protocol-specific")
+
+
+def test_text_only_drops_speech_recognition_endpoints() -> None:
+    from basemode.model_modality import classify_text_endpoint
+
+    models = (
+        "deepinfra/qwen/qwen3-asr-1.7b",
+        "deepinfra/nvidia/nemotron-3.5-asr-streaming-multilingual-0.6b",
+        "deepinfra/mistralai/voxtral-small-24b-2507",
+        "deepinfra/bosonai/higgsaudiov2.5",
+    )
+
+    assert all(not classify_text_endpoint(model, "text")[0] for model in models)
+
+
+def test_text_only_keeps_names_that_merely_contain_a_family_word() -> None:
+    from basemode.model_modality import classify_text_endpoint
+
+    models = (
+        "deepinfra/sao10k/l3-8b-lunaris",
+        "openai/gpt-5.6-luna",
+        "anthropic/claude-opus-5",
+    )
+
+    assert all(classify_text_endpoint(model, "text")[0] for model in models)
+
+
 def test_list_models_search_case_insensitive() -> None:
     lower = list_models(search="claude")
     upper = list_models(search="CLAUDE")
