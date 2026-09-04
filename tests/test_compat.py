@@ -363,10 +363,17 @@ def test_zai_glm_5_3_cannot_disable_thinking() -> None:
     always engages in thinking and cannot be disabled; please use low, high,
     or max", probed live 2026-08-24) unlike the rest of the glm-5.x family,
     which the "glm-5" prefix match would otherwise catch it under."""
-    kwargs = build_kwargs(GenerationParams(model="zai/glm-5.3", max_tokens=200))
+    for model in (
+        "zai/glm-5.3",
+        "zai/glm-5.3-flash",
+        "zai/glm-5.3-flash:batch",
+    ):
+        kwargs = build_kwargs(GenerationParams(model=model, max_tokens=200))
 
-    assert kwargs["extra_body"] == {"thinking": {"type": "enabled", "effort": "low"}}
-    assert kwargs["max_tokens"] > 200
+        assert kwargs["extra_body"] == {
+            "thinking": {"type": "enabled", "effort": "low"}
+        }
+        assert kwargs["max_tokens"] > 200
 
 
 def test_novita_glm_disables_thinking_via_extra_body() -> None:

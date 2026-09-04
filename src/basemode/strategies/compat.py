@@ -164,9 +164,11 @@ _GLM_DISABLE_THINKING_PROVIDERS = frozenset({"zai", "novita"})
 #   - novita (probed 2026-08-28) accepts the disable body but ignores it and
 #     reasons anyway, as it does for `thinking.type: "enabled"` with any
 #     effort -- so there the only fix is token headroom.
-# Either way this stem needs a widened budget, and is checked before the
+# Either way this family needs a widened budget, and is checked before the
 # disable-prefix match above, which would otherwise catch it via "glm-5".
-_MANDATORY_THINKING_STEMS = frozenset({"glm-5.3"})
+# Z.ai uses suffixed IDs such as glm-5.3-flash (and :batch catalog variants)
+# for the same always-thinking API contract.
+_MANDATORY_THINKING_PREFIXES = ("glm-5.3",)
 
 # Claude 5.x (opus-5, sonnet-5, ...), probed live 2026-08-24: this family
 # rejects the older `thinking.type: "enabled"` shape outright ("Use
@@ -262,7 +264,7 @@ def thinking_kwargs(model: str, max_tokens: int) -> dict:
     via_zai = provider == "zai"
     via_anthropic = provider == "anthropic"
     via_gemma = stem.startswith("gemma-")
-    if stem in _MANDATORY_THINKING_STEMS:
+    if stem.startswith(_MANDATORY_THINKING_PREFIXES):
         budget, min_out = _GENERIC_REASONING_BUDGET
         widened = max(max_tokens, budget + min_out)
         if via_zai:
