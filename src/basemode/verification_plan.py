@@ -134,7 +134,11 @@ def plan_verification(
                 "normalized_model_id": model,
                 "provider": metadata["provider"],
                 "release_date": metadata["release_date"],
-                "text_eligible": metadata["text_eligible"],
+                # Recheck the ID as well as stored/provider metadata so a
+                # stale row previously misclassified as text cannot poison a
+                # later sweep (for example Gemini native-audio and TTS IDs).
+                "text_eligible": bool(metadata["text_eligible"])
+                and classify_text_endpoint(model)[0],
             }
         )
     known_models = {row["normalized_model_id"] for row in rows}

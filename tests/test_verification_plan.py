@@ -55,6 +55,24 @@ def test_plan_is_text_only_staged_and_stably_ordered(monkeypatch) -> None:
     assert plan.provider_counts == {"alpha": 1, "zeta": 1}
 
 
+@pytest.mark.parametrize(
+    "model",
+    [
+        "gemini/gemini-2.5-flash-native-audio-latest",
+        "gemini/gemini-2.5-flash-native-audio-preview-09-2025",
+        "gemini/gemini-2.5-pro-preview-tts",
+        "gemini/lyria-3-clip-preview",
+        "gemini/lyria-3-pro-preview",
+    ],
+)
+def test_plan_rejects_non_text_name_even_with_stale_text_metadata(model) -> None:
+    _catalog(model, modality="text")
+
+    plan = verification_plan.plan_verification(catalog_available=True)
+
+    assert model not in {target.model for target in plan.targets}
+
+
 def test_plan_filters_provider_status_and_release(monkeypatch) -> None:
     _catalog("openai/new", release="2026-08-20")
     _catalog("openai/old", release="2025-01-01")

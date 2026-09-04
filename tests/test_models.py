@@ -162,6 +162,20 @@ def test_text_only_drops_untagged_image_models_by_name() -> None:
     assert not any("grok-imagine" in e["model"] for e in untagged)
 
 
+def test_text_only_drops_gemini_audio_tts_and_music_despite_text_mode() -> None:
+    from basemode.model_modality import classify_text_endpoint
+
+    models = (
+        "gemini/gemini-2.5-flash-native-audio-latest",
+        "gemini/gemini-2.5-flash-native-audio-preview-12-2025",
+        "gemini/gemini-2.5-pro-preview-tts",
+        "gemini/lyria-3-clip-preview",
+        "gemini/lyria-3-pro-preview",
+    )
+
+    assert all(not classify_text_endpoint(model, "text")[0] for model in models)
+
+
 def test_list_models_search_case_insensitive() -> None:
     lower = list_models(search="claude")
     upper = list_models(search="CLAUDE")

@@ -50,9 +50,9 @@ def classify_text_endpoint(
     normalized = (modality or "").strip().lower()
     if normalized in NON_TEXT_MODALITIES:
         return False, f"provider modality: {normalized}"
-    if normalized in TEXT_MODALITIES:
-        return True, None
     match = _NON_TEXT_NAME_RE.search(model)
     if match:
         return False, f"non-text model family: {match.group(0).strip('/_.:-').lower()}"
+    if normalized in TEXT_MODALITIES:
+        return True, None
     return True, None
