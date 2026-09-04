@@ -35,7 +35,6 @@ async def test_export_is_aggregate_only(monkeypatch, tmp_path: Path) -> None:
             observation=ObservationContext(
                 source="loom",
                 source_version="0.8.0",
-                contribution_eligible=True,
             ),
         )
     ] == [" continuation"]
@@ -63,7 +62,7 @@ async def test_export_matches_sibling_evidence_contract(
     async for _ in continue_text(
         "private seed",
         model="openai/example",
-        observation=ObservationContext(contribution_eligible=True),
+        observation=ObservationContext(),
     ):
         pass
     bundle = build_bundle(since=started, until=datetime.now(UTC))
@@ -87,18 +86,15 @@ async def test_export_matches_sibling_evidence_contract(
     assert result.returncode == 0, result.stderr or result.stdout
 
 
-async def test_ineligible_operations_are_not_exported(monkeypatch) -> None:
+async def test_existing_operations_are_exportable_without_prior_opt_in(monkeypatch) -> None:
     monkeypatch.setattr("basemode.continue_.detect_strategy", lambda *args: _Strategy())
     async for _ in continue_text("private seed", model="openai/example"):
         pass
 
     now = datetime.now(UTC)
-    try:
-        build_bundle(since=now - timedelta(minutes=1), until=now)
-    except ValueError as error:
-        assert str(error) == "no contribution-eligible observations in window"
-    else:
-        raise AssertionError("ineligible operation was exported")
+    bundle = build_bundle(since=now - timedelta(minutes=1), until=now)
+
+    assert bundle["observations"][0]["operations"] == 1
 
 
 @pytest.mark.parametrize(
@@ -120,7 +116,7 @@ async def test_local_validation_rejects_public_semantic_violations(
     async for _ in continue_text(
         "private seed",
         model="openai/example",
-        observation=ObservationContext(contribution_eligible=True),
+        observation=ObservationContext(),
     ):
         pass
     bundle = build_bundle(since=started, until=datetime.now(UTC))
@@ -139,7 +135,7 @@ async def test_pr_workflow_commits_only_the_exported_bundle(
     async for _ in continue_text(
         "private seed",
         model="openai/example",
-        observation=ObservationContext(contribution_eligible=True),
+        observation=ObservationContext(),
     ):
         pass
     bundle = build_bundle(since=started, until=datetime.now(UTC))

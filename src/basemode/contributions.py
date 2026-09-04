@@ -76,7 +76,7 @@ def build_bundle(
         operations = conn.execute(
             """SELECT o.*,e.provider_route,e.provider_model_id
                FROM call_operations o JOIN model_endpoints e ON e.id=o.endpoint_id
-               WHERE o.contribution_eligible=1 AND o.finished_at IS NOT NULL
+               WHERE o.finished_at IS NOT NULL
                  AND o.started_at>=? AND o.started_at<?
                ORDER BY o.id""",
             (start.replace("Z", "+00:00"), end.replace("Z", "+00:00")),
@@ -106,7 +106,7 @@ def build_bundle(
     finally:
         conn.close()
     if not rows:
-        raise ValueError("no contribution-eligible observations in window")
+        raise ValueError("no completed observations in window")
     bundle = {
         "schema_version": SCHEMA_VERSION,
         "bundle_id": bundle_id or str(uuid.uuid4()),

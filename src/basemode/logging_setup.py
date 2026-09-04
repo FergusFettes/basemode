@@ -11,6 +11,20 @@ import sys
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
+from .redaction import redact
+
+
+class RedactingFormatter(logging.Formatter):
+    """Format a record, then take the account identifiers back out.
+
+    Redaction happens after formatting rather than on the message, because
+    the identifiers arrive inside a provider exception's own text and reach
+    the file through the traceback rather than through the format string.
+    """
+
+    def format(self, record: logging.LogRecord) -> str:
+        return redact(super().format(record))
+
 
 def setup_file_logging() -> None:
     """Attach a rotating file handler to the `basemode` logger.
@@ -18,6 +32,8 @@ def setup_file_logging() -> None:
     Creates `$XDG_STATE_HOME/basemode/basemode.log` (or
     `~/.local/state/basemode/basemode.log`) if it doesn't already exist.
     Safe to call more than once — a handler is only attached the first time.
+    Provider exceptions reach this file in full, so account identifiers are
+    stripped on the way in; see `redaction.py`.
     """
     log_dir = (
         Path(os.environ.get("XDG_STATE_HOME", Path.home() / ".local" / "state"))
@@ -28,7 +44,7 @@ def setup_file_logging() -> None:
 
     handler = RotatingFileHandler(log_path, maxBytes=2 * 1024 * 1024, backupCount=3)
     handler.setFormatter(
-        logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
+        RedactingFormatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
     )
 
     logger = logging.getLogger("basemode")
@@ -52,6 +68,6 @@ def setup_verbose_logging() -> None:
     handler = logging.StreamHandler(sys.stderr)
     handler.setLevel(logging.INFO)
     handler.addFilter(lambda record: record.levelno == logging.INFO)
-    handler.setFormatter(logging.Formatter("[basemode] %(message)s"))
+    handler.setFormatter(RedactingFormatter("[basemode] %(message)s"))
     handler._basemode_verbose = True  # type: ignore[attr-defined]
     logger.addHandler(handler)

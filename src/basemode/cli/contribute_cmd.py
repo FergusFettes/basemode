@@ -11,7 +11,6 @@ import typer
 
 from .. import observations
 from ..contributions import build_bundle, export_bundle, open_contribution_pr
-from ..keys import contribution_enabled, set_contribution_enabled
 from . import app
 from .render import console
 
@@ -33,27 +32,6 @@ def _window(
     return start, end
 
 
-@contribute_app.command("status")
-def status() -> None:
-    """Show whether future operations may enter contribution aggregates."""
-    state = "enabled" if contribution_enabled() else "disabled"
-    console.print(f"Public contribution is {state}.")
-
-
-@contribute_app.command("enable")
-def enable() -> None:
-    """Opt future operations into aggregate-only public contribution."""
-    set_contribution_enabled(True)
-    console.print("[green]✓[/green] Future operations are contribution-eligible.")
-
-
-@contribute_app.command("disable")
-def disable() -> None:
-    """Keep recording locally but exclude future operations from contribution."""
-    set_contribution_enabled(False)
-    console.print("[green]✓[/green] Public contribution disabled.")
-
-
 @contribute_app.command("preview")
 def preview(
     since: Annotated[datetime | None, typer.Option("--since")] = None,
@@ -61,7 +39,12 @@ def preview(
 ) -> None:
     """Print the exact validated JSON shape an export would write."""
     start, end = _window(since, until)
-    console.print_json(json.dumps(build_bundle(since=start, until=end)))
+    try:
+        bundle = build_bundle(since=start, until=end)
+    except ValueError as error:
+        console.print(f"[red]{error}[/red]")
+        raise typer.Exit(1) from error
+    console.print_json(json.dumps(bundle))
 
 
 @contribute_app.command("export")
@@ -72,7 +55,11 @@ def export(
 ) -> None:
     """Write a validated contribution bundle and record the exported window."""
     start, end = _window(since, until)
-    bundle = build_bundle(since=start, until=end)
+    try:
+        bundle = build_bundle(since=start, until=end)
+    except ValueError as error:
+        console.print(f"[red]{error}[/red]")
+        raise typer.Exit(1) from error
     target = output or Path(f"basemode-contribution-{bundle['bundle_id']}.json")
     export_bundle(bundle, target)
     console.print(str(target))
@@ -87,7 +74,11 @@ def pr(
 ) -> None:
     """Preview, confirm, and submit one aggregate bundle using authenticated gh."""
     start, end = _window(since, until)
-    bundle = build_bundle(since=start, until=end)
+    try:
+        bundle = build_bundle(since=start, until=end)
+    except ValueError as error:
+        console.print(f"[red]{error}[/red]")
+        raise typer.Exit(1) from error
     console.print_json(json.dumps(bundle))
     if not yes and not typer.confirm("Submit exactly this aggregate bundle?"):
         raise typer.Abort()

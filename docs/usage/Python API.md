@@ -223,7 +223,6 @@ from basemode import ObservationContext, continue_text
 observation = ObservationContext(
     source="loom",
     source_version="0.8.0",
-    contribution_eligible=False,
 )
 async for token in continue_text(prefix, observation=observation):
     ...

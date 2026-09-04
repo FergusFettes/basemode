@@ -135,7 +135,7 @@ async def test_success_records_one_operation_and_attempt(monkeypatch) -> None:
         continue_text(
             "Seed",
             observation=ObservationContext(
-                source="loom", source_version="0.8.0", contribution_eligible=True
+                source="loom", source_version="0.8.0"
             ),
         )
     ) == [" hello"]
@@ -145,7 +145,6 @@ async def test_success_records_one_operation_and_attempt(monkeypatch) -> None:
     assert len(operations) == len(attempts) == 1
     assert operations[0]["source"] == "loom"
     assert operations[0]["source_version"] == "0.8.0"
-    assert operations[0]["contribution_eligible"] == 1
     assert operations[0]["logical_outcome"] == "success"
     assert operations[0]["attempt_count"] == 1
     assert attempts[0]["attempt_kind"] == "initial"

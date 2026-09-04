@@ -158,14 +158,15 @@ evidence:
 ```bash
 basemode health
 basemode health --verification
-basemode contribute status
 basemode contribute preview --since 2026-08-25T00:00:00Z
 basemode contribute export --output contribution.json
 basemode contribute pr --repo OWNER/basemode-evidence
 ```
 
-Contribution is disabled by default. Exports contain only grouped counts,
-safe failure categories, and aggregate performance/usage/cost measurements.
+Preview, export, and PR submission work with existing stored observations; the
+explicit command is the contribution consent boundary. Exports contain only
+grouped counts, safe failure categories, and aggregate
+performance/usage/cost measurements.
 
 ### `bench`
 

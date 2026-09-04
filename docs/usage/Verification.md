@@ -101,7 +101,10 @@ counts, and a known-price cost ceiling. Add `--json` for a machine-readable
 plan.
 
 The cost ceiling allows up to three requests per logical probe: the initial
-request and both self-healing paths. Pricing comes from best-effort LiteLLM
+request and both self-healing paths. It is a ceiling, not an expectation — a
+probe stops at its first terminal failure, because the self-healing paths only
+vary the reasoning budget and cannot repair a retired ID, a locked-out key, or
+a rejected parameter. Pricing comes from best-effort LiteLLM
 metadata. The output separates priced and unpriced targets; unknown prices are
 not treated as free.
 
@@ -110,7 +113,9 @@ the run proceeds; use `--quiet` to suppress them. Handled provider exceptions
 do not dump tracebacks there;
 the attempt record shows their failure category and subsequent retries. Full
 diagnostic tracebacks remain in the rotating CLI log at
-`~/.local/state/basemode/basemode.log` (or beneath `$XDG_STATE_HOME`). The
+`~/.local/state/basemode/basemode.log` (or beneath `$XDG_STATE_HOME`), with
+account identifiers — user and team IDs, keys, addresses — stripped out as they
+are written, so the file stays safe to paste into an issue. The
 structured, content-free observations live separately at
 `~/.local/share/basemode/observations.sqlite`.
 

@@ -35,16 +35,14 @@ later organic success resolves the schedule.
 
 ## Opt-in public contribution
 
-Local recording and public contribution are separate. Contribution is disabled
-by default, affects future calls only, and exports aggregate rows rather than
-individual operations.
+Local recording and public contribution are separate. Existing content-free
+observations can be previewed and exported at any time; running the explicit
+export or PR command is the consent boundary. Exports contain aggregate rows
+rather than individual operations.
 
 ```bash
-basemode contribute status
-basemode contribute enable
 basemode contribute preview --since 2026-08-25T00:00:00Z
 basemode contribute export --output contribution.json
-basemode contribute disable
 ```
 
 Preview and export share the same serializer and validation path. Rows are

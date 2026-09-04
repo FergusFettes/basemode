@@ -72,7 +72,6 @@ class ObservationContext:
 
     source: str = "python"
     source_version: str | None = None
-    contribution_eligible: bool | None = None
     verification_probe_id: int | None = None
 
     def __post_init__(self) -> None:
@@ -81,10 +80,6 @@ class ObservationContext:
             raise ValueError(
                 f"Unknown observation source {self.source!r}. Valid: {allowed}"
             )
-        if self.contribution_eligible is None:
-            from .keys import contribution_enabled
-
-            object.__setattr__(self, "contribution_eligible", contribution_enabled())
         if self.source_version is not None and not _VERSION_RE.fullmatch(
             self.source_version
         ):
@@ -153,7 +148,6 @@ def _connect() -> sqlite3.Connection:
             total_reasoning_tokens INTEGER,
             total_cost_usd REAL,
             cost_source TEXT,
-            contribution_eligible INTEGER NOT NULL DEFAULT 0,
             verification_probe_id INTEGER
         );
         CREATE TABLE IF NOT EXISTS call_attempts (
@@ -331,8 +325,8 @@ class Operation:
                     """INSERT INTO call_operations(
                            event_id, endpoint_id, started_at, source, source_version,
                            basemode_version, strategy, strategy_source,
-                           contribution_eligible, verification_probe_id
-                       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                           verification_probe_id
+                       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                     (
                         str(uuid.uuid4()),
                         endpoint_id,
@@ -342,7 +336,6 @@ class Operation:
                         _package_version(),
                         strategy,
                         strategy_source,
-                        int(context.contribution_eligible),
                         context.verification_probe_id,
                     ),
                 )
