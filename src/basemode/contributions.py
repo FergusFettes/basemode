@@ -296,8 +296,13 @@ def validate_bundle(bundle: dict[str, Any]) -> None:
         if sum(row["failures"].values()) > row["attempts"]:
             raise ValueError("failures exceed attempts")
         for metric, population in (
+            # latency is measured once per logical operation; time to first
+            # token is measured on each provider request that produced one,
+            # and an operation can have more than one of those — a resumed
+            # verification probe re-runs a configuration that already
+            # succeeded. Bounding TTFT by operations rejected honest data.
             ("latency_ms", "successful_operations"),
-            ("ttft_ms", "successful_operations"),
+            ("ttft_ms", "attempts"),
         ):
             if metric not in row:
                 continue

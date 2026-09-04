@@ -107,6 +107,8 @@ async def test_existing_operations_are_exportable_without_prior_opt_in(
         lambda row: row.update(operations=-1),
         lambda row: row["failures"].update(not_public=1),
         lambda row: row.update(latency_ms={"count": 2, "p50": 2, "p95": 1}),
+        lambda row: row.update(latency_ms={"count": 9, "p50": 1, "p95": 2}),
+        lambda row: row.update(ttft_ms={"count": 9, "p50": 1, "p95": 2}),
         lambda row: row.update(cost_usd=float("inf")),
     ],
 )
@@ -127,6 +129,27 @@ async def test_local_validation_rejects_public_semantic_violations(
 
     with pytest.raises(ValueError):
         validate_bundle(invalid)
+
+
+async def test_ttft_is_bounded_by_attempts_not_operations(monkeypatch) -> None:
+    """A logical operation can carry more than one token-producing request.
+
+    A resumed verification probe re-runs a configuration that already
+    succeeded, so its operation ends up with two successful attempts and two
+    TTFT samples. Bounding TTFT by successful operations rejected that as
+    invalid — real observations that were never wrong.
+    """
+    monkeypatch.setattr("basemode.continue_.detect_strategy", lambda *args: _Strategy())
+    started = datetime.now(UTC) - timedelta(seconds=1)
+    async for _ in continue_text("private seed", model="openai/example"):
+        pass
+
+    bundle = build_bundle(since=started, until=datetime.now(UTC))
+    row = bundle["observations"][0]
+    row["attempts"] += 1
+    row["ttft_ms"] = {"count": row["successful_operations"] + 1, "p50": 10, "p95": 20}
+
+    validate_bundle(bundle)
 
 
 async def test_pr_workflow_commits_only_the_exported_bundle(
