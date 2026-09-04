@@ -134,9 +134,7 @@ async def test_success_records_one_operation_and_attempt(monkeypatch) -> None:
     assert await _drain(
         continue_text(
             "Seed",
-            observation=ObservationContext(
-                source="loom", source_version="0.8.0"
-            ),
+            observation=ObservationContext(source="loom", source_version="0.8.0"),
         )
     ) == [" hello"]
 

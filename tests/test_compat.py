@@ -152,6 +152,39 @@ def test_registry_reasoning_budget_quirk_applies_generic_bump(monkeypatch) -> No
     assert kwargs["thinking"] == {"type": "enabled", "budget_tokens": 4096}
 
 
+def test_max_completion_tokens_quirk_renames_the_cap(monkeypatch) -> None:
+    """Newer OpenAI chat models reject `max_tokens` outright and name the
+    replacement in the error; the registry quirk applies that rename for a
+    model litellm's own metadata does not know yet."""
+    import basemode.strategies.compat as compat
+
+    monkeypatch.setattr(
+        compat, "model_quirks", lambda model: frozenset({"max_completion_tokens"})
+    )
+
+    kwargs = build_kwargs(GenerationParams(model="openai/chat-latest", max_tokens=64))
+
+    assert kwargs["max_completion_tokens"] == 64
+    assert "max_tokens" not in kwargs
+
+
+def test_max_completion_tokens_quirk_renames_a_widened_thinking_cap(
+    monkeypatch,
+) -> None:
+    import basemode.strategies.compat as compat
+
+    monkeypatch.setattr(
+        compat,
+        "model_quirks",
+        lambda model: frozenset({"max_completion_tokens", "reasoning_budget"}),
+    )
+
+    kwargs = build_kwargs(GenerationParams(model="openai/chat-latest", max_tokens=64))
+
+    assert kwargs["max_completion_tokens"] == 5120
+    assert "max_tokens" not in kwargs
+
+
 def test_registry_reasoning_budget_quirk_ignored_without_quirk(monkeypatch) -> None:
     import basemode.strategies.compat as compat
 

@@ -23,8 +23,6 @@ lint lint-core:
 models-table:
 	uv run python scripts/generate_verified_models_table.py
 
-	open "dist/provider-health.html"
-
 discover-models:
 	uv run python scripts/discover_new_models.py
 

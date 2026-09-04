@@ -53,17 +53,19 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `deepinfra/google/gemma-4-31b-it-ultra` | $0.27 | $0.76 | unknown | `system` | ⚠ |  |
 | `deepinfra/google/gemma-4-e4b-it` | $0.02 | $0.10 | unknown | `system` | ⚠ |  |
 | `deepinfra/gryphe/mythomax-l2-13b` | $0.40 | $0.40 | unknown | `system` | ⚠ |  |
-| `deepinfra/inclusionai/ling-3.0-flash` | $0.06 | $0.18 | unknown | `system` | ⚠ |  |
+| `deepinfra/inclusionai/ling-3.0-flash` | $0.06 | $0.18 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/meta-llama/llama-3.3-70b-instruct-turbo` | $0.10 | $0.32 | unknown | `system` | ⚠ |  |
 | `deepinfra/meta-llama/llama-4-scout-17b-16e-instruct` | $0.10 | $0.30 | unknown | `system` | ⚠ |  |
 | `deepinfra/meta-llama/meta-llama-3.1-70b-instruct-turbo` | $0.40 | $0.40 | unknown | `system` | ⚠ |  |
 | `deepinfra/meta-llama/meta-llama-3.1-8b-instruct-turbo` | $0.02 | $0.04 | unknown | `system` | ⚠ |  |
 | `deepinfra/microsoft/phi-4` | $0.07 | $0.14 | unknown | `system` | ⚠ |  |
-| `deepinfra/minimaxai/minimax-m2.7` | $0.25 | $1.00 | unknown | `system` | ⚠ |  |
+| `deepinfra/minimaxai/minimax-m2.7` | $0.25 | $1.00 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/minimaxai/minimax-m3` | $0.28 | $1.10 | unknown | `system` | ⚠ |  |
 | `deepinfra/mistralai/mistral-nemo-instruct-2407` | $0.02 | $0.03 | unknown | `system` | ⚠ |  |
 | `deepinfra/mistralai/mistral-small-24b-instruct-2501` | $0.05 | $0.08 | unknown | `system` | ⚠ |  |
 | `deepinfra/mistralai/mistral-small-3.2-24b-instruct-2506` | $0.07 | $0.20 | unknown | `system` | ⚠ |  |
+| `deepinfra/moonshotai/kimi-k2-instruct` | $0.50 | $2.00 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `deepinfra/moonshotai/kimi-k2-instruct-0905` | $0.50 | $2.00 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/moonshotai/kimi-k2.5` | $0.45 | $2.25 | unknown | `system` | ⚠ |  |
 | `deepinfra/moonshotai/kimi-k2.6` | $0.75 | $3.50 | unknown | `system` | ⚠ |  |
 | `deepinfra/moonshotai/kimi-k2.7-code` | $0.68 | $3.40 | unknown | `system` | ⚠ |  |
@@ -79,6 +81,7 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `deepinfra/qwen/qwen2.5-72b-instruct` | $0.36 | $0.40 | unknown | `system` | ⚠ |  |
 | `deepinfra/qwen/qwen3-14b` | $0.12 | $0.24 | unknown | `system` | ⚠ |  |
 | `deepinfra/qwen/qwen3-235b-a22b-instruct-2507` | $0.09 | $0.55 | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3-235b-a22b-thinking-2507` | $0.30 | $2.90 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/qwen/qwen3-30b-a3b` | $0.12 | $0.50 | unknown | `system` | ⚠ |  |
 | `deepinfra/qwen/qwen3-32b` | $0.08 | $0.28 | unknown | `system` | ⚠ |  |
 | `deepinfra/qwen/qwen3-coder-480b-a35b-instruct-turbo` | $0.30 | $1.00 | unknown | `system` | ⚠ |  |
@@ -88,26 +91,27 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `deepinfra/qwen/qwen3-vl-235b-a22b-instruct` | $0.20 | $0.88 | unknown | `system` | ⚠ |  |
 | `deepinfra/qwen/qwen3-vl-30b-a3b-instruct` | $0.15 | $0.60 | unknown | `system` | ⚠ |  |
 | `deepinfra/qwen/qwen3.5-122b-a10b` | $0.29 | $2.40 | unknown | `system` | ⚠ |  |
-| `deepinfra/qwen/qwen3.5-27b` | $0.26 | $2.60 | unknown | `system` | ⚠ |  |
-| `deepinfra/qwen/qwen3.5-35b-a3b` | $0.14 | $1.00 | unknown | `system` | ⚠ |  |
-| `deepinfra/qwen/qwen3.5-397b-a17b` | $0.45 | $3.00 | unknown | `system` | ⚠ |  |
-| `deepinfra/qwen/qwen3.5-9b` | $0.10 | $0.15 | unknown | `system` | ⚠ |  |
-| `deepinfra/qwen/qwen3.6-35b-a3b` | $0.10 | $0.95 | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3.5-27b` | $0.26 | $2.60 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `deepinfra/qwen/qwen3.5-35b-a3b` | $0.14 | $1.00 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `deepinfra/qwen/qwen3.5-397b-a17b` | $0.45 | $3.00 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `deepinfra/qwen/qwen3.5-9b` | $0.10 | $0.15 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `deepinfra/qwen/qwen3.6-27b` | $0.32 | $3.20 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `deepinfra/qwen/qwen3.6-35b-a3b` | $0.10 | $0.95 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/qwen/qwen3.7-max` | $2.50 | $7.50 | unknown | `system` | ⚠ |  |
-| `deepinfra/qwen/qwen3.8-2.4t-a95b` | $2.00 | $6.00 | unknown | `system` | ⚠ |  |
-| `deepinfra/qwen/qwen3.8-27b` | $0.40 | $3.00 | unknown | `system` | ⚠ |  |
+| `deepinfra/qwen/qwen3.8-2.4t-a95b` | $2.00 | $6.00 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `deepinfra/qwen/qwen3.8-27b` | $0.40 | $3.00 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/qwen/qwen3.8-max` | $1.65 | $4.95 | unknown | `system` | ⚠ |  |
 | `deepinfra/sao10k/l3-8b-lunaris-v1-turbo` | $0.04 | $0.05 | unknown | `system` | ⚠ |  |
 | `deepinfra/sao10k/l3.1-70b-euryale-v2.2` | $0.85 | $0.85 | unknown | `system` | ⚠ |  |
-| `deepinfra/thinkingmachines/inkling` | $0.95 | $4.05 | unknown | `system` | ⚠ |  |
-| `deepinfra/thinkingmachines/inkling-small` | $0.45 | $1.20 | unknown | `system` | ⚠ |  |
-| `deepinfra/xiaomimimo/mimo-v2.5` | $0.40 | $2.00 | unknown | `system` | ⚠ |  |
-| `deepinfra/xiaomimimo/mimo-v2.5-pro` | $1.00 | $3.00 | unknown | `system` | ⚠ |  |
+| `deepinfra/thinkingmachines/inkling` | $0.95 | $4.05 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `deepinfra/thinkingmachines/inkling-small` | $0.45 | $1.20 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `deepinfra/xiaomimimo/mimo-v2.5` | $0.40 | $2.00 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `deepinfra/xiaomimimo/mimo-v2.5-pro` | $1.00 | $3.00 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/zai-org/glm-4.6` | $0.50 | $2.00 | unknown | `system` | ⚠ |  |
 | `deepinfra/zai-org/glm-4.7` | $0.40 | $1.75 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/zai-org/glm-4.7-flash` | $0.06 | $0.40 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/zai-org/glm-5` | $0.60 | $2.08 | unknown | `system` | ⚠ |  |
-| `deepinfra/zai-org/glm-5.1` | $1.05 | $3.50 | unknown | `system` | ⚠ |  |
+| `deepinfra/zai-org/glm-5.1` | $1.05 | $3.50 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/zai-org/glm-5.2` | $0.75 | $2.40 | unknown | `system` | ⚠ |  |
 | `deepseek/deepseek-v4-flash` | $0.44 | $1.32 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepseek/deepseek-v4-flash-vision-exp` | $0.44 | $1.32 | unknown | `system` | ⚠ | `reasoning_budget` |
@@ -115,7 +119,7 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `gemini/gemini-2.5-flash` | $0.30 | $2.50 | 2025-06-17 | `system` | ⚠ |  |
 | `gemini/gemini-2.5-flash-lite` | $0.10 | $0.40 | 2025-07-22 | `system` | ⚠ |  |
 | `gemini/gemini-2.5-pro` | $1.25 | $10.00 | 2025-06-17 | `system` | ⚠ |  |
-| `gemini/gemini-3-flash-preview` | $0.50 | $3.00 | 2025-12-17 | `system` | ✓ |  |
+| `gemini/gemini-3-flash-preview` | $0.50 | $3.00 | 2025-12-17 | `system` | ✓ | `reasoning_budget` |
 | `gemini/gemini-3-pro-image` | $2.00 | $12.00 | 2026-05-28 | `prefill` | ✓ |  |
 | `gemini/gemini-3-pro-image-preview` | $2.00 | $12.00 | 2026-05-28 | `prefill` | ✓ |  |
 | `gemini/gemini-3.1-flash-image` | $0.50 | $3.00 | 2026-05-28 | `system` | ✓ |  |
@@ -244,6 +248,7 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `novita/zai-org/glm-5.2` | $1.40 | $4.40 | unknown | `system` | ⚠ |  |
 | `novita/zai-org/glm-5.3` | $1.40 | $4.40 | unknown | `system` | ⚠ |  |
 | `novita/zai-org/glm-5v-turbo` | $1.20 | $4.00 | unknown | `system` | ⚠ |  |
+| `openai/chat-latest` | $5.00 | $30.00 | unknown | `system` | ⚠ | `max_completion_tokens` |
 | `openai/gpt-3.5-turbo-0125` | $0.50 | $1.50 | 2023-05-28 | `system` | ⚠ |  |
 | `openai/gpt-3.5-turbo-1106` | $1.00 | $2.00 | 2023-05-28 | `system` | ⚠ |  |
 | `openai/gpt-4-turbo` | $10.00 | $30.00 | 2024-04-09 | `system` | ⚠ |  |
@@ -275,6 +280,9 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `openai/gpt-5.4-nano-2026-03-17` | $0.20 | $1.25 | 2026-03-17 | `system` | ✓ |  |
 | `openai/gpt-5.5` | $5.00 | $30.00 | 2026-04-23 | `system` | ✓ | `no_temperature` |
 | `openai/gpt-5.5-2026-04-23` | $5.00 | $30.00 | 2026-04-23 | `system` | ✓ | `no_temperature` |
+| `openai/gpt-5.5-pro` | $30.00 | $180.00 | unknown | `system` | ⚠ | `no_temperature` |
+| `openai/gpt-5.5-pro-2026-04-23` | $30.00 | $180.00 | unknown | `system` | ⚠ | `no_temperature` |
+| `openai/gpt-5.6-luna` | $0.20 | $1.20 | unknown | `system` | ⚠ | `no_temperature` |
 | `openai/gpt-5.6-sol` | $4.00 | $20.00 | 2026-07-09 | `system` | ✓ | `no_temperature` |
 | `openai/gpt-5.6-terra` | $2.00 | $12.00 | 2026-07-09 | `system` | ✓ | `no_temperature` |
 | `openrouter/moonshotai/kimi-k2.6` | $0.95 | $4.00 | 2026-04-20 | `system` | ⚠ | `no_temperature` |

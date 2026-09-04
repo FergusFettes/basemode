@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-09-04T18:17:39.615840+00:00",
+  "generated_at_utc": "2026-09-04T18:55:54.723121+00:00",
   "rows": [
     {
       "model": "anthropic/claude-fable-5",
@@ -846,7 +846,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/meta-llama/llama-3.3-70b-instruct-turbo",
@@ -948,7 +950,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/minimaxai/minimax-m3",
@@ -1017,6 +1021,44 @@
         "https://deepinfra.com/pricing"
       ],
       "quirks": []
+    },
+    {
+      "model": "deepinfra/moonshotai/kimi-k2-instruct",
+      "input_cost_per_token": 5e-07,
+      "output_cost_per_token": 2e-06,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://deepinfra.com/pricing"
+      ],
+      "quirks": [
+        "reasoning_budget"
+      ]
+    },
+    {
+      "model": "deepinfra/moonshotai/kimi-k2-instruct-0905",
+      "input_cost_per_token": 5e-07,
+      "output_cost_per_token": 2e-06,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://deepinfra.com/pricing"
+      ],
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/moonshotai/kimi-k2.5",
@@ -1282,6 +1324,25 @@
       "quirks": []
     },
     {
+      "model": "deepinfra/qwen/qwen3-235b-a22b-thinking-2507",
+      "input_cost_per_token": 3e-07,
+      "output_cost_per_token": 2.9e-06,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://deepinfra.com/pricing"
+      ],
+      "quirks": [
+        "reasoning_budget"
+      ]
+    },
+    {
       "model": "deepinfra/qwen/qwen3-30b-a3b",
       "input_cost_per_token": 1.2e-07,
       "output_cost_per_token": 5e-07,
@@ -1449,7 +1510,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/qwen/qwen3.5-35b-a3b",
@@ -1466,7 +1529,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/qwen/qwen3.5-397b-a17b",
@@ -1483,7 +1548,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/qwen/qwen3.5-9b",
@@ -1500,7 +1567,28 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
+    },
+    {
+      "model": "deepinfra/qwen/qwen3.6-27b",
+      "input_cost_per_token": 3.2e-07,
+      "output_cost_per_token": 3.2e-06,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://deepinfra.com/pricing"
+      ],
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/qwen/qwen3.6-35b-a3b",
@@ -1517,7 +1605,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/qwen/qwen3.7-max",
@@ -1551,7 +1641,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/qwen/qwen3.8-27b",
@@ -1568,7 +1660,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/qwen/qwen3.8-max",
@@ -1636,7 +1730,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/thinkingmachines/inkling-small",
@@ -1653,7 +1749,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/xiaomimimo/mimo-v2.5",
@@ -1670,7 +1768,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/xiaomimimo/mimo-v2.5-pro",
@@ -1687,7 +1787,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/zai-org/glm-4.6",
@@ -1776,7 +1878,9 @@
         "https://openrouter.ai/docs/api-reference/models/get-models",
         "https://deepinfra.com/pricing"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "deepinfra/zai-org/glm-5.2",
@@ -1911,7 +2015,9 @@
         "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
         "https://openrouter.ai/docs/api-reference/models/get-models"
       ],
-      "quirks": []
+      "quirks": [
+        "reasoning_budget"
+      ]
     },
     {
       "model": "gemini/gemini-3-pro-image",
@@ -4066,6 +4172,25 @@
       "quirks": []
     },
     {
+      "model": "openai/chat-latest",
+      "input_cost_per_token": 5e-06,
+      "output_cost_per_token": 3e-05,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ],
+      "quirks": [
+        "max_completion_tokens"
+      ]
+    },
+    {
       "model": "openai/gpt-3.5-turbo-0125",
       "input_cost_per_token": 5e-07,
       "output_cost_per_token": 1.5e-06,
@@ -4545,6 +4670,63 @@
       "prompt_method": "system",
       "reliability": "\u2713",
       "issues": [],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ],
+      "quirks": [
+        "no_temperature"
+      ]
+    },
+    {
+      "model": "openai/gpt-5.5-pro",
+      "input_cost_per_token": 3e-05,
+      "output_cost_per_token": 0.00018,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ],
+      "quirks": [
+        "no_temperature"
+      ]
+    },
+    {
+      "model": "openai/gpt-5.5-pro-2026-04-23",
+      "input_cost_per_token": 3e-05,
+      "output_cost_per_token": 0.00018,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
+      "sources": [
+        "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
+        "https://openrouter.ai/docs/api-reference/models/get-models",
+        "https://openai.com/api/pricing/"
+      ],
+      "quirks": [
+        "no_temperature"
+      ]
+    },
+    {
+      "model": "openai/gpt-5.6-luna",
+      "input_cost_per_token": 2e-07,
+      "output_cost_per_token": 1.2e-06,
+      "release_date": null,
+      "prompt_method": "system",
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
       "sources": [
         "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
         "https://openrouter.ai/docs/api-reference/models/get-models",

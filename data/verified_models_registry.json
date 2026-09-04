@@ -225,7 +225,8 @@
     },
     {
       "model": "deepinfra/inclusionai/ling-3.0-flash",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/meta-llama/llama-3.3-70b-instruct-turbo",
@@ -249,7 +250,8 @@
     },
     {
       "model": "deepinfra/minimaxai/minimax-m2.7",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/minimaxai/minimax-m3",
@@ -266,6 +268,16 @@
     {
       "model": "deepinfra/mistralai/mistral-small-3.2-24b-instruct-2506",
       "pricing_url": "https://deepinfra.com/pricing"
+    },
+    {
+      "model": "deepinfra/moonshotai/kimi-k2-instruct",
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
+    },
+    {
+      "model": "deepinfra/moonshotai/kimi-k2-instruct-0905",
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/moonshotai/kimi-k2.5",
@@ -332,6 +344,11 @@
       "pricing_url": "https://deepinfra.com/pricing"
     },
     {
+      "model": "deepinfra/qwen/qwen3-235b-a22b-thinking-2507",
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
+    },
+    {
       "model": "deepinfra/qwen/qwen3-30b-a3b",
       "pricing_url": "https://deepinfra.com/pricing"
     },
@@ -369,23 +386,33 @@
     },
     {
       "model": "deepinfra/qwen/qwen3.5-27b",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/qwen/qwen3.5-35b-a3b",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/qwen/qwen3.5-397b-a17b",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/qwen/qwen3.5-9b",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
+    },
+    {
+      "model": "deepinfra/qwen/qwen3.6-27b",
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/qwen/qwen3.6-35b-a3b",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/qwen/qwen3.7-max",
@@ -393,11 +420,13 @@
     },
     {
       "model": "deepinfra/qwen/qwen3.8-2.4t-a95b",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/qwen/qwen3.8-27b",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/qwen/qwen3.8-max",
@@ -413,19 +442,23 @@
     },
     {
       "model": "deepinfra/thinkingmachines/inkling",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/thinkingmachines/inkling-small",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/xiaomimimo/mimo-v2.5",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/xiaomimimo/mimo-v2.5-pro",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/zai-org/glm-4.6",
@@ -447,7 +480,8 @@
     },
     {
       "model": "deepinfra/zai-org/glm-5.1",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/zai-org/glm-5.2",
@@ -481,7 +515,8 @@
     },
     {
       "model": "gemini/gemini-3-flash-preview",
-      "openrouter_id": "google/gemini-3-flash-preview"
+      "openrouter_id": "google/gemini-3-flash-preview",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "gemini/gemini-3-pro-image",
@@ -1005,6 +1040,11 @@
       "pricing_url": "https://novita.ai/pricing"
     },
     {
+      "model": "openai/chat-latest",
+      "pricing_url": "https://openai.com/api/pricing/",
+      "quirks": ["max_completion_tokens"]
+    },
+    {
       "model": "openai/gpt-3.5-turbo-0125",
       "openrouter_id": "openai/gpt-3.5-turbo",
       "pricing_url": "https://openai.com/api/pricing/"
@@ -1161,6 +1201,21 @@
     {
       "model": "openai/gpt-5.5-2026-04-23",
       "openrouter_id": "openai/gpt-5.5",
+      "pricing_url": "https://openai.com/api/pricing/",
+      "quirks": ["no_temperature"]
+    },
+    {
+      "model": "openai/gpt-5.5-pro",
+      "pricing_url": "https://openai.com/api/pricing/",
+      "quirks": ["no_temperature"]
+    },
+    {
+      "model": "openai/gpt-5.5-pro-2026-04-23",
+      "pricing_url": "https://openai.com/api/pricing/",
+      "quirks": ["no_temperature"]
+    },
+    {
+      "model": "openai/gpt-5.6-luna",
       "pricing_url": "https://openai.com/api/pricing/",
       "quirks": ["no_temperature"]
     },

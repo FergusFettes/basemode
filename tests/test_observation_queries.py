@@ -102,9 +102,7 @@ async def _run_controlled_probe(monkeypatch, model, error) -> None:
     strategy = _Strategy([error])
     monkeypatch.setattr("basemode.continue_.detect_strategy", lambda *args: strategy)
     run_id = observations.begin_verification_run("quick", "1")
-    probe_id = observations.begin_verification_probe(
-        run_id, model, model, repetition=1
-    )
+    probe_id = observations.begin_verification_probe(run_id, model, model, repetition=1)
     with pytest.raises(type(error)):
         await _drain(
             continue_text(

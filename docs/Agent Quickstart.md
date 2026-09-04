@@ -46,7 +46,7 @@ continue_text(prefix, model)          src/basemode/continue_.py
   v
   |  build_kwargs()                   src/basemode/strategies/compat.py
   |    drops or rewrites params the model rejects (no_temperature,
-  |    no_prefill, reasoning_budget floors)
+  |    no_prefill, reasoning_budget floors, max_completion_tokens)
   v
   |  litellm.acompletion(...)         the actual provider call
   v
@@ -96,7 +96,8 @@ A model that misbehaves needs data, not code. Edit
 - `prompt_method` — the strategy that verifiably works. Read at runtime by
   `select_strategy`, so this field *is* the shipped behaviour.
 - `quirks` — parameter-level workarounds consumed by `compat.build_kwargs`.
-  Existing ones: `no_prefill`, `no_temperature`, `reasoning_budget`.
+  Existing ones: `no_prefill`, `no_temperature`, `reasoning_budget`,
+  `max_completion_tokens`.
 
 Then run `make models-table` to regenerate the README table, the docs page, and
 the packaged JSON. Never hand-edit those three.

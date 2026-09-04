@@ -204,6 +204,18 @@ def no_prefill(model: str) -> bool:
     return "no_prefill" in model_quirks(model)
 
 
+def max_completion_tokens_only(model: str) -> bool:
+    """Whether this model rejects `max_tokens` and wants the newer name.
+
+    Newer OpenAI chat models answer `max_tokens` with "Unsupported parameter:
+    'max_tokens' is not supported with this model. Use
+    'max_completion_tokens' instead." litellm rewrites the name for the
+    models it knows; a model listed by the provider before litellm's metadata
+    catches up needs the registry to say so.
+    """
+    return "max_completion_tokens" in model_quirks(model)
+
+
 # Fallback budget for models tagged with the registry's generic
 # `reasoning_budget` quirk (see `scripts/discover_new_models.py` and
 # `scripts/probe_model_quirks.py`, which detect and add it automatically).
@@ -326,4 +338,8 @@ def build_kwargs(params: GenerationParams) -> dict:
         kwargs["temperature"] = params.temperature
     kwargs.update(thinking_kwargs(params.model, params.max_tokens))
     kwargs.update(params.extra)
+    # Last, so it also catches a cap written by a thinking budget or by the
+    # caller's own extras.
+    if max_completion_tokens_only(params.model) and "max_tokens" in kwargs:
+        kwargs["max_completion_tokens"] = kwargs.pop("max_tokens")
     return kwargs

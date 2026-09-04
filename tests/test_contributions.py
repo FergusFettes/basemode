@@ -86,7 +86,9 @@ async def test_export_matches_sibling_evidence_contract(
     assert result.returncode == 0, result.stderr or result.stdout
 
 
-async def test_existing_operations_are_exportable_without_prior_opt_in(monkeypatch) -> None:
+async def test_existing_operations_are_exportable_without_prior_opt_in(
+    monkeypatch,
+) -> None:
     monkeypatch.setattr("basemode.continue_.detect_strategy", lambda *args: _Strategy())
     async for _ in continue_text("private seed", model="openai/example"):
         pass

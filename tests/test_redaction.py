@@ -22,7 +22,7 @@ def test_openrouter_user_id_is_removed() -> None:
 def test_xai_team_uuid_is_removed() -> None:
     line = (
         'XaiException - {"code":"permission-denied","error":"Your team '
-        "51edf858-83c5-45da-98fd-e6e27aae476e does not have access\"}"
+        '51edf858-83c5-45da-98fd-e6e27aae476e does not have access"}'
     )
 
     cleaned = redact(line)
