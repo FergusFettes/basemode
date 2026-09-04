@@ -19,6 +19,10 @@ basemode health openai/gpt-4o-mini
 basemode health --verification
 ```
 
+The ordinary health table separates logical calls from underlying provider
+requests. A call can recover after one or more failed requests, so its attempt
+failure counts may be nonzero while its logical failure rate remains zero.
+
 Operational health uses status-eligible observations from ordinary use and
 verification. Account-, client-, and basemode-attributed failures remain useful
 for local diagnosis but do not make a public endpoint look unhealthy. A

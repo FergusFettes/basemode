@@ -209,6 +209,35 @@ def test_health_reports_recorded_outcomes(monkeypatch) -> None:
     assert "rate_limit" in listed.output
 
 
+def test_health_distinguishes_calls_requests_and_recovery(monkeypatch) -> None:
+    from basemode import observations
+
+    monkeypatch.setenv("COLUMNS", "240")
+    operation = observations.observe_operation(
+        "deepseek/deepseek-reasoner", "system", "heuristic", None
+    )
+    first = operation.begin_attempt("initial")
+    first.finish("failure")
+    retry = operation.begin_attempt("larger_budget")
+    retry.saw_content("continued")
+    retry.finish("success")
+    operation.finish("success", returned_content=True)
+
+    result = runner.invoke(app, ["health"])
+
+    assert result.exit_code == 0
+    assert "Calls" in result.output
+    assert "Requests" in result.output
+    assert "Recovered" in result.output
+    assert "Attempt failures" in result.output
+    row = next(
+        line for line in result.output.splitlines() if "deepseek-reasoner" in line
+    )
+    assert "│ 1" in row
+    assert "│ 2" in row
+    assert "empty_response x1" in row
+
+
 def test_health_for_an_unseen_model_exits_nonzero() -> None:
     result = runner.invoke(app, ["health", "gpt-4o-mini"])
 

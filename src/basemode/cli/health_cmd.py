@@ -120,10 +120,12 @@ def health(
 
     table = Table(
         "Model",
-        "Attempts",
-        "Failed",
-        "Rate",
-        "Failures seen",
+        "Calls",
+        "Requests",
+        "Recovered",
+        "Failed calls",
+        "Failure rate",
+        "Attempt failures",
         "Last failure",
         show_header=True,
         header_style="bold",
@@ -140,6 +142,8 @@ def health(
         table.add_row(
             model_id,
             str(observed["operations"]),
+            str(observed["attempts"]),
+            str(observed["recovered_operations"]),
             str(observed["operations"] - observed["successful_operations"]),
             rate_text,
             ", ".join(
