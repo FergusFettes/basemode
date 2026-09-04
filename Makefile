@@ -1,4 +1,4 @@
-.PHONY: build check publish test test-core test-integration lint lint-core models-table health-report discover-models probe-quirks docs-build docs-serve
+.PHONY: build check publish test test-core test-integration lint lint-core models-table discover-models probe-quirks docs-build docs-serve
 
 build:
 	uv build

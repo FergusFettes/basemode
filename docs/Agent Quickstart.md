@@ -162,10 +162,6 @@ entries and `--replace` rebuilds from only what the run fetched.
 Scheduled workflows in `.github/workflows/` open pull requests for these
 updates. Read [[Verified Models]] for the user-facing meaning of that data.
 
-The weekly integration workflow records reliability, TTFT, and output throughput
-for every verified model with a configured key. Regenerate its docs view locally
-with `make health-report`.
-
 ## Change checklist
 
 1. Make the smallest coherent change and add/adjust a regression test.
