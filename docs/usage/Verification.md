@@ -105,8 +105,17 @@ request and both self-healing paths. It is a ceiling, not an expectation — a
 probe stops at its first terminal failure, because the self-healing paths only
 vary the reasoning budget and cannot repair a retired ID, a locked-out key, or
 a rejected parameter. Pricing comes from best-effort LiteLLM
-metadata. The output separates priced and unpriced targets; unknown prices are
-not treated as free.
+metadata, falling back to the prices a provider publishes in its own catalog
+(see the packaged live-model cache) for the many reseller models LiteLLM has
+never costed. A provider that declines to name a price — OpenRouter answers
+`-1` for router models, whose cost depends on what they route to — counts as
+unpriced rather than free. The output separates priced and unpriced targets;
+unknown prices are not treated as free.
+
+A provider missing from the packaged catalog stays unpriced even when you hold
+a key for it, because the cache only carries providers the machine that last
+refreshed it could reach. Run `scripts/refresh_live_models.py` locally to add
+your own.
 
 Concise content-free lifecycle events are written to stderr by default while
 the run proceeds; use `--quiet` to suppress them. Handled provider exceptions

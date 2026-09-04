@@ -1,3 +1,6 @@
+import pytest
+
+from basemode.live_models import cached_price_per_million
 from basemode.usage import (
     estimate_usage,
     format_per_million,
@@ -29,6 +32,47 @@ def test_get_price_info_unknown_pricing_model() -> None:
     assert not info.pricing_available
     assert info.input_cost_per_token is None
     assert info.output_cost_per_token is None
+
+
+def test_price_falls_back_to_the_provider_catalog(monkeypatch) -> None:
+    """litellm's costed list never covers a reseller's whole catalog.
+
+    OpenRouter publishes its own prices and the packaged catalog carries
+    them, so a model litellm has never costed is still plannable.
+    """
+    import basemode.usage as usage
+
+    monkeypatch.setattr(usage, "_model_info", lambda model: {})
+    monkeypatch.setattr(usage, "cached_price_per_million", lambda model: (0.08, 0.28))
+
+    info = get_price_info("openrouter/acme/reseller-only")
+
+    assert info.pricing_available
+    assert info.price_source == "provider_catalog"
+    assert info.input_cost_per_token == 0.08 / 1_000_000
+    assert info.output_cost_per_token == 0.28 / 1_000_000
+
+
+def test_litellm_pricing_wins_over_the_catalog(monkeypatch) -> None:
+    import basemode.usage as usage
+
+    monkeypatch.setattr(
+        usage,
+        "cached_price_per_million",
+        lambda model: pytest.fail("catalog consulted despite a litellm price"),
+    )
+
+    assert get_price_info("gpt-4o-mini").price_source == "litellm"
+
+
+def test_router_sentinel_price_is_not_a_price() -> None:
+    """OpenRouter answers -1 where the price depends on what it routes to.
+
+    Read literally it made a sweep's cost ceiling come out below zero.
+    """
+    input_per_m, output_per_m = cached_price_per_million("openrouter/openrouter/auto")
+
+    assert (input_per_m, output_per_m) == (None, None)
 
 
 def test_estimate_usage_known_model_has_cost() -> None:

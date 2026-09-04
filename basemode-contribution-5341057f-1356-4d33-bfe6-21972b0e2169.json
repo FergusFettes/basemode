@@ -1,0 +1,4953 @@
+{
+  "basemode_version": "0.1.46",
+  "bundle_id": "5341057f-1356-4d33-bfe6-21972b0e2169",
+  "generated_at": "2026-09-04T19:52:02.788478Z",
+  "observations": [
+    {
+      "attempts": 1,
+      "cost_usd": 0.036918,
+      "endpoint": "novita/moonshotai/kimi-k3",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 156,
+      "latency_ms": {
+        "count": 1,
+        "p50": 69316.42912502866,
+        "p95": 69316.42912502866
+      },
+      "operations": 1,
+      "output_tokens": 2430,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "prefill",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 68749.2070000153,
+        "p95": 68749.2070000153
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "novita/paddlepaddle/paddleocr-vl",
+      "failures": {
+        "rate_limit": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 6.512e-05,
+      "endpoint": "novita/qwen/qwen-2.5-72b-instruct",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 104,
+      "latency_ms": {
+        "count": 1,
+        "p50": 3239.017124986276,
+        "p95": 3239.017124986276
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1392.2408750513569,
+        "p95": 1392.2408750513569
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "novita/qwen/qwen-mt-plus",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "novita/qwen/qwen2.5-7b-instruct",
+      "failures": {
+        "provider_unavailable": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "novita/qwen/qwen2.5-vl-72b-instruct",
+      "failures": {
+        "provider_unavailable": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 7.199999999999999e-05,
+      "endpoint": "novita/qwen/qwen3-235b-a22b-fp8",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 104,
+      "latency_ms": {
+        "count": 1,
+        "p50": 17094.445459078997,
+        "p95": 17094.445459078997
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 8385.688874986954,
+        "p95": 8385.688874986954
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 4.6479999999999995e-05,
+      "endpoint": "novita/qwen/qwen3-235b-a22b-instruct-2507",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 104,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1944.0231249900535,
+        "p95": 1944.0231249900535
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 857.7753329882398,
+        "p95": 857.7753329882398
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0002064,
+      "endpoint": "novita/qwen/qwen3-235b-a22b-thinking-2507",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 108,
+      "latency_ms": {
+        "count": 1,
+        "p50": 10506.973249954171,
+        "p95": 10506.973249954171
+      },
+      "operations": 1,
+      "output_tokens": 58,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1243.857332970947,
+        "p95": 1243.857332970947
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "novita/qwen/qwen3-30b-a3b-fp8",
+      "failures": {
+        "provider_unavailable": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "novita/qwen/qwen3-32b-fp8",
+      "failures": {
+        "provider_unavailable": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "novita/qwen/qwen3-4b-fp8",
+      "failures": {
+        "provider_unavailable": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "novita/qwen/qwen3-8b-fp8",
+      "failures": {
+        "provider_unavailable": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 2.4560000000000002e-05,
+      "endpoint": "novita/qwen/qwen3-coder-30b-a3b-instruct",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 104,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1309.5915410667658,
+        "p95": 1309.5915410667658
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 619.617790915072,
+        "p95": 619.617790915072
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00013872,
+      "endpoint": "novita/qwen/qwen3-coder-480b-a35b-instruct",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 104,
+      "latency_ms": {
+        "count": 1,
+        "p50": 303895.65491699614,
+        "p95": 303895.65491699614
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 303033.00854202826,
+        "p95": 303033.00854202826
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0001168,
+      "endpoint": "novita/qwen/qwen3-coder-next",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 104,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1366.519375005737,
+        "p95": 1366.519375005737
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1051.3406669488177,
+        "p95": 1051.3406669488177
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.016836359999999998,
+      "endpoint": "novita/qwen/qwen3-max",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 106,
+      "latency_ms": {
+        "count": 1,
+        "p50": 88629.84287494328,
+        "p95": 88629.84287494328
+      },
+      "operations": 1,
+      "output_tokens": 1966,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 86224.02045899071,
+        "p95": 86224.02045899071
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 9.21e-05,
+      "endpoint": "novita/qwen/qwen3-next-80b-a3b-instruct",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 104,
+      "latency_ms": {
+        "count": 1,
+        "p50": 977.7956660836935,
+        "p95": 977.7956660836935
+      },
+      "operations": 1,
+      "output_tokens": 51,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 672.3673340165988,
+        "p95": 672.3673340165988
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "novita/qwen/qwen3-next-80b-a3b-thinking",
+      "failures": {
+        "provider_unavailable": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0001272,
+      "endpoint": "novita/qwen/qwen3-vl-235b-a22b-instruct",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 104,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1576.9335000077263,
+        "p95": 1576.9335000077263
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 600.346790975891,
+        "p95": 600.346790975891
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.015824880000000003,
+      "endpoint": "novita/qwen/qwen3-vl-235b-a22b-thinking",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 106,
+      "latency_ms": {
+        "count": 1,
+        "p50": 95904.73670803476,
+        "p95": 95904.73670803476
+      },
+      "operations": 1,
+      "output_tokens": 3980,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 95554.6555420151,
+        "p95": 95554.6555420151
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 6.56e-05,
+      "endpoint": "novita/qwen/qwen3-vl-30b-a3b-instruct",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 104,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1218.7264170497656,
+        "p95": 1218.7264170497656
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 722.6246669888496,
+        "p95": 722.6246669888496
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "novita/qwen/qwen3-vl-30b-a3b-thinking",
+      "failures": {
+        "provider_unavailable": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "novita/qwen/qwen3-vl-8b-instruct",
+      "failures": {
+        "provider_unavailable": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0019848,
+      "endpoint": "novita/qwen/qwen3.5-122b-a10b",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 106,
+      "latency_ms": {
+        "count": 1,
+        "p50": 4646.0364169906825,
+        "p95": 4646.0364169906825
+      },
+      "operations": 1,
+      "output_tokens": 607,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 4526.964208926074,
+        "p95": 4526.964208926074
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.007275,
+      "endpoint": "novita/qwen/qwen3.5-27b",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 106,
+      "latency_ms": {
+        "count": 1,
+        "p50": 63316.515999962576,
+        "p95": 63316.515999962576
+      },
+      "operations": 1,
+      "output_tokens": 3018,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 62950.41999989189,
+        "p95": 62950.41999989189
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0048885,
+      "endpoint": "novita/qwen/qwen3.5-35b-a3b",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 106,
+      "latency_ms": {
+        "count": 1,
+        "p50": 33268.05579196662,
+        "p95": 33268.05579196662
+      },
+      "operations": 1,
+      "output_tokens": 2431,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 32997.04462499358,
+        "p95": 32997.04462499358
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.012552000000000002,
+      "endpoint": "novita/qwen/qwen3.5-397b-a17b",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 106,
+      "latency_ms": {
+        "count": 1,
+        "p50": 39836.004042066634,
+        "p95": 39836.004042066634
+      },
+      "operations": 1,
+      "output_tokens": 3469,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 39304.71475003287,
+        "p95": 39304.71475003287
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0055104,
+      "endpoint": "novita/qwen/qwen3.6-27b",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 106,
+      "latency_ms": {
+        "count": 1,
+        "p50": 26105.916875065304,
+        "p95": 26105.916875065304
+      },
+      "operations": 1,
+      "output_tokens": 1513,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 25906.687417067587,
+        "p95": 25906.687417067587
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0018068030000000003,
+      "endpoint": "novita/qwen/qwen3.6-35b-a3b",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 106,
+      "latency_ms": {
+        "count": 1,
+        "p50": 8407.346875057556,
+        "p95": 8407.346875057556
+      },
+      "operations": 1,
+      "output_tokens": 1199,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 8122.735333046876,
+        "p95": 8122.735333046876
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00755,
+      "endpoint": "novita/qwen/qwen3.7-max",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 106,
+      "latency_ms": {
+        "count": 1,
+        "p50": 31035.126625094563,
+        "p95": 31035.126625094563
+      },
+      "operations": 1,
+      "output_tokens": 1978,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 30678.818083018996,
+        "p95": 30678.818083018996
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0016020000000000001,
+      "endpoint": "novita/qwen/qwen3.8-max",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 144,
+      "latency_ms": {
+        "count": 1,
+        "p50": 7231.096083065495,
+        "p95": 7231.096083065495
+      },
+      "operations": 1,
+      "output_tokens": 219,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 7001.252125017345,
+        "p95": 7001.252125017345
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "novita/sao10k/l3-70b-euryale-v2.1",
+      "failures": {
+        "provider_unavailable": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 8.25e-06,
+      "endpoint": "novita/sao10k/l3-8b-lunaris",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 105,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1065.8456250093877,
+        "p95": 1065.8456250093877
+      },
+      "operations": 1,
+      "output_tokens": 60,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 345.32850002869964,
+        "p95": 345.32850002869964
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "novita/sao10k/l3-8b-stheno-v3.2",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00025012,
+      "endpoint": "novita/sao10k/l31-70b-euryale-v2.2",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 105,
+      "latency_ms": {
+        "count": 1,
+        "p50": 6761.3786670845,
+        "p95": 6761.3786670845
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 5418.580541969277,
+        "p95": 5418.580541969277
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "novita/skywork/r1v4-lite",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 3,
+      "cost_usd": 0.0005064,
+      "endpoint": "novita/stepfun/step-3.7-flash",
+      "failures": {
+        "empty_response": 3
+      },
+      "initial_attempts": 1,
+      "input_tokens": 324,
+      "operations": 1,
+      "output_tokens": 384,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 3,
+      "cost_usd": 0.00026681999999999997,
+      "endpoint": "novita/tencent/hy3",
+      "failures": {
+        "empty_response": 3
+      },
+      "initial_attempts": 1,
+      "input_tokens": 315,
+      "operations": 1,
+      "output_tokens": 384,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00016014,
+      "endpoint": "novita/thudm/glm-4-32b-0414",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 98,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1841.4789590751752,
+        "p95": 1841.4789590751752
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 773.5945839667693,
+        "p95": 773.5945839667693
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "novita/xiaomimimo/mimo-v2-flash",
+      "failures": {
+        "provider_unavailable": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 6.9888e-05,
+      "endpoint": "novita/xiaomimimo/mimo-v2.5",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 5712.092875037342,
+        "p95": 5712.092875037342
+      },
+      "operations": 1,
+      "output_tokens": 157,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 4824.064583983272,
+        "p95": 4824.064583983272
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.000285012,
+      "endpoint": "novita/xiaomimimo/mimo-v2.5-pro",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 128804.7525419388,
+        "p95": 128804.7525419388
+      },
+      "operations": 1,
+      "output_tokens": 222,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 126152.55458292086,
+        "p95": 126152.55458292086
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 1.2297e-05,
+      "endpoint": "novita/zai-org/autoglm-phone-9b-multilingual",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 99,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1068.8935419311747,
+        "p95": 1068.8935419311747
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 599.8065839521587,
+        "p95": 599.8065839521587
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "novita/zai-org/glm-4.5",
+      "failures": {
+        "provider_unavailable": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 6.766e-05,
+      "endpoint": "novita/zai-org/glm-4.5-air",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1878.3284580567852,
+        "p95": 1878.3284580567852
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 849.3101670173928,
+        "p95": 849.3101670173928
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00017339999999999999,
+      "endpoint": "novita/zai-org/glm-4.5v",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 97,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2514.529084088281,
+        "p95": 2514.529084088281
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1126.1084589641541,
+        "p95": 1126.1084589641541
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00017215,
+      "endpoint": "novita/zai-org/glm-4.6",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 97,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2118.303583934903,
+        "p95": 2118.303583934903
+      },
+      "operations": 1,
+      "output_tokens": 54,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1346.4614580152556,
+        "p95": 1346.4614580152556
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 8.85e-05,
+      "endpoint": "novita/zai-org/glm-4.6v",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1774.2307080188766,
+        "p95": 1774.2307080188766
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 713.8150420505553,
+        "p95": 713.8150420505553
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.000199,
+      "endpoint": "novita/zai-org/glm-4.7",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 97,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2743.59725008253,
+        "p95": 2743.59725008253
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1262.402583961375,
+        "p95": 1262.402583961375
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 3.239e-05,
+      "endpoint": "novita/zai-org/glm-4.7-flash",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 97,
+      "latency_ms": {
+        "count": 1,
+        "p50": 7368.946042028256,
+        "p95": 7368.946042028256
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 6286.191874998622,
+        "p95": 6286.191874998622
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "novita/zai-org/glm-4.7-h",
+      "failures": {
+        "provider_unavailable": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0002836,
+      "endpoint": "novita/zai-org/glm-5",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 98,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1640.8437920035794,
+        "p95": 1640.8437920035794
+      },
+      "operations": 1,
+      "output_tokens": 58,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 886.4207919687033,
+        "p95": 886.4207919687033
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0003724,
+      "endpoint": "novita/zai-org/glm-5-turbo",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 97,
+      "latency_ms": {
+        "count": 1,
+        "p50": 8040.682208025828,
+        "p95": 8040.682208025828
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 5789.069749996997,
+        "p95": 5789.069749996997
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00041546,
+      "endpoint": "novita/zai-org/glm-5.1",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 97,
+      "latency_ms": {
+        "count": 1,
+        "p50": 6278.952709049918,
+        "p95": 6278.952709049918
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 4400.345665984787,
+        "p95": 4400.345665984787
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0004188,
+      "endpoint": "novita/zai-org/glm-5.2",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 98,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2861.343584023416,
+        "p95": 2861.343584023416
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1848.9266249816865,
+        "p95": 1848.9266249816865
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0009860000000000001,
+      "endpoint": "novita/zai-org/glm-5.3",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 104,
+      "latency_ms": {
+        "count": 1,
+        "p50": 3964.1277089249343,
+        "p95": 3964.1277089249343
+      },
+      "operations": 1,
+      "output_tokens": 191,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1210.760583053343,
+        "p95": 1210.760583053343
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0003724,
+      "endpoint": "novita/zai-org/glm-5v-turbo",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 97,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2234.455458004959,
+        "p95": 2234.455458004959
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1208.0849999329075,
+        "p95": 1208.0849999329075
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/babbage-002",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/chat-latest",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/davinci-002",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.000147,
+      "endpoint": "openai/gpt-3.5-turbo",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2395.2799170510843,
+        "p95": 2395.2799170510843
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1964.9935839697719,
+        "p95": 1964.9935839697719
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.000147,
+      "endpoint": "openai/gpt-3.5-turbo-0125",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1646.4704999234527,
+        "p95": 1646.4704999234527
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1441.1035410594195,
+        "p95": 1441.1035410594195
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00021,
+      "endpoint": "openai/gpt-3.5-turbo-1106",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1764.2587919253856,
+        "p95": 1764.2587919253856
+      },
+      "operations": 1,
+      "output_tokens": 54,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1464.375708019361,
+        "p95": 1464.375708019361
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.000562,
+      "endpoint": "openai/gpt-3.5-turbo-16k",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2502.8739160625264,
+        "p95": 2502.8739160625264
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1844.1244169371203,
+        "p95": 1844.1244169371203
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-3.5-turbo-instruct",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-3.5-turbo-instruct-0914",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0069,
+      "endpoint": "openai/gpt-4",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 3996.125791920349,
+        "p95": 3996.125791920349
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 2102.2509589092806,
+        "p95": 2102.2509589092806
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0069,
+      "endpoint": "openai/gpt-4-0613",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 3118.406999972649,
+        "p95": 3118.406999972649
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1812.6611249754205,
+        "p95": 1812.6611249754205
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00294,
+      "endpoint": "openai/gpt-4-turbo",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 3658.7537500308827,
+        "p95": 3658.7537500308827
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 2006.7131250398234,
+        "p95": 2006.7131250398234
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00294,
+      "endpoint": "openai/gpt-4-turbo-2024-04-09",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 4040.756041998975,
+        "p95": 4040.756041998975
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 2395.718166953884,
+        "p95": 2395.718166953884
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.000718,
+      "endpoint": "openai/gpt-4.1",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1201.6071249963716,
+        "p95": 1201.6071249963716
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 785.6065420201048,
+        "p95": 785.6065420201048
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.000718,
+      "endpoint": "openai/gpt-4.1-2025-04-14",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1407.7697499888018,
+        "p95": 1407.7697499888018
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 898.914625053294,
+        "p95": 898.914625053294
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0001436,
+      "endpoint": "openai/gpt-4.1-mini",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1124.5300830341876,
+        "p95": 1124.5300830341876
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 516.6049579856917,
+        "p95": 516.6049579856917
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0001436,
+      "endpoint": "openai/gpt-4.1-mini-2025-04-14",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1658.4093329729512,
+        "p95": 1658.4093329729512
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1095.3502079937607,
+        "p95": 1095.3502079937607
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 3.59e-05,
+      "endpoint": "openai/gpt-4.1-nano",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1337.902458035387,
+        "p95": 1337.902458035387
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 474.87987496424466,
+        "p95": 474.87987496424466
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 3.59e-05,
+      "endpoint": "openai/gpt-4.1-nano-2025-04-14",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1455.2077499683946,
+        "p95": 1455.2077499683946
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 809.0647499775514,
+        "p95": 809.0647499775514
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0008975000000000001,
+      "endpoint": "openai/gpt-4o",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2027.4796249577776,
+        "p95": 2027.4796249577776
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 703.4586250083521,
+        "p95": 703.4586250083521
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0014750000000000002,
+      "endpoint": "openai/gpt-4o-2024-05-13",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1098.7341670552269,
+        "p95": 1098.7341670552269
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 646.3040419621393,
+        "p95": 646.3040419621393
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0008975000000000001,
+      "endpoint": "openai/gpt-4o-2024-08-06",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1352.54187497776,
+        "p95": 1352.54187497776
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 527.2276250179857,
+        "p95": 527.2276250179857
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0008975000000000001,
+      "endpoint": "openai/gpt-4o-2024-11-20",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1648.656208999455,
+        "p95": 1648.656208999455
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 694.4312920095399,
+        "p95": 694.4312920095399
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 5.3849999999999994e-05,
+      "endpoint": "openai/gpt-4o-mini",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 891.233375063166,
+        "p95": 891.233375063166
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 444.6557079209015,
+        "p95": 444.6557079209015
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 5.3849999999999994e-05,
+      "endpoint": "openai/gpt-4o-mini-2024-07-18",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 992.5482920370996,
+        "p95": 992.5482920370996
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 528.6912909941748,
+        "p95": 528.6912909941748
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-4o-mini-search-preview",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-4o-mini-search-preview-2025-03-11",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-4o-search-preview",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-4o-search-preview-2025-03-11",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0007675000000000001,
+      "endpoint": "openai/gpt-5",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-5-2025-08-07",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-5-chat-latest",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-5-codex",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0001535,
+      "endpoint": "openai/gpt-5-mini",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-5-mini-2025-08-07",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 3.07e-05,
+      "endpoint": "openai/gpt-5-nano",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-5-nano-2025-08-07",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.00921,
+      "endpoint": "openai/gpt-5-pro",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-5-pro-2025-10-06",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-5-search-api",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-5-search-api-2025-10-14",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0007675000000000001,
+      "endpoint": "openai/gpt-5.1",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1978.023333940655,
+        "p95": 1978.023333940655
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1085.743208997883,
+        "p95": 1085.743208997883
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0007675000000000001,
+      "endpoint": "openai/gpt-5.1-2025-11-13",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2110.912665957585,
+        "p95": 2110.912665957585
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 769.2074999213219,
+        "p95": 769.2074999213219
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-5.1-chat-latest",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-5.1-codex",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-5.1-codex-max",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-5.1-codex-mini",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0010745,
+      "endpoint": "openai/gpt-5.2",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2032.2119580814615,
+        "p95": 2032.2119580814615
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 749.1173329763114,
+        "p95": 749.1173329763114
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0010745,
+      "endpoint": "openai/gpt-5.2-2025-12-11",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2273.8757909974083,
+        "p95": 2273.8757909974083
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 734.8780839238316,
+        "p95": 734.8780839238316
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-5.2-chat-latest",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-5.2-codex",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.008861999999999998,
+      "endpoint": "openai/gpt-5.2-pro",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 13397.96779199969,
+        "p95": 13397.96779199969
+      },
+      "operations": 1,
+      "output_tokens": 40,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 13140.244249952957,
+        "p95": 13140.244249952957
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.007685999999999999,
+      "endpoint": "openai/gpt-5.2-pro-2025-12-11",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 23719.801084022038,
+        "p95": 23719.801084022038
+      },
+      "operations": 1,
+      "output_tokens": 33,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 23547.556917066686,
+        "p95": 23547.556917066686
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-5.3-chat-latest",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0003885,
+      "endpoint": "openai/gpt-5.3-codex",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1056.7402079468593,
+        "p95": 1056.7402079468593
+      },
+      "operations": 1,
+      "output_tokens": 15,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 596.7122920555994,
+        "p95": 596.7122920555994
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.001215,
+      "endpoint": "openai/gpt-5.4-2026-03-05",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1881.944291992113,
+        "p95": 1881.944291992113
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 712.1764170005918,
+        "p95": 712.1764170005918
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-5.4-pro",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/gpt-5.4-pro-2026-03-05",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0017100000000000001,
+      "endpoint": "openai/o1",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "operations": 1,
+      "output_tokens": 3,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/o1-2024-12-17",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0537,
+      "endpoint": "openai/o1-pro",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/o1-pro-2025-03-19",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.000716,
+      "endpoint": "openai/o3",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/o3-2025-04-16",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/o3-deep-research",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/o3-deep-research-2025-06-26",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0001254,
+      "endpoint": "openai/o3-mini",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "operations": 1,
+      "output_tokens": 3,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/o3-mini-2025-01-31",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "endpoint": "openai/o3-pro",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/o3-pro-2025-06-10",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.00039380000000000003,
+      "endpoint": "openai/o4-mini",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/o4-mini-2025-04-16",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/o4-mini-deep-research",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openai/o4-mini-deep-research-2025-06-26",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 9.200000000000001e-05,
+      "endpoint": "openrouter/anthropic/claude-3-haiku",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 48,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2258.4872499573976,
+        "p95": 2258.4872499573976
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "prefill",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1546.0870419628918,
+        "p95": 1546.0870419628918
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00036800000000000005,
+      "endpoint": "openrouter/anthropic/claude-haiku-4.5",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 48,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1585.669207968749,
+        "p95": 1585.669207968749
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "prefill",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 787.5532079488039,
+        "p95": 787.5532079488039
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00552,
+      "endpoint": "openrouter/anthropic/claude-opus-4",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 48,
+      "latency_ms": {
+        "count": 1,
+        "p50": 4654.221208067611,
+        "p95": 4654.221208067611
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "prefill",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 2307.9682081006467,
+        "p95": 2307.9682081006467
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00552,
+      "endpoint": "openrouter/anthropic/claude-opus-4.1",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 48,
+      "latency_ms": {
+        "count": 1,
+        "p50": 13766.167666995898,
+        "p95": 13766.167666995898
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "prefill",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 6131.439833086915,
+        "p95": 6131.439833086915
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00184,
+      "endpoint": "openrouter/anthropic/claude-opus-4.5",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 48,
+      "latency_ms": {
+        "count": 1,
+        "p50": 3438.587750075385,
+        "p95": 3438.587750075385
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "prefill",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1890.2889579767361,
+        "p95": 1890.2889579767361
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openrouter/anthropic/claude-opus-4.6",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "prefill",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openrouter/anthropic/claude-opus-4.7",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "prefill",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0029100000000000003,
+      "endpoint": "openrouter/anthropic/claude-opus-5",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 262,
+      "latency_ms": {
+        "count": 1,
+        "p50": 4937.028957996517,
+        "p95": 4937.028957996517
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "few_shot",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 4779.004249954596,
+        "p95": 4779.004249954596
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.001104,
+      "endpoint": "openrouter/anthropic/claude-sonnet-4",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 48,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2826.9988329848275,
+        "p95": 2826.9988329848275
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "prefill",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1540.5342080630362,
+        "p95": 1540.5342080630362
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.001104,
+      "endpoint": "openrouter/anthropic/claude-sonnet-4.5",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 48,
+      "latency_ms": {
+        "count": 1,
+        "p50": 3107.81312501058,
+        "p95": 3107.81312501058
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "prefill",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1649.6100419899449,
+        "p95": 1649.6100419899449
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openrouter/anthropic/claude-sonnet-4.6",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "prefill",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 2.3199999999999998e-05,
+      "endpoint": "openrouter/bytedance/ui-tars-1.5-7b",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 104,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1702.0550000015646,
+        "p95": 1702.0550000015646
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 609.9928750190884,
+        "p95": 609.9928750190884
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 3.122e-05,
+      "endpoint": "openrouter/deepseek/deepseek-chat",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 95,
+      "latency_ms": {
+        "count": 1,
+        "p50": 6739.783916971646,
+        "p95": 6739.783916971646
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 5782.861624960788,
+        "p95": 5782.861624960788
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 3.108e-05,
+      "endpoint": "openrouter/deepseek/deepseek-chat-v3-0324",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 94,
+      "latency_ms": {
+        "count": 1,
+        "p50": 3352.096375077963,
+        "p95": 3352.096375077963
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 995.7960830070078,
+        "p95": 995.7960830070078
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 7.04e-05,
+      "endpoint": "openrouter/deepseek/deepseek-chat-v3.1",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 96,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2690.3514579171315,
+        "p95": 2690.3514579171315
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1818.4593330370262,
+        "p95": 1818.4593330370262
+      }
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0002154,
+      "endpoint": "openrouter/deepseek/deepseek-r1",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 93,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.00022645,
+      "endpoint": "openrouter/deepseek/deepseek-r1-0528",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 96,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 5.22e-05,
+      "endpoint": "openrouter/deepseek/deepseek-v3.2",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 95,
+      "latency_ms": {
+        "count": 1,
+        "p50": 3049.938249983825,
+        "p95": 3049.938249983825
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1123.9939590450376,
+        "p95": 1123.9939590450376
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 4.46e-05,
+      "endpoint": "openrouter/deepseek/deepseek-v3.2-exp",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 95,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2836.7398749105632,
+        "p95": 2836.7398749105632
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1191.6140000103042,
+        "p95": 1191.6140000103042
+      }
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.00019051999999999999,
+      "endpoint": "openrouter/deepseek/deepseek-v4-flash",
+      "failures": {
+        "empty_response": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 190,
+      "latency_ms": {
+        "count": 1,
+        "p50": 3302.899208967574,
+        "p95": 3302.899208967574
+      },
+      "operations": 1,
+      "output_tokens": 81,
+      "recovered_operations": 1,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1889.7335410583764,
+        "p95": 1889.7335410583764
+      }
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.00028864,
+      "endpoint": "openrouter/deepseek/deepseek-v4-flash-vision-exp",
+      "failures": {
+        "empty_response": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 269,
+      "latency_ms": {
+        "count": 1,
+        "p50": 3090.6118750572205,
+        "p95": 3090.6118750572205
+      },
+      "operations": 1,
+      "output_tokens": 128,
+      "recovered_operations": 1,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 770.2050000661984,
+        "p95": 770.2050000661984
+      }
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0008131200000000001,
+      "endpoint": "openrouter/deepseek/deepseek-v4-pro",
+      "failures": {
+        "empty_response": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 190,
+      "latency_ms": {
+        "count": 1,
+        "p50": 3438.776999944821,
+        "p95": 3438.776999944821
+      },
+      "operations": 1,
+      "output_tokens": 128,
+      "recovered_operations": 1,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1144.9038750724867,
+        "p95": 1144.9038750724867
+      }
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0008223600000000001,
+      "endpoint": "openrouter/deepseek/deepseek-v4-pro-0813",
+      "failures": {
+        "empty_response": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 269,
+      "latency_ms": {
+        "count": 1,
+        "p50": 6470.474041998386,
+        "p95": 6470.474041998386
+      },
+      "operations": 1,
+      "output_tokens": 118,
+      "recovered_operations": 1,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 2261.2070830073208,
+        "p95": 2261.2070830073208
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 9.730000000000001e-05,
+      "endpoint": "openrouter/google/gemini-2.5-flash",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 91,
+      "latency_ms": {
+        "count": 1,
+        "p50": 898.7631669733673,
+        "p95": 898.7631669733673
+      },
+      "operations": 1,
+      "output_tokens": 28,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 528.7125828908756,
+        "p95": 528.7125828908756
+      }
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0007237500000000001,
+      "endpoint": "openrouter/google/gemini-2.5-pro",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 91,
+      "operations": 1,
+      "output_tokens": 61,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0002255,
+      "endpoint": "openrouter/google/gemini-3-flash-preview",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 91,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1099.4324169587344,
+        "p95": 1099.4324169587344
+      },
+      "operations": 1,
+      "output_tokens": 60,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 623.3897499041632,
+        "p95": 623.3897499041632
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00011275,
+      "endpoint": "openrouter/google/gemini-3.1-flash-lite",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 91,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1062.8077080473304,
+        "p95": 1062.8077080473304
+      },
+      "operations": 1,
+      "output_tokens": 60,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 665.1973749976605,
+        "p95": 665.1973749976605
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00011325,
+      "endpoint": "openrouter/google/gemini-3.1-flash-lite-preview",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 93,
+      "latency_ms": {
+        "count": 1,
+        "p50": 720.1056670164689,
+        "p95": 720.1056670164689
+      },
+      "operations": 1,
+      "output_tokens": 60,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 601.9796670880169,
+        "p95": 601.9796670880169
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.000902,
+      "endpoint": "openrouter/google/gemini-3.1-pro-preview",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 91,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2059.903166955337,
+        "p95": 2059.903166955337
+      },
+      "operations": 1,
+      "output_tokens": 60,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 2014.7911250824109,
+        "p95": 2014.7911250824109
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0002625,
+      "endpoint": "openrouter/gryphe/mythomax-l2-13b",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 122,
+      "latency_ms": {
+        "count": 1,
+        "p50": 429.5152499107644,
+        "p95": 429.5152499107644
+      },
+      "operations": 1,
+      "output_tokens": 18,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 296.65329202543944,
+        "p95": 296.65329202543944
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 7.075e-05,
+      "endpoint": "openrouter/inception/mercury-2",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 97,
+      "latency_ms": {
+        "count": 1,
+        "p50": 485.868458985351,
+        "p95": 485.868458985351
+      },
+      "operations": 1,
+      "output_tokens": 62,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 471.6823749477044,
+        "p95": 471.6823749477044
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.001434375,
+      "endpoint": "openrouter/mancer/weaver",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 191,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2241.8272090144455,
+        "p95": 2241.8272090144455
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 633.6989999981597,
+        "p95": 633.6989999981597
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openrouter/meta/muse-spark-1.1",
+      "failures": {
+        "authentication": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openrouter/meta/muse-spark-1.2",
+      "failures": {
+        "authentication": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openrouter/meta/muse-spark-1.2-contributor",
+      "failures": {
+        "authentication": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openrouter/meta/muse-spark-1.3",
+      "failures": {
+        "authentication": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openrouter/meta/muse-spark-1.3-contributor",
+      "failures": {
+        "authentication": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.00010786500000000001,
+      "endpoint": "openrouter/minimax/minimax-m2",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 107,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.00010515,
+      "endpoint": "openrouter/minimax/minimax-m2.1",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 105,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.00012230000000000002,
+      "endpoint": "openrouter/minimax/minimax-m2.5",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 107,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 2.9849999999999997e-05,
+      "endpoint": "openrouter/mistralai/devstral-2512",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 111,
+      "latency_ms": {
+        "count": 1,
+        "p50": 475.52745905704796,
+        "p95": 475.52745905704796
+      },
+      "operations": 1,
+      "output_tokens": 22,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 308.35095804650337,
+        "p95": 308.35095804650337
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 3.26e-05,
+      "endpoint": "openrouter/mistralai/ministral-14b-2512",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 99,
+      "latency_ms": {
+        "count": 1,
+        "p50": 722.9947500163689,
+        "p95": 722.9947500163689
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 254.57712507341057,
+        "p95": 254.57712507341057
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 1.63e-05,
+      "endpoint": "openrouter/mistralai/ministral-3b-2512",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 99,
+      "latency_ms": {
+        "count": 1,
+        "p50": 568.8680420862511,
+        "p95": 568.8680420862511
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 230.25750007946044,
+        "p95": 230.25750007946044
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 2.4449999999999998e-05,
+      "endpoint": "openrouter/mistralai/ministral-8b-2512",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 99,
+      "latency_ms": {
+        "count": 1,
+        "p50": 985.2222499903291,
+        "p95": 985.2222499903291
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 215.79799999017268,
+        "p95": 215.79799999017268
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.002328,
+      "endpoint": "openrouter/mistralai/mistral-large",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 99,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1363.138750079088,
+        "p95": 1363.138750079088
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 376.4368750853464,
+        "p95": 376.4368750853464
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0001455,
+      "endpoint": "openrouter/mistralai/mistral-large-2512",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 99,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1561.1234159441665,
+        "p95": 1561.1234159441665
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 884.225916932337,
+        "p95": 884.225916932337
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 2.91e-05,
+      "endpoint": "openrouter/mistralai/mistral-small-3.1-24b-instruct",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 99,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1365.7145419856533,
+        "p95": 1365.7145419856533
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 252.2625409765169,
+        "p95": 252.2625409765169
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openrouter/mistralai/mistral-small-3.2-24b-instruct",
+      "failures": {
+        "rate_limit": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00011375,
+      "endpoint": "openrouter/mistralai/mixtral-8x22b-instruct",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 111,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1122.7865839609876,
+        "p95": 1122.7865839609876
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 524.6005000080913,
+        "p95": 524.6005000080913
+      }
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0005322,
+      "endpoint": "openrouter/moonshotai/kimi-k2.5",
+      "failures": {
+        "empty_response": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 207,
+      "latency_ms": {
+        "count": 1,
+        "p50": 4736.719249980524,
+        "p95": 4736.719249980524
+      },
+      "operations": 1,
+      "output_tokens": 128,
+      "recovered_operations": 1,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 664.2294579651207,
+        "p95": 664.2294579651207
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openrouter/morph/morph-v3-fast",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openrouter/morph/morph-v3-large",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 3.76e-05,
+      "endpoint": "openrouter/nvidia/nemotron-3.5-lightning",
+      "failures": {
+        "empty_response": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 220,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1778.9675840176642,
+        "p95": 1778.9675840176642
+      },
+      "operations": 1,
+      "output_tokens": 128,
+      "recovered_operations": 1,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 265.68179205060005,
+        "p95": 265.68179205060005
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.000279,
+      "endpoint": "openrouter/openai/gpt-3.5-turbo",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1351.5549580333754,
+        "p95": 1351.5549580333754
+      },
+      "operations": 1,
+      "output_tokens": 63,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 904.1250000009313,
+        "p95": 904.1250000009313
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.000565,
+      "endpoint": "openrouter/openai/gpt-3.5-turbo-16k",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1078.003208967857,
+        "p95": 1078.003208967857
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 677.0240840269253,
+        "p95": 677.0240840269253
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0069,
+      "endpoint": "openrouter/openai/gpt-4",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2095.8733750740066,
+        "p95": 2095.8733750740066
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 965.6364170368761,
+        "p95": 965.6364170368761
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.000718,
+      "endpoint": "openrouter/openai/gpt-4.1",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1172.758833039552,
+        "p95": 1172.758833039552
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 558.7025840068236,
+        "p95": 558.7025840068236
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0001436,
+      "endpoint": "openrouter/openai/gpt-4.1-mini",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1298.638292006217,
+        "p95": 1298.638292006217
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 580.5198750458658,
+        "p95": 580.5198750458658
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 3.59e-05,
+      "endpoint": "openrouter/openai/gpt-4.1-nano",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2078.9161670254543,
+        "p95": 2078.9161670254543
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1044.2355410195887,
+        "p95": 1044.2355410195887
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0008975000000000001,
+      "endpoint": "openrouter/openai/gpt-4o",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1186.3320000702515,
+        "p95": 1186.3320000702515
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 956.066457903944,
+        "p95": 956.066457903944
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0014750000000000002,
+      "endpoint": "openrouter/openai/gpt-4o-2024-05-13",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 103,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1794.3747909739614,
+        "p95": 1794.3747909739614
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1692.2593330964446,
+        "p95": 1692.2593330964446
+      }
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0007675000000000001,
+      "endpoint": "openrouter/openai/gpt-5",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0001535,
+      "endpoint": "openrouter/openai/gpt-5-mini",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 3.07e-05,
+      "endpoint": "openrouter/openai/gpt-5-nano",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0007675000000000001,
+      "endpoint": "openrouter/openai/gpt-5.1-codex-max",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0010745,
+      "endpoint": "openrouter/openai/gpt-5.2",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1970.4318749718368,
+        "p95": 1970.4318749718368
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1477.6817079400644,
+        "p95": 1477.6817079400644
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openrouter/openai/gpt-5.2-chat",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0009484999999999999,
+      "endpoint": "openrouter/openai/gpt-5.2-codex",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2484.640958951786,
+        "p95": 2484.640958951786
+      },
+      "operations": 1,
+      "output_tokens": 55,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1963.6793329846114,
+        "p95": 1963.6793329846114
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.012894,
+      "endpoint": "openrouter/openai/gpt-5.2-pro",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "latency_ms": {
+        "count": 1,
+        "p50": 15521.033958997577,
+        "p95": 15521.033958997577
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 15354.655000031926,
+        "p95": 15354.655000031926
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 8.053999999999998e-05,
+      "endpoint": "openrouter/openai/gpt-oss-120b",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 163,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2790.22637498565,
+        "p95": 2790.22637498565
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 2557.403500075452,
+        "p95": 2557.403500075452
+      }
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 1.062e-05,
+      "endpoint": "openrouter/openai/gpt-oss-20b",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 166,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.00537,
+      "endpoint": "openrouter/openai/o1",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.00039380000000000003,
+      "endpoint": "openrouter/openai/o3-mini",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.00039380000000000003,
+      "endpoint": "openrouter/openai/o3-mini-high",
+      "failures": {
+        "empty_response": 1,
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 102,
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0,
+      "endpoint": "openrouter/openrouter/auto",
+      "failures": {
+        "empty_response": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 269,
+      "latency_ms": {
+        "count": 1,
+        "p50": 4067.7942080656067,
+        "p95": 4067.7942080656067
+      },
+      "operations": 1,
+      "output_tokens": 128,
+      "recovered_operations": 1,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 575.5680419970304,
+        "p95": 575.5680419970304
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openrouter/openrouter/bodybuilder",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0,
+      "endpoint": "openrouter/openrouter/free",
+      "failures": {
+        "empty_response": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 208,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2400.589541066438,
+        "p95": 2400.589541066438
+      },
+      "operations": 1,
+      "output_tokens": 128,
+      "recovered_operations": 1,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 447.9966249782592,
+        "p95": 447.9966249782592
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00010899999999999999,
+      "endpoint": "openrouter/perplexity/sonar",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 90,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2237.218957976438,
+        "p95": 2237.218957976438
+      },
+      "operations": 1,
+      "output_tokens": 19,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1739.8041249252856,
+        "p95": 1739.8041249252856
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "openrouter/perplexity/sonar-deep-research",
+      "failures": {
+        "provider_unavailable": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.0005549999999999999,
+      "endpoint": "openrouter/perplexity/sonar-pro",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 90,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1251.0852909181267,
+        "p95": 1251.0852909181267
+      },
+      "operations": 1,
+      "output_tokens": 19,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 930.5438329465687,
+        "p95": 930.5438329465687
+      }
+    },
+    {
+      "attempts": 3,
+      "cost_usd": 0.000612,
+      "endpoint": "openrouter/perplexity/sonar-reasoning-pro",
+      "failures": {
+        "empty_response": 3
+      },
+      "initial_attempts": 1,
+      "input_tokens": 306,
+      "operations": 1,
+      "output_tokens": 0,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 3.0240000000000002e-05,
+      "endpoint": "openrouter/qwen/qwen-2.5-coder-32b-instruct",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 104,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2068.0346250301227,
+        "p95": 2068.0346250301227
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 262.8849999746308,
+        "p95": 262.8849999746308
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 1.3783999999999999e-05,
+      "endpoint": "openrouter/qwen/qwen3-235b-a22b-2507",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 104,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1943.354083923623,
+        "p95": 1943.354083923623
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 658.0232080304995,
+        "p95": 658.0232080304995
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00022204,
+      "endpoint": "openrouter/qwen/qwen3-235b-a22b-thinking-2507",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 104,
+      "latency_ms": {
+        "count": 1,
+        "p50": 7450.281666009687,
+        "p95": 7450.281666009687
+      },
+      "operations": 1,
+      "output_tokens": 351,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 6860.453874920495,
+        "p95": 6860.453874920495
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 8.368e-05,
+      "endpoint": "openrouter/qwen/qwen3-coder",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 104,
+      "latency_ms": {
+        "count": 1,
+        "p50": 6680.267916992307,
+        "p95": 6680.267916992307
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 6028.453125036322,
+        "p95": 6028.453125036322
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.000424,
+      "endpoint": "openrouter/qwen/qwen3-coder-plus",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 104,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2232.4848748976365,
+        "p95": 2232.4848748976365
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 756.3610419165343,
+        "p95": 756.3610419165343
+      }
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0003096,
+      "endpoint": "openrouter/qwen/qwen3.5-122b-a10b",
+      "failures": {
+        "empty_response": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 214,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2581.3313339604065,
+        "p95": 2581.3313339604065
+      },
+      "operations": 1,
+      "output_tokens": 110,
+      "recovered_operations": 1,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 379.8177919816226,
+        "p95": 379.8177919816226
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.007443,
+      "endpoint": "openrouter/qwen/qwen3.5-27b",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 106,
+      "latency_ms": {
+        "count": 1,
+        "p50": 33547.45858395472,
+        "p95": 33547.45858395472
+      },
+      "operations": 1,
+      "output_tokens": 3088,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 33362.387000001036,
+        "p95": 33362.387000001036
+      }
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0003155,
+      "endpoint": "openrouter/qwen/qwen3.5-35b-a3b",
+      "failures": {
+        "empty_response": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 214,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1732.4944160645828,
+        "p95": 1732.4944160645828
+      },
+      "operations": 1,
+      "output_tokens": 128,
+      "recovered_operations": 1,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 389.1817090334371,
+        "p95": 389.1817090334371
+      }
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.00051,
+      "endpoint": "openrouter/qwen/qwen3.5-397b-a17b",
+      "failures": {
+        "empty_response": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 214,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1838.0407909862697,
+        "p95": 1838.0407909862697
+      },
+      "operations": 1,
+      "output_tokens": 102,
+      "recovered_operations": 1,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 357.37099999096245,
+        "p95": 357.37099999096245
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 3.62e-05,
+      "endpoint": "openrouter/qwen/qwen3.5-flash-02-23",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 106,
+      "latency_ms": {
+        "count": 1,
+        "p50": 822.1748329233378,
+        "p95": 822.1748329233378
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 386.9376250077039,
+        "p95": 386.9376250077039
+      }
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0002848,
+      "endpoint": "openrouter/qwen/qwen3.5-plus-02-15",
+      "failures": {
+        "empty_response": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 214,
+      "latency_ms": {
+        "count": 1,
+        "p50": 3128.5217499826103,
+        "p95": 3128.5217499826103
+      },
+      "operations": 1,
+      "output_tokens": 83,
+      "recovered_operations": 1,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 873.5885829664767,
+        "p95": 873.5885829664767
+      }
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.00023920000000000001,
+      "endpoint": "openrouter/qwen/qwen3.6-plus",
+      "failures": {
+        "empty_response": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 214,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2652.341250097379,
+        "p95": 2652.341250097379
+      },
+      "operations": 1,
+      "output_tokens": 87,
+      "recovered_operations": 1,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 544.9919159291312,
+        "p95": 544.9919159291312
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.000264375,
+      "endpoint": "openrouter/undi95/remm-slerp-l2-13b",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 122,
+      "latency_ms": {
+        "count": 1,
+        "p50": 924.5135840028524,
+        "p95": 924.5135840028524
+      },
+      "operations": 1,
+      "output_tokens": 19,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 450.2140419790521,
+        "p95": 450.2140419790521
+      }
+    },
+    {
+      "attempts": 3,
+      "cost_usd": 0.0008443999999999999,
+      "endpoint": "openrouter/xiaomi/mimo-v2.5",
+      "failures": {
+        "empty_response": 2
+      },
+      "initial_attempts": 1,
+      "input_tokens": 306,
+      "latency_ms": {
+        "count": 1,
+        "p50": 15928.429499967024,
+        "p95": 15928.429499967024
+      },
+      "operations": 1,
+      "output_tokens": 361,
+      "recovered_operations": 1,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 2242.6911250222474,
+        "p95": 2242.6911250222474
+      }
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.000449,
+      "endpoint": "openrouter/xiaomi/mimo-v2.5-pro",
+      "failures": {
+        "empty_response": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 206,
+      "latency_ms": {
+        "count": 1,
+        "p50": 4880.024334066547,
+        "p95": 4880.024334066547
+      },
+      "operations": 1,
+      "output_tokens": 80,
+      "recovered_operations": 1,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1043.156582978554,
+        "p95": 1043.156582978554
+      }
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0003036,
+      "endpoint": "openrouter/z-ai/glm-4.6",
+      "failures": {
+        "empty_response": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 199,
+      "latency_ms": {
+        "count": 1,
+        "p50": 3548.1315000215545,
+        "p95": 3548.1315000215545
+      },
+      "operations": 1,
+      "output_tokens": 128,
+      "recovered_operations": 1,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 551.9927500281483,
+        "p95": 551.9927500281483
+      }
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 0.0002156,
+      "endpoint": "openrouter/z-ai/glm-4.7",
+      "failures": {
+        "empty_response": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 194,
+      "latency_ms": {
+        "count": 1,
+        "p50": 16680.48108299263,
+        "p95": 16680.48108299263
+      },
+      "operations": 1,
+      "output_tokens": 89,
+      "recovered_operations": 1,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 11394.345875014551,
+        "p95": 11394.345875014551
+      }
+    },
+    {
+      "attempts": 2,
+      "cost_usd": 6.758e-05,
+      "endpoint": "openrouter/z-ai/glm-4.7-flash",
+      "failures": {
+        "empty_response": 1
+      },
+      "initial_attempts": 1,
+      "input_tokens": 194,
+      "latency_ms": {
+        "count": 1,
+        "p50": 3563.40562494006,
+        "p95": 3563.40562494006
+      },
+      "operations": 1,
+      "output_tokens": 128,
+      "recovered_operations": 1,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 0,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 336.5545829292387,
+        "p95": 336.5545829292387
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00024703999999999997,
+      "endpoint": "openrouter/z-ai/glm-5",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 104,
+      "latency_ms": {
+        "count": 1,
+        "p50": 2450.938791036606,
+        "p95": 2450.938791036606
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1976.2845420045778,
+        "p95": 1976.2845420045778
+      }
+    },
+    {
+      "attempts": 1,
+      "cost_usd": 0.00033319999999999997,
+      "endpoint": "openrouter/z-ai/glm-5.1",
+      "failures": {},
+      "initial_attempts": 1,
+      "input_tokens": 104,
+      "latency_ms": {
+        "count": 1,
+        "p50": 1976.912165991962,
+        "p95": 1976.912165991962
+      },
+      "operations": 1,
+      "output_tokens": 64,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "system",
+      "successful_initial_attempts": 1,
+      "successful_operations": 1,
+      "ttft_ms": {
+        "count": 1,
+        "p50": 1133.33166600205,
+        "p95": 1133.33166600205
+      }
+    },
+    {
+      "attempts": 1,
+      "endpoint": "together_ai/togethercomputer/codellama-34b-instruct",
+      "failures": {
+        "invalid_request": 1
+      },
+      "initial_attempts": 1,
+      "operations": 1,
+      "recovered_operations": 0,
+      "source": "verification",
+      "strategy": "fim",
+      "successful_initial_attempts": 0,
+      "successful_operations": 0
+    }
+  ],
+  "schema_version": 1,
+  "window_end": "2026-09-04T19:52:02.766309Z",
+  "window_start": "2026-08-28T19:52:02.766309Z"
+}

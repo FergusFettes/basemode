@@ -23,6 +23,8 @@ import urllib.error
 import urllib.request
 from collections.abc import Callable
 from dataclasses import dataclass
+from functools import lru_cache
+from importlib import resources
 
 _TIMEOUT = 15
 
@@ -102,6 +104,17 @@ def _as_float(value: object) -> float | None:
     return None
 
 
+def _price(value: object) -> float | None:
+    """A published price, or None when the provider is declining to name one.
+
+    OpenRouter answers `-1` for its router models, whose price depends on
+    whatever they route to. That is "unknown", not "negative", and taking it
+    literally makes a sweep's cost ceiling come out below zero.
+    """
+    price = _as_float(value)
+    return None if price is None or price < 0 else price
+
+
 def _no_pricing(model: dict) -> tuple[float | None, float | None]:
     return (None, None)
 
@@ -110,7 +123,7 @@ def _price_together(model: dict) -> tuple[float | None, float | None]:
     # together's own /v1/models: pricing.input/output are already $ per 1M tokens.
     pricing = model.get("pricing")
     pricing = pricing if isinstance(pricing, dict) else {}
-    return (_as_float(pricing.get("input")), _as_float(pricing.get("output")))
+    return (_price(pricing.get("input")), _price(pricing.get("output")))
 
 
 def _price_deepinfra(model: dict) -> tuple[float | None, float | None]:
@@ -120,8 +133,8 @@ def _price_deepinfra(model: dict) -> tuple[float | None, float | None]:
     pricing = metadata.get("pricing")
     pricing = pricing if isinstance(pricing, dict) else {}
     return (
-        _as_float(pricing.get("input_tokens")),
-        _as_float(pricing.get("output_tokens")),
+        _price(pricing.get("input_tokens")),
+        _price(pricing.get("output_tokens")),
     )
 
 
@@ -135,8 +148,8 @@ def _price_novita(model: dict) -> tuple[float | None, float | None]:
     completion = pricing.get("completion")
     completion = completion if isinstance(completion, dict) else {}
     return (
-        _as_float(prompt.get("price_per_m_decimal")),
-        _as_float(completion.get("price_per_m_decimal")),
+        _price(prompt.get("price_per_m_decimal")),
+        _price(completion.get("price_per_m_decimal")),
     )
 
 
@@ -144,8 +157,8 @@ def _price_openrouter(model: dict) -> tuple[float | None, float | None]:
     # openrouter's pricing.prompt/completion are $ per single token.
     pricing = model.get("pricing")
     pricing = pricing if isinstance(pricing, dict) else {}
-    input_per_token = _as_float(pricing.get("prompt"))
-    output_per_token = _as_float(pricing.get("completion"))
+    input_per_token = _price(pricing.get("prompt"))
+    output_per_token = _price(pricing.get("completion"))
     return (
         input_per_token * 1_000_000 if input_per_token is not None else None,
         output_per_token * 1_000_000 if output_per_token is not None else None,
@@ -311,3 +324,38 @@ def fetch_live_models(provider: str, api_key: str) -> list[LiveModel]:
         raise LiveModelsError(f"{provider}: {exc}") from exc
 
     return sorted(endpoint.parse(payload), key=lambda m: m.id)
+
+
+@lru_cache(maxsize=1)
+def _cached_catalog() -> dict[str, dict]:
+    """The packaged provider catalog (see scripts/refresh_live_models.py)."""
+    try:
+        text = (
+            resources.files("basemode")
+            .joinpath("data", "live_models_cache.json")
+            .read_text()
+        )
+        providers = json.loads(text).get("providers", {})
+    except Exception:
+        return {}
+    return providers if isinstance(providers, dict) else {}
+
+
+def cached_price_per_million(model: str) -> tuple[float | None, float | None]:
+    """Provider-published prices for a model, in USD per million tokens.
+
+    Resellers list hundreds of models litellm has never costed, but their own
+    /v1/models endpoints publish prices, and the packaged catalog already
+    carries them. Returns `(None, None)` for a model the catalog does not
+    cover, or covers without a price.
+    """
+    provider, separator, stem = model.lower().partition("/")
+    if not separator:
+        return None, None
+    models = _cached_catalog().get(provider, {}).get("models", {})
+    row = models.get(stem) if isinstance(models, dict) else None
+    if not isinstance(row, dict):
+        return None, None
+    # A packaged catalog refreshed before `_price` existed can still carry a
+    # sentinel, so the read side rejects one too.
+    return _price(row.get("input_price_per_m")), _price(row.get("output_price_per_m"))

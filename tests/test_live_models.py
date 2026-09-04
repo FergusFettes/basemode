@@ -119,3 +119,26 @@ def test_gemini_generation_methods_are_preserved() -> None:
         }
     )
     assert model.supported_methods == ("generateContent", "countTokens")
+
+
+def test_negative_sentinel_prices_are_treated_as_unknown() -> None:
+    """OpenRouter answers -1 for router models, whose price varies."""
+    payload = {
+        "data": [
+            {"id": "openrouter/auto", "pricing": {"prompt": "-1", "completion": "-1"}}
+        ]
+    }
+
+    models = _parse_openai_style(payload, _price_openrouter)
+
+    assert (models[0].input_price_per_m, models[0].output_price_per_m) == (None, None)
+
+
+def test_free_models_keep_their_zero_price() -> None:
+    payload = {
+        "data": [{"id": "acme/free", "pricing": {"prompt": "0", "completion": "0"}}]
+    }
+
+    models = _parse_openai_style(payload, _price_openrouter)
+
+    assert (models[0].input_price_per_m, models[0].output_price_per_m) == (0.0, 0.0)

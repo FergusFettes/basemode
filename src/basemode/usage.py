@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import litellm
 
 from .detect import normalize_model
+from .live_models import cached_price_per_million
 
 
 @dataclass(frozen=True)
@@ -17,6 +18,9 @@ class PriceInfo:
     max_output_tokens: int | None
     supports_reasoning: bool | None
     pricing_available: bool
+    #: Where the per-token prices came from: litellm's costed model list, or
+    #: the provider's own catalog (`provider_catalog`). None when unpriced.
+    price_source: str | None = None
 
 
 @dataclass(frozen=True)
@@ -35,20 +39,33 @@ class UsageEstimate:
 def get_price_info(model: str) -> PriceInfo:
     resolved = normalize_model(model)
     info = _model_info(resolved)
+    input_cost = info.get("input_cost_per_token")
+    output_cost = info.get("output_cost_per_token")
+    source = "litellm" if input_cost is not None and output_cost is not None else None
+    if source is None:
+        # litellm's costed list is community-maintained and never covers a
+        # reseller's whole catalog, but that reseller publishes its own prices
+        # and the packaged catalog already carries them. Unknown pricing is
+        # treated as "may cost anything" by every budget in the codebase, so
+        # falling back here is the difference between a sweep being plannable
+        # and not.
+        cached_input, cached_output = cached_price_per_million(resolved)
+        if cached_input is not None and cached_output is not None:
+            input_cost = cached_input / 1_000_000
+            output_cost = cached_output / 1_000_000
+            source = "provider_catalog"
     return PriceInfo(
         model=resolved,
         provider=info.get("litellm_provider"),
-        input_cost_per_token=info.get("input_cost_per_token"),
-        output_cost_per_token=info.get("output_cost_per_token"),
+        input_cost_per_token=input_cost,
+        output_cost_per_token=output_cost,
         cache_read_input_token_cost=info.get("cache_read_input_token_cost"),
         output_cost_per_reasoning_token=info.get("output_cost_per_reasoning_token"),
         max_input_tokens=info.get("max_input_tokens"),
         max_output_tokens=info.get("max_output_tokens"),
         supports_reasoning=info.get("supports_reasoning"),
-        pricing_available=bool(
-            info.get("input_cost_per_token") is not None
-            and info.get("output_cost_per_token") is not None
-        ),
+        pricing_available=source is not None,
+        price_source=source,
     )
 
 
