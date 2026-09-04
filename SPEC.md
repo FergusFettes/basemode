@@ -329,6 +329,7 @@ basemode contribute disable
 basemode contribute preview [--since ...] [--until ...]
 basemode contribute export [--output PATH]
 basemode contribute pr [--repo OWNER/basemode-evidence]
+basemode contribute release <bundle-id>
 basemode contribute clear-pending
 ```
 
@@ -358,8 +359,13 @@ The canonical v1 JSON shape is specified in `../basemode-evidence/SPEC.md`.
 Implement it as typed dataclasses/models plus a checked-in JSON Schema. Reject
 unknown fields during local validation as well as in the evidence repository.
 
-Generate a random bundle ID. Record exported windows/bundle IDs locally so
-repeated commands do not accidentally resubmit the same observations.
+Generate a random bundle ID. Record exported windows/bundle IDs locally, and
+mark each counted operation submitted, so repeated commands do not accidentally
+resubmit the same observations. Windows are free-form and overlap constantly, so
+the marker belongs on the operation rather than the window; aggregate rows carry
+neither timestamps nor contributor identity, so the evidence repository can only
+refuse a repeated bundle ID and cannot deduplicate observations itself. An
+export that is never submitted must be releasable.
 
 ### Pull request command
 

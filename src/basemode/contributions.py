@@ -10,6 +10,7 @@ import subprocess
 import tempfile
 import uuid
 from collections import Counter, defaultdict
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -59,6 +60,20 @@ def _metric(values: list[float]) -> dict[str, int | float] | None:
     }
 
 
+@dataclass(frozen=True)
+class Contribution:
+    """One aggregate bundle and the exact operations it counted.
+
+    The operation IDs travel with the bundle so exporting can mark precisely
+    what was counted. Deriving them again from the window would be a
+    different question asked a moment later, and an operation that finished
+    in between would be marked submitted without ever being counted.
+    """
+
+    bundle: dict[str, Any]
+    operation_ids: tuple[int, ...]
+
+
 def build_bundle(
     *,
     since: datetime,
@@ -67,6 +82,25 @@ def build_bundle(
     generated_at: datetime | None = None,
 ) -> dict[str, Any]:
     """Build and validate one aggregate bundle without marking it exported."""
+    return build_contribution(
+        since=since, until=until, bundle_id=bundle_id, generated_at=generated_at
+    ).bundle
+
+
+def build_contribution(
+    *,
+    since: datetime,
+    until: datetime,
+    bundle_id: str | None = None,
+    generated_at: datetime | None = None,
+) -> Contribution:
+    """Aggregate every not-yet-submitted operation in the window.
+
+    A window is whatever `--since`/`--until` say, so two runs overlap freely.
+    Submission is therefore tracked per operation rather than per window: an
+    operation already counted into an exported bundle is skipped here, which
+    makes a repeated export a no-op instead of a double count.
+    """
     start, end = _timestamp(since), _timestamp(until)
     if not observations._DB_FILE.exists():
         raise ValueError("no local observations")
@@ -76,7 +110,7 @@ def build_bundle(
         operations = conn.execute(
             """SELECT o.*,e.provider_route,e.provider_model_id
                FROM call_operations o JOIN model_endpoints e ON e.id=o.endpoint_id
-               WHERE o.finished_at IS NOT NULL
+               WHERE o.finished_at IS NOT NULL AND o.is_submitted=0
                  AND o.started_at>=? AND o.started_at<?
                ORDER BY o.id""",
             (start.replace("Z", "+00:00"), end.replace("Z", "+00:00")),
@@ -103,10 +137,13 @@ def build_bundle(
         rows = [
             _aggregate(conn, dimensions, items) for dimensions, items in grouped.items()
         ]
+        counted = tuple(
+            int(operation["id"]) for items in grouped.values() for operation in items
+        )
     finally:
         conn.close()
     if not rows:
-        raise ValueError("no completed observations in window")
+        raise ValueError("no unsubmitted observations in window")
     bundle = {
         "schema_version": SCHEMA_VERSION,
         "bundle_id": bundle_id or str(uuid.uuid4()),
@@ -125,7 +162,7 @@ def build_bundle(
         ),
     }
     validate_bundle(bundle)
-    return bundle
+    return Contribution(bundle, counted)
 
 
 def _aggregate(
@@ -329,8 +366,18 @@ def validate_bundle(bundle: dict[str, Any]) -> None:
         dimensions.add(dimension)
 
 
-def export_bundle(bundle: dict[str, Any], path: Path) -> Path:
-    """Write an exact validated bundle and remember its exported window."""
+def export_bundle(contribution: Contribution | dict[str, Any], path: Path) -> Path:
+    """Write an exact validated bundle and mark what it counted as submitted.
+
+    Marking happens at export rather than at PR creation because the exported
+    file is already a submittable artifact: whether it reaches GitHub through
+    `contribute pr` or by hand, those operations have left the machine. A
+    bundle that is abandoned rather than submitted can be released again with
+    `contribute unmark`.
+    """
+    if isinstance(contribution, dict):
+        contribution = Contribution(contribution, ())
+    bundle = contribution.bundle
     validate_bundle(bundle)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(bundle, indent=2, sort_keys=True) + "\n")
@@ -348,18 +395,61 @@ def export_bundle(bundle: dict[str, Any], path: Path) -> Path:
                 observations._now(),
             ),
         )
+        _mark_submitted(conn, contribution.operation_ids, bundle["bundle_id"])
     return path
 
 
+def _mark_submitted(
+    conn: sqlite3.Connection, operation_ids: tuple[int, ...], bundle_id: str
+) -> None:
+    if not operation_ids:
+        return
+    placeholders = ",".join("?" for _ in operation_ids)
+    conn.execute(
+        f"""UPDATE call_operations SET is_submitted=1,submitted_bundle_id=?
+            WHERE id IN ({placeholders})""",
+        (bundle_id, *operation_ids),
+    )
+
+
+def release_bundle(bundle_id: str) -> int:
+    """Undo an export: forget the batch and let its operations be counted again.
+
+    An export that was never submitted would otherwise hold its observations
+    out of every future bundle.
+    """
+    with observations._db() as conn:
+        batch = conn.execute(
+            "SELECT status FROM contribution_batches WHERE bundle_id=?", (bundle_id,)
+        ).fetchone()
+        if batch is None:
+            raise ValueError(f"no local record of bundle {bundle_id}")
+        if batch["status"] == "submitted":
+            raise ValueError(
+                f"bundle {bundle_id} was submitted upstream; releasing it would "
+                "contribute the same observations twice"
+            )
+        released = conn.execute(
+            """UPDATE call_operations SET is_submitted=0,submitted_bundle_id=NULL
+               WHERE submitted_bundle_id=?""",
+            (bundle_id,),
+        ).rowcount
+        conn.execute("DELETE FROM contribution_batches WHERE bundle_id=?", (bundle_id,))
+    return released
+
+
 def open_contribution_pr(
-    bundle: dict[str, Any],
+    contribution: Contribution | dict[str, Any],
     *,
     repo: str,
     exported_path: Path,
     run: Any = subprocess.run,
 ) -> str:
     """Submit one already-approved bundle through authenticated GitHub CLI."""
-    export_bundle(bundle, exported_path)
+    if isinstance(contribution, dict):
+        contribution = Contribution(contribution, ())
+    bundle = contribution.bundle
+    export_bundle(contribution, exported_path)
 
     def command(
         args: list[str], *, cwd: Path | None = None

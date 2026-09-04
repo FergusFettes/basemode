@@ -9,12 +9,14 @@ from pathlib import Path
 import pytest
 from typer.testing import CliRunner
 
-from basemode import ObservationContext, continue_text
+from basemode import ObservationContext, continue_text, observations
 from basemode.cli import app as cli_app
 from basemode.contributions import (
     build_bundle,
+    build_contribution,
     export_bundle,
     open_contribution_pr,
+    release_bundle,
     validate_bundle,
 )
 
@@ -216,3 +218,84 @@ def test_contribution_window_rejects_unparseable_timestamps() -> None:
 
     assert result.exit_code == 2
     assert "ISO-8601" in result.output
+
+
+async def _record_one_operation(monkeypatch) -> None:
+    monkeypatch.setattr("basemode.continue_.detect_strategy", lambda *args: _Strategy())
+    async for _ in continue_text("private seed", model="openai/example"):
+        pass
+
+
+async def test_exported_operations_are_not_counted_twice(
+    monkeypatch, tmp_path: Path
+) -> None:
+    """Windows overlap freely, so submission is tracked per operation."""
+    await _record_one_operation(monkeypatch)
+    started = datetime.now(UTC) - timedelta(days=1)
+
+    first = build_contribution(since=started, until=datetime.now(UTC))
+    assert first.bundle["observations"][0]["operations"] == 1
+    export_bundle(first, tmp_path / "first.json")
+
+    # The same window, and a wider one, now have nothing left to contribute.
+    for since in (started, started - timedelta(days=7)):
+        with pytest.raises(ValueError, match="no unsubmitted observations"):
+            build_contribution(since=since, until=datetime.now(UTC))
+
+
+async def test_a_new_operation_after_an_export_is_still_contributable(
+    monkeypatch, tmp_path: Path
+) -> None:
+    await _record_one_operation(monkeypatch)
+    started = datetime.now(UTC) - timedelta(days=1)
+    export_bundle(
+        build_contribution(since=started, until=datetime.now(UTC)),
+        tmp_path / "first.json",
+    )
+
+    await _record_one_operation(monkeypatch)
+    second = build_contribution(since=started, until=datetime.now(UTC))
+
+    assert second.bundle["observations"][0]["operations"] == 1
+    assert second.operation_ids != ()
+
+
+async def test_releasing_an_unsubmitted_export_frees_only_its_operations(
+    monkeypatch, tmp_path: Path
+) -> None:
+    await _record_one_operation(monkeypatch)
+    started = datetime.now(UTC) - timedelta(days=1)
+    first = build_contribution(since=started, until=datetime.now(UTC))
+    export_bundle(first, tmp_path / "first.json")
+    await _record_one_operation(monkeypatch)
+    second = build_contribution(since=started, until=datetime.now(UTC))
+    export_bundle(second, tmp_path / "second.json")
+
+    released = release_bundle(first.bundle["bundle_id"])
+
+    assert released == len(first.operation_ids) == 1
+    again = build_contribution(since=started, until=datetime.now(UTC))
+    assert again.operation_ids == first.operation_ids
+
+
+async def test_releasing_a_submitted_bundle_is_refused(
+    monkeypatch, tmp_path: Path
+) -> None:
+    await _record_one_operation(monkeypatch)
+    contribution = build_contribution(
+        since=datetime.now(UTC) - timedelta(days=1), until=datetime.now(UTC)
+    )
+    export_bundle(contribution, tmp_path / "bundle.json")
+    with observations._db() as conn:
+        conn.execute(
+            "UPDATE contribution_batches SET status='submitted' WHERE bundle_id=?",
+            (contribution.bundle["bundle_id"],),
+        )
+
+    with pytest.raises(ValueError, match="submitted upstream"):
+        release_bundle(contribution.bundle["bundle_id"])
+
+
+def test_releasing_an_unknown_bundle_is_refused() -> None:
+    with pytest.raises(ValueError, match="no local record"):
+        release_bundle("00000000-0000-0000-0000-000000000000")

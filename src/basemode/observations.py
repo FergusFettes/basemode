@@ -148,7 +148,15 @@ def _connect() -> sqlite3.Connection:
             total_reasoning_tokens INTEGER,
             total_cost_usd REAL,
             cost_source TEXT,
-            verification_probe_id INTEGER
+            verification_probe_id INTEGER,
+            -- Set once this operation has been counted into an exported
+            -- contribution bundle, so overlapping windows cannot submit it
+            -- twice. `submitted_bundle_id` names which bundle counted it, so
+            -- an abandoned export can release exactly its own operations;
+            -- the two are always written together. See
+            -- contributions.build_contribution.
+            is_submitted INTEGER NOT NULL DEFAULT 0,
+            submitted_bundle_id TEXT
         );
         CREATE TABLE IF NOT EXISTS call_attempts (
             id INTEGER PRIMARY KEY,
@@ -260,6 +268,16 @@ def _connect() -> sqlite3.Connection:
         conn.execute("ALTER TABLE model_endpoints ADD COLUMN modality TEXT")
     if "catalog_available" not in endpoint_columns:
         conn.execute("ALTER TABLE model_endpoints ADD COLUMN catalog_available INTEGER")
+    operation_columns = {
+        str(row["name"]) for row in conn.execute("PRAGMA table_info(call_operations)")
+    }
+    if "is_submitted" not in operation_columns:
+        conn.execute(
+            "ALTER TABLE call_operations "
+            "ADD COLUMN is_submitted INTEGER NOT NULL DEFAULT 0"
+        )
+    if "submitted_bundle_id" not in operation_columns:
+        conn.execute("ALTER TABLE call_operations ADD COLUMN submitted_bundle_id TEXT")
     existing = conn.execute(
         "SELECT value FROM schema_metadata WHERE key = 'schema_version'"
     ).fetchone()

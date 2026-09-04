@@ -10,7 +10,12 @@ from typing import Annotated
 import typer
 
 from .. import observations
-from ..contributions import build_bundle, export_bundle, open_contribution_pr
+from ..contributions import (
+    build_contribution,
+    export_bundle,
+    open_contribution_pr,
+    release_bundle,
+)
 from . import app
 from .render import console
 
@@ -45,19 +50,22 @@ def _window(since: str | None, until: str | None) -> tuple[datetime, datetime]:
     return start, end
 
 
+def _build(since: str | None, until: str | None):
+    start, end = _window(since, until)
+    try:
+        return build_contribution(since=start, until=end)
+    except ValueError as error:
+        console.print(f"[red]{error}[/red]")
+        raise typer.Exit(1) from error
+
+
 @contribute_app.command("preview")
 def preview(
     since: Annotated[str | None, typer.Option("--since", help=_TIMESTAMP)] = None,
     until: Annotated[str | None, typer.Option("--until", help=_TIMESTAMP)] = None,
 ) -> None:
     """Print the exact validated JSON shape an export would write."""
-    start, end = _window(since, until)
-    try:
-        bundle = build_bundle(since=start, until=end)
-    except ValueError as error:
-        console.print(f"[red]{error}[/red]")
-        raise typer.Exit(1) from error
-    console.print_json(json.dumps(bundle))
+    console.print_json(json.dumps(_build(since, until).bundle))
 
 
 @contribute_app.command("export")
@@ -66,16 +74,16 @@ def export(
     since: Annotated[str | None, typer.Option("--since", help=_TIMESTAMP)] = None,
     until: Annotated[str | None, typer.Option("--until", help=_TIMESTAMP)] = None,
 ) -> None:
-    """Write a validated contribution bundle and record the exported window."""
-    start, end = _window(since, until)
-    try:
-        bundle = build_bundle(since=start, until=end)
-    except ValueError as error:
-        console.print(f"[red]{error}[/red]")
-        raise typer.Exit(1) from error
+    """Write a validated bundle and mark the observations it counted."""
+    contribution = _build(since, until)
+    bundle = contribution.bundle
     target = output or Path(f"basemode-contribution-{bundle['bundle_id']}.json")
-    export_bundle(bundle, target)
+    export_bundle(contribution, target)
     console.print(str(target))
+    console.print(
+        f"[dim]{len(contribution.operation_ids)} operations marked submitted; "
+        f"basemode contribute release {bundle['bundle_id']} undoes this[/dim]"
+    )
 
 
 @contribute_app.command("pr")
@@ -86,22 +94,31 @@ def pr(
     yes: Annotated[bool, typer.Option("--yes", "-y")] = False,
 ) -> None:
     """Preview, confirm, and submit one aggregate bundle using authenticated gh."""
-    start, end = _window(since, until)
-    try:
-        bundle = build_bundle(since=start, until=end)
-    except ValueError as error:
-        console.print(f"[red]{error}[/red]")
-        raise typer.Exit(1) from error
+    contribution = _build(since, until)
+    bundle = contribution.bundle
     console.print_json(json.dumps(bundle))
     if not yes and not typer.confirm("Submit exactly this aggregate bundle?"):
         raise typer.Abort()
     exported = Path(f"basemode-contribution-{bundle['bundle_id']}.json")
     try:
-        url = open_contribution_pr(bundle, repo=repo, exported_path=exported)
+        url = open_contribution_pr(contribution, repo=repo, exported_path=exported)
     except RuntimeError as error:
         console.print(f"[red]{error}[/red]")
         raise typer.Exit(1) from error
     console.print(url)
+
+
+@contribute_app.command("release")
+def release(
+    bundle_id: Annotated[str, typer.Argument(help="Bundle ID from a local export.")],
+) -> None:
+    """Undo an export that was never submitted, freeing its observations."""
+    try:
+        released = release_bundle(bundle_id)
+    except ValueError as error:
+        console.print(f"[red]{error}[/red]")
+        raise typer.Exit(1) from error
+    console.print(f"[green]✓[/green] {released} operations can be contributed again.")
 
 
 @contribute_app.command("clear-pending")

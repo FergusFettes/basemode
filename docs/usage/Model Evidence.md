@@ -43,9 +43,24 @@ rather than individual operations.
 ```bash
 basemode contribute preview --since 2026-08-25T00:00:00Z
 basemode contribute export --output contribution.json
+basemode contribute release <bundle-id>
 ```
 
-Preview and export share the same serializer and validation path. Rows are
+Preview and export share the same serializer and validation path.
+
+An export marks every operation it counted as submitted, and later bundles skip
+those. That is what makes repeating a command safe: `--since`/`--until` are
+free-form, so two runs overlap constantly, and a window is far too coarse a
+thing to deduplicate on. It is also the only place the question can be answered
+— aggregate rows carry no timestamps and no contributor identity, so the public
+repository can tell one bundle from another but never one contributor's
+Wednesday from another's. Basemode-evidence refuses a repeated `bundle_id`;
+avoiding a double count of the same observations is this machine's job.
+
+`preview` marks nothing. An export you decide not to submit would otherwise
+hold its observations back forever, so `basemode contribute release <bundle-id>`
+frees exactly the operations that bundle counted. It refuses once the bundle has
+been submitted upstream, where releasing it really would contribute twice. Rows are
 grouped by provider-qualified endpoint, strategy, source application, and source
 version. They contain counts, safe failure categories, aggregate percentiles,
 token totals, and cost totals where available. The output is validated against

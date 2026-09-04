@@ -160,13 +160,17 @@ basemode health
 basemode health --verification
 basemode contribute preview --since 2026-08-25T00:00:00Z
 basemode contribute export --output contribution.json
+basemode contribute release BUNDLE_ID
 basemode contribute pr --repo OWNER/basemode-evidence
 ```
 
 Preview, export, and PR submission work with existing stored observations; the
 explicit command is the contribution consent boundary. `--since` and `--until`
 take a plain date or any ISO-8601 timestamp, with or without a trailing `Z`,
-and default to the last seven days. Exports contain only
+and default to the last seven days. Windows may overlap freely: an export marks
+the operations it counted, and later bundles skip them, so repeating a command
+cannot contribute the same observations twice. `release` undoes an export that
+was never submitted. Exports contain only
 grouped counts, safe failure categories, and aggregate
 performance/usage/cost measurements.
 
