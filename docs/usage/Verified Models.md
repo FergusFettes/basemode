@@ -11,13 +11,13 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `anthropic/claude-opus-4-5-20251101` | $5.00 | $25.00 | 2025-11-24 | `prefill` | ✓ |  |
 | `anthropic/claude-opus-4-6` | $5.00 | $25.00 | 2026-02-05 | `system` | ✓ | `no_prefill` |
 | `anthropic/claude-opus-4-7` | $5.00 | $25.00 | 2026-04-16 | `system` | ✓ | `no_prefill`, `no_temperature` |
-| `anthropic/claude-opus-4-8` | $5.00 | $25.00 | 2026-05-28 | `system` | ✓ | `no_temperature` |
-| `anthropic/claude-opus-5` | $5.00 | $25.00 | 2026-07-23 | `few_shot` | ✓ | `no_prefill`, `no_temperature` |
+| `anthropic/claude-opus-4-8` | $5.00 | $25.00 | unknown | `system` | ⚠ | `no_temperature` |
+| `anthropic/claude-opus-5` | $5.00 | $25.00 | unknown | `few_shot` | ⚠ | `no_prefill`, `no_temperature` |
 | `anthropic/claude-sonnet-4-20250514` | $3.00 | $15.00 | 2025-05-22 | `prefill` | ✓ |  |
 | `anthropic/claude-sonnet-4-5-20250929` | $3.00 | $15.00 | 2025-09-29 | `prefill` | ✓ |  |
 | `anthropic/claude-sonnet-4-6` | $3.00 | $15.00 | 2026-02-17 | `system` | ✓ | `no_prefill` |
 | `anthropic/claude-sonnet-5` | $2.00 | $10.00 | 2026-06-30 | `system` | ✓ | `no_prefill`, `no_temperature` |
-| `cerebras/gemma-4-31b` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `cerebras/gemma-4-31b` | $0.99 | $1.49 | unknown | `system` | ⚠ |  |
 | `cerebras/gpt-oss-120b` | $0.35 | $0.75 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/anthropic/claude-fable-5` | $10.00 | $50.00 | unknown | `system` | ⚠ |  |
 | `deepinfra/anthropic/claude-haiku-4-5` | $1.00 | $5.00 | unknown | `prefill` | ⚠ |  |
@@ -288,6 +288,6 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `zai/glm-5` | $1.00 | $3.20 | 2026-02-11 | `system` | ✓ |  |
 | `zai/glm-5-turbo` | $1.20 | $4.00 | 2026-03-15 | `system` | ⚠ |  |
 | `zai/glm-5.1` | $1.40 | $4.40 | 2026-04-06 | `system` | ✓ |  |
-| `zai/glm-5.2` | $1.19 | $3.74 | 2026-06-16 | `system` | ⚠ |  |
+| `zai/glm-5.2` | $1.40 | $4.40 | 2026-06-16 | `system` | ✓ |  |
 
 Legend: `✓` = LiteLLM pricing present and release date available; `⚠` = missing/approximate field or known issue.
