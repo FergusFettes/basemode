@@ -253,7 +253,14 @@ reachable
 verified
 failed
 stale
+account_limited
+retired
 ```
+
+`failed` means the endpoint answered and the answer was unusable. A run that
+produced no success only because the account cannot reach the endpoint is
+`account_limited`; one whose every failure was a 404 is `retired`. Neither is
+a verdict on the model, and neither is swept again by default.
 
 Only a completed controlled suite can establish `verified`. The latest thorough
 run passes when every required logical probe has at least one successful linked
