@@ -358,6 +358,16 @@ def test_zai_glm_disables_thinking_via_extra_body() -> None:
     assert "thinking" not in kwargs
 
 
+def test_deepseek_reasoner_reserves_room_for_visible_output() -> None:
+    kwargs = build_kwargs(
+        GenerationParams(model="deepseek/deepseek-reasoner", max_tokens=64)
+    )
+
+    assert kwargs["max_tokens"] == 320
+    assert "thinking" not in kwargs
+    assert "extra_body" not in kwargs
+
+
 def test_zai_glm_5_3_cannot_disable_thinking() -> None:
     """glm-5.3 rejects `thinking.type: "disabled"` outright ("This model
     always engages in thinking and cannot be disabled; please use low, high,

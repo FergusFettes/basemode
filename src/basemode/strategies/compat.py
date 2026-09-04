@@ -107,6 +107,10 @@ KNOWN_ANTHROPIC_MODELS = {
 # Without a large token budget the visible output is empty or truncated.
 # Key = substring to match in model name (after last /), value = (budget, min_output)
 _THINKING_MODELS: dict[str, tuple[int, int]] = {
+    # Always-on reasoning can consume the entire ordinary continuation cap.
+    # A 256-token retry produced visible output live on 2026-09-04; retain
+    # additional room for the continuation itself on the initial request.
+    "deepseek-reasoner": (256, 64),
     "gemini-2.5-flash": (1024, 512),
     "gemini-2.5-flash-lite": (512, 256),
     "gemini-2.5-pro": (2048, 512),

@@ -38,13 +38,20 @@ def setup_file_logging() -> None:
 
 
 def setup_verbose_logging() -> None:
-    """Show content-free Basemode lifecycle events on stderr."""
+    """Show content-free Basemode lifecycle events on stderr.
+
+    Diagnostic warnings and exceptions continue to go to the rotating file
+    handler. They are deliberately excluded here: handled provider failures
+    are represented by the concise attempt lifecycle record instead of a
+    traceback in the interactive stream.
+    """
     logger = logging.getLogger("basemode")
     logger.setLevel(logging.INFO)
     if any(getattr(handler, "_basemode_verbose", False) for handler in logger.handlers):
         return
     handler = logging.StreamHandler(sys.stderr)
     handler.setLevel(logging.INFO)
+    handler.addFilter(lambda record: record.levelno == logging.INFO)
     handler.setFormatter(logging.Formatter("[basemode] %(message)s"))
     handler._basemode_verbose = True  # type: ignore[attr-defined]
     logger.addHandler(handler)

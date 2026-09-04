@@ -84,8 +84,14 @@ def test_setup_verbose_logging_is_content_free_stderr_handler(capsys) -> None:
         assert len(logger.handlers) == 1
 
         logger.info("operation recorded: model=openai/example outcome=success")
+        try:
+            raise RuntimeError("handled provider failure")
+        except RuntimeError:
+            logger.exception("diagnostic traceback")
         captured = capsys.readouterr()
         assert captured.out == ""
         assert "[basemode] operation recorded" in captured.err
+        assert "diagnostic traceback" not in captured.err
+        assert "Traceback" not in captured.err
     finally:
         logger.handlers = existing

@@ -99,6 +99,14 @@ request and both self-healing paths. Pricing comes from best-effort LiteLLM
 metadata. The output separates priced and unpriced targets; unknown prices are
 not treated as free.
 
+With `-v`, concise content-free lifecycle events are written to stderr while
+the run proceeds. Handled provider exceptions do not dump tracebacks there;
+the attempt record shows their failure category and subsequent retries. Full
+diagnostic tracebacks remain in the rotating CLI log at
+`~/.local/state/basemode/basemode.log` (or beneath `$XDG_STATE_HOME`). The
+structured, content-free observations live separately at
+`~/.local/share/basemode/observations.sqlite`.
+
 ## Bound a live run
 
 Use limits for any sweep:
