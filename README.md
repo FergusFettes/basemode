@@ -177,6 +177,6 @@ For repository setup and test commands, see the
 
 ## Verified models
 
-The registry currently contains 285 model endpoints with a tested prompt strategy. The [full model table](https://fergusfettes.github.io/basemode/usage/Verified-Models/) lists prices, release dates, strategies, and compatibility quirks. It is generated from the same registry used at runtime.
+The registry currently contains 289 model endpoints with a tested prompt strategy. The [full model table](https://fergusfettes.github.io/basemode/usage/Verified-Models/) lists prices, release dates, strategies, and compatibility quirks. It is generated from the same registry used at runtime.
 
 <!-- verified-models:end -->

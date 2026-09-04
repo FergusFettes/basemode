@@ -8,6 +8,12 @@
       "quirks": ["no_prefill", "no_temperature"]
     },
     {
+      "model": "anthropic/claude-fable-5-1",
+      "openrouter_id": "anthropic/claude-fable-5.1",
+      "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing",
+      "prompt_method": "system"
+    },
+    {
       "model": "anthropic/claude-haiku-4-5-20251001",
       "openrouter_id": "anthropic/claude-haiku-4.5",
       "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing"
@@ -428,16 +434,12 @@
     {
       "model": "deepinfra/zai-org/glm-4.7",
       "pricing_url": "https://deepinfra.com/pricing",
-      "quirks": [
-        "reasoning_budget"
-      ]
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/zai-org/glm-4.7-flash",
       "pricing_url": "https://deepinfra.com/pricing",
-      "quirks": [
-        "reasoning_budget"
-      ]
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/zai-org/glm-5",
@@ -1001,6 +1003,21 @@
     {
       "model": "novita/zai-org/glm-5v-turbo",
       "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "openai/gpt-3.5-turbo-0125",
+      "openrouter_id": "openai/gpt-3.5-turbo",
+      "pricing_url": "https://openai.com/api/pricing/"
+    },
+    {
+      "model": "openai/gpt-3.5-turbo-1106",
+      "openrouter_id": "openai/gpt-3.5-turbo",
+      "pricing_url": "https://openai.com/api/pricing/"
+    },
+    {
+      "model": "openai/gpt-4-turbo",
+      "openrouter_id": "openai/gpt-4-turbo",
+      "pricing_url": "https://openai.com/api/pricing/"
     },
     {
       "model": "openai/gpt-4-turbo-2024-04-09",
