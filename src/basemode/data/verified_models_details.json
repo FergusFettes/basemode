@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-08-30T11:25:54.943075+00:00",
+  "generated_at_utc": "2026-09-04T07:41:55.273526+00:00",
   "rows": [
     {
       "model": "anthropic/claude-fable-5",
@@ -118,10 +118,12 @@
       "model": "anthropic/claude-opus-4-8",
       "input_cost_per_token": 5e-06,
       "output_cost_per_token": 2.5e-05,
-      "release_date": "2026-05-28",
+      "release_date": null,
       "prompt_method": "system",
-      "reliability": "\u2713",
-      "issues": [],
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
       "sources": [
         "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
         "https://openrouter.ai/docs/api-reference/models/get-models",
@@ -135,10 +137,12 @@
       "model": "anthropic/claude-opus-5",
       "input_cost_per_token": 5e-06,
       "output_cost_per_token": 2.5e-05,
-      "release_date": "2026-07-23",
+      "release_date": null,
       "prompt_method": "few_shot",
-      "reliability": "\u2713",
-      "issues": [],
+      "reliability": "\u26a0",
+      "issues": [
+        "missing_release_date"
+      ],
       "sources": [
         "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
         "https://openrouter.ai/docs/api-reference/models/get-models",
@@ -216,13 +220,12 @@
     },
     {
       "model": "cerebras/gemma-4-31b",
-      "input_cost_per_token": null,
-      "output_cost_per_token": null,
+      "input_cost_per_token": 9.9e-07,
+      "output_cost_per_token": 1.49e-06,
       "release_date": null,
       "prompt_method": "system",
       "reliability": "\u26a0",
       "issues": [
-        "missing_price",
         "missing_release_date"
       ],
       "sources": [
@@ -4747,14 +4750,12 @@
     },
     {
       "model": "zai/glm-5.2",
-      "input_cost_per_token": 1.19e-06,
-      "output_cost_per_token": 3.74e-06,
+      "input_cost_per_token": 1.4e-06,
+      "output_cost_per_token": 4.4e-06,
       "release_date": "2026-06-16",
       "prompt_method": "system",
-      "reliability": "\u26a0",
-      "issues": [
-        "price_not_from_litellm"
-      ],
+      "reliability": "\u2713",
+      "issues": [],
       "sources": [
         "https://github.com/BerriAI/litellm/blob/main/model_prices_and_context_window.json",
         "https://openrouter.ai/docs/api-reference/models/get-models"
