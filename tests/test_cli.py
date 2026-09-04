@@ -496,6 +496,21 @@ def test_verify_rejects_combined_price_filters() -> None:
     assert "cannot be combined" in result.output
 
 
+def test_verify_is_verbose_by_default_and_can_be_quiet(monkeypatch) -> None:
+    calls = []
+    monkeypatch.setattr(
+        "basemode.logging_setup.setup_verbose_logging", lambda: calls.append(True)
+    )
+
+    default = runner.invoke(app, ["verify", "--priced", "--unpriced", "--dry-run"])
+    quiet = runner.invoke(
+        app, ["verify", "--priced", "--unpriced", "--dry-run", "--quiet"]
+    )
+
+    assert default.exit_code == quiet.exit_code == 2
+    assert calls == [True]
+
+
 def test_verify_plan_table_renders_a_row_per_target() -> None:
     from basemode.cli.verify_cmd import _verify_plan_table
     from basemode.verification_plan import PlannedTarget, VerificationPlan

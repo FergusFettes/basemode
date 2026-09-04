@@ -118,7 +118,7 @@ and status effects.
 basemode verify [MODEL...] [--suite quick|thorough|transient-recheck] [--attempts N] [--max-tokens N]
   [--provider NAME] [--status STATUS] [--available] [--from-catalog] [--priced | --unpriced]
   [--released-since YYYY-MM-DD | --max-release-age-days N]
-  [--stale-after-days N] [--dry-run] [-v] [--json]
+  [--stale-after-days N] [--dry-run] [-v | --quiet] [--json]
 ```
 
 Sweeps run with bounded global and per-provider concurrency (`--concurrency` and
@@ -142,6 +142,8 @@ this machine; combine it with `--status never-tested` for a useful first sweep.
 Add `-v` to a live run to see each content-free probe, attempt, retry, outcome,
 and ledger write as it happens. Logs go to stderr so generated text and JSON on
 stdout remain usable.
+Verification is verbose by default; use `--quiet` to suppress these lifecycle
+events. `-v` and `--verbose` remain available when an explicit flag is useful.
 Use `--priced` to exclude targets without pricing metadata, or `--unpriced` to
 inspect exactly those targets whose pricing needs investigation. These options
 cannot be combined.

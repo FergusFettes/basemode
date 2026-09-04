@@ -115,9 +115,11 @@ def verify_command(
     verbose: Annotated[
         bool,
         typer.Option(
-            "-v", "--verbose", help="Show content-free probe and health events."
+            "-v",
+            "--verbose/--quiet",
+            help="Show content-free probe and health events (enabled by default).",
         ),
-    ] = False,
+    ] = True,
 ) -> None:
     """Probe models and retain every result in the shared evidence database."""
     from dataclasses import asdict
