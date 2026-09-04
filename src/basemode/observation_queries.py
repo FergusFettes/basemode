@@ -99,6 +99,7 @@ def controlled_status(model: str, *, stale_after_days: int = 30) -> dict[str, An
         model.lower(),
         {
             "controlled_status": "never_tested",
+            "served_by": [],
             "suite": None,
             "required_probes": 0,
             "successful_probes": 0,
@@ -176,6 +177,13 @@ def list_controlled_status(*, stale_after_days: int = 30) -> dict[str, dict[str,
             model = _model_name(endpoint)
             result[model] = {
                 "controlled_status": status,
+                "served_by": sorted(
+                    {
+                        str(attempt["served_model"])
+                        for attempt in attempts
+                        if attempt["served_model"]
+                    }
+                ),
                 "suite": run["suite"],
                 "required_probes": len(required),
                 "successful_probes": len(successes),

@@ -42,7 +42,10 @@ model ID on the response is the only evidence that a record describes something
 other than the model it is named after.
 
 Every attempt records that ID when it differs from the one requested, and
-`served_by` on an endpoint's health names what actually answered. A provider
+`served_by` on an endpoint's health names what actually answered. `basemode
+health` and `basemode health --verification` list any substitutions beneath
+the table, since a model ID paired with the ID that answered for it does not
+survive a table column. A provider
 naming the same model without its route or in its own capitalization
 (`Qwen/Qwen3-32B` for `deepinfra/qwen/qwen3-32b`) is not a substitution.
 

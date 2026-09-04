@@ -593,3 +593,59 @@ def test_verify_plan_table_renders_a_row_per_target() -> None:
     assert "yes" in rendered
     assert "2026-01-01" in rendered
     assert "?" in rendered
+
+
+def test_health_flags_a_model_served_under_another_name(monkeypatch) -> None:
+    """A retired ID routed to a successor must be visible, not just stored."""
+    from basemode.cli import health_cmd
+
+    monkeypatch.setattr(
+        health_cmd,
+        "list_endpoint_health",
+        lambda days=None: {
+            "deepinfra/moonshotai/kimi-k2-instruct": {
+                "operations": 1,
+                "attempts": 1,
+                "recovered_operations": 0,
+                "successful_operations": 1,
+                "logical_success_rate": 1.0,
+                "failures": {},
+                "served_by": ["moonshotai/Kimi-K2-Instruct-0905"],
+                "last_failed_at": None,
+            }
+        },
+    )
+
+    result = runner.invoke(app, ["health"])
+
+    assert result.exit_code == 0
+    assert "Kimi-K2-Instruct-0905" in result.output
+    assert "answered under a different model ID" in result.output
+
+
+def test_health_omits_the_served_by_column_when_nothing_was_substituted(
+    monkeypatch,
+) -> None:
+    from basemode.cli import health_cmd
+
+    monkeypatch.setattr(
+        health_cmd,
+        "list_endpoint_health",
+        lambda days=None: {
+            "openai/gpt-4o-mini": {
+                "operations": 1,
+                "attempts": 1,
+                "recovered_operations": 0,
+                "successful_operations": 1,
+                "logical_success_rate": 1.0,
+                "failures": {},
+                "served_by": [],
+                "last_failed_at": None,
+            }
+        },
+    )
+
+    result = runner.invoke(app, ["health"])
+
+    assert result.exit_code == 0
+    assert "answered under a different model ID" not in result.output

@@ -15,6 +15,34 @@ from . import app
 from .render import console
 
 
+def _substitutions(records: dict) -> dict[str, list[str]]:
+    """Models the provider answered for under a different name."""
+    return {
+        model_id: observed["served_by"]
+        for model_id, observed in records.items()
+        if observed.get("served_by")
+    }
+
+
+def _substitution_note(substituted: dict[str, list[str]]) -> str:
+    """List substitutions below the table rather than in it.
+
+    A model ID plus the ID that answered for it does not survive a table
+    column at this catalog's width, and the pairing is the whole point.
+    """
+    lines = [
+        f"[yellow]{len(substituted)} endpoint(s) answered under a different "
+        "model ID.[/yellow] [dim]A retired ID that still responds is usually "
+        "routed to a successor, so those rows describe whatever served them, "
+        "not the model they are named after.[/dim]"
+    ]
+    lines += [
+        f"  [yellow]{model_id}[/yellow] -> {', '.join(served)}"
+        for model_id, served in sorted(substituted.items())
+    ]
+    return "\n".join(lines)
+
+
 @app.command()
 def health(
     model: Annotated[
@@ -73,6 +101,7 @@ def health(
         if as_json:
             console.print(json.dumps(records, indent=2))
             return
+        substituted = _substitutions(records)
         table = Table(
             "Model",
             "Status",
@@ -100,6 +129,8 @@ def health(
         console.print(
             f"[dim]{len(records)} models with completed controlled runs[/dim]"
         )
+        if substituted:
+            console.print(_substitution_note(substituted))
         return
 
     if resolved:
@@ -118,6 +149,7 @@ def health(
         console.print(json.dumps(records, indent=2))
         return
 
+    substituted = _substitutions(records)
     table = Table(
         "Model",
         "Calls",
@@ -157,3 +189,5 @@ def health(
         f"[dim]{len(records)} models with recorded generations; "
         f"failure breakdown{window} from unified observations[/dim]"
     )
+    if substituted:
+        console.print(_substitution_note(substituted))
