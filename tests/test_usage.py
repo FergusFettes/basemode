@@ -75,6 +75,38 @@ def test_router_sentinel_price_is_not_a_price() -> None:
     assert (input_per_m, output_per_m) == (None, None)
 
 
+def test_catalog_lookup_ignores_the_provider_s_own_casing(monkeypatch) -> None:
+    """Providers publish their own casing; basemode normalizes to lowercase.
+
+    Together serves `meta-llama/Llama-3.3-70B-Instruct-Turbo`, so an
+    exact-key lookup missed most of its catalog.
+    """
+    import basemode.live_models as live_models
+
+    monkeypatch.setattr(
+        live_models,
+        "_cached_catalog",
+        lambda: {
+            "acme": {
+                "models": {
+                    "Vendor/Mixed-Case-7B": {
+                        "input_price_per_m": 1.0,
+                        "output_price_per_m": 2.0,
+                    }
+                }
+            }
+        },
+    )
+    live_models._cached_models_by_lower_id.cache_clear()
+    try:
+        assert live_models.cached_price_per_million("acme/vendor/mixed-case-7b") == (
+            1.0,
+            2.0,
+        )
+    finally:
+        live_models._cached_models_by_lower_id.cache_clear()
+
+
 def test_estimate_usage_known_model_has_cost() -> None:
     usage = estimate_usage("gpt-4o-mini", "hello", "world")
 

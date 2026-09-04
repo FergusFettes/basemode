@@ -23,7 +23,7 @@ import urllib.error
 import urllib.request
 from collections.abc import Callable
 from dataclasses import dataclass
-from functools import lru_cache
+from functools import cache, lru_cache
 from importlib import resources
 
 _TIMEOUT = 15
@@ -341,6 +341,26 @@ def _cached_catalog() -> dict[str, dict]:
     return providers if isinstance(providers, dict) else {}
 
 
+@cache
+def _cached_models_by_lower_id(provider: str) -> dict[str, dict]:
+    """Catalog rows for one provider, keyed by lowercased model ID.
+
+    Providers publish their own casing — Together serves
+    `meta-llama/Llama-3.3-70B-Instruct-Turbo` — while basemode normalizes
+    model IDs to lowercase, so an exact-key lookup silently misses most of a
+    catalog. Two IDs differing only in case would collide here; no provider
+    has ever shipped such a pair.
+    """
+    models = _cached_catalog().get(provider, {}).get("models", {})
+    if not isinstance(models, dict):
+        return {}
+    return {
+        str(model_id).lower(): row
+        for model_id, row in models.items()
+        if isinstance(row, dict)
+    }
+
+
 def cached_price_per_million(model: str) -> tuple[float | None, float | None]:
     """Provider-published prices for a model, in USD per million tokens.
 
@@ -352,9 +372,8 @@ def cached_price_per_million(model: str) -> tuple[float | None, float | None]:
     provider, separator, stem = model.lower().partition("/")
     if not separator:
         return None, None
-    models = _cached_catalog().get(provider, {}).get("models", {})
-    row = models.get(stem) if isinstance(models, dict) else None
-    if not isinstance(row, dict):
+    row = _cached_models_by_lower_id(provider).get(stem)
+    if row is None:
         return None, None
     # A packaged catalog refreshed before `_price` existed can still carry a
     # sentinel, so the read side rejects one too.
