@@ -48,7 +48,7 @@ class FIMStrategy(ContinuationStrategy):
             # Not requested via stream_options (unclear which FIM-only
             # backends tolerate it), but recorded opportunistically if a
             # provider includes it anyway.
-            usage_capture.record(getattr(chunk, "usage", None))
+            usage_capture.record_chunk(chunk)
             if not chunk.choices:
                 continue
             choice = chunk.choices[0]

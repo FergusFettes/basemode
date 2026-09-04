@@ -21,11 +21,38 @@ from contextvars import ContextVar
 _events: ContextVar[list[dict] | None] = ContextVar(
     "_stream_usage_events", default=None
 )
+_served: ContextVar[str | None] = ContextVar("_stream_served_model", default=None)
 
 
 def begin_capture() -> None:
     """Start a fresh capture in the current task's context."""
     _events.set([])
+    _served.set(None)
+
+
+def record_chunk(chunk: object) -> None:
+    """Record everything one streamed chunk says about the call itself.
+
+    Usage, and the ID of the model the provider actually served. A reseller
+    that retires a model ID often keeps answering on it and quietly routes
+    the request to a successor, so the served ID is the only place that
+    substitution is visible — the catalog listing does not admit to it and
+    the continuation reads perfectly well.
+    """
+    record(getattr(chunk, "usage", None))
+    served = getattr(chunk, "model", None)
+    if isinstance(served, str) and served.strip():
+        _served.set(served.strip())
+
+
+def reset_served_model() -> None:
+    """Forget the served model, so one attempt cannot inherit another's."""
+    _served.set(None)
+
+
+def served_model() -> str | None:
+    """The model ID the provider reported serving, if it said."""
+    return _served.get()
 
 
 def record(usage: object | None) -> None:

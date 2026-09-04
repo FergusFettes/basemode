@@ -186,6 +186,9 @@ def _connect() -> sqlite3.Connection:
             cost_source TEXT,
             status_eligible INTEGER NOT NULL DEFAULT 1,
             status_exclusion_reason TEXT,
+            -- The model ID the provider reported serving, recorded only when
+            -- it differs from the one requested. See served_model_mismatch.
+            served_model TEXT,
             UNIQUE(operation_id, attempt_index)
         );
         CREATE INDEX IF NOT EXISTS idx_operations_endpoint_started
@@ -278,6 +281,11 @@ def _connect() -> sqlite3.Connection:
         )
     if "submitted_bundle_id" not in operation_columns:
         conn.execute("ALTER TABLE call_operations ADD COLUMN submitted_bundle_id TEXT")
+    attempt_columns = {
+        str(row["name"]) for row in conn.execute("PRAGMA table_info(call_attempts)")
+    }
+    if "served_model" not in attempt_columns:
+        conn.execute("ALTER TABLE call_attempts ADD COLUMN served_model TEXT")
     existing = conn.execute(
         "SELECT value FROM schema_metadata WHERE key = 'schema_version'"
     ).fetchone()
@@ -564,6 +572,7 @@ class Attempt:
         error: BaseException | None = None,
         *,
         usage_events: list[dict] | None = None,
+        served_model: str | None = None,
     ) -> None:
         if self._finished:
             return
@@ -587,6 +596,9 @@ class Attempt:
                 )
         elif outcome == "failure" and not self.returned_content:
             failure_class = "empty_response"
+        substitute = served_model_mismatch(self.operation.model, served_model)
+        if substitute:
+            log.info("%s was served by %s", self.operation.model, substitute)
         attribution = failure_attribution(failure_class)
         transience = failure_transience(failure_class)
         status_eligible = attribution not in {"account", "basemode", "client"}
@@ -624,7 +636,8 @@ class Attempt:
                            output_characters=?, finish_reason=?, ttft_ms=?, generation_ms=?,
                            prompt_tokens=?, completion_tokens=?, reasoning_tokens=?,
                            output_tokens_per_second=?, cost_usd=?, cost_source=?,
-                           status_eligible=?, status_exclusion_reason=?
+                           status_eligible=?, status_exclusion_reason=?,
+                           served_model=?
                        WHERE id=?""",
                     (
                         _now(),
@@ -651,6 +664,7 @@ class Attempt:
                         else None,
                         int(status_eligible),
                         exclusion_reason,
+                        substitute,
                         self.id,
                     ),
                 )
@@ -887,6 +901,29 @@ def _ensure_endpoint(
             (route, provider_model_id),
         ).fetchone()["id"]
     )
+
+
+def served_model_mismatch(requested: str, served: str | None) -> str | None:
+    """The ID a provider actually served, when it is not the one asked for.
+
+    Resellers retire a model ID and keep answering on it, routing the request
+    to a successor. The continuation reads perfectly well and the catalog
+    listing does not admit to the substitution, so the served ID on the
+    response is the only evidence that the record describes a different model
+    than its name claims.
+
+    Comparison ignores the provider route and case, because a provider names
+    the model without its route and with its own capitalization: asking
+    `deepinfra/qwen/qwen3-32b` and being served `Qwen/Qwen3-32B` is the same
+    model, not a substitution.
+    """
+    if not served:
+        return None
+    wanted = requested.lower().partition("/")[2] or requested.lower()
+    actual = served.lower()
+    if actual == wanted or actual.rpartition("/")[2] == wanted.rpartition("/")[2]:
+        return None
+    return served
 
 
 def _reasoning_tokens(events: list[dict]) -> int:

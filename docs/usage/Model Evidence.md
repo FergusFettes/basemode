@@ -33,6 +33,25 @@ Eligible organic transient failures create a durable recheck schedule. Repeated
 failures back off from 15 minutes to two hours, one day, and then seven days. A
 later organic success resolves the schedule.
 
+## Substituted models
+
+A reseller that retires a model ID often keeps answering on it and routes the
+request to a successor. The continuation reads perfectly well, and the
+provider's catalog listing does not admit to the substitution, so the served
+model ID on the response is the only evidence that a record describes something
+other than the model it is named after.
+
+Every attempt records that ID when it differs from the one requested, and
+`served_by` on an endpoint's health names what actually answered. A provider
+naming the same model without its route or in its own capitalization
+(`Qwen/Qwen3-32B` for `deepinfra/qwen/qwen3-32b`) is not a substitution.
+
+This matters beyond the one endpoint: quirks and prompt methods are keyed by
+model *stem* and shared across providers, so registering a substitute's
+behaviour under a retired name would apply that wrong answer to the real model
+everywhere else. Model discovery therefore refuses to register a candidate that
+came back under a different ID.
+
 ## Opt-in public contribution
 
 Local recording and public contribution are separate. Existing content-free

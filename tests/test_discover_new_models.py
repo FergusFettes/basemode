@@ -306,3 +306,39 @@ async def test_run_tags_reasoning_budget_quirk(tmp_path, monkeypatch) -> None:
 
     registry = json.loads((tmp_path / "registry.json").read_text())
     assert registry["models"][0]["quirks"] == ["reasoning_budget"]
+
+
+def test_a_substituted_model_is_not_registered(monkeypatch) -> None:
+    """A retired ID that still answers must not teach its own name.
+
+    Quirks and prompt methods are keyed by model stem, so registering the
+    successor's behaviour under the retired name would apply that wrong
+    answer to the real model on every other provider too.
+    """
+    import asyncio
+
+    from basemode import usage_capture
+
+    async def fake_continue(*args, **kwargs):
+        usage_capture.record_chunk(
+            SimpleNamespace(usage=None, model="moonshotai/Kimi-K2-Instruct-0905")
+        )
+        yield " a perfectly clean continuation"
+
+    monkeypatch.setattr(dnm, "continue_text", fake_continue)
+    candidate = dnm.Candidate(
+        provider="deepinfra",
+        raw_id="moonshotai/kimi-k2-instruct",
+        normalized_id="deepinfra/moonshotai/kimi-k2-instruct",
+        created=0.0,
+    )
+
+    # No begin_capture here: the served ID is read inside the same task that
+    # records it, and a capture started in the main context would leak into
+    # every later test.
+    worked, detail, _sample, _budget = asyncio.run(
+        dnm._probe_strategy(candidate, "system")
+    )
+
+    assert not worked
+    assert "not this model" in detail

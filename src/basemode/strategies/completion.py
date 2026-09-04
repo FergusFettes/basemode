@@ -27,7 +27,7 @@ class CompletionStrategy(ContinuationStrategy):
         yielded = False
         finish_reason = None
         async for chunk in response:
-            usage_capture.record(getattr(chunk, "usage", None))
+            usage_capture.record_chunk(chunk)
             if not chunk.choices:
                 continue
             choice = chunk.choices[0]

@@ -53,6 +53,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT / "src") not in sys.path:
     sys.path.insert(0, str(ROOT / "src"))
 
+from basemode import usage_capture  # noqa: E402
 from basemode.continue_ import continue_text  # noqa: E402
 from basemode.detect import detect_strategy, normalize_model  # noqa: E402
 from basemode.exceptions import EmptyCompletionError  # noqa: E402
@@ -62,6 +63,7 @@ from basemode.live_models import (  # noqa: E402
     LiveModelsError,
     fetch_live_models,
 )
+from basemode.observations import served_model_mismatch  # noqa: E402
 from basemode.scoring import looks_clean  # noqa: E402
 from basemode.settings import settings  # noqa: E402
 
@@ -219,10 +221,21 @@ PROBE_TIMEOUT = 60  # seconds; a stalled provider stream shouldn't hang the whol
 REASONING_RETRY_MAX_TOKENS = 5120
 
 
+class SubstitutedModel(Exception):
+    """The provider answered under a different model ID than the one asked for.
+
+    A reseller that retires a model keeps answering on the old ID and routes
+    the request to a successor. Registering what came back would attach the
+    successor's working strategy and quirks to the retired name — and because
+    `compat.model_quirks` is keyed by model *stem*, that wrong answer would
+    then apply to the real model on every other provider too.
+    """
+
+
 async def _collect_chunks(
     candidate: Candidate, strategy: str | None, *, max_tokens: int = PROBE_MAX_TOKENS
 ) -> list[str]:
-    return [
+    chunks = [
         token
         async for token in continue_text(
             PROBE_PREFIX,
@@ -232,6 +245,12 @@ async def _collect_chunks(
             strategy=strategy,
         )
     ]
+    served = served_model_mismatch(
+        candidate.normalized_id, usage_capture.served_model()
+    )
+    if served:
+        raise SubstitutedModel(f"served by {served}")
+    return chunks
 
 
 async def _probe_strategy(
@@ -247,6 +266,8 @@ async def _probe_strategy(
         empty = not text.strip()
     except TimeoutError:
         return False, f"timed out after {PROBE_TIMEOUT}s", "", False
+    except SubstitutedModel as exc:
+        return False, f"not this model: {exc}", "", False
     except EmptyCompletionError:
         # The strategy itself already raises this instead of returning
         # nothing — same "starved of visible-output room" case as an empty

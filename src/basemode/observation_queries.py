@@ -263,6 +263,13 @@ def _summarize(
     account_failures = sum(
         1 for attempt in attempts if attempt["failure_attribution"] == "account"
     )
+    served_by = sorted(
+        {
+            str(attempt["served_model"])
+            for attempt in attempts
+            if attempt["served_model"]
+        }
+    )
     last_outcome = eligible_rows[-1]["logical_outcome"] if eligible_rows else None
     operations = len(eligible_rows)
     successful_operations = len(successes)
@@ -289,6 +296,10 @@ def _summarize(
         "attempts": len(eligible_attempts),
         "failures": dict(sorted(failures.items())),
         "account_failures": account_failures,
+        # Non-empty when the provider answered under a different model ID than
+        # the one requested, so a record can be read as being about whatever
+        # actually served it.
+        "served_by": served_by,
         "source_counts": dict(Counter(str(row["source"]) for row in eligible_rows)),
         "window_start": eligible_rows[0]["started_at"] if eligible_rows else None,
         "window_end": eligible_rows[-1]["finished_at"] if eligible_rows else None,

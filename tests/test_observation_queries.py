@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 import pytest
 
 from basemode import ObservationContext, continue_text, observations
@@ -147,6 +149,56 @@ async def test_answering_endpoint_that_fails_is_still_failed(monkeypatch) -> Non
     await _run_controlled_probe(monkeypatch, "openai/wobbly", Overloaded("busy"))
 
     assert controlled_status("openai/wobbly")["controlled_status"] == "failed"
+
+
+class _ServingStrategy:
+    """A strategy whose provider answers under a different model ID."""
+
+    name = "system"
+
+    def __init__(self, served: str) -> None:
+        self.served = served
+
+    async def stream(self, prefix, params):
+        from basemode import usage_capture
+
+        usage_capture.record_chunk(SimpleNamespace(usage=None, model=self.served))
+        yield " continuation"
+
+
+async def test_a_substituted_model_is_recorded(monkeypatch) -> None:
+    """A retired ID that still answers is served by something else.
+
+    The continuation reads fine and the catalog does not admit to it, so the
+    served ID on the response is the only evidence the record is about a
+    different model than its name says.
+    """
+    monkeypatch.setattr(
+        "basemode.continue_.detect_strategy",
+        lambda *args: _ServingStrategy("moonshotai/Kimi-K2-Instruct-0905"),
+    )
+
+    await _drain(continue_text("Seed", model="deepinfra/moonshotai/kimi-k2-instruct"))
+
+    health = endpoint_health("deepinfra/moonshotai/kimi-k2-instruct")
+    assert health is not None
+    assert health["served_by"] == ["moonshotai/Kimi-K2-Instruct-0905"]
+
+
+async def test_the_same_model_under_provider_casing_is_not_a_substitution(
+    monkeypatch,
+) -> None:
+    """Providers name the model without its route and in their own casing."""
+    monkeypatch.setattr(
+        "basemode.continue_.detect_strategy",
+        lambda *args: _ServingStrategy("Qwen/Qwen3-32B"),
+    )
+
+    await _drain(continue_text("Seed", model="deepinfra/qwen/qwen3-32b"))
+
+    health = endpoint_health("deepinfra/qwen/qwen3-32b")
+    assert health is not None
+    assert health["served_by"] == []
 
 
 async def test_unseen_endpoint_has_never_tested_status() -> None:

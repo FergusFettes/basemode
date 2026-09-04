@@ -453,24 +453,32 @@ async def _observe_attempt(
     """Finalize exactly one attempt around one strategy/provider invocation."""
     attempt = operation.begin_attempt(kind)
     usage_offset = usage_capture.mark()
+    usage_capture.reset_served_model()
     try:
         async for token in stream:
             attempt.saw_content(token)
             yield token
     except (GeneratorExit, asyncio.CancelledError) as exc:
         attempt.finish(
-            "cancelled", exc, usage_events=usage_capture.collect_since(usage_offset)
+            "cancelled",
+            exc,
+            usage_events=usage_capture.collect_since(usage_offset),
+            served_model=usage_capture.served_model(),
         )
         raise
     except Exception as exc:
         attempt.finish(
-            "failure", exc, usage_events=usage_capture.collect_since(usage_offset)
+            "failure",
+            exc,
+            usage_events=usage_capture.collect_since(usage_offset),
+            served_model=usage_capture.served_model(),
         )
         raise
     else:
         attempt.finish(
             "success" if attempt.returned_content else "failure",
             usage_events=usage_capture.collect_since(usage_offset),
+            served_model=usage_capture.served_model(),
         )
 
 
