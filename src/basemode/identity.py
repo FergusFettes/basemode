@@ -79,8 +79,13 @@ UNKNOWN_CREATOR = "unknown"
 
 
 def canonical_creator(name: str) -> str:
-    """Fold one published creator name onto its canonical spelling."""
-    lowered = name.strip().lower()
+    """Fold one published creator name onto its canonical spelling.
+
+    OpenRouter prefixes a creator with `~` on its floating "latest" aliases
+    (`~anthropic/claude-opus-latest`); that marks the model as an alias, not
+    a different organisation.
+    """
+    lowered = name.strip().lower().lstrip("~")
     return CREATOR_ALIASES.get(lowered, lowered)
 
 

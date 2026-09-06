@@ -37,6 +37,22 @@ def test_canonical_ids(wire_id: str, expected: str) -> None:
     assert canonical_id(wire_id) == expected
 
 
+def test_an_openrouter_floating_alias_keeps_its_creator() -> None:
+    """`~` marks a floating alias, not a different organisation."""
+    assert (
+        canonical_id("openrouter/~anthropic/claude-opus-latest")
+        == "openrouter/anthropic/claude-opus-latest"
+    )
+
+
+def test_a_variant_suffix_is_part_of_the_model() -> None:
+    """`:free` and `:batch` are separate endpoints with separate pricing."""
+    assert (
+        canonical_id("openrouter/z-ai/glm-5.3-flash:batch")
+        == "openrouter/zai/glm-5.3-flash:batch"
+    )
+
+
 def test_an_unidentifiable_codename_is_not_guessed() -> None:
     """Better an honest `unknown` than a creator invented from a name."""
     assert canonical_id("novita/elephant") == "novita/unknown/elephant"
