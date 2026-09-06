@@ -33,6 +33,32 @@ Eligible organic transient failures create a durable recheck schedule. Repeated
 failures back off from 15 minutes to two hours, one day, and then seven days. A
 later organic success resolves the schedule.
 
+## Model identity
+
+Records name a model canonically, as `provider/creator/model`:
+
+```text
+anthropic/claude-opus-5              ->  anthropic/anthropic/claude-opus-5
+gemini/gemini-3-flash-preview        ->  gemini/google/gemini-3-flash-preview
+deepinfra/deepseek-ai/deepseek-v3.2  ->  deepinfra/deepseek/deepseek-v3.2
+novita/deepseek/deepseek-v3.2        ->  novita/deepseek/deepseek-v3.2
+cerebras/zai-glm-4.6                 ->  cerebras/zai/zai-glm-4.6
+```
+
+This is derived, never sent to a provider. The wire ID — what litellm and the
+provider are actually called with — is stored alongside it and is what
+verification targets and the recheck queue use. Only reporting, grouping and
+contribution export use the canonical form.
+
+Creators come from the ID where a reseller publishes one, from the provider
+itself where it serves its own models, and otherwise from the packaged catalog,
+which usually names the same model with a creator somewhere else. Resellers
+disagree about spelling — `deepseek-ai` and `deepseek`, `zai-org` and `z-ai` —
+so `identity.CREATOR_ALIASES` folds the variants onto one name. Without that
+the same organisation stays under two or three spellings and nothing groups.
+A model whose creator genuinely cannot be established is `unknown` rather than
+guessed.
+
 ## Substituted models
 
 A reseller that retires a model ID often keeps answering on it and routes the

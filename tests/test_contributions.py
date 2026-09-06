@@ -49,7 +49,9 @@ async def test_export_is_aggregate_only(monkeypatch, tmp_path: Path) -> None:
 
     serialized = output.read_text()
     assert "private seed" not in serialized
-    assert bundle["observations"][0]["endpoint"] == "openai/example"
+    # Contributions are compared across contributors, so they carry the
+    # canonical identity rather than each provider's own spelling.
+    assert bundle["observations"][0]["endpoint"] == "openai/openai/example"
     assert bundle["observations"][0]["operations"] == 1
     assert json.loads(serialized) == bundle
 

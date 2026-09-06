@@ -5,6 +5,7 @@ from importlib import resources
 
 import litellm
 
+from .identity import canonical_id
 from .keys import list_model_ratings
 from .model_modality import classify_text_endpoint
 from .observation_queries import list_controlled_status, list_endpoint_health
@@ -100,10 +101,15 @@ def _rating_for(thumbs: dict[str, int], provider: str, model: str) -> int | None
 
 
 def _health_for(health: dict[str, dict], provider: str, model: str) -> dict | None:
-    """Observed health stored under either the bare or qualified model ID."""
+    """Observed health, which is keyed canonically but asked for by wire ID."""
     if not health:
         return None
-    observed = health.get(model.lower()) or health.get(f"{provider}/{model}".lower())
+    qualified = f"{provider}/{model}".lower()
+    observed = (
+        health.get(model.lower())
+        or health.get(qualified)
+        or health.get(canonical_id(qualified))
+    )
     if observed is None:
         return None
     failures = observed.get("failures", {})
@@ -427,9 +433,12 @@ def list_model_picker_entries(
             continue
 
         v = verified.get(model) or verified.get(f"{model_provider}/{model}", {})
-        is_broken = model in broken or qualified in broken
+        canonical = canonical_id(qualified)
+        is_broken = model in broken or qualified in broken or canonical in broken
         is_evidence_verified = (
-            model in evidence_verified or qualified in evidence_verified
+            model in evidence_verified
+            or qualified in evidence_verified
+            or canonical in evidence_verified
         )
         available = model_provider in available_providers
         if available_only and not available:

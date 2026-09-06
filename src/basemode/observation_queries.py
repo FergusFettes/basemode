@@ -9,15 +9,23 @@ from typing import Any
 
 from . import observations
 from .health_rules import RULES_VERSION, operational_status
+from .identity import canonical_id
 
 
 def endpoint_health(model: str, *, days: int | None = None) -> dict[str, Any] | None:
-    """Return operational endpoint health without exposing individual content."""
-    return list_endpoint_health(days=days).get(model.lower())
+    """Return operational endpoint health without exposing individual content.
+
+    Accepts either the wire ID or the canonical `provider/creator/model`.
+    """
+    records = list_endpoint_health(days=days)
+    return records.get(model.lower()) or records.get(canonical_id(model))
 
 
 def due_recheck_models(*, now: str | None = None) -> list[str]:
-    """Return endpoints whose unified-ledger recheck schedule is due."""
+    """Return endpoints whose unified-ledger recheck schedule is due.
+
+    Wire IDs, not canonical ones: these go straight back to a provider.
+    """
     if not observations._DB_FILE.exists():
         return []
     with observations._db() as conn:
@@ -77,8 +85,9 @@ def clear_endpoint_health(model: str | None = None) -> None:
                 for row in conn.execute(
                     """SELECT o.id FROM call_operations o
                        JOIN model_endpoints e ON e.id=o.endpoint_id
-                       WHERE e.provider_route=? AND e.provider_model_id=?""",
-                    (route, provider_model),
+                       WHERE (e.provider_route=? AND e.provider_model_id=?)
+                          OR e.canonical_model_id=?""",
+                    (route, provider_model, canonical_id(model)),
                 )
             ]
         if operation_ids:
@@ -95,9 +104,12 @@ def clear_endpoint_health(model: str | None = None) -> None:
 
 
 def controlled_status(model: str, *, stale_after_days: int = 30) -> dict[str, Any]:
-    return list_controlled_status(stale_after_days=stale_after_days).get(
-        model.lower(),
-        {
+    """Controlled status by wire ID or canonical `provider/creator/model`."""
+    records = list_controlled_status(stale_after_days=stale_after_days)
+    return (
+        records.get(model.lower())
+        or records.get(canonical_id(model))
+        or {
             "controlled_status": "never_tested",
             "served_by": [],
             "suite": None,
@@ -106,7 +118,7 @@ def controlled_status(model: str, *, stale_after_days: int = 30) -> dict[str, An
             "attempts": 0,
             "failures": {},
             "last_run_at": None,
-        },
+        }
     )
 
 
@@ -324,6 +336,16 @@ def _summarize(
 
 
 def _model_name(row: sqlite3.Row) -> str:
+    """Name an endpoint canonically: provider/creator/model.
+
+    Reporting groups and compares models, so it uses the derived identity
+    rather than the wire ID. Anything that goes on to call a provider — the
+    recheck queue, verification targets — must keep the wire ID instead.
+    """
+    keys = row.keys()
+    canonical = row["canonical_model_id"] if "canonical_model_id" in keys else None
+    if canonical:
+        return str(canonical)
     route = str(row["provider_route"])
     model = str(row["provider_model_id"])
-    return model if route == "unknown" else f"{route}/{model}"
+    return canonical_id(model if route == "unknown" else f"{route}/{model}")

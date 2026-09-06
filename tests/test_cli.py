@@ -267,7 +267,8 @@ def test_health_json_is_machine_readable() -> None:
     result = runner.invoke(app, ["health", "--json"])
 
     payload = json.loads(result.output)
-    assert payload["openai/gpt-4o-mini"]["failures"] == {"rate_limit": 1}
+    # Reported canonically: provider/creator/model, not the wire ID.
+    assert payload["openai/openai/gpt-4o-mini"]["failures"] == {"rate_limit": 1}
 
 
 def test_info_shows_the_rating_and_observed_health() -> None:

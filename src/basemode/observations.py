@@ -23,6 +23,7 @@ from .failure_taxonomy import (
     failure_transience,
 )
 from .health_rules import recheck_due_at
+from .identity import canonical_id
 from .usage import usage_from_events
 
 log = logging.getLogger(__name__)
@@ -118,6 +119,9 @@ def _connect() -> sqlite3.Connection:
             id INTEGER PRIMARY KEY,
             provider_route TEXT NOT NULL,
             provider_model_id TEXT NOT NULL,
+            -- provider/creator/model. Derived, never sent to a provider; the
+            -- wire ID is provider_route + provider_model_id. See identity.py.
+            canonical_model_id TEXT,
             upstream_family TEXT,
             modality TEXT,
             text_eligible INTEGER NOT NULL DEFAULT 1,
@@ -271,6 +275,9 @@ def _connect() -> sqlite3.Connection:
         conn.execute("ALTER TABLE model_endpoints ADD COLUMN modality TEXT")
     if "catalog_available" not in endpoint_columns:
         conn.execute("ALTER TABLE model_endpoints ADD COLUMN catalog_available INTEGER")
+    if "canonical_model_id" not in endpoint_columns:
+        conn.execute("ALTER TABLE model_endpoints ADD COLUMN canonical_model_id TEXT")
+    _backfill_canonical_ids(conn)
     operation_columns = {
         str(row["name"]) for row in conn.execute("PRAGMA table_info(call_operations)")
     }
@@ -884,16 +891,39 @@ def operation_attempt_kinds(operation_id: int) -> set[str]:
     return {str(row["attempt_kind"]) for row in rows}
 
 
+def _backfill_canonical_ids(conn: sqlite3.Connection) -> None:
+    """Give existing endpoints their canonical ID without touching the wire ID."""
+    rows = conn.execute(
+        """SELECT id,provider_route,provider_model_id FROM model_endpoints
+           WHERE canonical_model_id IS NULL"""
+    ).fetchall()
+    for row in rows:
+        conn.execute(
+            "UPDATE model_endpoints SET canonical_model_id=? WHERE id=?",
+            (
+                _canonical_for(row["provider_route"], row["provider_model_id"]),
+                row["id"],
+            ),
+        )
+
+
+def _canonical_for(route: str, provider_model_id: str) -> str:
+    wire = provider_model_id if route == "unknown" else f"{route}/{provider_model_id}"
+    return canonical_id(wire)
+
+
 def _ensure_endpoint(
     conn: sqlite3.Connection, route: str, provider_model_id: str, now: str
 ) -> int:
     conn.execute(
         """INSERT INTO model_endpoints(
-               provider_route, provider_model_id, first_seen, last_seen
-           ) VALUES (?, ?, ?, ?)
+               provider_route, provider_model_id, canonical_model_id,
+               first_seen, last_seen
+           ) VALUES (?, ?, ?, ?, ?)
            ON CONFLICT(provider_route, provider_model_id)
-           DO UPDATE SET last_seen = excluded.last_seen""",
-        (route, provider_model_id, now, now),
+           DO UPDATE SET last_seen = excluded.last_seen,
+               canonical_model_id = excluded.canonical_model_id""",
+        (route, provider_model_id, _canonical_for(route, provider_model_id), now, now),
     )
     return int(
         conn.execute(

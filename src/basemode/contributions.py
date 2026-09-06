@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from . import observations
+from .identity import canonical_id
 
 SCHEMA_VERSION = 1
 PUBLIC_SOURCES = {"cli", "python", "server", "loom", "verification"}
@@ -108,7 +109,7 @@ def build_contribution(
     conn.row_factory = sqlite3.Row
     try:
         operations = conn.execute(
-            """SELECT o.*,e.provider_route,e.provider_model_id
+            """SELECT o.*,e.provider_route,e.provider_model_id,e.canonical_model_id
                FROM call_operations o JOIN model_endpoints e ON e.id=o.endpoint_id
                WHERE o.finished_at IS NOT NULL AND o.is_submitted=0
                  AND o.started_at>=? AND o.started_at<?
@@ -121,7 +122,10 @@ def build_contribution(
         for operation in operations:
             if operation["source"] not in PUBLIC_SOURCES:
                 continue
-            endpoint = (
+            # Contributions are compared across contributors and providers,
+            # so they carry the canonical provider/creator/model identity
+            # rather than whatever each provider happens to call the model.
+            endpoint = operation["canonical_model_id"] or canonical_id(
                 operation["provider_model_id"]
                 if operation["provider_route"] == "unknown"
                 else f"{operation['provider_route']}/{operation['provider_model_id']}"

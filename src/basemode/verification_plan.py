@@ -7,6 +7,7 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
+from .identity import canonical_id
 from .model_modality import classify_text_endpoint
 from .models import list_available_endpoint_metadata, list_catalog_endpoint_metadata
 from .observation_queries import list_controlled_status, list_endpoint_health
@@ -130,8 +131,11 @@ def plan_verification(
     rows = []
     for metadata in metadata_rows:
         model = str(metadata["model"])
-        local = operational.get(model, {})
-        checked = controlled.get(model, {})
+        # Health and controlled status are reported canonically; targets stay
+        # on the wire ID because they go straight back to a provider.
+        canonical = canonical_id(model)
+        local = operational.get(model) or operational.get(canonical) or {}
+        checked = controlled.get(model) or controlled.get(canonical) or {}
         controlled_status = checked.get("controlled_status")
         operational_status = local.get("operational_status")
         derived[model] = {
