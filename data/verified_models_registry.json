@@ -11,7 +11,8 @@
       "model": "anthropic/claude-fable-5-1",
       "openrouter_id": "anthropic/claude-fable-5.1",
       "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing",
-      "prompt_method": "system"
+      "prompt_method": "system",
+      "quirks": ["no_prefill", "no_temperature"]
     },
     {
       "model": "anthropic/claude-haiku-4-5-20251001",
@@ -93,7 +94,8 @@
     },
     {
       "model": "deepinfra/anthropic/claude-fable-5",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["no_prefill"]
     },
     {
       "model": "deepinfra/anthropic/claude-haiku-4-5",
@@ -101,23 +103,28 @@
     },
     {
       "model": "deepinfra/anthropic/claude-opus-4-7",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["no_prefill"]
     },
     {
       "model": "deepinfra/anthropic/claude-opus-4-8",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["no_prefill"]
     },
     {
       "model": "deepinfra/anthropic/claude-opus-5",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["no_prefill"]
     },
     {
       "model": "deepinfra/anthropic/claude-sonnet-4-6",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["no_prefill"]
     },
     {
       "model": "deepinfra/anthropic/claude-sonnet-5",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["no_prefill"]
     },
     {
       "model": "deepinfra/bytedance/seed-1.8",
@@ -221,7 +228,8 @@
     },
     {
       "model": "deepinfra/gryphe/mythomax-l2-13b",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/inclusionai/ling-3.0-flash",
@@ -255,7 +263,8 @@
     },
     {
       "model": "deepinfra/minimaxai/minimax-m3",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/mistralai/mistral-nemo-instruct-2407",
@@ -293,8 +302,7 @@
     },
     {
       "model": "deepinfra/moonshotai/kimi-k3",
-      "pricing_url": "https://deepinfra.com/pricing",
-      "quirks": ["no_temperature"]
+      "pricing_url": "https://deepinfra.com/pricing"
     },
     {
       "model": "deepinfra/nousresearch/hermes-3-llama-3.1-405b",
@@ -462,7 +470,8 @@
     },
     {
       "model": "deepinfra/zai-org/glm-4.6",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/zai-org/glm-4.7",
@@ -766,7 +775,8 @@
     },
     {
       "model": "novita/inclusionai/ling-3.0-flash-fin",
-      "pricing_url": "https://novita.ai/pricing"
+      "pricing_url": "https://novita.ai/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "novita/kwaipilot/kat-coder-pro",
@@ -802,19 +812,23 @@
     },
     {
       "model": "novita/minimax/minimax-m2",
-      "pricing_url": "https://novita.ai/pricing"
+      "pricing_url": "https://novita.ai/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "novita/minimax/minimax-m2.1",
-      "pricing_url": "https://novita.ai/pricing"
+      "pricing_url": "https://novita.ai/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "novita/minimax/minimax-m2.5",
-      "pricing_url": "https://novita.ai/pricing"
+      "pricing_url": "https://novita.ai/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "novita/minimax/minimax-m2.5-highspeed",
-      "pricing_url": "https://novita.ai/pricing"
+      "pricing_url": "https://novita.ai/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "novita/minimax/minimax-m2.7",
@@ -826,7 +840,8 @@
     },
     {
       "model": "novita/minimax/minimax-m3",
-      "pricing_url": "https://novita.ai/pricing"
+      "pricing_url": "https://novita.ai/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "novita/minimaxai/minimax-m1-80k",
@@ -859,11 +874,12 @@
     {
       "model": "novita/moonshotai/kimi-k3",
       "pricing_url": "https://novita.ai/pricing",
-      "quirks": ["no_temperature"]
+      "quirks": ["no_temperature", "reasoning_budget"]
     },
     {
       "model": "novita/nvidia/nemotron-3-nano-30b-a3b",
-      "pricing_url": "https://novita.ai/pricing"
+      "pricing_url": "https://novita.ai/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "novita/openai/gpt-oss-120b",
@@ -893,7 +909,8 @@
     },
     {
       "model": "novita/qwen/qwen3-coder-30b-a3b-instruct",
-      "pricing_url": "https://novita.ai/pricing"
+      "pricing_url": "https://novita.ai/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "novita/qwen/qwen3-coder-480b-a35b-instruct",
@@ -1042,7 +1059,7 @@
     {
       "model": "openai/chat-latest",
       "pricing_url": "https://openai.com/api/pricing/",
-      "quirks": ["max_completion_tokens"]
+      "quirks": ["max_completion_tokens", "no_temperature"]
     },
     {
       "model": "openai/gpt-3.5-turbo-0125",
@@ -1234,8 +1251,7 @@
     {
       "model": "openrouter/moonshotai/kimi-k2.6",
       "openrouter_id": "moonshotai/kimi-k2.6",
-      "pricing_url": "https://openrouter.ai/moonshotai/kimi-k2.6",
-      "quirks": ["no_temperature"]
+      "pricing_url": "https://openrouter.ai/moonshotai/kimi-k2.6"
     },
     {
       "model": "together_ai/deepseek-ai/DeepSeek-V4-Pro-0813",

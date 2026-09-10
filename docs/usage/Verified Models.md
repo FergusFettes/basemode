@@ -5,7 +5,7 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | Model | Input cost (/1M) | Output cost (/1M) | Release date | Prompt method | Reliability | Quirks |
 |---|---:|---:|---|---|---|---|
 | `anthropic/claude-fable-5` | $10.00 | $50.00 | 2026-06-09 | `system` | ✓ | `no_prefill`, `no_temperature` |
-| `anthropic/claude-fable-5-1` | $10.00 | $50.00 | 2026-08-31 | `system` | ✓ |  |
+| `anthropic/claude-fable-5-1` | $10.00 | $50.00 | 2026-08-31 | `system` | ✓ | `no_prefill`, `no_temperature` |
 | `anthropic/claude-haiku-4-5-20251001` | $1.00 | $5.00 | 2025-10-01 | `prefill` | ✓ |  |
 | `anthropic/claude-opus-4-1-20250805` | $15.00 | $75.00 | 2025-08-05 | `prefill` | ✓ |  |
 | `anthropic/claude-opus-4-20250514` | $15.00 | $75.00 | 2025-05-22 | `prefill` | ✓ |  |
@@ -20,13 +20,13 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `anthropic/claude-sonnet-5` | $2.00 | $10.00 | 2026-06-30 | `system` | ✓ | `no_prefill`, `no_temperature` |
 | `cerebras/gemma-4-31b` | $0.99 | $1.49 | unknown | `system` | ⚠ |  |
 | `cerebras/gpt-oss-120b` | $0.35 | $0.75 | unknown | `system` | ⚠ | `reasoning_budget` |
-| `deepinfra/anthropic/claude-fable-5` | $10.00 | $50.00 | unknown | `system` | ⚠ |  |
+| `deepinfra/anthropic/claude-fable-5` | $10.00 | $50.00 | unknown | `system` | ⚠ | `no_prefill` |
 | `deepinfra/anthropic/claude-haiku-4-5` | $1.00 | $5.00 | unknown | `prefill` | ⚠ |  |
-| `deepinfra/anthropic/claude-opus-4-7` | $5.00 | $25.00 | unknown | `system` | ⚠ |  |
-| `deepinfra/anthropic/claude-opus-4-8` | $5.00 | $25.00 | unknown | `system` | ⚠ |  |
-| `deepinfra/anthropic/claude-opus-5` | $5.00 | $25.00 | unknown | `few_shot` | ⚠ |  |
-| `deepinfra/anthropic/claude-sonnet-4-6` | $3.00 | $15.00 | unknown | `system` | ⚠ |  |
-| `deepinfra/anthropic/claude-sonnet-5` | $2.00 | $10.00 | unknown | `system` | ⚠ |  |
+| `deepinfra/anthropic/claude-opus-4-7` | $5.00 | $25.00 | unknown | `system` | ⚠ | `no_prefill` |
+| `deepinfra/anthropic/claude-opus-4-8` | $5.00 | $25.00 | unknown | `system` | ⚠ | `no_prefill` |
+| `deepinfra/anthropic/claude-opus-5` | $5.00 | $25.00 | unknown | `few_shot` | ⚠ | `no_prefill` |
+| `deepinfra/anthropic/claude-sonnet-4-6` | $3.00 | $15.00 | unknown | `system` | ⚠ | `no_prefill` |
+| `deepinfra/anthropic/claude-sonnet-5` | $2.00 | $10.00 | unknown | `system` | ⚠ | `no_prefill` |
 | `deepinfra/bytedance/seed-1.8` | $0.25 | $2.00 | unknown | `system` | ⚠ |  |
 | `deepinfra/bytedance/seed-2.0-code` | $0.50 | $3.00 | unknown | `system` | ⚠ |  |
 | `deepinfra/bytedance/seed-2.0-mini` | $0.10 | $0.40 | unknown | `system` | ⚠ |  |
@@ -52,7 +52,7 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `deepinfra/google/gemma-4-31b-it-turbo` | $0.09 | $0.34 | unknown | `system` | ⚠ |  |
 | `deepinfra/google/gemma-4-31b-it-ultra` | $0.27 | $0.76 | unknown | `system` | ⚠ |  |
 | `deepinfra/google/gemma-4-e4b-it` | $0.02 | $0.10 | unknown | `system` | ⚠ |  |
-| `deepinfra/gryphe/mythomax-l2-13b` | $0.40 | $0.40 | unknown | `system` | ⚠ |  |
+| `deepinfra/gryphe/mythomax-l2-13b` | $0.40 | $0.40 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/inclusionai/ling-3.0-flash` | $0.06 | $0.18 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/meta-llama/llama-3.3-70b-instruct-turbo` | $0.10 | $0.32 | unknown | `system` | ⚠ |  |
 | `deepinfra/meta-llama/llama-4-scout-17b-16e-instruct` | $0.10 | $0.30 | unknown | `system` | ⚠ |  |
@@ -60,7 +60,7 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `deepinfra/meta-llama/meta-llama-3.1-8b-instruct-turbo` | $0.02 | $0.04 | unknown | `system` | ⚠ |  |
 | `deepinfra/microsoft/phi-4` | $0.07 | $0.14 | unknown | `system` | ⚠ |  |
 | `deepinfra/minimaxai/minimax-m2.7` | $0.25 | $1.00 | unknown | `system` | ⚠ | `reasoning_budget` |
-| `deepinfra/minimaxai/minimax-m3` | $0.28 | $1.10 | unknown | `system` | ⚠ |  |
+| `deepinfra/minimaxai/minimax-m3` | $0.28 | $1.10 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/mistralai/mistral-nemo-instruct-2407` | $0.02 | $0.03 | unknown | `system` | ⚠ |  |
 | `deepinfra/mistralai/mistral-small-24b-instruct-2501` | $0.05 | $0.08 | unknown | `system` | ⚠ |  |
 | `deepinfra/mistralai/mistral-small-3.2-24b-instruct-2506` | $0.07 | $0.20 | unknown | `system` | ⚠ |  |
@@ -69,7 +69,7 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `deepinfra/moonshotai/kimi-k2.5` | $0.45 | $2.25 | unknown | `system` | ⚠ |  |
 | `deepinfra/moonshotai/kimi-k2.6` | $0.75 | $3.50 | unknown | `system` | ⚠ |  |
 | `deepinfra/moonshotai/kimi-k2.7-code` | $0.68 | $3.40 | unknown | `system` | ⚠ |  |
-| `deepinfra/moonshotai/kimi-k3` | $2.85 | $14.25 | unknown | `prefill` | ⚠ | `no_temperature` |
+| `deepinfra/moonshotai/kimi-k3` | $2.85 | $14.25 | unknown | `prefill` | ⚠ |  |
 | `deepinfra/nousresearch/hermes-3-llama-3.1-405b` | $1.00 | $1.00 | unknown | `system` | ⚠ |  |
 | `deepinfra/nousresearch/hermes-3-llama-3.1-70b` | $0.70 | $0.70 | unknown | `system` | ⚠ |  |
 | `deepinfra/nvidia/nemotron-3-nano-30b-a3b` | $0.05 | $0.20 | unknown | `system` | ⚠ |  |
@@ -107,7 +107,7 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `deepinfra/thinkingmachines/inkling-small` | $0.45 | $1.20 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/xiaomimimo/mimo-v2.5` | $0.40 | $2.00 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/xiaomimimo/mimo-v2.5-pro` | $1.00 | $3.00 | unknown | `system` | ⚠ | `reasoning_budget` |
-| `deepinfra/zai-org/glm-4.6` | $0.50 | $2.00 | unknown | `system` | ⚠ |  |
+| `deepinfra/zai-org/glm-4.6` | $0.50 | $2.00 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/zai-org/glm-4.7` | $0.40 | $1.75 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/zai-org/glm-4.7-flash` | $0.06 | $0.40 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/zai-org/glm-5` | $0.60 | $2.08 | unknown | `system` | ⚠ |  |
@@ -180,7 +180,7 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `novita/google/gemma-4-31b-it` | $0.14 | $0.40 | unknown | `system` | ⚠ |  |
 | `novita/inclusionai/ling-3.0-flash` | $0.06 | $0.18 | unknown | `system` | ⚠ |  |
 | `novita/inclusionai/ling-3.0-flash-fast` | $0.06 | $0.18 | unknown | `system` | ⚠ |  |
-| `novita/inclusionai/ling-3.0-flash-fin` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/inclusionai/ling-3.0-flash-fin` | unknown | unknown | unknown | `system` | ⚠ | `reasoning_budget` |
 | `novita/kwaipilot/kat-coder-pro` | $0.30 | $1.20 | unknown | `system` | ⚠ |  |
 | `novita/meta-llama/llama-3.1-8b-instruct` | $0.02 | $0.05 | unknown | `system` | ⚠ |  |
 | `novita/meta-llama/llama-3.3-70b-instruct` | $0.14 | $0.40 | unknown | `system` | ⚠ |  |
@@ -189,13 +189,13 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `novita/microsoft/wizardlm-2-8x22b` | $0.62 | $0.62 | unknown | `system` | ⚠ |  |
 | `novita/mindai/macaron-v1-venti` | $1.50 | $4.50 | unknown | `system` | ⚠ |  |
 | `novita/minimax/m2-her` | unknown | unknown | unknown | `system` | ⚠ |  |
-| `novita/minimax/minimax-m2` | $0.30 | $1.20 | unknown | `system` | ⚠ |  |
-| `novita/minimax/minimax-m2.1` | $0.30 | $1.20 | unknown | `system` | ⚠ |  |
-| `novita/minimax/minimax-m2.5` | $0.30 | $1.20 | unknown | `system` | ⚠ |  |
-| `novita/minimax/minimax-m2.5-highspeed` | $0.60 | $2.40 | unknown | `system` | ⚠ |  |
+| `novita/minimax/minimax-m2` | $0.30 | $1.20 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `novita/minimax/minimax-m2.1` | $0.30 | $1.20 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `novita/minimax/minimax-m2.5` | $0.30 | $1.20 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `novita/minimax/minimax-m2.5-highspeed` | $0.60 | $2.40 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `novita/minimax/minimax-m2.7` | $0.30 | $1.20 | unknown | `system` | ⚠ |  |
 | `novita/minimax/minimax-m2.7-highspeed` | $0.60 | $2.40 | unknown | `system` | ⚠ |  |
-| `novita/minimax/minimax-m3` | $0.30 | $1.20 | unknown | `system` | ⚠ |  |
+| `novita/minimax/minimax-m3` | $0.30 | $1.20 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `novita/minimaxai/minimax-m1-80k` | $0.55 | $2.20 | unknown | `system` | ⚠ |  |
 | `novita/mistralai/mistral-nemo` | $0.04 | $0.17 | unknown | `system` | ⚠ |  |
 | `novita/moonshotai/kimi-k2-0905` | $0.60 | $2.50 | unknown | `system` | ⚠ |  |
@@ -203,15 +203,15 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `novita/moonshotai/kimi-k2.5` | $0.60 | $3.00 | unknown | `system` | ⚠ |  |
 | `novita/moonshotai/kimi-k2.6` | $0.80 | $3.40 | unknown | `system` | ⚠ |  |
 | `novita/moonshotai/kimi-k2.7-code` | $0.95 | $4.00 | unknown | `system` | ⚠ |  |
-| `novita/moonshotai/kimi-k3` | $3.00 | $15.00 | unknown | `prefill` | ⚠ | `no_temperature` |
-| `novita/nvidia/nemotron-3-nano-30b-a3b` | $0.05 | $0.20 | unknown | `system` | ⚠ |  |
+| `novita/moonshotai/kimi-k3` | $3.00 | $15.00 | unknown | `prefill` | ⚠ | `no_temperature`, `reasoning_budget` |
+| `novita/nvidia/nemotron-3-nano-30b-a3b` | $0.05 | $0.20 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `novita/openai/gpt-oss-120b` | $0.05 | $0.25 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `novita/openai/gpt-oss-20b` | $0.04 | $0.15 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `novita/qwen/qwen-2.5-72b-instruct` | $0.38 | $0.40 | unknown | `system` | ⚠ |  |
 | `novita/qwen/qwen3-235b-a22b-fp8` | $0.20 | $0.80 | unknown | `system` | ⚠ |  |
 | `novita/qwen/qwen3-235b-a22b-instruct-2507` | $0.09 | $0.58 | unknown | `system` | ⚠ |  |
 | `novita/qwen/qwen3-235b-a22b-thinking-2507` | $0.30 | $3.00 | unknown | `system` | ⚠ |  |
-| `novita/qwen/qwen3-coder-30b-a3b-instruct` | $0.07 | $0.27 | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3-coder-30b-a3b-instruct` | $0.07 | $0.27 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `novita/qwen/qwen3-coder-480b-a35b-instruct` | $0.38 | $1.55 | unknown | `system` | ⚠ |  |
 | `novita/qwen/qwen3-coder-next` | $0.20 | $1.50 | unknown | `system` | ⚠ |  |
 | `novita/qwen/qwen3-max` | $2.11 | $8.45 | unknown | `system` | ⚠ |  |
@@ -230,8 +230,8 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `novita/qwen/qwen3.6-35b-a3b` | $0.25 | $1.49 | unknown | `system` | ⚠ |  |
 | `novita/qwen/qwen3.6-plus` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `novita/qwen/qwen3.7-max` | $1.25 | $3.75 | unknown | `system` | ⚠ |  |
-| `novita/qwen/qwen3.8-27b` | unknown | unknown | unknown | `system` | ⚠ |  |
-| `novita/qwen/qwen3.8-flash` | unknown | unknown | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3.8-27b` | $0.42 | $3.00 | unknown | `system` | ⚠ |  |
+| `novita/qwen/qwen3.8-flash` | $0.15 | $0.47 | unknown | `system` | ⚠ |  |
 | `novita/qwen/qwen3.8-max` | $2.00 | $6.00 | unknown | `system` | ⚠ |  |
 | `novita/sao10k/l3-8b-lunaris` | $0.05 | $0.05 | unknown | `system` | ⚠ |  |
 | `novita/sao10k/l31-70b-euryale-v2.2` | $1.48 | $1.48 | unknown | `system` | ⚠ |  |
@@ -248,7 +248,7 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `novita/zai-org/glm-5.2` | $1.40 | $4.40 | unknown | `system` | ⚠ |  |
 | `novita/zai-org/glm-5.3` | $1.40 | $4.40 | unknown | `system` | ⚠ |  |
 | `novita/zai-org/glm-5v-turbo` | $1.20 | $4.00 | unknown | `system` | ⚠ |  |
-| `openai/chat-latest` | $5.00 | $30.00 | unknown | `system` | ⚠ | `max_completion_tokens` |
+| `openai/chat-latest` | $5.00 | $30.00 | unknown | `system` | ⚠ | `max_completion_tokens`, `no_temperature` |
 | `openai/gpt-3.5-turbo-0125` | $0.50 | $1.50 | 2023-05-28 | `system` | ⚠ |  |
 | `openai/gpt-3.5-turbo-1106` | $1.00 | $2.00 | 2023-05-28 | `system` | ⚠ |  |
 | `openai/gpt-4-turbo` | $10.00 | $30.00 | 2024-04-09 | `system` | ⚠ |  |
@@ -285,7 +285,7 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `openai/gpt-5.6-luna` | $0.20 | $1.20 | unknown | `system` | ⚠ | `no_temperature` |
 | `openai/gpt-5.6-sol` | $4.00 | $20.00 | 2026-07-09 | `system` | ✓ | `no_temperature` |
 | `openai/gpt-5.6-terra` | $2.00 | $12.00 | 2026-07-09 | `system` | ✓ | `no_temperature` |
-| `openrouter/moonshotai/kimi-k2.6` | $0.95 | $4.00 | 2026-04-20 | `system` | ⚠ | `no_temperature` |
+| `openrouter/moonshotai/kimi-k2.6` | $0.95 | $4.00 | 2026-04-20 | `system` | ✓ |  |
 | `together_ai/deepseek-ai/DeepSeek-V4-Pro-0813` | $1.32 | $3.96 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `xai/grok-4.20-0309-non-reasoning` | $1.25 | $2.50 | 2026-03-09 | `system` | ✓ |  |
 | `xai/grok-4.20-0309-reasoning` | $1.25 | $2.50 | 2026-03-09 | `system` | ✓ |  |
