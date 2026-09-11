@@ -136,7 +136,7 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `gemini/gemini-pro-latest` | $1.25 | $10.00 | 2026-04-27 | `system` | ⚠ |  |
 | `gemini/gemini-robotics-er-1.6-preview` | $1.00 | $5.00 | unknown | `prefill` | ⚠ |  |
 | `gemini/gemini-robotics-er-2-preview` | $2.00 | $10.00 | unknown | `system` | ⚠ |  |
-| `gemini/gemma-4-26b-a4b-it` | $0.07 | $0.34 | 2026-04-03 | `system` | ⚠ | `reasoning_budget` |
+| `gemini/gemma-4-26b-a4b-it` | $0.04 | $0.22 | 2026-04-03 | `system` | ⚠ | `reasoning_budget` |
 | `gemini/gemma-4-31b-it` | $0.09 | $0.34 | 2026-04-02 | `system` | ⚠ | `reasoning_budget` |
 | `gemini/nano-banana-pro-preview` | $2.00 | $12.00 | unknown | `prefill` | ⚠ |  |
 | `groq/allam-2-7b` | unknown | unknown | unknown | `system` | ⚠ |  |
