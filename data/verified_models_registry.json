@@ -93,6 +93,10 @@
       "quirks": ["reasoning_budget"]
     },
     {
+      "model": "cerebras/qwen-3.8-27b",
+      "quirks": ["reasoning_budget"]
+    },
+    {
       "model": "deepinfra/anthropic/claude-fable-5",
       "pricing_url": "https://deepinfra.com/pricing",
       "quirks": ["no_prefill"]
@@ -497,6 +501,10 @@
       "pricing_url": "https://deepinfra.com/pricing"
     },
     {
+      "model": "deepseek/deepseek-flash",
+      "quirks": ["reasoning_budget"]
+    },
+    {
       "model": "deepseek/deepseek-v4-flash",
       "quirks": ["reasoning_budget"]
     },
@@ -579,6 +587,10 @@
       "openrouter_id": "google/gemini-3.6-flash"
     },
     {
+      "model": "gemini/gemini-3.8-flash",
+      "openrouter_id": "google/gemini-3.8-flash"
+    },
+    {
       "model": "gemini/gemini-flash-lite-latest"
     },
     {
@@ -607,6 +619,9 @@
       "quirks": ["reasoning_budget"]
     },
     {
+      "model": "gemini/lyria-3.5"
+    },
+    {
       "model": "gemini/nano-banana-pro-preview",
       "prompt_method": "prefill"
     },
@@ -632,6 +647,10 @@
     {
       "model": "groq/qwen/qwen3.6-27b",
       "openrouter_id": "qwen/qwen3.6-27b"
+    },
+    {
+      "model": "groq/qwen/qwen3.8-27b",
+      "openrouter_id": "qwen/qwen3.8-27b"
     },
     {
       "model": "moonshot/kimi-k2-0905-preview",
@@ -750,6 +769,11 @@
       "pricing_url": "https://novita.ai/pricing"
     },
     {
+      "model": "novita/deepseek/deepseek-v4.1-flash",
+      "openrouter_id": "deepseek/deepseek-v4.1-flash",
+      "quirks": ["reasoning_budget"]
+    },
+    {
       "model": "novita/deepseek/deepseek_v3",
       "pricing_url": "https://novita.ai/pricing"
     },
@@ -776,6 +800,16 @@
     {
       "model": "novita/inclusionai/ling-3.0-flash-fin",
       "pricing_url": "https://novita.ai/pricing",
+      "quirks": ["reasoning_budget"]
+    },
+    {
+      "model": "novita/inclusionai/ling-3.0-flash-sante",
+      "openrouter_id": "inclusionai/ling-3.0-flash-sante:free",
+      "quirks": ["reasoning_budget"]
+    },
+    {
+      "model": "novita/inclusionai/ling-3.0-flash-vl",
+      "openrouter_id": "inclusionai/ling-3.0-flash-vl:free",
       "quirks": ["reasoning_budget"]
     },
     {
@@ -985,6 +1019,10 @@
       "pricing_url": "https://novita.ai/pricing"
     },
     {
+      "model": "novita/qwen/qwen3.8-2.4t-a95b",
+      "openrouter_id": "qwen/qwen3.8-2.4t-a95b"
+    },
+    {
       "model": "novita/qwen/qwen3.8-27b",
       "pricing_url": "https://novita.ai/pricing"
     },
@@ -1053,6 +1091,14 @@
       "pricing_url": "https://novita.ai/pricing"
     },
     {
+      "model": "novita/zai-org/glm-5.3-flash",
+      "openrouter_id": "z-ai/glm-5.3-flash"
+    },
+    {
+      "model": "novita/zai-org/glm-5.3-p",
+      "openrouter_id": "z-ai/glm-5.3"
+    },
+    {
       "model": "novita/zai-org/glm-5v-turbo",
       "pricing_url": "https://novita.ai/pricing"
     },
@@ -1069,6 +1115,21 @@
     {
       "model": "openai/gpt-3.5-turbo-1106",
       "openrouter_id": "openai/gpt-3.5-turbo",
+      "pricing_url": "https://openai.com/api/pricing/"
+    },
+    {
+      "model": "openai/gpt-3.5-turbo-16k",
+      "openrouter_id": "openai/gpt-3.5-turbo-16k",
+      "pricing_url": "https://openai.com/api/pricing/"
+    },
+    {
+      "model": "openai/gpt-4",
+      "openrouter_id": "openai/gpt-4.1",
+      "pricing_url": "https://openai.com/api/pricing/"
+    },
+    {
+      "model": "openai/gpt-4-0613",
+      "openrouter_id": "openai/gpt-4",
       "pricing_url": "https://openai.com/api/pricing/"
     },
     {
@@ -1249,13 +1310,51 @@
       "quirks": ["no_temperature"]
     },
     {
+      "model": "openrouter/deepseek/deepseek-v4.1-flash",
+      "openrouter_id": "deepseek/deepseek-v4.1-flash"
+    },
+    {
+      "model": "openrouter/inception/mercury-2.5",
+      "openrouter_id": "inception/mercury-2.5"
+    },
+    {
+      "model": "openrouter/inclusionai/ling-3.0-flash-vl:free",
+      "openrouter_id": "inclusionai/ling-3.0-flash-vl:free"
+    },
+    {
       "model": "openrouter/moonshotai/kimi-k2.6",
       "openrouter_id": "moonshotai/kimi-k2.6",
       "pricing_url": "https://openrouter.ai/moonshotai/kimi-k2.6"
     },
     {
+      "model": "openrouter/nex-agi/nex-n2.5-mini:free",
+      "openrouter_id": "nex-agi/nex-n2.5-mini:free"
+    },
+    {
+      "model": "openrouter/sakana/fugu-max",
+      "openrouter_id": "sakana/fugu-max"
+    },
+    {
+      "model": "openrouter/sakana/fugu-ultra-v2",
+      "openrouter_id": "sakana/fugu-ultra-v2",
+      "prompt_method": "few_shot"
+    },
+    {
+      "model": "together_ai/MiniMaxAI/MiniMax-M3",
+      "openrouter_id": "minimax/minimax-m3"
+    },
+    {
+      "model": "together_ai/deepseek-ai/DeepSeek-V4-Flash-0731",
+      "openrouter_id": "deepseek/deepseek-v4-flash-0731",
+      "quirks": ["reasoning_budget"]
+    },
+    {
       "model": "together_ai/deepseek-ai/DeepSeek-V4-Pro-0813",
       "quirks": ["reasoning_budget"]
+    },
+    {
+      "model": "together_ai/zai-org/GLM-5.3",
+      "openrouter_id": "z-ai/glm-5.3-flash"
     },
     {
       "model": "xai/grok-4.20-0309-non-reasoning",
@@ -1314,6 +1413,10 @@
     {
       "model": "zai/glm-5.2",
       "openrouter_id": "z-ai/glm-5.2"
+    },
+    {
+      "model": "zai/glm-5.3-flash",
+      "openrouter_id": "z-ai/glm-5.3-flash"
     }
   ]
 }
