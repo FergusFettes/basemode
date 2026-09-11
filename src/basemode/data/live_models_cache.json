@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-09-04T20:11:49.679077+00:00",
+  "generated_at_utc": "2026-09-11T07:46:52.338438+00:00",
   "providers": {
     "anthropic": {
       "models": {
@@ -125,6 +125,7 @@
           "supported_parameters": []
         }
       },
+      "refreshed_at": "2026-09-11T07:46:52.338438+00:00",
       "reliable_dates": true
     },
     "cerebras": {
@@ -163,6 +164,7 @@
           "supported_parameters": []
         }
       },
+      "refreshed_at": "2026-09-11T07:46:52.338438+00:00",
       "reliable_dates": true
     },
     "deepinfra": {
@@ -939,9 +941,9 @@
         },
         "XiaomiMiMo/MiMo-V2.5": {
           "input_modalities": [],
-          "input_price_per_m": 0.4,
+          "input_price_per_m": 0.14,
           "output_modalities": [],
-          "output_price_per_m": 2.0,
+          "output_price_per_m": 0.28,
           "provider_type": null,
           "release_date": null,
           "release_date_confidence": "registered",
@@ -1247,7 +1249,7 @@
         },
         "deepseek-ai/DeepSeek-V4-Flash-0731": {
           "input_modalities": [],
-          "input_price_per_m": 0.08,
+          "input_price_per_m": 0.060000000000000005,
           "output_modalities": [],
           "output_price_per_m": 0.18,
           "provider_type": null,
@@ -1283,6 +1285,17 @@
           "input_price_per_m": 1.2999999999999998,
           "output_modalities": [],
           "output_price_per_m": 2.5999999999999996,
+          "provider_type": null,
+          "release_date": null,
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": []
+        },
+        "deepseek-ai/DeepSeek-V4.1-Flash": {
+          "input_modalities": [],
+          "input_price_per_m": 0.2,
+          "output_modalities": [],
+          "output_price_per_m": 0.6,
           "provider_type": null,
           "release_date": null,
           "release_date_confidence": "registered",
@@ -1576,6 +1589,17 @@
           "supported_parameters": []
         },
         "inclusionAI/Ling-3.0-flash-Fin": {
+          "input_modalities": [],
+          "input_price_per_m": 0.060000000000000005,
+          "output_modalities": [],
+          "output_price_per_m": 0.18,
+          "provider_type": null,
+          "release_date": null,
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": []
+        },
+        "inclusionAI/Ling-3.0-flash-VL": {
           "input_modalities": [],
           "input_price_per_m": 0.060000000000000005,
           "output_modalities": [],
@@ -2247,22 +2271,12 @@
           "supported_parameters": []
         }
       },
+      "refreshed_at": "2026-09-11T07:46:52.338438+00:00",
       "reliable_dates": true
     },
     "deepseek": {
       "models": {
-        "deepseek-v4-flash": {
-          "input_modalities": [],
-          "input_price_per_m": null,
-          "output_modalities": [],
-          "output_price_per_m": null,
-          "provider_type": null,
-          "release_date": null,
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "deepseek-v4-flash-vision-exp": {
+        "deepseek-flash": {
           "input_modalities": [],
           "input_price_per_m": null,
           "output_modalities": [],
@@ -2285,6 +2299,7 @@
           "supported_parameters": []
         }
       },
+      "refreshed_at": "2026-09-11T07:46:52.338438+00:00",
       "reliable_dates": true
     },
     "gemini": {
@@ -3034,6 +3049,7 @@
           "supported_parameters": []
         }
       },
+      "refreshed_at": "2026-09-11T07:46:52.338438+00:00",
       "reliable_dates": true
     },
     "groq": {
@@ -3193,6 +3209,7 @@
           "supported_parameters": []
         }
       },
+      "refreshed_at": "2026-09-11T07:46:52.338438+00:00",
       "reliable_dates": true
     },
     "moonshot": {
@@ -3242,6 +3259,7 @@
           "supported_parameters": []
         }
       },
+      "refreshed_at": "2026-09-11T07:46:52.338438+00:00",
       "reliable_dates": false
     },
     "novita": {
@@ -3253,39 +3271,6 @@
           "output_price_per_m": 0.05,
           "provider_type": null,
           "release_date": "2024-11-29",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "ai_infer_test_1": {
-          "input_modalities": [],
-          "input_price_per_m": null,
-          "output_modalities": [],
-          "output_price_per_m": null,
-          "provider_type": null,
-          "release_date": "2025-11-21",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "ai_infer_test_2": {
-          "input_modalities": [],
-          "input_price_per_m": null,
-          "output_modalities": [],
-          "output_price_per_m": null,
-          "provider_type": null,
-          "release_date": "2025-11-21",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "ai_infer_test_3": {
-          "input_modalities": [],
-          "input_price_per_m": null,
-          "output_modalities": [],
-          "output_price_per_m": null,
-          "provider_type": null,
-          "release_date": "2025-11-21",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": []
@@ -3323,50 +3308,6 @@
           "supported_methods": [],
           "supported_parameters": []
         },
-        "baidu/ernie-4.5-21B-a3b-thinking": {
-          "input_modalities": [],
-          "input_price_per_m": 0.07,
-          "output_modalities": [],
-          "output_price_per_m": 0.28,
-          "provider_type": null,
-          "release_date": "2025-09-19",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "baidu/ernie-4.5-300b-a47b-paddle": {
-          "input_modalities": [],
-          "input_price_per_m": 0.28,
-          "output_modalities": [],
-          "output_price_per_m": 1.1,
-          "provider_type": null,
-          "release_date": "2025-06-30",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "baidu/ernie-4.5-vl-28b-a3b": {
-          "input_modalities": [],
-          "input_price_per_m": 0.14,
-          "output_modalities": [],
-          "output_price_per_m": 0.56,
-          "provider_type": null,
-          "release_date": "2025-06-30",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "baidu/ernie-4.5-vl-28b-a3b-thinking": {
-          "input_modalities": [],
-          "input_price_per_m": 0.39,
-          "output_modalities": [],
-          "output_price_per_m": 0.39,
-          "provider_type": null,
-          "release_date": "2025-11-26",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
         "baidu/ernie-4.5-vl-424b-a47b": {
           "input_modalities": [],
           "input_price_per_m": 0.42,
@@ -3389,17 +3330,6 @@
           "supported_methods": [],
           "supported_parameters": []
         },
-        "deepseek/deepseek-ocr": {
-          "input_modalities": [],
-          "input_price_per_m": 0.03,
-          "output_modalities": [],
-          "output_price_per_m": 0.03,
-          "provider_type": null,
-          "release_date": "2025-10-24",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
         "deepseek/deepseek-ocr-2": {
           "input_modalities": [],
           "input_price_per_m": 0.03,
@@ -3407,17 +3337,6 @@
           "output_price_per_m": 0.03,
           "provider_type": null,
           "release_date": "2026-01-27",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "deepseek/deepseek-prover-v2-671b": {
-          "input_modalities": [],
-          "input_price_per_m": 0.7,
-          "output_modalities": [],
-          "output_price_per_m": 2.5,
-          "provider_type": null,
-          "release_date": "2025-04-30",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": []
@@ -3466,28 +3385,6 @@
           "supported_methods": [],
           "supported_parameters": []
         },
-        "deepseek/deepseek-r1-distill-qwen-14b": {
-          "input_modalities": [],
-          "input_price_per_m": 0.15,
-          "output_modalities": [],
-          "output_price_per_m": 0.15,
-          "provider_type": null,
-          "release_date": "2025-02-02",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "deepseek/deepseek-r1-distill-qwen-32b": {
-          "input_modalities": [],
-          "input_price_per_m": 0.3,
-          "output_modalities": [],
-          "output_price_per_m": 0.3,
-          "provider_type": null,
-          "release_date": "2025-02-02",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
         "deepseek/deepseek-r1-turbo": {
           "input_modalities": [],
           "input_price_per_m": 0.7,
@@ -3506,28 +3403,6 @@
           "output_price_per_m": 4.0,
           "provider_type": null,
           "release_date": "2025-02-14",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "deepseek/deepseek-v3-0324": {
-          "input_modalities": [],
-          "input_price_per_m": 0.27,
-          "output_modalities": [],
-          "output_price_per_m": 1.12,
-          "provider_type": null,
-          "release_date": "2025-03-25",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "deepseek/deepseek-v3-turbo": {
-          "input_modalities": [],
-          "input_price_per_m": 0.4,
-          "output_modalities": [],
-          "output_price_per_m": 1.3,
-          "provider_type": null,
-          "release_date": "2025-03-05",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": []
@@ -3642,6 +3517,17 @@
           "supported_methods": [],
           "supported_parameters": []
         },
+        "deepseek/deepseek-v4.1-flash": {
+          "input_modalities": [],
+          "input_price_per_m": 0.3,
+          "output_modalities": [],
+          "output_price_per_m": 1.2,
+          "provider_type": null,
+          "release_date": "2026-09-10",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": []
+        },
         "deepseek/deepseek_v3": {
           "input_modalities": [],
           "input_price_per_m": 0.89,
@@ -3660,17 +3546,6 @@
           "output_price_per_m": null,
           "provider_type": null,
           "release_date": "2025-11-20",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "elephant": {
-          "input_modalities": [],
-          "input_price_per_m": 0.1,
-          "output_modalities": [],
-          "output_price_per_m": 0.3,
-          "provider_type": null,
-          "release_date": "2026-04-10",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": []
@@ -3741,28 +3616,6 @@
           "supported_methods": [],
           "supported_parameters": []
         },
-        "inclusionai/ling-2.6-1t": {
-          "input_modalities": [],
-          "input_price_per_m": 0.3,
-          "output_modalities": [],
-          "output_price_per_m": 2.5,
-          "provider_type": null,
-          "release_date": "2026-04-23",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "inclusionai/ling-2.6-flash": {
-          "input_modalities": [],
-          "input_price_per_m": 0.1,
-          "output_modalities": [],
-          "output_price_per_m": 0.3,
-          "provider_type": null,
-          "release_date": "2026-04-24",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
         "inclusionai/ling-3.0-flash": {
           "input_modalities": [],
           "input_price_per_m": 0.06,
@@ -3770,17 +3623,6 @@
           "output_price_per_m": 0.18,
           "provider_type": null,
           "release_date": "2026-07-22",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "inclusionai/ling-3.0-flash-fast": {
-          "input_modalities": [],
-          "input_price_per_m": 0.06,
-          "output_modalities": [],
-          "output_price_per_m": 0.18,
-          "provider_type": null,
-          "release_date": "2026-08-18",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": []
@@ -3818,61 +3660,6 @@
           "supported_methods": [],
           "supported_parameters": []
         },
-        "inclusionai/ling-3.0-tiny": {
-          "input_modalities": [],
-          "input_price_per_m": null,
-          "output_modalities": [],
-          "output_price_per_m": null,
-          "provider_type": null,
-          "release_date": "2026-08-05",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "inclusionai/ring-2.6-1t": {
-          "input_modalities": [],
-          "input_price_per_m": 0.3,
-          "output_modalities": [],
-          "output_price_per_m": 2.5,
-          "provider_type": null,
-          "release_date": "2026-05-08",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "kwaipilot/kat-coder-pro": {
-          "input_modalities": [],
-          "input_price_per_m": 0.3,
-          "output_modalities": [],
-          "output_price_per_m": 1.2,
-          "provider_type": null,
-          "release_date": "2026-01-05",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "meta-llama/llama-3-70b-instruct": {
-          "input_modalities": [],
-          "input_price_per_m": 0.51,
-          "output_modalities": [],
-          "output_price_per_m": 0.74,
-          "provider_type": null,
-          "release_date": "2024-04-25",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "meta-llama/llama-3-8b-instruct": {
-          "input_modalities": [],
-          "input_price_per_m": 0.04,
-          "output_modalities": [],
-          "output_price_per_m": 0.04,
-          "provider_type": null,
-          "release_date": "2024-04-25",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
         "meta-llama/llama-3.1-8b-instruct": {
           "input_modalities": [],
           "input_price_per_m": 0.02,
@@ -3889,17 +3676,6 @@
           "input_price_per_m": 0.02,
           "output_modalities": [],
           "output_price_per_m": 0.02,
-          "provider_type": null,
-          "release_date": "2024-11-26",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "meta-llama/llama-3.2-3b-instruct": {
-          "input_modalities": [],
-          "input_price_per_m": 0.03,
-          "output_modalities": [],
-          "output_price_per_m": 0.05,
           "provider_type": null,
           "release_date": "2024-11-26",
           "release_date_confidence": "registered",
@@ -4148,17 +3924,6 @@
           "supported_methods": [],
           "supported_parameters": []
         },
-        "nex-agi/nex-n2-pro": {
-          "input_modalities": [],
-          "input_price_per_m": null,
-          "output_modalities": [],
-          "output_price_per_m": null,
-          "provider_type": null,
-          "release_date": "2026-06-04",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
         "nousresearch/hermes-2-pro-llama-3-8b": {
           "input_modalities": [],
           "input_price_per_m": 0.14,
@@ -4166,17 +3931,6 @@
           "output_price_per_m": 0.14,
           "provider_type": null,
           "release_date": "2024-06-27",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "nousresearch/nous-hermes-llama2-13b": {
-          "input_modalities": [],
-          "input_price_per_m": 0.17,
-          "output_modalities": [],
-          "output_price_per_m": 0.17,
-          "provider_type": null,
-          "release_date": "2024-04-25",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": []
@@ -4214,17 +3968,6 @@
           "supported_methods": [],
           "supported_parameters": []
         },
-        "openchat/openchat-7b": {
-          "input_modalities": [],
-          "input_price_per_m": 0.06,
-          "output_modalities": [],
-          "output_price_per_m": 0.06,
-          "provider_type": null,
-          "release_date": "2024-07-26",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
         "paddlepaddle/paddleocr-vl": {
           "input_modalities": [],
           "input_price_per_m": 0.02,
@@ -4232,28 +3975,6 @@
           "output_price_per_m": 0.02,
           "provider_type": null,
           "release_date": "2025-10-22",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "qwen/qwen-2-7b-instruct": {
-          "input_modalities": [],
-          "input_price_per_m": 0.054,
-          "output_modalities": [],
-          "output_price_per_m": 0.054,
-          "provider_type": null,
-          "release_date": "2024-09-18",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "qwen/qwen-2-vl-72b-instruct": {
-          "input_modalities": [],
-          "input_price_per_m": 0.45,
-          "output_modalities": [],
-          "output_price_per_m": 0.45,
-          "provider_type": null,
-          "release_date": "2024-12-19",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": []
@@ -4276,28 +3997,6 @@
           "output_price_per_m": 0.75,
           "provider_type": null,
           "release_date": "2025-09-03",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "qwen/qwen2.5-7b-instruct": {
-          "input_modalities": [],
-          "input_price_per_m": 0.07,
-          "output_modalities": [],
-          "output_price_per_m": 0.07,
-          "provider_type": null,
-          "release_date": "2025-04-16",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "qwen/qwen2.5-vl-72b-instruct": {
-          "input_modalities": [],
-          "input_price_per_m": 0.8,
-          "output_modalities": [],
-          "output_price_per_m": 0.8,
-          "provider_type": null,
-          "release_date": "2025-03-25",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": []
@@ -4331,50 +4030,6 @@
           "output_price_per_m": 3.0,
           "provider_type": null,
           "release_date": "2025-07-25",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "qwen/qwen3-30b-a3b-fp8": {
-          "input_modalities": [],
-          "input_price_per_m": 0.09,
-          "output_modalities": [],
-          "output_price_per_m": 0.45,
-          "provider_type": null,
-          "release_date": "2025-04-29",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "qwen/qwen3-32b-fp8": {
-          "input_modalities": [],
-          "input_price_per_m": 0.1,
-          "output_modalities": [],
-          "output_price_per_m": 0.45,
-          "provider_type": null,
-          "release_date": "2025-04-29",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "qwen/qwen3-4b-fp8": {
-          "input_modalities": [],
-          "input_price_per_m": 0.03,
-          "output_modalities": [],
-          "output_price_per_m": 0.03,
-          "provider_type": null,
-          "release_date": "2025-04-29",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "qwen/qwen3-8b-fp8": {
-          "input_modalities": [],
-          "input_price_per_m": 0.035,
-          "output_modalities": [],
-          "output_price_per_m": 0.138,
-          "provider_type": null,
-          "release_date": "2025-04-29",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": []
@@ -4424,17 +4079,6 @@
           "supported_parameters": []
         },
         "qwen/qwen3-next-80b-a3b-instruct": {
-          "input_modalities": [],
-          "input_price_per_m": 0.15,
-          "output_modalities": [],
-          "output_price_per_m": 1.5,
-          "provider_type": null,
-          "release_date": "2025-09-10",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "qwen/qwen3-next-80b-a3b-thinking": {
           "input_modalities": [],
           "input_price_per_m": 0.15,
           "output_modalities": [],
@@ -4496,28 +4140,6 @@
           "output_price_per_m": 0.7,
           "provider_type": null,
           "release_date": "2025-10-11",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "qwen/qwen3-vl-30b-a3b-thinking": {
-          "input_modalities": [],
-          "input_price_per_m": 0.2,
-          "output_modalities": [],
-          "output_price_per_m": 1.0,
-          "provider_type": null,
-          "release_date": "2025-10-11",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "qwen/qwen3-vl-8b-instruct": {
-          "input_modalities": [],
-          "input_price_per_m": 0.08,
-          "output_modalities": [],
-          "output_price_per_m": 0.5,
-          "provider_type": null,
-          "release_date": "2025-10-17",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": []
@@ -4709,17 +4331,6 @@
           "supported_methods": [],
           "supported_parameters": []
         },
-        "teknium/openhermes-2.5-mistral-7b": {
-          "input_modalities": [],
-          "input_price_per_m": 0.17,
-          "output_modalities": [],
-          "output_price_per_m": 0.17,
-          "provider_type": null,
-          "release_date": "2024-04-24",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
         "tencent/hy3": {
           "input_modalities": [],
           "input_price_per_m": 0.14,
@@ -4738,28 +4349,6 @@
           "output_price_per_m": 1.66,
           "provider_type": null,
           "release_date": "2025-04-16",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "xiaomimimo/mimo-v2-flash": {
-          "input_modalities": [],
-          "input_price_per_m": 0.11,
-          "output_modalities": [],
-          "output_price_per_m": 0.33,
-          "provider_type": null,
-          "release_date": "2025-12-19",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "xiaomimimo/mimo-v2-pro": {
-          "input_modalities": [],
-          "input_price_per_m": 2.0,
-          "output_modalities": [],
-          "output_price_per_m": 6.0,
-          "provider_type": null,
-          "release_date": "2026-03-20",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": []
@@ -4793,17 +4382,6 @@
           "output_price_per_m": 0.138,
           "provider_type": null,
           "release_date": "2025-12-10",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "zai-org/glm-4.5": {
-          "input_modalities": [],
-          "input_price_per_m": 0.6,
-          "output_modalities": [],
-          "output_price_per_m": 2.2,
-          "provider_type": null,
-          "release_date": "2025-07-28",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": []
@@ -4942,11 +4520,22 @@
         },
         "zai-org/glm-5.3-flash": {
           "input_modalities": [],
-          "input_price_per_m": 0.075,
+          "input_price_per_m": 0.15,
           "output_modalities": [],
-          "output_price_per_m": 0.25,
+          "output_price_per_m": 0.5,
           "provider_type": null,
           "release_date": "2026-08-26",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": []
+        },
+        "zai-org/glm-5.3-p": {
+          "input_modalities": [],
+          "input_price_per_m": 1.4,
+          "output_modalities": [],
+          "output_price_per_m": 4.4,
+          "provider_type": null,
+          "release_date": "2026-09-11",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": []
@@ -4963,6 +4552,7 @@
           "supported_parameters": []
         }
       },
+      "refreshed_at": "2026-09-11T07:46:52.338438+00:00",
       "reliable_dates": true
     },
     "openai": {
@@ -5990,6 +5580,61 @@
           "supported_methods": [],
           "supported_parameters": []
         },
+        "gpt-image-2.5-flare": {
+          "input_modalities": [],
+          "input_price_per_m": null,
+          "output_modalities": [],
+          "output_price_per_m": null,
+          "provider_type": null,
+          "release_date": "2026-09-04",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": []
+        },
+        "gpt-image-2.5-flare-2026-09-08": {
+          "input_modalities": [],
+          "input_price_per_m": null,
+          "output_modalities": [],
+          "output_price_per_m": null,
+          "provider_type": null,
+          "release_date": "2026-09-08",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": []
+        },
+        "gpt-image-2.5-sunburst": {
+          "input_modalities": [],
+          "input_price_per_m": null,
+          "output_modalities": [],
+          "output_price_per_m": null,
+          "provider_type": null,
+          "release_date": "2026-09-04",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": []
+        },
+        "gpt-image-2.5-sunburst-2026-09-08": {
+          "input_modalities": [],
+          "input_price_per_m": null,
+          "output_modalities": [],
+          "output_price_per_m": null,
+          "provider_type": null,
+          "release_date": "2026-09-08",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": []
+        },
+        "gpt-live-1": {
+          "input_modalities": [],
+          "input_price_per_m": null,
+          "output_modalities": [],
+          "output_price_per_m": null,
+          "provider_type": null,
+          "release_date": "2026-09-08",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": []
+        },
         "gpt-live-transcribe": {
           "input_modalities": [],
           "input_price_per_m": null,
@@ -6431,6 +6076,7 @@
           "supported_parameters": []
         }
       },
+      "refreshed_at": "2026-09-11T07:46:52.338438+00:00",
       "reliable_dates": true
     },
     "openrouter": {
@@ -7874,11 +7520,11 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.32,
+          "input_price_per_m": 0.2574,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 0.8899999999999999,
+          "output_price_per_m": 1.0287,
           "provider_type": null,
           "release_date": "2024-12-26",
           "release_date_confidence": "registered",
@@ -7938,11 +7584,11 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.55,
+          "input_price_per_m": 0.25,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 1.6500000000000001,
+          "output_price_per_m": 0.95,
           "provider_type": null,
           "release_date": "2025-08-21",
           "release_date_confidence": "registered",
@@ -8169,11 +7815,11 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.0875,
+          "input_price_per_m": 0.088606,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 0.175,
+          "output_price_per_m": 0.177212,
           "provider_type": null,
           "release_date": "2026-04-24",
           "release_date_confidence": "registered",
@@ -8245,11 +7891,11 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.14,
+          "input_price_per_m": 0.11,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 0.28,
+          "output_price_per_m": 0.33,
           "provider_type": null,
           "release_date": "2026-07-31",
           "release_date_confidence": "registered",
@@ -8258,6 +7904,7 @@
             "frequency_penalty",
             "include_reasoning",
             "logit_bias",
+            "logprobs",
             "max_tokens",
             "min_p",
             "presence_penalty",
@@ -8271,6 +7918,7 @@
             "tool_choice",
             "tools",
             "top_k",
+            "top_logprobs",
             "top_p"
           ]
         },
@@ -8311,15 +7959,50 @@
             "top_p"
           ]
         },
+        "deepseek/deepseek-v4-flash-vision-exp:batch": {
+          "input_modalities": [
+            "text",
+            "image"
+          ],
+          "input_price_per_m": 0.11,
+          "output_modalities": [
+            "text"
+          ],
+          "output_price_per_m": 0.33,
+          "provider_type": null,
+          "release_date": "2026-08-21",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": [
+            "frequency_penalty",
+            "include_reasoning",
+            "logit_bias",
+            "logprobs",
+            "max_tokens",
+            "presence_penalty",
+            "reasoning",
+            "reasoning_effort",
+            "repetition_penalty",
+            "response_format",
+            "stop",
+            "structured_outputs",
+            "temperature",
+            "tool_choice",
+            "tools",
+            "top_k",
+            "top_logprobs",
+            "top_p"
+          ]
+        },
         "deepseek/deepseek-v4-pro": {
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.9918,
+          "input_price_per_m": 0.9552599999999999,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 1.9836,
+          "output_price_per_m": 1.9105199999999998,
           "provider_type": null,
           "release_date": "2026-04-24",
           "release_date_confidence": "registered",
@@ -8352,11 +8035,11 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.57948,
+          "input_price_per_m": 0.66,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 1.73844,
+          "output_price_per_m": 1.9800000000000002,
           "provider_type": null,
           "release_date": "2026-08-12",
           "release_date_confidence": "registered",
@@ -8388,11 +8071,11 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 1.32,
+          "input_price_per_m": 0.66,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 3.9600000000000004,
+          "output_price_per_m": 1.9800000000000002,
           "provider_type": null,
           "release_date": "2026-08-12",
           "release_date_confidence": "registered",
@@ -8401,6 +8084,7 @@
             "frequency_penalty",
             "include_reasoning",
             "logit_bias",
+            "logprobs",
             "max_tokens",
             "min_p",
             "presence_penalty",
@@ -8414,6 +8098,44 @@
             "tool_choice",
             "tools",
             "top_k",
+            "top_logprobs",
+            "top_p"
+          ]
+        },
+        "deepseek/deepseek-v4.1-flash": {
+          "input_modalities": [
+            "text",
+            "image"
+          ],
+          "input_price_per_m": 0.3,
+          "output_modalities": [
+            "text"
+          ],
+          "output_price_per_m": 1.2,
+          "provider_type": null,
+          "release_date": "2026-09-10",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": [
+            "frequency_penalty",
+            "include_reasoning",
+            "logit_bias",
+            "logprobs",
+            "max_tokens",
+            "min_p",
+            "presence_penalty",
+            "reasoning",
+            "reasoning_effort",
+            "repetition_penalty",
+            "response_format",
+            "seed",
+            "stop",
+            "structured_outputs",
+            "temperature",
+            "tool_choice",
+            "tools",
+            "top_k",
+            "top_logprobs",
             "top_p"
           ]
         },
@@ -9545,11 +9267,11 @@
             "text",
             "video"
           ],
-          "input_price_per_m": 0.07,
+          "input_price_per_m": 0.041999999999999996,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 0.33999999999999997,
+          "output_price_per_m": 0.22,
           "provider_type": null,
           "release_date": "2026-04-03",
           "release_date_confidence": "registered",
@@ -9813,11 +9535,11 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.09999999999999999,
+          "input_price_per_m": 0.06,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 0.15,
+          "output_price_per_m": 0.25,
           "provider_type": null,
           "release_date": "2026-08-31",
           "release_date_confidence": "registered",
@@ -9871,7 +9593,7 @@
             "tools"
           ]
         },
-        "inception/mercury-2.5-preview": {
+        "inception/mercury-2.5": {
           "input_modalities": [
             "text"
           ],
@@ -9881,7 +9603,7 @@
           ],
           "output_price_per_m": 0.15,
           "provider_type": null,
-          "release_date": "2026-08-31",
+          "release_date": "2026-09-08",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": [
@@ -10006,6 +9728,39 @@
           "output_price_per_m": 0.0,
           "provider_type": null,
           "release_date": "2026-09-04",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": [
+            "frequency_penalty",
+            "include_reasoning",
+            "logprobs",
+            "max_tokens",
+            "presence_penalty",
+            "reasoning",
+            "repetition_penalty",
+            "seed",
+            "stop",
+            "temperature",
+            "tool_choice",
+            "tools",
+            "top_k",
+            "top_logprobs",
+            "top_p"
+          ]
+        },
+        "inclusionai/ling-3.0-flash-vl:free": {
+          "input_modalities": [
+            "text",
+            "image",
+            "video"
+          ],
+          "input_price_per_m": 0.0,
+          "output_modalities": [
+            "text"
+          ],
+          "output_price_per_m": 0.0,
+          "provider_type": null,
+          "release_date": "2026-09-10",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": [
@@ -10189,11 +9944,11 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.39999999999999997,
+          "input_price_per_m": 0.72,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 0.39999999999999997,
+          "output_price_per_m": 0.72,
           "provider_type": null,
           "release_date": "2024-07-23",
           "release_date_confidence": "registered",
@@ -10476,11 +10231,11 @@
             "text",
             "image"
           ],
-          "input_price_per_m": 0.35,
+          "input_price_per_m": 0.175,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 1.5,
+          "output_price_per_m": 0.75,
           "provider_type": null,
           "release_date": "2026-08-09",
           "release_date_confidence": "registered",
@@ -10489,6 +10244,7 @@
             "frequency_penalty",
             "include_reasoning",
             "logit_bias",
+            "logprobs",
             "max_tokens",
             "min_p",
             "presence_penalty",
@@ -10502,6 +10258,7 @@
             "tool_choice",
             "tools",
             "top_k",
+            "top_logprobs",
             "top_p"
           ]
         },
@@ -10855,11 +10612,11 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.27,
+          "input_price_per_m": 0.3,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 1.08,
+          "output_price_per_m": 1.2,
           "provider_type": null,
           "release_date": "2026-02-12",
           "release_date_confidence": "registered",
@@ -10918,31 +10675,6 @@
             "tools",
             "top_k",
             "top_logprobs",
-            "top_p"
-          ]
-        },
-        "minimax/minimax-m2.7:free": {
-          "input_modalities": [
-            "text"
-          ],
-          "input_price_per_m": 0.0,
-          "output_modalities": [
-            "text"
-          ],
-          "output_price_per_m": 0.0,
-          "provider_type": null,
-          "release_date": "2026-03-18",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": [
-            "include_reasoning",
-            "max_tokens",
-            "reasoning",
-            "response_format",
-            "seed",
-            "temperature",
-            "tool_choice",
-            "tools",
             "top_p"
           ]
         },
@@ -11017,33 +10749,6 @@
             "top_p"
           ]
         },
-        "minimax/minimax-m3:free": {
-          "input_modalities": [
-            "text",
-            "image",
-            "video"
-          ],
-          "input_price_per_m": 0.0,
-          "output_modalities": [
-            "text"
-          ],
-          "output_price_per_m": 0.0,
-          "provider_type": null,
-          "release_date": "2026-05-31",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": [
-            "include_reasoning",
-            "max_tokens",
-            "reasoning",
-            "response_format",
-            "seed",
-            "temperature",
-            "tool_choice",
-            "tools",
-            "top_p"
-          ]
-        },
         "mistralai/codestral-2508": {
           "input_modalities": [
             "text",
@@ -11054,6 +10759,35 @@
             "text"
           ],
           "output_price_per_m": 0.8999999999999999,
+          "provider_type": null,
+          "release_date": "2025-08-01",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": [
+            "frequency_penalty",
+            "max_tokens",
+            "prediction",
+            "presence_penalty",
+            "response_format",
+            "seed",
+            "stop",
+            "structured_outputs",
+            "temperature",
+            "tool_choice",
+            "tools",
+            "top_p"
+          ]
+        },
+        "mistralai/codestral-2508:batch": {
+          "input_modalities": [
+            "text",
+            "file"
+          ],
+          "input_price_per_m": 0.15,
+          "output_modalities": [
+            "text"
+          ],
+          "output_price_per_m": 0.44999999999999996,
           "provider_type": null,
           "release_date": "2025-08-01",
           "release_date_confidence": "registered",
@@ -11185,6 +10919,34 @@
             "top_p"
           ]
         },
+        "mistralai/ministral-8b-2512:batch": {
+          "input_modalities": [
+            "text",
+            "image"
+          ],
+          "input_price_per_m": 0.075,
+          "output_modalities": [
+            "text"
+          ],
+          "output_price_per_m": 0.075,
+          "provider_type": null,
+          "release_date": "2025-12-02",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": [
+            "frequency_penalty",
+            "max_tokens",
+            "presence_penalty",
+            "response_format",
+            "seed",
+            "stop",
+            "structured_outputs",
+            "temperature",
+            "tool_choice",
+            "tools",
+            "top_p"
+          ]
+        },
         "mistralai/mistral-large": {
           "input_modalities": [
             "text",
@@ -11252,6 +11014,35 @@
             "text"
           ],
           "output_price_per_m": 1.5,
+          "provider_type": null,
+          "release_date": "2025-12-01",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": [
+            "frequency_penalty",
+            "max_tokens",
+            "presence_penalty",
+            "response_format",
+            "seed",
+            "stop",
+            "structured_outputs",
+            "temperature",
+            "tool_choice",
+            "tools",
+            "top_p"
+          ]
+        },
+        "mistralai/mistral-large-2512:batch": {
+          "input_modalities": [
+            "text",
+            "image",
+            "file"
+          ],
+          "input_price_per_m": 0.25,
+          "output_modalities": [
+            "text"
+          ],
+          "output_price_per_m": 0.75,
           "provider_type": null,
           "release_date": "2025-12-01",
           "release_date_confidence": "registered",
@@ -11392,6 +11183,35 @@
             "top_p"
           ]
         },
+        "mistralai/mistral-medium-3.1:batch": {
+          "input_modalities": [
+            "text",
+            "image",
+            "file"
+          ],
+          "input_price_per_m": 0.19999999999999998,
+          "output_modalities": [
+            "text"
+          ],
+          "output_price_per_m": 1.0,
+          "provider_type": null,
+          "release_date": "2025-08-13",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": [
+            "frequency_penalty",
+            "max_tokens",
+            "presence_penalty",
+            "response_format",
+            "seed",
+            "stop",
+            "structured_outputs",
+            "temperature",
+            "tool_choice",
+            "tools",
+            "top_p"
+          ]
+        },
         "mistralai/mistral-nemo": {
           "input_modalities": [
             "text"
@@ -11511,6 +11331,37 @@
             "tool_choice",
             "tools",
             "top_k",
+            "top_p"
+          ]
+        },
+        "mistralai/mistral-small-2603:batch": {
+          "input_modalities": [
+            "text",
+            "image"
+          ],
+          "input_price_per_m": 0.075,
+          "output_modalities": [
+            "text"
+          ],
+          "output_price_per_m": 0.3,
+          "provider_type": null,
+          "release_date": "2026-03-16",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": [
+            "frequency_penalty",
+            "include_reasoning",
+            "max_tokens",
+            "presence_penalty",
+            "reasoning",
+            "reasoning_effort",
+            "response_format",
+            "seed",
+            "stop",
+            "structured_outputs",
+            "temperature",
+            "tool_choice",
+            "tools",
             "top_p"
           ]
         },
@@ -11802,11 +11653,11 @@
             "text",
             "image"
           ],
-          "input_price_per_m": 0.66,
+          "input_price_per_m": 0.71,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 3.4,
+          "output_price_per_m": 3.5,
           "provider_type": null,
           "release_date": "2026-06-12",
           "release_date_confidence": "registered",
@@ -11840,11 +11691,11 @@
             "image",
             "video"
           ],
-          "input_price_per_m": 3.0,
+          "input_price_per_m": 2.34,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 15.0,
+          "output_price_per_m": 11.7,
           "provider_type": null,
           "release_date": "2026-07-16",
           "release_date_confidence": "registered",
@@ -11949,18 +11800,18 @@
             "top_logprobs"
           ]
         },
-        "nex-agi/nex-n2-mini": {
+        "nex-agi/nex-n2.5-mini:free": {
           "input_modalities": [
             "text",
             "image"
           ],
-          "input_price_per_m": 0.024999999999999998,
+          "input_price_per_m": 0.0,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 0.09999999999999999,
+          "output_price_per_m": 0.0,
           "provider_type": null,
-          "release_date": "2026-06-24",
+          "release_date": "2026-09-08",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": [
@@ -11968,6 +11819,7 @@
             "logprobs",
             "max_tokens",
             "reasoning",
+            "reasoning_effort",
             "response_format",
             "structured_outputs",
             "temperature",
@@ -11978,26 +11830,28 @@
             "top_p"
           ]
         },
-        "nex-agi/nex-n2-pro": {
+        "nex-agi/nex-n2.5-pro:free": {
           "input_modalities": [
             "text",
             "image"
           ],
-          "input_price_per_m": 0.25,
+          "input_price_per_m": 0.0,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 1.0,
+          "output_price_per_m": 0.0,
           "provider_type": null,
-          "release_date": "2026-06-08",
+          "release_date": "2026-09-08",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": [
-            "frequency_penalty",
             "include_reasoning",
             "logprobs",
             "max_tokens",
             "reasoning",
+            "reasoning_effort",
+            "response_format",
+            "structured_outputs",
             "temperature",
             "tool_choice",
             "tools",
@@ -12073,32 +11927,6 @@
             "text"
           ],
           "output_price_per_m": 3.0,
-          "provider_type": null,
-          "release_date": "2025-08-26",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": [
-            "frequency_penalty",
-            "include_reasoning",
-            "max_tokens",
-            "presence_penalty",
-            "reasoning",
-            "repetition_penalty",
-            "response_format",
-            "temperature",
-            "top_k",
-            "top_p"
-          ]
-        },
-        "nousresearch/hermes-4-70b": {
-          "input_modalities": [
-            "text"
-          ],
-          "input_price_per_m": 0.13,
-          "output_modalities": [
-            "text"
-          ],
-          "output_price_per_m": 0.39999999999999997,
           "provider_type": null,
           "release_date": "2025-08-26",
           "release_date_confidence": "registered",
@@ -14416,6 +14244,116 @@
             "tools"
           ]
         },
+        "openai/gpt-6-astra": {
+          "input_modalities": [
+            "file",
+            "image",
+            "text"
+          ],
+          "input_price_per_m": 10.0,
+          "output_modalities": [
+            "text"
+          ],
+          "output_price_per_m": 50.0,
+          "provider_type": null,
+          "release_date": "2026-09-04",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": [
+            "include_reasoning",
+            "max_completion_tokens",
+            "max_tokens",
+            "reasoning",
+            "reasoning_effort",
+            "response_format",
+            "seed",
+            "structured_outputs",
+            "tool_choice",
+            "tools"
+          ]
+        },
+        "openai/gpt-6-astra-pro": {
+          "input_modalities": [
+            "file",
+            "image",
+            "text"
+          ],
+          "input_price_per_m": 10.0,
+          "output_modalities": [
+            "text"
+          ],
+          "output_price_per_m": 50.0,
+          "provider_type": null,
+          "release_date": "2026-09-04",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": [
+            "include_reasoning",
+            "max_completion_tokens",
+            "max_tokens",
+            "reasoning",
+            "reasoning_effort",
+            "response_format",
+            "seed",
+            "structured_outputs",
+            "tool_choice",
+            "tools"
+          ]
+        },
+        "openai/gpt-6-astra-pro:batch": {
+          "input_modalities": [
+            "file",
+            "image",
+            "text"
+          ],
+          "input_price_per_m": 5.0,
+          "output_modalities": [
+            "text"
+          ],
+          "output_price_per_m": 25.0,
+          "provider_type": null,
+          "release_date": "2026-09-04",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": [
+            "include_reasoning",
+            "max_tokens",
+            "reasoning",
+            "reasoning_effort",
+            "response_format",
+            "seed",
+            "structured_outputs",
+            "tool_choice",
+            "tools"
+          ]
+        },
+        "openai/gpt-6-astra:batch": {
+          "input_modalities": [
+            "file",
+            "image",
+            "text"
+          ],
+          "input_price_per_m": 5.0,
+          "output_modalities": [
+            "text"
+          ],
+          "output_price_per_m": 25.0,
+          "provider_type": null,
+          "release_date": "2026-09-04",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": [
+            "include_reasoning",
+            "max_tokens",
+            "reasoning",
+            "reasoning_effort",
+            "response_format",
+            "seed",
+            "structured_outputs",
+            "tool_choice",
+            "tools"
+          ]
+        },
         "openai/gpt-audio": {
           "input_modalities": [
             "text",
@@ -15545,11 +15483,11 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.12,
+          "input_price_per_m": 0.22749999999999998,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 0.24,
+          "output_price_per_m": 0.9099999999999999,
           "provider_type": null,
           "release_date": "2025-04-28",
           "release_date_confidence": "registered",
@@ -15609,11 +15547,11 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.0875,
+          "input_price_per_m": 0.22,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 0.35,
+          "output_price_per_m": 0.88,
           "provider_type": null,
           "release_date": "2025-07-21",
           "release_date_confidence": "registered",
@@ -15695,6 +15633,7 @@
             "response_format",
             "seed",
             "stop",
+            "structured_outputs",
             "temperature",
             "tool_choice",
             "tools",
@@ -15706,11 +15645,11 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.04815,
+          "input_price_per_m": 0.09,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 0.19305,
+          "output_price_per_m": 0.3,
           "provider_type": null,
           "release_date": "2025-07-29",
           "release_date_confidence": "registered",
@@ -16046,7 +15985,7 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.09999999999999999,
+          "input_price_per_m": 0.09,
           "output_modalities": [
             "text"
           ],
@@ -16346,11 +16285,11 @@
             "image",
             "video"
           ],
-          "input_price_per_m": 0.29,
+          "input_price_per_m": 0.26,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 2.4,
+          "output_price_per_m": 2.08,
           "provider_type": null,
           "release_date": "2026-02-25",
           "release_date_confidence": "registered",
@@ -16420,11 +16359,11 @@
             "image",
             "video"
           ],
-          "input_price_per_m": 0.08,
+          "input_price_per_m": 0.3125,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 0.75,
+          "output_price_per_m": 1.25,
           "provider_type": null,
           "release_date": "2026-02-25",
           "release_date_confidence": "registered",
@@ -17032,6 +16971,7 @@
             "temperature",
             "tool_choice",
             "tools",
+            "top_a",
             "top_k",
             "top_logprobs",
             "top_p"
@@ -17055,10 +16995,13 @@
           "supported_parameters": [
             "frequency_penalty",
             "include_reasoning",
+            "logit_bias",
             "logprobs",
             "max_tokens",
+            "min_p",
             "presence_penalty",
             "reasoning",
+            "repetition_penalty",
             "response_format",
             "seed",
             "stop",
@@ -17071,7 +17014,7 @@
             "top_p"
           ]
         },
-        "qwen/qwen3.8-max": {
+        "qwen/qwen3.8-max-0902": {
           "input_modalities": [
             "text",
             "image",
@@ -17083,7 +17026,7 @@
           ],
           "output_price_per_m": 6.0,
           "provider_type": null,
-          "release_date": "2026-08-03",
+          "release_date": "2026-09-03",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": [
@@ -17209,6 +17152,31 @@
             "top_p"
           ]
         },
+        "sakana/fugu-max": {
+          "input_modalities": [
+            "text",
+            "image",
+            "file"
+          ],
+          "input_price_per_m": 2.0,
+          "output_modalities": [
+            "text"
+          ],
+          "output_price_per_m": 6.0,
+          "provider_type": null,
+          "release_date": "2026-09-11",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": [
+            "include_reasoning",
+            "reasoning",
+            "reasoning_effort",
+            "structured_outputs",
+            "tool_choice",
+            "tools",
+            "web_search_options"
+          ]
+        },
         "sakana/fugu-ultra": {
           "input_modalities": [
             "text",
@@ -17221,6 +17189,31 @@
           "output_price_per_m": 30.0,
           "provider_type": null,
           "release_date": "2026-06-24",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": [
+            "include_reasoning",
+            "reasoning",
+            "reasoning_effort",
+            "structured_outputs",
+            "tool_choice",
+            "tools",
+            "web_search_options"
+          ]
+        },
+        "sakana/fugu-ultra-v2": {
+          "input_modalities": [
+            "text",
+            "image",
+            "file"
+          ],
+          "input_price_per_m": 5.0,
+          "output_modalities": [
+            "text"
+          ],
+          "output_price_per_m": 30.0,
+          "provider_type": null,
+          "release_date": "2026-09-11",
           "release_date_confidence": "registered",
           "supported_methods": [],
           "supported_parameters": [
@@ -17504,11 +17497,11 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.0825,
+          "input_price_per_m": 0.13199999999999998,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 0.33,
+          "output_price_per_m": 0.5279999999999999,
           "provider_type": null,
           "release_date": "2026-07-06",
           "release_date_confidence": "registered",
@@ -17940,11 +17933,11 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.03,
+          "input_price_per_m": 0.09,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 0.12,
+          "output_price_per_m": 0.36,
           "provider_type": null,
           "release_date": "2026-08-10",
           "release_date_confidence": "registered",
@@ -18360,11 +18353,11 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.55,
+          "input_price_per_m": 0.43,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 2.2,
+          "output_price_per_m": 1.75,
           "provider_type": null,
           "release_date": "2025-09-30",
           "release_date_confidence": "registered",
@@ -18459,7 +18452,7 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.06,
+          "input_price_per_m": 0.060500000000000005,
           "output_modalities": [
             "text"
           ],
@@ -18506,10 +18499,8 @@
           "supported_parameters": [
             "frequency_penalty",
             "include_reasoning",
-            "logit_bias",
             "logprobs",
             "max_tokens",
-            "min_p",
             "presence_penalty",
             "reasoning",
             "repetition_penalty",
@@ -18622,15 +18613,15 @@
             "top_p"
           ]
         },
-        "z-ai/glm-5.2:free": {
+        "z-ai/glm-5.2:batch": {
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.0,
+          "input_price_per_m": 0.7,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 0.0,
+          "output_price_per_m": 2.2,
           "provider_type": null,
           "release_date": "2026-06-16",
           "release_date_confidence": "registered",
@@ -18638,20 +18629,21 @@
           "supported_parameters": [
             "frequency_penalty",
             "include_reasoning",
+            "logit_bias",
+            "logprobs",
             "max_tokens",
-            "min_p",
             "presence_penalty",
             "reasoning",
             "reasoning_effort",
             "repetition_penalty",
             "response_format",
-            "seed",
             "stop",
             "structured_outputs",
             "temperature",
             "tool_choice",
             "tools",
             "top_k",
+            "top_logprobs",
             "top_p"
           ]
         },
@@ -18698,11 +18690,11 @@
             "image",
             "video"
           ],
-          "input_price_per_m": 0.075,
+          "input_price_per_m": 0.15,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 0.25,
+          "output_price_per_m": 0.5,
           "provider_type": null,
           "release_date": "2026-08-26",
           "release_date_confidence": "registered",
@@ -18736,11 +18728,11 @@
             "image",
             "video"
           ],
-          "input_price_per_m": 0.15,
+          "input_price_per_m": 0.075,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 0.5,
+          "output_price_per_m": 0.25,
           "provider_type": null,
           "release_date": "2026-08-26",
           "release_date_confidence": "registered",
@@ -18752,6 +18744,40 @@
             "logprobs",
             "max_tokens",
             "min_p",
+            "presence_penalty",
+            "reasoning",
+            "reasoning_effort",
+            "repetition_penalty",
+            "response_format",
+            "stop",
+            "structured_outputs",
+            "temperature",
+            "tool_choice",
+            "tools",
+            "top_k",
+            "top_logprobs",
+            "top_p"
+          ]
+        },
+        "z-ai/glm-5.3:batch": {
+          "input_modalities": [
+            "text"
+          ],
+          "input_price_per_m": 0.7,
+          "output_modalities": [
+            "text"
+          ],
+          "output_price_per_m": 2.2,
+          "provider_type": null,
+          "release_date": "2026-08-18",
+          "release_date_confidence": "registered",
+          "supported_methods": [],
+          "supported_parameters": [
+            "frequency_penalty",
+            "include_reasoning",
+            "logit_bias",
+            "logprobs",
+            "max_tokens",
             "presence_penalty",
             "reasoning",
             "reasoning_effort",
@@ -18915,11 +18941,11 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 0.049980000000000004,
+          "input_price_per_m": 0.04,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 0.09996000000000001,
+          "output_price_per_m": 0.16,
           "provider_type": null,
           "release_date": "2026-08-01",
           "release_date_confidence": "registered",
@@ -19019,11 +19045,11 @@
             "image",
             "video"
           ],
-          "input_price_per_m": 2.5,
+          "input_price_per_m": 2.34,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 14.0,
+          "output_price_per_m": 11.7,
           "provider_type": null,
           "release_date": "2026-04-27",
           "release_date_confidence": "registered",
@@ -19182,11 +19208,11 @@
           "input_modalities": [
             "text"
           ],
-          "input_price_per_m": 1.15,
+          "input_price_per_m": 0.8999999999999999,
           "output_modalities": [
             "text"
           ],
-          "output_price_per_m": 3.5,
+          "output_price_per_m": 3.0690000000000004,
           "provider_type": null,
           "release_date": "2026-08-19",
           "release_date_confidence": "registered",
@@ -19216,6 +19242,7 @@
           ]
         }
       },
+      "refreshed_at": "2026-09-11T07:46:52.338438+00:00",
       "reliable_dates": true
     },
     "together_ai": {
@@ -20969,50 +20996,6 @@
           "supported_methods": [],
           "supported_parameters": []
         },
-        "google/veo-3.0": {
-          "input_modalities": [],
-          "input_price_per_m": 0.0,
-          "output_modalities": [],
-          "output_price_per_m": 0.0,
-          "provider_type": "video",
-          "release_date": "2026-05-15",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "google/veo-3.0-audio": {
-          "input_modalities": [],
-          "input_price_per_m": 0.0,
-          "output_modalities": [],
-          "output_price_per_m": 0.0,
-          "provider_type": "video",
-          "release_date": "2025-10-08",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "google/veo-3.0-fast": {
-          "input_modalities": [],
-          "input_price_per_m": 0.0,
-          "output_modalities": [],
-          "output_price_per_m": 0.0,
-          "provider_type": "video",
-          "release_date": "2025-10-08",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
-        "google/veo-3.0-fast-audio": {
-          "input_modalities": [],
-          "input_price_per_m": 0.0,
-          "output_modalities": [],
-          "output_price_per_m": 0.0,
-          "provider_type": "video",
-          "release_date": "2025-10-08",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
         "google/veo-3.1": {
           "input_modalities": [],
           "input_price_per_m": 0.0,
@@ -22069,17 +22052,6 @@
           "supported_methods": [],
           "supported_parameters": []
         },
-        "vidu/vidu-2.0": {
-          "input_modalities": [],
-          "input_price_per_m": 0.0,
-          "output_modalities": [],
-          "output_price_per_m": 0.0,
-          "provider_type": "video",
-          "release_date": "2025-10-08",
-          "release_date_confidence": "registered",
-          "supported_methods": [],
-          "supported_parameters": []
-        },
         "vidu/vidu-q1": {
           "input_modalities": [],
           "input_price_per_m": 0.0,
@@ -22301,6 +22273,7 @@
           "supported_parameters": []
         }
       },
+      "refreshed_at": "2026-09-11T07:46:52.338438+00:00",
       "reliable_dates": true
     },
     "xai": {
@@ -22438,6 +22411,7 @@
           "supported_parameters": []
         }
       },
+      "refreshed_at": "2026-09-11T07:46:52.338438+00:00",
       "reliable_dates": true
     },
     "zai": {
@@ -22553,6 +22527,7 @@
           "supported_parameters": []
         }
       },
+      "refreshed_at": "2026-09-11T07:46:52.338438+00:00",
       "reliable_dates": true
     }
   }
