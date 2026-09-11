@@ -1,6 +1,66 @@
 {
   "models": [
     {
+      "model": "deepinfra/Audio8/Audio8-TTS-Preview-0.6b",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `Audio8/Audio8-TTS-Preview-0.6b` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `Audio8/Audio8-TTS-Preview-0.6b` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `Audio8/Audio8-TTS-Preview-0.6b` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `Audio8/Audio8-TTS-Preview-0.6b` does not exist"
+      },
+      "checked_at_utc": "2026-09-11T07:47:33.921434+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-base-en-v1.5",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-base-en-v1.5` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-base-en-v1.5` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-base-en-v1.5` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-base-en-v1.5` does not exist"
+      },
+      "checked_at_utc": "2026-09-11T07:47:34.153863+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-en-icl",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-en-icl` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-en-icl` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-en-icl` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-en-icl` does not exist"
+      },
+      "checked_at_utc": "2026-09-11T07:47:34.404899+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-large-en-v1.5",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-large-en-v1.5` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-large-en-v1.5` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-large-en-v1.5` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-large-en-v1.5` does not exist"
+      },
+      "checked_at_utc": "2026-09-11T07:47:34.624748+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-m3",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3` does not exist"
+      },
+      "checked_at_utc": "2026-09-11T07:47:34.853680+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-m3-multi",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi` does not exist"
+      },
+      "checked_at_utc": "2026-09-11T07:47:35.077741+00:00"
+    },
+    {
       "model": "gemini/antigravity-preview-05-2026",
       "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
       "attempted_strategies": {
@@ -151,6 +211,26 @@
       "checked_at_utc": "2026-08-22T12:11:24.937081+00:00"
     },
     {
+      "model": "gemini/gemini-3.5-transcribe",
+      "reason": "empty: ''",
+      "attempted_strategies": {
+        "system": "empty: ''",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Multiturn chat is not enabled for this model\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "empty: ''"
+      },
+      "checked_at_utc": "2026-09-11T07:47:38.460645+00:00"
+    },
+    {
+      "model": "gemini/gemini-3.5-transcribe-live",
+      "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"models/gemini-3.5-transcribe-live only supports real-time bidirectional streaming via WebSocket (bidiGenerateContent). Please use the Gemini Live API (bidiGenerateContent via WebSocket) instead of generateContent.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"models/gemini-3.5-transcribe-live only supports real-time bidirectional streaming via WebSocket (bidiGenerateContent). Please use the Gemini Live API (bidiGenerateContent via WebSocket) instead of generateContent.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"models/gemini-3.5-transcribe-live only supports real-time bidirectional streaming via WebSocket (bidiGenerateContent). Please use the Gemini Live API (bidiGenerateContent via WebSocket) instead of generateContent.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"models/gemini-3.5-transcribe-live only supports real-time bidirectional streaming via WebSocket (bidiGenerateContent). Please use the Gemini Live API (bidiGenerateContent via WebSocket) instead of generateContent.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-09-11T07:47:38.756102+00:00"
+    },
+    {
       "model": "gemini/gemini-3.7-flash",
       "reason": "empty continuation",
       "attempted_strategies": {
@@ -199,6 +279,16 @@
         "few_shot": "empty continuation"
       },
       "checked_at_utc": "2026-08-22T12:11:30.594912+00:00"
+    },
+    {
+      "model": "gemini/gemini-omni-1.1-flash",
+      "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-09-11T07:47:40.307767+00:00"
     },
     {
       "model": "gemini/gemini-omni-flash-preview",
@@ -379,6 +469,16 @@
         "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."
       },
       "checked_at_utc": "2026-08-22T12:05:30.242407+00:00"
+    },
+    {
+      "model": "openai/davinci-002",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?"
+      },
+      "checked_at_utc": "2026-09-11T07:48:06.014583+00:00"
     },
     {
       "model": "openai/gpt-3.5-turbo-instruct",
@@ -619,6 +719,26 @@
         "few_shot": "empty continuation"
       },
       "checked_at_utc": "2026-08-11T19:23:29.578311+00:00"
+    },
+    {
+      "model": "openai/gpt-6-astra",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."
+      },
+      "checked_at_utc": "2026-09-11T07:48:05.693756+00:00"
+    },
+    {
+      "model": "openai/gpt-live-1",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?"
+      },
+      "checked_at_utc": "2026-09-11T07:48:04.523465+00:00"
     },
     {
       "model": "openai/o1",
@@ -869,6 +989,36 @@
         "few_shot": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model MiniMaxAI/MiniMax-M2.7. Please visit https://api.together.ai/models/MiniMaxAI/MiniMax-M2.7 to create and start a new dedicated endpoint for the model."
       },
       "checked_at_utc": "2026-08-22T12:06:48.302999+00:00"
+    },
+    {
+      "model": "together_ai/deepseek-ai/DeepSeek-V4-Pro",
+      "reason": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model deepseek-ai/DeepSeek-V4-Pro. Please visit https://api.together.ai/models/deepseek-ai/DeepSeek-V4-Pro to create and start a new dedicated endpoint for the model.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model deepseek-ai/DeepSeek-V4-Pro. Please visit https://api.together.ai/models/deepseek-ai/DeepSeek-V4-Pro to create and start a new dedicated endpoint for the model.",
+        "prefill": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model deepseek-ai/DeepSeek-V4-Pro. Please visit https://api.together.ai/models/deepseek-ai/DeepSeek-V4-Pro to create and start a new dedicated endpoint for the model.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model deepseek-ai/DeepSeek-V4-Pro. Please visit https://api.together.ai/models/deepseek-ai/DeepSeek-V4-Pro to create and start a new dedicated endpoint for the model."
+      },
+      "checked_at_utc": "2026-09-11T07:48:59.289899+00:00"
+    },
+    {
+      "model": "together_ai/moonshotai/Kimi-K2.7-Code",
+      "reason": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model moonshotai/Kimi-K2.7-Code. Please visit https://api.together.ai/models/moonshotai/Kimi-K2.7-Code to create and start a new dedicated endpoint for the model.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model moonshotai/Kimi-K2.7-Code. Please visit https://api.together.ai/models/moonshotai/Kimi-K2.7-Code to create and start a new dedicated endpoint for the model.",
+        "prefill": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model moonshotai/Kimi-K2.7-Code. Please visit https://api.together.ai/models/moonshotai/Kimi-K2.7-Code to create and start a new dedicated endpoint for the model.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model moonshotai/Kimi-K2.7-Code. Please visit https://api.together.ai/models/moonshotai/Kimi-K2.7-Code to create and start a new dedicated endpoint for the model."
+      },
+      "checked_at_utc": "2026-09-11T07:48:59.849057+00:00"
+    },
+    {
+      "model": "together_ai/nvidia/nemotron-3-ultra-550b-a55b",
+      "reason": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model nvidia/nemotron-3-ultra-550b-a55b. Please visit https://api.together.ai/models/nvidia/nemotron-3-ultra-550b-a55b to create and start a new dedicated endpoint for the model.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model nvidia/nemotron-3-ultra-550b-a55b. Please visit https://api.together.ai/models/nvidia/nemotron-3-ultra-550b-a55b to create and start a new dedicated endpoint for the model.",
+        "prefill": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model nvidia/nemotron-3-ultra-550b-a55b. Please visit https://api.together.ai/models/nvidia/nemotron-3-ultra-550b-a55b to create and start a new dedicated endpoint for the model.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model nvidia/nemotron-3-ultra-550b-a55b. Please visit https://api.together.ai/models/nvidia/nemotron-3-ultra-550b-a55b to create and start a new dedicated endpoint for the model."
+      },
+      "checked_at_utc": "2026-09-11T07:49:00.366573+00:00"
     },
     {
       "model": "xai/grok-4.20-multi-agent-0309",
