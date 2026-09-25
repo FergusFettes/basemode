@@ -7,14 +7,14 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `anthropic/claude-fable-5` | $10.00 | $50.00 | 2026-06-09 | `system` | ✓ | `no_prefill`, `no_temperature` |
 | `anthropic/claude-fable-5-1` | $10.00 | $50.00 | 2026-08-31 | `system` | ✓ | `no_prefill`, `no_temperature` |
 | `anthropic/claude-haiku-4-5-20251001` | $1.00 | $5.00 | 2025-10-01 | `prefill` | ✓ |  |
-| `anthropic/claude-opus-4-1-20250805` | $15.00 | $75.00 | 2025-08-05 | `prefill` | ✓ |  |
-| `anthropic/claude-opus-4-20250514` | $15.00 | $75.00 | 2025-05-22 | `prefill` | ✓ |  |
+| `anthropic/claude-opus-4-1-20250805` | $15.00 | $75.00 | 2025-08-05 | `prefill` | ⚠ |  |
+| `anthropic/claude-opus-4-20250514` | unknown | unknown | unknown | `prefill` | ⚠ |  |
 | `anthropic/claude-opus-4-5-20251101` | $5.00 | $25.00 | 2025-11-24 | `prefill` | ✓ |  |
 | `anthropic/claude-opus-4-6` | $5.00 | $25.00 | 2026-02-05 | `system` | ✓ | `no_prefill` |
 | `anthropic/claude-opus-4-7` | $5.00 | $25.00 | 2026-04-16 | `system` | ✓ | `no_prefill`, `no_temperature` |
 | `anthropic/claude-opus-4-8` | $5.00 | $25.00 | unknown | `system` | ⚠ | `no_prefill`, `no_temperature` |
 | `anthropic/claude-opus-5` | $5.00 | $25.00 | unknown | `few_shot` | ⚠ | `no_prefill`, `no_temperature` |
-| `anthropic/claude-sonnet-4-20250514` | $3.00 | $15.00 | 2025-05-22 | `prefill` | ✓ |  |
+| `anthropic/claude-sonnet-4-20250514` | $3.00 | $15.00 | 2025-05-22 | `prefill` | ⚠ |  |
 | `anthropic/claude-sonnet-4-5-20250929` | $3.00 | $15.00 | 2025-09-29 | `prefill` | ✓ |  |
 | `anthropic/claude-sonnet-4-6` | $3.00 | $15.00 | 2026-02-17 | `system` | ✓ | `no_prefill` |
 | `anthropic/claude-sonnet-5` | $2.00 | $10.00 | 2026-06-30 | `system` | ✓ | `no_prefill`, `no_temperature` |
@@ -113,8 +113,8 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `deepinfra/zai-org/glm-5` | $0.60 | $2.08 | unknown | `system` | ⚠ |  |
 | `deepinfra/zai-org/glm-5.1` | $1.05 | $3.50 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/zai-org/glm-5.2` | $0.75 | $2.40 | unknown | `system` | ⚠ |  |
-| `deepseek/deepseek-v4-flash` | $0.44 | $1.32 | unknown | `system` | ⚠ | `reasoning_budget` |
-| `deepseek/deepseek-v4-flash-vision-exp` | $0.44 | $1.32 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `deepseek/deepseek-v4-flash` | $0.30 | $1.20 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `deepseek/deepseek-v4-flash-vision-exp` | $0.30 | $1.20 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepseek/deepseek-v4-pro` | $1.32 | $3.96 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `gemini/gemini-2.5-flash` | $0.30 | $2.50 | 2025-06-17 | `system` | ⚠ |  |
 | `gemini/gemini-2.5-flash-lite` | $0.10 | $0.40 | 2025-07-22 | `system` | ⚠ |  |
@@ -132,11 +132,11 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `gemini/gemini-3.5-flash` | $1.50 | $9.00 | 2026-07-21 | `system` | ✓ |  |
 | `gemini/gemini-3.5-flash-lite` | $0.30 | $2.50 | 2026-07-21 | `system` | ✓ |  |
 | `gemini/gemini-3.6-flash` | $0.75 | $3.75 | 2026-07-21 | `system` | ✓ |  |
-| `gemini/gemini-flash-lite-latest` | $0.10 | $0.40 | unknown | `system` | ⚠ |  |
-| `gemini/gemini-pro-latest` | $1.25 | $10.00 | 2026-04-27 | `system` | ⚠ |  |
-| `gemini/gemini-robotics-er-1.6-preview` | $1.00 | $5.00 | unknown | `prefill` | ⚠ |  |
-| `gemini/gemini-robotics-er-2-preview` | $2.00 | $10.00 | unknown | `system` | ⚠ |  |
-| `gemini/gemma-4-26b-a4b-it` | $0.07 | $0.34 | 2026-04-03 | `system` | ⚠ | `reasoning_budget` |
+| `gemini/gemini-flash-lite-latest` | $0.30 | $2.50 | unknown | `system` | ⚠ |  |
+| `gemini/gemini-pro-latest` | $2.00 | $12.00 | 2026-04-27 | `system` | ⚠ |  |
+| `gemini/gemini-robotics-er-1.6-preview` | unknown | unknown | unknown | `prefill` | ⚠ |  |
+| `gemini/gemini-robotics-er-2-preview` | $1.00 | $5.00 | unknown | `system` | ⚠ |  |
+| `gemini/gemma-4-26b-a4b-it` | $0.09 | $0.30 | 2026-04-03 | `system` | ⚠ | `reasoning_budget` |
 | `gemini/gemma-4-31b-it` | $0.09 | $0.34 | 2026-04-02 | `system` | ⚠ | `reasoning_budget` |
 | `gemini/nano-banana-pro-preview` | $2.00 | $12.00 | unknown | `prefill` | ⚠ |  |
 | `groq/allam-2-7b` | unknown | unknown | unknown | `system` | ⚠ |  |
@@ -144,8 +144,8 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `groq/groq/compound-mini` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `groq/openai/gpt-oss-120b` | $0.15 | $0.60 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `groq/openai/gpt-oss-20b` | $0.07 | $0.30 | unknown | `system` | ⚠ | `reasoning_budget` |
-| `groq/qwen/qwen3.6-27b` | $0.60 | $3.00 | 2026-04-22 | `system` | ✓ |  |
-| `moonshot/kimi-k2-0905-preview` | $0.60 | $2.50 | 2025-07-11 | `system` | ⚠ |  |
+| `groq/qwen/qwen3.6-27b` | $0.32 | $2.70 | 2026-04-22 | `system` | ⚠ |  |
+| `moonshot/kimi-k2-0905-preview` | $0.57 | $2.30 | 2025-07-11 | `system` | ⚠ |  |
 | `moonshot/kimi-k2.5` | $0.60 | $3.00 | 2026-01-27 | `system` | ⚠ | `no_temperature` |
 | `moonshot/kimi-k2.6` | $0.95 | $4.00 | 2026-04-20 | `system` | ✓ | `no_temperature` |
 | `moonshot/kimi-k2.7-code` | $0.95 | $4.00 | unknown | `system` | ⚠ | `no_temperature`, `reasoning_budget` |
