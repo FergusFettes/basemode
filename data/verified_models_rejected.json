@@ -1,6 +1,66 @@
 {
   "models": [
     {
+      "model": "deepinfra/Audio8/Audio8-TTS-Preview-0.6b",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `Audio8/Audio8-TTS-Preview-0.6b` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `Audio8/Audio8-TTS-Preview-0.6b` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `Audio8/Audio8-TTS-Preview-0.6b` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `Audio8/Audio8-TTS-Preview-0.6b` does not exist"
+      },
+      "checked_at_utc": "2026-09-25T08:31:26.338909+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-base-en-v1.5",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-base-en-v1.5` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-base-en-v1.5` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-base-en-v1.5` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-base-en-v1.5` does not exist"
+      },
+      "checked_at_utc": "2026-09-25T08:31:26.689574+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-en-icl",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-en-icl` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-en-icl` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-en-icl` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-en-icl` does not exist"
+      },
+      "checked_at_utc": "2026-09-25T08:31:26.979557+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-large-en-v1.5",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-large-en-v1.5` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-large-en-v1.5` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-large-en-v1.5` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-large-en-v1.5` does not exist"
+      },
+      "checked_at_utc": "2026-09-25T08:31:27.253884+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-m3",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3` does not exist"
+      },
+      "checked_at_utc": "2026-09-25T08:31:27.522729+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-m3-multi",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi` does not exist"
+      },
+      "checked_at_utc": "2026-09-25T08:31:27.800869+00:00"
+    },
+    {
       "model": "gemini/antigravity-preview-05-2026",
       "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
       "attempted_strategies": {
@@ -9,6 +69,26 @@
         "few_shot": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'"
       },
       "checked_at_utc": "2026-08-22T12:05:10.655922+00:00"
+    },
+    {
+      "model": "gemini/antigravity-preview-09-2026",
+      "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Multiturn chat is not enabled for models/antigravity-preview-09-2026\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-09-25T08:31:30.694443+00:00"
+    },
+    {
+      "model": "gemini/antigravity-preview-latest",
+      "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Multiturn chat is not enabled for models/antigravity-preview-latest\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-09-25T08:31:31.070521+00:00"
     },
     {
       "model": "gemini/aqa",
@@ -151,6 +231,16 @@
       "checked_at_utc": "2026-08-22T12:11:24.937081+00:00"
     },
     {
+      "model": "gemini/gemini-3.5-transcribe",
+      "reason": "empty: ''",
+      "attempted_strategies": {
+        "system": "empty: ''",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Multiturn chat is not enabled for this model\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "empty: ''"
+      },
+      "checked_at_utc": "2026-09-25T08:31:31.694644+00:00"
+    },
+    {
       "model": "gemini/gemini-3.7-flash",
       "reason": "empty continuation",
       "attempted_strategies": {
@@ -159,6 +249,26 @@
         "few_shot": "empty continuation"
       },
       "checked_at_utc": "2026-08-22T12:11:27.970038+00:00"
+    },
+    {
+      "model": "gemini/gemini-3.8-flash-lite-tts",
+      "reason": "empty: ''",
+      "attempted_strategies": {
+        "system": "empty: ''",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Multiturn chat is not enabled for this model\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "empty: ''"
+      },
+      "checked_at_utc": "2026-09-25T08:31:42.357061+00:00"
+    },
+    {
+      "model": "gemini/gemini-3.8-flash-tts",
+      "reason": "empty: ''",
+      "attempted_strategies": {
+        "system": "empty: ''",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Multiturn chat is not enabled for this model\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "empty: ''"
+      },
+      "checked_at_utc": "2026-09-25T08:32:19.531841+00:00"
     },
     {
       "model": "gemini/gemini-embedding-001",
@@ -361,6 +471,36 @@
       "checked_at_utc": "2026-08-22T12:11:49.786119+00:00"
     },
     {
+      "model": "novita/ming-image-0.1-design",
+      "reason": "BadRequestError: litellm.BadRequestError: NovitaException - unsupported request endpoint: /chat/completions trace_id: 9592172aecc4a8044b991397fabd897c",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: NovitaException - unsupported request endpoint: /chat/completions trace_id: 9592172aecc4a8044b991397fabd897c",
+        "prefill": "BadRequestError: litellm.BadRequestError: NovitaException - unsupported request endpoint: /chat/completions trace_id: 0b2ec70cd2fe0a8213a00e59cebea607",
+        "few_shot": "BadRequestError: litellm.BadRequestError: NovitaException - unsupported request endpoint: /chat/completions trace_id: 27cb005d94ea3f07b0a75cc6dece2bba"
+      },
+      "checked_at_utc": "2026-09-25T08:32:34.157545+00:00"
+    },
+    {
+      "model": "novita/ming-image-0.1-design-layer",
+      "reason": "BadRequestError: litellm.BadRequestError: NovitaException - unsupported request endpoint: /chat/completions trace_id: 5600c84fde12e416a6865057d976eb67",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: NovitaException - unsupported request endpoint: /chat/completions trace_id: 5600c84fde12e416a6865057d976eb67",
+        "prefill": "BadRequestError: litellm.BadRequestError: NovitaException - unsupported request endpoint: /chat/completions trace_id: c047a1ca1500cfa0114a838ee1206cfa",
+        "few_shot": "BadRequestError: litellm.BadRequestError: NovitaException - unsupported request endpoint: /chat/completions trace_id: f91014ddff35b045e068e65b01de32d3"
+      },
+      "checked_at_utc": "2026-09-25T08:32:34.554762+00:00"
+    },
+    {
+      "model": "novita/tencent/hy4-preview",
+      "reason": "meta_commentary: 'We need answer user: \"The quick brown fox jumps over the lazy \" . Need continuation only, no preamble. We must follow ru'",
+      "attempted_strategies": {
+        "system": "meta_commentary: 'We need answer user: \"The quick brown fox jumps over the lazy \" . Need continuation only, no preamble. We must follow ru'",
+        "prefill": "empty: ''",
+        "few_shot": "empty: ''"
+      },
+      "checked_at_utc": "2026-09-25T08:35:34.677753+00:00"
+    },
+    {
       "model": "openai/babbage-002",
       "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
       "attempted_strategies": {
@@ -379,6 +519,16 @@
         "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."
       },
       "checked_at_utc": "2026-08-22T12:05:30.242407+00:00"
+    },
+    {
+      "model": "openai/davinci-002",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?"
+      },
+      "checked_at_utc": "2026-09-25T08:35:42.887910+00:00"
     },
     {
       "model": "openai/gpt-3.5-turbo-instruct",
@@ -621,6 +771,46 @@
       "checked_at_utc": "2026-08-11T19:23:29.578311+00:00"
     },
     {
+      "model": "openai/gpt-6-astra",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."
+      },
+      "checked_at_utc": "2026-09-25T08:35:42.539145+00:00"
+    },
+    {
+      "model": "openai/gpt-6-luna",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."
+      },
+      "checked_at_utc": "2026-09-25T08:35:37.046290+00:00"
+    },
+    {
+      "model": "openai/gpt-6-sol",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."
+      },
+      "checked_at_utc": "2026-09-25T08:35:38.080884+00:00"
+    },
+    {
+      "model": "openai/gpt-live-1",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?"
+      },
+      "checked_at_utc": "2026-09-25T08:35:38.859521+00:00"
+    },
+    {
       "model": "openai/o1",
       "reason": "empty continuation",
       "attempted_strategies": {
@@ -761,6 +951,26 @@
       "checked_at_utc": "2026-08-22T12:12:40.805431+00:00"
     },
     {
+      "model": "openrouter/aion-labs/aion-3.5",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenrouterException - {\"error\":{\"message\":\"Reasoning is mandatory for this endpoint and cannot be disabled.\",\"code\":400,\"metadata\":{\"provider_name\":null}}}",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenrouterException - {\"error\":{\"message\":\"Reasoning is mandatory for this endpoint and cannot be disabled.\",\"code\":400,\"metadata\":{\"provider_name\":null}}}",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenrouterException - {\"error\":{\"message\":\"Provider returned error\",\"code\":400,\"metadata\":{\"raw\":\"{\\\"error\\\":{\\\"message\\\":\\\"Last message cannot be from the assistant for this model.\\\",\\\"type\\\":\\\"invalid_request_error\\\"}}\",\"provider_name\":\"AionLabs\",\"is_byok\":false}},\"user_id\":\"user_2Y8ETwhFoXajBsFaFVMgjQEbhAI\"}",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenrouterException - {\"error\":{\"message\":\"Reasoning is mandatory for this endpoint and cannot be disabled.\",\"code\":400,\"metadata\":{\"provider_name\":null}}}"
+      },
+      "checked_at_utc": "2026-09-25T08:35:49.779866+00:00"
+    },
+    {
+      "model": "openrouter/aion-labs/aion-3.5-mini",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenrouterException - {\"error\":{\"message\":\"Reasoning is mandatory for this endpoint and cannot be disabled.\",\"code\":400,\"metadata\":{\"provider_name\":null}}}",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenrouterException - {\"error\":{\"message\":\"Reasoning is mandatory for this endpoint and cannot be disabled.\",\"code\":400,\"metadata\":{\"provider_name\":null}}}",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenrouterException - {\"error\":{\"message\":\"Provider returned error\",\"code\":400,\"metadata\":{\"raw\":\"{\\\"error\\\":{\\\"message\\\":\\\"Last message cannot be from the assistant for this model.\\\",\\\"type\\\":\\\"invalid_request_error\\\"}}\",\"provider_name\":\"AionLabs\",\"is_byok\":false}},\"user_id\":\"user_2Y8ETwhFoXajBsFaFVMgjQEbhAI\"}",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenrouterException - {\"error\":{\"message\":\"Reasoning is mandatory for this endpoint and cannot be disabled.\",\"code\":400,\"metadata\":{\"provider_name\":null}}}"
+      },
+      "checked_at_utc": "2026-09-25T08:35:52.945997+00:00"
+    },
+    {
       "model": "openrouter/anthropic/claude-fable-5.1",
       "reason": "AuthenticationError: litellm.AuthenticationError: AuthenticationError: OpenrouterException - {\"error\":{\"message\":\"Failed to authenticate request with Clerk\",\"code\":401}}",
       "attempted_strategies": {
@@ -841,6 +1051,16 @@
       "checked_at_utc": "2026-09-04T07:42:40.448921+00:00"
     },
     {
+      "model": "openrouter/qwen/qwen3.8-max-prime",
+      "reason": "RateLimitError: litellm.RateLimitError: RateLimitError: OpenrouterException - {\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"qwen/qwen3.8-max-prime is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Alibaba\",\"is_byok\":false,\"provider_error_code\":\"insufficient_quota\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to another provider with provider routing: https://openrouter.ai/docs/features/provider-routing\"}},\"user_id\":\"user_2Y8ETwhFoXajBsFaFVMgjQEbhAI\"}",
+      "attempted_strategies": {
+        "system": "RateLimitError: litellm.RateLimitError: RateLimitError: OpenrouterException - {\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"qwen/qwen3.8-max-prime is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Alibaba\",\"is_byok\":false,\"provider_error_code\":\"insufficient_quota\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to another provider with provider routing: https://openrouter.ai/docs/features/provider-routing\"}},\"user_id\":\"user_2Y8ETwhFoXajBsFaFVMgjQEbhAI\"}",
+        "prefill": "RateLimitError: litellm.RateLimitError: RateLimitError: OpenrouterException - {\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"qwen/qwen3.8-max-prime is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Alibaba\",\"is_byok\":false,\"provider_error_code\":\"insufficient_quota\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to another provider with provider routing: https://openrouter.ai/docs/features/provider-routing\"}},\"user_id\":\"user_2Y8ETwhFoXajBsFaFVMgjQEbhAI\"}",
+        "few_shot": "RateLimitError: litellm.RateLimitError: RateLimitError: OpenrouterException - {\"error\":{\"message\":\"Provider returned error\",\"code\":429,\"metadata\":{\"raw\":\"qwen/qwen3.8-max-prime is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations\",\"provider_name\":\"Alibaba\",\"is_byok\":false,\"provider_error_code\":\"insufficient_quota\",\"limit_source\":\"upstream_provider_shared_pool\",\"remedy_hint\":\"Retry shortly, add your own provider key (https://openrouter.ai/settings/integrations), or route to another provider with provider routing: https://openrouter.ai/docs/features/provider-routing\"}},\"user_id\":\"user_2Y8ETwhFoXajBsFaFVMgjQEbhAI\"}"
+      },
+      "checked_at_utc": "2026-09-25T08:35:53.841828+00:00"
+    },
+    {
       "model": "openrouter/stealth/ox-alpha",
       "reason": "empty continuation",
       "attempted_strategies": {
@@ -849,6 +1069,16 @@
         "few_shot": "empty continuation"
       },
       "checked_at_utc": "2026-08-22T12:06:13.994381+00:00"
+    },
+    {
+      "model": "openrouter/stealth/space-bunny-alpha",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenrouterException - {\"error\":{\"message\":\"Reasoning is mandatory for this endpoint and cannot be disabled.\",\"code\":400,\"metadata\":{\"provider_name\":null}}}",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenrouterException - {\"error\":{\"message\":\"Reasoning is mandatory for this endpoint and cannot be disabled.\",\"code\":400,\"metadata\":{\"provider_name\":null}}}",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenrouterException - {\"error\":{\"message\":\"Reasoning is mandatory for this endpoint and cannot be disabled.\",\"code\":400,\"metadata\":{\"provider_name\":null}}}",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenrouterException - {\"error\":{\"message\":\"Reasoning is mandatory for this endpoint and cannot be disabled.\",\"code\":400,\"metadata\":{\"provider_name\":null}}}"
+      },
+      "checked_at_utc": "2026-09-25T08:35:57.563140+00:00"
     },
     {
       "model": "together_ai/ByteDance/Seedance-2.5",
@@ -861,6 +1091,16 @@
       "checked_at_utc": "2026-08-22T12:06:47.405067+00:00"
     },
     {
+      "model": "together_ai/MiniMaxAI/MiniMax-H3",
+      "reason": "BadRequestError: litellm.BadRequestError: Together_aiException - This model requires third-party data sharing to be enabled for your organization.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Together_aiException - This model requires third-party data sharing to be enabled for your organization.",
+        "prefill": "BadRequestError: litellm.BadRequestError: Together_aiException - This model requires third-party data sharing to be enabled for your organization.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Together_aiException - This model requires third-party data sharing to be enabled for your organization."
+      },
+      "checked_at_utc": "2026-09-25T08:36:00.788749+00:00"
+    },
+    {
       "model": "together_ai/MiniMaxAI/MiniMax-M2.7",
       "reason": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model MiniMaxAI/MiniMax-M2.7. Please visit https://api.together.ai/models/MiniMaxAI/MiniMax-M2.7 to create and start a new dedicated endpoint for the model.",
       "attempted_strategies": {
@@ -869,6 +1109,26 @@
         "few_shot": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model MiniMaxAI/MiniMax-M2.7. Please visit https://api.together.ai/models/MiniMaxAI/MiniMax-M2.7 to create and start a new dedicated endpoint for the model."
       },
       "checked_at_utc": "2026-08-22T12:06:48.302999+00:00"
+    },
+    {
+      "model": "together_ai/Qwen/Qwen3.8-Flash",
+      "reason": "BadRequestError: litellm.BadRequestError: Together_aiException - This model requires third-party data sharing to be enabled for your organization.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Together_aiException - This model requires third-party data sharing to be enabled for your organization.",
+        "prefill": "BadRequestError: litellm.BadRequestError: Together_aiException - This model requires third-party data sharing to be enabled for your organization.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Together_aiException - This model requires third-party data sharing to be enabled for your organization."
+      },
+      "checked_at_utc": "2026-09-25T08:36:00.353630+00:00"
+    },
+    {
+      "model": "together_ai/moonshotai/Kimi-K2.6",
+      "reason": "BadRequestError: litellm.BadRequestError: Together_aiException - No deployments are ready to serve this endpoint; all configured deployments are stopped. Start one to enable traffic.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Together_aiException - No deployments are ready to serve this endpoint; all configured deployments are stopped. Start one to enable traffic.",
+        "prefill": "BadRequestError: litellm.BadRequestError: Together_aiException - No deployments are ready to serve this endpoint; all configured deployments are stopped. Start one to enable traffic.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Together_aiException - No deployments are ready to serve this endpoint; all configured deployments are stopped. Start one to enable traffic."
+      },
+      "checked_at_utc": "2026-09-25T08:35:58.830358+00:00"
     },
     {
       "model": "xai/grok-4.20-multi-agent-0309",

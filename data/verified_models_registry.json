@@ -61,6 +61,12 @@
       "quirks": ["no_prefill", "no_temperature"]
     },
     {
+      "model": "anthropic/claude-opus-5-5",
+      "openrouter_id": "anthropic/claude-opus-5.5",
+      "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing",
+      "prompt_method": "system"
+    },
+    {
       "model": "anthropic/claude-sonnet-4-20250514",
       "openrouter_id": "anthropic/claude-sonnet-4",
       "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing"
@@ -90,6 +96,10 @@
     {
       "model": "cerebras/gpt-oss-120b",
       "pricing_url": "https://www.cerebras.ai/pricing",
+      "quirks": ["reasoning_budget"]
+    },
+    {
+      "model": "cerebras/qwen-3.8-27b",
       "quirks": ["reasoning_budget"]
     },
     {
@@ -497,6 +507,11 @@
       "pricing_url": "https://deepinfra.com/pricing"
     },
     {
+      "model": "deepseek/deepseek-flash",
+      "openrouter_id": "~deepseek/deepseek-flash-latest",
+      "quirks": ["reasoning_budget"]
+    },
+    {
       "model": "deepseek/deepseek-v4-flash",
       "quirks": ["reasoning_budget"]
     },
@@ -579,6 +594,10 @@
       "openrouter_id": "google/gemini-3.6-flash"
     },
     {
+      "model": "gemini/gemini-3.8-flash",
+      "openrouter_id": "google/gemini-3.8-flash"
+    },
+    {
       "model": "gemini/gemini-flash-lite-latest"
     },
     {
@@ -632,6 +651,10 @@
     {
       "model": "groq/qwen/qwen3.6-27b",
       "openrouter_id": "qwen/qwen3.6-27b"
+    },
+    {
+      "model": "groq/qwen/qwen3.8-27b",
+      "openrouter_id": "qwen/qwen3.8-27b"
     },
     {
       "model": "moonshot/kimi-k2-0905-preview",
@@ -748,6 +771,11 @@
     {
       "model": "novita/deepseek/deepseek-v4-pro-0813",
       "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/deepseek/deepseek-v4.1-flash-p",
+      "openrouter_id": "deepseek/deepseek-v4.1-flash",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "novita/deepseek/deepseek_v3",
@@ -1017,6 +1045,14 @@
       "pricing_url": "https://novita.ai/pricing"
     },
     {
+      "model": "novita/xiaomimimo/mimo-v2.6-flash",
+      "openrouter_id": "xiaomi/mimo-v2.6-flash"
+    },
+    {
+      "model": "novita/xiaomimimo/mimo-v2.6-pro",
+      "openrouter_id": "xiaomi/mimo-v2.6-pro-ultraspeed"
+    },
+    {
       "model": "novita/zai-org/autoglm-phone-9b-multilingual",
       "pricing_url": "https://novita.ai/pricing"
     },
@@ -1069,6 +1105,11 @@
     {
       "model": "openai/gpt-3.5-turbo-1106",
       "openrouter_id": "openai/gpt-3.5-turbo",
+      "pricing_url": "https://openai.com/api/pricing/"
+    },
+    {
+      "model": "openai/gpt-4",
+      "openrouter_id": "openai/gpt-4.1",
       "pricing_url": "https://openai.com/api/pricing/"
     },
     {
@@ -1249,13 +1290,34 @@
       "quirks": ["no_temperature"]
     },
     {
+      "model": "openrouter/fireworks/ember-1",
+      "openrouter_id": "fireworks/ember-1"
+    },
+    {
       "model": "openrouter/moonshotai/kimi-k2.6",
       "openrouter_id": "moonshotai/kimi-k2.6",
       "pricing_url": "https://openrouter.ai/moonshotai/kimi-k2.6"
     },
     {
+      "model": "openrouter/upstage/solar-mini4",
+      "openrouter_id": "upstage/solar-mini4"
+    },
+    {
+      "model": "together_ai/deepseek-ai/DeepSeek-V4-Flash-0731",
+      "openrouter_id": "deepseek/deepseek-v4-flash-0731",
+      "quirks": ["reasoning_budget"]
+    },
+    {
       "model": "together_ai/deepseek-ai/DeepSeek-V4-Pro-0813",
       "quirks": ["reasoning_budget"]
+    },
+    {
+      "model": "together_ai/deepseek-ai/DeepSeek-V4.1-Flash",
+      "openrouter_id": "deepseek/deepseek-v4.1-flash",
+      "quirks": ["reasoning_budget"]
+    },
+    {
+      "model": "together_ai/together/Tev1-4B-experimental"
     },
     {
       "model": "xai/grok-4.20-0309-non-reasoning",
@@ -1276,6 +1338,10 @@
     {
       "model": "xai/grok-4.6",
       "openrouter_id": "x-ai/grok-4.6"
+    },
+    {
+      "model": "xai/grok-4.7",
+      "openrouter_id": "x-ai/grok-4.7"
     },
     {
       "model": "xai/grok-build-0.1",
@@ -1314,6 +1380,14 @@
     {
       "model": "zai/glm-5.2",
       "openrouter_id": "z-ai/glm-5.2"
+    },
+    {
+      "model": "zai/glm-5.3-flash",
+      "openrouter_id": "z-ai/glm-5.3-flashx"
+    },
+    {
+      "model": "zai/glm-5.3-flashx",
+      "openrouter_id": "z-ai/glm-5.3-flashx"
     }
   ]
 }

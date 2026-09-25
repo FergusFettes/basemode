@@ -7,19 +7,21 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `anthropic/claude-fable-5` | $10.00 | $50.00 | 2026-06-09 | `system` | ✓ | `no_prefill`, `no_temperature` |
 | `anthropic/claude-fable-5-1` | $10.00 | $50.00 | 2026-08-31 | `system` | ✓ | `no_prefill`, `no_temperature` |
 | `anthropic/claude-haiku-4-5-20251001` | $1.00 | $5.00 | 2025-10-01 | `prefill` | ✓ |  |
-| `anthropic/claude-opus-4-1-20250805` | $15.00 | $75.00 | 2025-08-05 | `prefill` | ✓ |  |
-| `anthropic/claude-opus-4-20250514` | $15.00 | $75.00 | 2025-05-22 | `prefill` | ✓ |  |
+| `anthropic/claude-opus-4-1-20250805` | $15.00 | $75.00 | 2025-08-05 | `prefill` | ⚠ |  |
+| `anthropic/claude-opus-4-20250514` | unknown | unknown | unknown | `prefill` | ⚠ |  |
 | `anthropic/claude-opus-4-5-20251101` | $5.00 | $25.00 | 2025-11-24 | `prefill` | ✓ |  |
 | `anthropic/claude-opus-4-6` | $5.00 | $25.00 | 2026-02-05 | `system` | ✓ | `no_prefill` |
 | `anthropic/claude-opus-4-7` | $5.00 | $25.00 | 2026-04-16 | `system` | ✓ | `no_prefill`, `no_temperature` |
 | `anthropic/claude-opus-4-8` | $5.00 | $25.00 | unknown | `system` | ⚠ | `no_prefill`, `no_temperature` |
 | `anthropic/claude-opus-5` | $5.00 | $25.00 | unknown | `few_shot` | ⚠ | `no_prefill`, `no_temperature` |
-| `anthropic/claude-sonnet-4-20250514` | $3.00 | $15.00 | 2025-05-22 | `prefill` | ✓ |  |
+| `anthropic/claude-opus-5-5` | $4.00 | $20.00 | 2026-09-21 | `system` | ✓ |  |
+| `anthropic/claude-sonnet-4-20250514` | $3.00 | $15.00 | 2025-05-22 | `prefill` | ⚠ |  |
 | `anthropic/claude-sonnet-4-5-20250929` | $3.00 | $15.00 | 2025-09-29 | `prefill` | ✓ |  |
 | `anthropic/claude-sonnet-4-6` | $3.00 | $15.00 | 2026-02-17 | `system` | ✓ | `no_prefill` |
 | `anthropic/claude-sonnet-5` | $2.00 | $10.00 | 2026-06-30 | `system` | ✓ | `no_prefill`, `no_temperature` |
 | `cerebras/gemma-4-31b` | $0.99 | $1.49 | unknown | `system` | ⚠ |  |
 | `cerebras/gpt-oss-120b` | $0.35 | $0.75 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `cerebras/qwen-3.8-27b` | $0.99 | $1.49 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/anthropic/claude-fable-5` | $10.00 | $50.00 | unknown | `system` | ⚠ | `no_prefill` |
 | `deepinfra/anthropic/claude-haiku-4-5` | $1.00 | $5.00 | unknown | `prefill` | ⚠ |  |
 | `deepinfra/anthropic/claude-opus-4-7` | $5.00 | $25.00 | unknown | `system` | ⚠ | `no_prefill` |
@@ -113,8 +115,9 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `deepinfra/zai-org/glm-5` | $0.60 | $2.08 | unknown | `system` | ⚠ |  |
 | `deepinfra/zai-org/glm-5.1` | $1.05 | $3.50 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepinfra/zai-org/glm-5.2` | $0.75 | $2.40 | unknown | `system` | ⚠ |  |
-| `deepseek/deepseek-v4-flash` | $0.44 | $1.32 | unknown | `system` | ⚠ | `reasoning_budget` |
-| `deepseek/deepseek-v4-flash-vision-exp` | $0.44 | $1.32 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `deepseek/deepseek-flash` | $0.30 | $1.20 | 2026-09-14 | `system` | ⚠ | `reasoning_budget` |
+| `deepseek/deepseek-v4-flash` | $0.30 | $1.20 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `deepseek/deepseek-v4-flash-vision-exp` | $0.30 | $1.20 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `deepseek/deepseek-v4-pro` | $1.32 | $3.96 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `gemini/gemini-2.5-flash` | $0.30 | $2.50 | 2025-06-17 | `system` | ⚠ |  |
 | `gemini/gemini-2.5-flash-lite` | $0.10 | $0.40 | 2025-07-22 | `system` | ⚠ |  |
@@ -132,11 +135,12 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `gemini/gemini-3.5-flash` | $1.50 | $9.00 | 2026-07-21 | `system` | ✓ |  |
 | `gemini/gemini-3.5-flash-lite` | $0.30 | $2.50 | 2026-07-21 | `system` | ✓ |  |
 | `gemini/gemini-3.6-flash` | $0.75 | $3.75 | 2026-07-21 | `system` | ✓ |  |
-| `gemini/gemini-flash-lite-latest` | $0.10 | $0.40 | unknown | `system` | ⚠ |  |
-| `gemini/gemini-pro-latest` | $1.25 | $10.00 | 2026-04-27 | `system` | ⚠ |  |
-| `gemini/gemini-robotics-er-1.6-preview` | $1.00 | $5.00 | unknown | `prefill` | ⚠ |  |
-| `gemini/gemini-robotics-er-2-preview` | $2.00 | $10.00 | unknown | `system` | ⚠ |  |
-| `gemini/gemma-4-26b-a4b-it` | $0.07 | $0.34 | 2026-04-03 | `system` | ⚠ | `reasoning_budget` |
+| `gemini/gemini-3.8-flash` | $0.75 | $3.75 | 2026-09-02 | `system` | ✓ |  |
+| `gemini/gemini-flash-lite-latest` | $0.30 | $2.50 | unknown | `system` | ⚠ |  |
+| `gemini/gemini-pro-latest` | $2.00 | $12.00 | 2026-04-27 | `system` | ⚠ |  |
+| `gemini/gemini-robotics-er-1.6-preview` | unknown | unknown | unknown | `prefill` | ⚠ |  |
+| `gemini/gemini-robotics-er-2-preview` | $1.00 | $5.00 | unknown | `system` | ⚠ |  |
+| `gemini/gemma-4-26b-a4b-it` | $0.09 | $0.30 | 2026-04-03 | `system` | ⚠ | `reasoning_budget` |
 | `gemini/gemma-4-31b-it` | $0.09 | $0.34 | 2026-04-02 | `system` | ⚠ | `reasoning_budget` |
 | `gemini/nano-banana-pro-preview` | $2.00 | $12.00 | unknown | `prefill` | ⚠ |  |
 | `groq/allam-2-7b` | unknown | unknown | unknown | `system` | ⚠ |  |
@@ -144,8 +148,9 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `groq/groq/compound-mini` | unknown | unknown | unknown | `system` | ⚠ |  |
 | `groq/openai/gpt-oss-120b` | $0.15 | $0.60 | unknown | `system` | ⚠ | `reasoning_budget` |
 | `groq/openai/gpt-oss-20b` | $0.07 | $0.30 | unknown | `system` | ⚠ | `reasoning_budget` |
-| `groq/qwen/qwen3.6-27b` | $0.60 | $3.00 | 2026-04-22 | `system` | ✓ |  |
-| `moonshot/kimi-k2-0905-preview` | $0.60 | $2.50 | 2025-07-11 | `system` | ⚠ |  |
+| `groq/qwen/qwen3.6-27b` | $0.32 | $2.70 | 2026-04-22 | `system` | ⚠ |  |
+| `groq/qwen/qwen3.8-27b` | $0.80 | $4.00 | 2026-08-14 | `system` | ✓ |  |
+| `moonshot/kimi-k2-0905-preview` | $0.57 | $2.30 | 2025-07-11 | `system` | ⚠ |  |
 | `moonshot/kimi-k2.5` | $0.60 | $3.00 | 2026-01-27 | `system` | ⚠ | `no_temperature` |
 | `moonshot/kimi-k2.6` | $0.95 | $4.00 | 2026-04-20 | `system` | ✓ | `no_temperature` |
 | `moonshot/kimi-k2.7-code` | $0.95 | $4.00 | unknown | `system` | ⚠ | `no_temperature`, `reasoning_budget` |
@@ -174,6 +179,7 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `novita/deepseek/deepseek-v4-flash-vision-exp` | $0.44 | $1.32 | unknown | `system` | ⚠ |  |
 | `novita/deepseek/deepseek-v4-pro` | $1.60 | $3.20 | unknown | `system` | ⚠ |  |
 | `novita/deepseek/deepseek-v4-pro-0813` | $1.32 | $3.96 | unknown | `system` | ⚠ |  |
+| `novita/deepseek/deepseek-v4.1-flash-p` | $0.30 | $1.20 | 2026-09-10 | `system` | ⚠ | `reasoning_budget` |
 | `novita/deepseek/deepseek_v3` | $0.89 | $0.89 | unknown | `system` | ⚠ |  |
 | `novita/google/gemma-3-27b-it` | $0.12 | $0.20 | unknown | `system` | ⚠ |  |
 | `novita/google/gemma-4-26b-a4b-it` | $0.13 | $0.40 | unknown | `system` | ⚠ |  |
@@ -238,6 +244,8 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `novita/thudm/glm-4-32b-0414` | $0.55 | $1.66 | unknown | `system` | ⚠ |  |
 | `novita/xiaomimimo/mimo-v2.5` | $0.17 | $0.34 | unknown | `system` | ⚠ |  |
 | `novita/xiaomimimo/mimo-v2.5-pro` | $0.52 | $1.04 | unknown | `system` | ⚠ |  |
+| `novita/xiaomimimo/mimo-v2.6-flash` | $0.14 | $0.28 | 2026-09-21 | `system` | ⚠ |  |
+| `novita/xiaomimimo/mimo-v2.6-pro` | $4.35 | $8.70 | 2026-09-21 | `system` | ⚠ |  |
 | `novita/zai-org/autoglm-phone-9b-multilingual` | $0.04 | $0.14 | unknown | `system` | ⚠ |  |
 | `novita/zai-org/glm-4.5-air` | $0.13 | $0.85 | unknown | `system` | ⚠ |  |
 | `novita/zai-org/glm-4.5v` | $0.60 | $1.80 | unknown | `system` | ⚠ |  |
@@ -251,6 +259,7 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `openai/chat-latest` | $5.00 | $30.00 | unknown | `system` | ⚠ | `max_completion_tokens`, `no_temperature` |
 | `openai/gpt-3.5-turbo-0125` | $0.50 | $1.50 | 2023-05-28 | `system` | ⚠ |  |
 | `openai/gpt-3.5-turbo-1106` | $1.00 | $2.00 | 2023-05-28 | `system` | ⚠ |  |
+| `openai/gpt-4` | $30.00 | $60.00 | 2025-04-14 | `system` | ✓ |  |
 | `openai/gpt-4-turbo` | $10.00 | $30.00 | 2024-04-09 | `system` | ⚠ |  |
 | `openai/gpt-4-turbo-2024-04-09` | $10.00 | $30.00 | 2024-04-09 | `system` | ⚠ |  |
 | `openai/gpt-4.1` | $2.00 | $8.00 | 2025-04-14 | `system` | ✓ |  |
@@ -285,13 +294,19 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `openai/gpt-5.6-luna` | $0.20 | $1.20 | unknown | `system` | ⚠ | `no_temperature` |
 | `openai/gpt-5.6-sol` | $4.00 | $20.00 | 2026-07-09 | `system` | ✓ | `no_temperature` |
 | `openai/gpt-5.6-terra` | $2.00 | $12.00 | 2026-07-09 | `system` | ✓ | `no_temperature` |
+| `openrouter/fireworks/ember-1` | $3.00 | $15.00 | 2026-09-23 | `system` | ✓ |  |
 | `openrouter/moonshotai/kimi-k2.6` | $0.95 | $4.00 | 2026-04-20 | `system` | ✓ |  |
+| `openrouter/upstage/solar-mini4` | $0.05 | $0.20 | 2026-09-22 | `system` | ✓ |  |
+| `together_ai/deepseek-ai/DeepSeek-V4-Flash-0731` | $0.14 | $0.28 | 2026-07-31 | `system` | ✓ | `reasoning_budget` |
 | `together_ai/deepseek-ai/DeepSeek-V4-Pro-0813` | $1.32 | $3.96 | unknown | `system` | ⚠ | `reasoning_budget` |
+| `together_ai/deepseek-ai/DeepSeek-V4.1-Flash` | $0.30 | $1.20 | 2026-09-10 | `system` | ✓ | `reasoning_budget` |
+| `together_ai/together/Tev1-4B-experimental` | $0.04 | $0.00 | unknown | `system` | ⚠ |  |
 | `xai/grok-4.20-0309-non-reasoning` | $1.25 | $2.50 | 2026-03-09 | `system` | ✓ |  |
 | `xai/grok-4.20-0309-reasoning` | $1.25 | $2.50 | 2026-03-09 | `system` | ✓ |  |
 | `xai/grok-4.3` | $1.25 | $2.50 | 2026-04-30 | `system` | ✓ |  |
 | `xai/grok-4.5` | $2.00 | $6.00 | 2026-07-08 | `system` | ✓ |  |
 | `xai/grok-4.6` | $2.00 | $6.00 | 2026-08-10 | `system` | ✓ |  |
+| `xai/grok-4.7` | $2.00 | $6.00 | 2026-09-16 | `system` | ✓ |  |
 | `xai/grok-build-0.1` | $1.00 | $2.00 | 2026-05-20 | `system` | ✓ |  |
 | `zai/glm-4.5` | $0.60 | $2.20 | 2025-08-11 | `system` | ⚠ |  |
 | `zai/glm-4.5-air` | $0.20 | $1.10 | 2025-07-25 | `system` | ⚠ |  |
@@ -301,5 +316,7 @@ This table lists every endpoint in the verified-model registry. Its `Prompt meth
 | `zai/glm-5-turbo` | $1.20 | $4.00 | 2026-03-15 | `system` | ⚠ |  |
 | `zai/glm-5.1` | $1.40 | $4.40 | 2026-04-06 | `system` | ✓ |  |
 | `zai/glm-5.2` | $1.40 | $4.40 | 2026-06-16 | `system` | ✓ |  |
+| `zai/glm-5.3-flash` | $0.15 | $0.50 | 2026-09-18 | `system` | ✓ |  |
+| `zai/glm-5.3-flashx` | $0.37 | $1.25 | 2026-09-18 | `system` | ⚠ |  |
 
 Legend: `✓` = LiteLLM pricing present and release date available; `⚠` = missing/approximate field or known issue.
