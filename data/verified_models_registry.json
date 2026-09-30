@@ -345,7 +345,8 @@
     },
     {
       "model": "deepinfra/qwen/qwen3-14b",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/qwen/qwen3-235b-a22b-instruct-2507",
@@ -358,11 +359,13 @@
     },
     {
       "model": "deepinfra/qwen/qwen3-30b-a3b",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/qwen/qwen3-32b",
-      "pricing_url": "https://deepinfra.com/pricing"
+      "pricing_url": "https://deepinfra.com/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "deepinfra/qwen/qwen3-coder-480b-a35b-instruct-turbo",
@@ -559,7 +562,8 @@
     },
     {
       "model": "gemini/gemini-3.1-pro-preview",
-      "openrouter_id": "google/gemini-3.1-pro-preview-customtools"
+      "openrouter_id": "google/gemini-3.1-pro-preview-customtools",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "gemini/gemini-3.1-pro-preview-customtools",
@@ -590,7 +594,8 @@
       "prompt_method": "prefill"
     },
     {
-      "model": "gemini/gemini-robotics-er-2-preview"
+      "model": "gemini/gemini-robotics-er-2-preview",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "gemini/gemma-4-26b-a4b-it",
@@ -735,7 +740,8 @@
     },
     {
       "model": "novita/deepseek/deepseek-v4-flash-0731",
-      "pricing_url": "https://novita.ai/pricing"
+      "pricing_url": "https://novita.ai/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "novita/deepseek/deepseek-v4-flash-vision-exp",
@@ -804,7 +810,8 @@
     },
     {
       "model": "novita/mindai/macaron-v1-venti",
-      "pricing_url": "https://novita.ai/pricing"
+      "pricing_url": "https://novita.ai/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "novita/minimax/m2-her",
@@ -836,7 +843,8 @@
     },
     {
       "model": "novita/minimax/minimax-m2.7-highspeed",
-      "pricing_url": "https://novita.ai/pricing"
+      "pricing_url": "https://novita.ai/pricing",
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "novita/minimax/minimax-m3",
@@ -874,7 +882,7 @@
     {
       "model": "novita/moonshotai/kimi-k3",
       "pricing_url": "https://novita.ai/pricing",
-      "quirks": ["no_temperature", "reasoning_budget"]
+      "quirks": ["reasoning_budget"]
     },
     {
       "model": "novita/nvidia/nemotron-3-nano-30b-a3b",
@@ -1229,7 +1237,7 @@
     {
       "model": "openai/gpt-5.5-pro-2026-04-23",
       "pricing_url": "https://openai.com/api/pricing/",
-      "quirks": ["no_temperature"]
+      "quirks": ["no_temperature", "reasoning_budget"]
     },
     {
       "model": "openai/gpt-5.6-luna",
