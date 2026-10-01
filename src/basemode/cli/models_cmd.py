@@ -4,9 +4,11 @@ from typing import Annotated
 import typer
 from rich.table import Table
 
+from ..identity import canonical_id, qualify_model_id
 from ..keys import (
     RATING_UP,
     get_model_rating,
+    get_strategy_override,
     list_model_ratings,
     list_strategy_overrides,
     set_model_rating,
@@ -24,7 +26,9 @@ from .render import (
 )
 
 
-def _print_live_models(provider: str | None, search: str | None) -> None:
+def _print_live_models(
+    provider: str | None, search: str | None, wire_ids: bool = False
+) -> None:
     from ..live_models import (
         PROVIDER_ENDPOINTS,
         LiveModelsError,
@@ -54,9 +58,14 @@ def _print_live_models(provider: str | None, search: str | None) -> None:
 
     if search:
         needle = search.lower()
-        live = [m for m in live if needle in m.id.lower()]
+        live = [
+            m
+            for m in live
+            if needle in m.id.lower()
+            or needle in canonical_id(qualify_model_id(provider, m.id))
+        ]
 
-    known = set(list_models(provider=provider))
+    known = set(list_models(provider=provider, wire_ids=True))
     known_display = {_display_id(provider, m) for m in known}
     reliable_dates = dates_look_trustworthy(live)
 
@@ -73,7 +82,9 @@ def _print_live_models(provider: str | None, search: str | None) -> None:
         in_litellm = m.id in known_display or m.id in known
         release_date = m.release_date if reliable_dates else None
         table.add_row(
-            m.id,
+            qualify_model_id(provider, m.id)
+            if wire_ids
+            else canonical_id(qualify_model_id(provider, m.id)),
             release_date
             or ("unknown" if m.release_date_confidence != "unknown" else ""),
             f"{m.input_price_per_m:.2f}" if m.input_price_per_m is not None else "",
@@ -151,6 +162,12 @@ def models(
             "Flags models litellm doesn't know about yet as NEW.",
         ),
     ] = False,
+    wire_ids: Annotated[
+        bool,
+        typer.Option(
+            "--wire-ids", help="Show exact provider IDs instead of canonical names"
+        ),
+    ] = False,
 ) -> None:
     """List available models, grouped by provider.
 
@@ -168,7 +185,7 @@ def models(
             raise typer.Exit(1) from exc
 
     if live:
-        _print_live_models(provider, search)
+        _print_live_models(provider, search, wire_ids)
         return
 
     entries = list_model_picker_entries(
@@ -189,7 +206,7 @@ def models(
         console.print("[yellow]No models found.[/yellow]")
         return
 
-    columns = ["Provider", "Model", "Verified", "Rating", "Release Date"]
+    columns = ["Model", "Verified", "Rating", "Release Date"]
     if not full:
         columns.append("Snapshots")
     table = Table(*columns, show_header=True, header_style="bold")
@@ -201,8 +218,7 @@ def models(
             inferred_count += 1
         verified_mark = "[green]✓[/green]" if e.get("verified") else ""
         row = [
-            e["provider"],
-            e["display"],
+            e["wire_id"] if wire_ids else e["model"],
             verified_mark,
             _RATING_MARKS.get(e.get("rating"), ""),
             release_date,
@@ -242,7 +258,7 @@ def rate(
             return
         table = Table("Model", "Rating", show_header=True, header_style="bold")
         for model_id, value in sorted(rated.items(), key=lambda kv: (-kv[1], kv[0])):
-            table.add_row(model_id, _RATING_MARKS.get(value, ""))
+            table.add_row(canonical_id(model_id), _RATING_MARKS.get(value, ""))
         console.print(table)
         console.print("[dim]Clear one with: basemode rate MODEL clear[/dim]")
         return
@@ -261,10 +277,12 @@ def rate(
     value = _RATING_WORDS[word]
     set_model_rating(resolved, value)
     if value is None:
-        console.print(f"[green]✓[/green] Cleared rating for [bold]{resolved}[/bold]")
+        console.print(
+            f"[green]✓[/green] Cleared rating for [bold]{canonical_id(resolved)}[/bold]"
+        )
     else:
         console.print(
-            f"[green]✓[/green] Rated [bold]{resolved}[/bold] "
+            f"[green]✓[/green] Rated [bold]{canonical_id(resolved)}[/bold] "
             f"{'up' if value == RATING_UP else 'down'}"
         )
 
@@ -290,11 +308,13 @@ def strategies(
         from ..detect import normalize_model
 
         resolved = normalize_model(unpin)
-        if resolved.lower() not in {k.lower() for k in list_strategy_overrides()}:
+        if get_strategy_override(resolved) is None:
             console.print(f"[yellow]No pinned strategy for {resolved}.[/yellow]")
             raise typer.Exit(1)
         set_strategy_override(resolved, None)
-        console.print(f"[green]✓[/green] Unpinned strategy for [bold]{resolved}[/bold]")
+        console.print(
+            f"[green]✓[/green] Unpinned strategy for [bold]{canonical_id(resolved)}[/bold]"
+        )
         return
 
     table = Table("Name", "Description", show_header=True, header_style="bold")
@@ -316,7 +336,7 @@ def strategies(
             "Model", "Pinned strategy", show_header=True, header_style="bold"
         )
         for model_id, strategy in sorted(pinned.items()):
-            pin_table.add_row(model_id, strategy)
+            pin_table.add_row(canonical_id(model_id), strategy)
         console.print(pin_table)
         console.print("[dim]Clear one with: basemode strategies --unpin MODEL[/dim]")
 
@@ -334,8 +354,8 @@ def info(model: Annotated[str, typer.Argument(help="Model name to inspect")]) ->
     quirks = model_quirks(resolved)
 
     table = Table("Field", "Value", show_header=True, header_style="bold")
-    table.add_row("Model", model)
-    table.add_row("Resolved", resolved)
+    table.add_row("Model", canonical_id(resolved))
+    table.add_row("Wire ID", resolved)
     table.add_row("Strategy", strat.name)
     table.add_row("Strategy source", _STRATEGY_SOURCES.get(strat.source, strat.source))
     table.add_row("Quirks", ", ".join(sorted(quirks)) if quirks else "none known")

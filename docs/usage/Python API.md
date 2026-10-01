@@ -201,6 +201,14 @@ state = build_model_picker_state(
 )
 ```
 
+Picker entries use lowercase `provider/creator/model` names in `model`,
+`display` and `canonical_id`; `wire_id` preserves the exact provider spelling.
+Snapshot IDs and returned selections use canonical names. Existing wire IDs
+are still accepted as selections and as model arguments. For example,
+`deepinfra/zai/glm-5.3-flash` resolves to `deepinfra/zai-org/GLM-5.3-Flash`
+before a provider request. The `model` field previously contained wire IDs;
+consumers requiring those IDs should now read `wire_id`.
+
 Each entry carries a `rating` field — this user's thumb for the model (`1`,
 `-1`, or `None`) — and rated models sort ahead of or behind the reliability
 ordering, so an explicit opinion outranks the shipped data. Read and write

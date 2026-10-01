@@ -47,8 +47,9 @@ cerebras/zai-glm-4.6                 ->  cerebras/zai/zai-glm-4.6
 
 This is derived, never sent to a provider. The wire ID — what litellm and the
 provider are actually called with — is stored alongside it and is what
-verification targets and the recheck queue use. Only reporting, grouping and
-contribution export use the canonical form.
+verification targets and the recheck queue use. Reporting, model pickers and
+contribution export use the canonical form. CLI and streaming API model
+arguments accept canonical names and resolve them to the wire ID before calls.
 
 Creators come from the ID where a reseller publishes one, from the provider
 itself where it serves its own models, and otherwise from the packaged catalog,

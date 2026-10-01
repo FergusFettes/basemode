@@ -205,3 +205,37 @@ def test_registry_and_published_table_agree_on_every_verified_model() -> None:
     ]
 
     assert drift == []
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "deepinfra/zai/glm-5.3-flash",
+        "deepinfra/z-ai/GLM-5.3-Flash",
+        "DeepInfra/zai-org/glm-5.3-flash",
+    ],
+)
+def test_normalize_canonical_and_variant_names_to_wire_id(monkeypatch, name) -> None:
+    monkeypatch.setattr(
+        "basemode.model_resolution._all_provider_pairs",
+        lambda: [("deepinfra", "zai-org/GLM-5.3-Flash")],
+    )
+    assert normalize_model(name) == "deepinfra/zai-org/GLM-5.3-Flash"
+
+
+def test_normalize_unknown_custom_endpoint_still_passes_through(monkeypatch) -> None:
+    monkeypatch.setattr("basemode.model_resolution._all_provider_pairs", lambda: [])
+    assert normalize_model("custom/MyNewModel") == "custom/MyNewModel"
+
+
+def test_canonical_input_preserves_strategy_pin_provenance(monkeypatch) -> None:
+    from basemode.detect import select_strategy
+    from basemode.keys import set_strategy_override
+
+    monkeypatch.setattr(
+        "basemode.model_resolution._all_provider_pairs",
+        lambda: [("deepinfra", "zai-org/GLM-5.3-Flash")],
+    )
+    set_strategy_override("deepinfra/zai-org/GLM-5.3-Flash", "few_shot")
+    choice = select_strategy("deepinfra/zai/glm-5.3-flash")
+    assert (choice.name, choice.source) == ("few_shot", "user")

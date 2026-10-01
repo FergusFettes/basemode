@@ -5,7 +5,7 @@ from importlib import resources
 
 import litellm
 
-from .identity import canonical_id
+from .identity import canonical_id, qualify_model_id
 from .keys import list_model_ratings
 from .model_modality import classify_text_endpoint
 from .observation_queries import list_controlled_status, list_endpoint_health
@@ -90,21 +90,30 @@ def _model_mode(provider: str, model: str) -> str | None:
 
 
 def _lowered(ratings: dict[str, int]) -> dict[str, int]:
-    return {str(model).lower(): value for model, value in ratings.items()}
+    lowered = {str(model).lower(): value for model, value in ratings.items()}
+    lowered.update(
+        {canonical_id(model): value for model, value in ratings.items() if "/" in model}
+    )
+    return lowered
 
 
 def _rating_for(thumbs: dict[str, int], provider: str, model: str) -> int | None:
     """A thumb stored under either the bare or provider-qualified model ID."""
     if not thumbs:
         return None
-    return thumbs.get(model.lower()) or thumbs.get(f"{provider}/{model}".lower())
+    wire = qualify_model_id(provider, model)
+    return (
+        thumbs.get(model.lower())
+        or thumbs.get(wire.lower())
+        or thumbs.get(canonical_id(wire))
+    )
 
 
 def _health_for(health: dict[str, dict], provider: str, model: str) -> dict | None:
     """Observed health, which is keyed canonically but asked for by wire ID."""
     if not health:
         return None
-    qualified = f"{provider}/{model}".lower()
+    qualified = qualify_model_id(provider, model).lower()
     observed = (
         health.get(model.lower())
         or health.get(qualified)
@@ -170,21 +179,22 @@ def list_models(
     provider: str | None = None,
     search: str | None = None,
     available_only: bool = False,
+    *,
+    wire_ids: bool = False,
 ) -> list[str]:
-    by_provider: dict[str, list[str]] = litellm.models_by_provider
-
-    if available_only:
-        providers = settings.available_providers
-        models = [m for p in providers for m in _provider_models(p, by_provider)]
-    elif provider:
-        models = _provider_models(provider, by_provider)
-    else:
-        models = [m for ms in by_provider.values() for m in ms]
-        models.extend(m for ms in _EXTRA_MODELS_BY_PROVIDER.values() for m in ms)
-
-    if search:
-        models = [m for m in models if search.lower() in m.lower()]
-
+    """List canonical endpoint IDs; wire_ids exposes exact provider spelling."""
+    available = set(settings.available_providers)
+    models = []
+    for p, m in _all_provider_pairs():
+        if provider and p != provider:
+            continue
+        if available_only and p not in available:
+            continue
+        wire = qualify_model_id(p, m)
+        name = wire if wire_ids else canonical_id(wire)
+        if search and search.lower() not in name and search.lower() not in wire.lower():
+            continue
+        models.append(name)
     return sorted(set(models))
 
 
@@ -315,13 +325,33 @@ def _all_provider_pairs() -> list[tuple[str, str]]:
         )
     ]
 
-    known_display = {(p, _display_model_id(p, m)) for p, m in pairs}
+    known_display = {(p, _display_model_id(p, m).lower()) for p, m in pairs}
+    for model in verified:
+        p, separator, _ = model.partition("/")
+        if separator:
+            key = (p, _display_model_id(p, model).lower())
+            if key not in known_display:
+                pairs.append((p, model))
+                known_display.add(key)
     for provider, row in live.items():
         for model_id in row.get("models", {}):
-            if (provider, model_id) not in known_display:
+            if (provider, model_id.lower()) not in known_display:
                 pairs.append((provider, f"{provider}/{model_id}"))
-                known_display.add((provider, model_id))
-    return pairs
+                known_display.add((provider, model_id.lower()))
+    # The provider catalog owns wire spelling. LiteLLM may have the same ID
+    # with different casing; listing both creates duplicate canonical names.
+    catalog_spelling = {
+        (p, str(m).lower()): str(m)
+        for p, row in live.items()
+        for m in row.get("models", {})
+    }
+    unique = {}
+    for p, m in pairs:
+        display = _display_model_id(p, m)
+        spelling = catalog_spelling.get((p, display.lower()))
+        wire = qualify_model_id(p, spelling) if spelling is not None else m
+        unique.setdefault((p, display.lower()), (p, wire))
+    return list(unique.values())
 
 
 def list_model_picker_entries(
@@ -338,7 +368,7 @@ def list_model_picker_entries(
     """Structured model metadata for frontend pickers.
 
     Includes:
-    - stable model id (`model`)
+    - canonical endpoint id (`model`, also `canonical_id`) and exact `wire_id`
     - provider and key-availability
     - litellm `mode` (chat, image_generation, embedding, ...)
     - verified pricing/reliability/prompt-method when known
@@ -367,7 +397,8 @@ def list_model_picker_entries(
     verified = _verified_rows_by_model()
     live = _live_rows_by_provider()
     cross_provider_dates = _cross_provider_release_dates(verified, live)
-    thumbs = list_model_ratings() if ratings is None else _lowered(ratings)
+    verified_by_identity = {canonical_id(m): row for m, row in verified.items()}
+    thumbs = _lowered(list_model_ratings() if ratings is None else ratings)
     health = list_endpoint_health(days=health_days)
     controlled = list_controlled_status()
     endpoint_metadata = list_endpoint_metadata()
@@ -392,8 +423,14 @@ def list_model_picker_entries(
     verified_models = (set(verified) | evidence_verified) - broken
 
     if verified_only:
+        from .detect import normalize_model
+
         pairs = [
-            (m.split("/", 1)[0] if "/" in m else "unknown", m) for m in verified_models
+            (
+                m.split("/", 1)[0] if "/" in m else "unknown",
+                m if m in verified else normalize_model(m),
+            )
+            for m in verified_models
         ]
     else:
         pairs = _all_provider_pairs()
@@ -409,18 +446,23 @@ def list_model_picker_entries(
         pairs = [(p, m) for p, m in pairs if p == provider]
     if search:
         needle = search.lower()
-        pairs = [(p, m) for p, m in pairs if needle in m.lower()]
+        pairs = [
+            (p, m)
+            for p, m in pairs
+            if needle in m.lower() or needle in canonical_id(qualify_model_id(p, m))
+        ]
 
     available_providers = set(settings.available_providers)
     entries: list[dict] = []
     seen: set[tuple[str, str]] = set()
     for model_provider, model in sorted(set(pairs), key=lambda pm: (pm[0], pm[1])):
-        if (model_provider, model) in seen:
+        key = (model_provider, _display_model_id(model_provider, model).lower())
+        if key in seen:
             continue
-        seen.add((model_provider, model))
+        seen.add(key)
 
         mode = _model_mode(model_provider, model)
-        qualified = f"{model_provider}/{model}"
+        qualified = qualify_model_id(model_provider, model)
         if model.lower() in evidence_non_text or qualified.lower() in evidence_non_text:
             continue
         if not classify_text_endpoint(qualified, mode)[0]:
@@ -432,8 +474,12 @@ def list_model_picker_entries(
         ):
             continue
 
-        v = verified.get(model) or verified.get(f"{model_provider}/{model}", {})
         canonical = canonical_id(qualified)
+        v = (
+            verified.get(model)
+            or verified.get(qualified)
+            or verified_by_identity.get(canonical, {})
+        )
         is_broken = model in broken or qualified in broken or canonical in broken
         is_evidence_verified = (
             model in evidence_verified
@@ -452,8 +498,10 @@ def list_model_picker_entries(
             release_date, release_date_inferred = guess, guess is not None
         entries.append(
             {
-                "model": model,
-                "display": display,
+                "model": canonical,
+                "canonical_id": canonical,
+                "wire_id": qualified,
+                "display": canonical,
                 "provider": model_provider,
                 "mode": mode,
                 "available": available,
@@ -465,7 +513,7 @@ def list_model_picker_entries(
                 "input_cost_per_token": v.get("input_cost_per_token"),
                 "output_cost_per_token": v.get("output_cost_per_token"),
                 "issues": list(v.get("issues", [])),
-                "quirks": sorted(model_quirks(model)),
+                "quirks": sorted(model_quirks(qualified)),
                 "rating": _rating_for(thumbs, model_provider, model),
                 "health": _health_for(health, model_provider, model),
             }
@@ -605,6 +653,9 @@ def build_model_picker_state(
         compact=compact,
     )
     selected = selected or []
+    from .detect import normalize_model
+
+    selected = [canonical_id(normalize_model(m)) for m in selected]
     selected_set = set(selected)
     available_models = {e["model"] for e in entries}
     selected_missing = [m for m in selected if m not in available_models]

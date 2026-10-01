@@ -234,3 +234,31 @@ def test_ask_reports_a_provider_failure_on_one_line(monkeypatch) -> None:
     assert result.exit_code == 1
     assert "error: RuntimeError: bad key" in result.output
     assert "Traceback" not in result.output
+
+
+@pytest.mark.parametrize("operation", ["chat", "continue", "branch"])
+async def test_canonical_model_is_resolved_before_provider_request(
+    monkeypatch, transport, operation
+) -> None:
+    from basemode import branch_text, continue_text
+
+    monkeypatch.setattr(
+        "basemode.model_resolution._all_provider_pairs",
+        lambda: [("deepinfra", "zai-org/GLM-5.3-Flash")],
+    )
+    fake = transport(FakeTransport(chat=[_chat_chunk(" hello", "stop")]))
+    name = "deepinfra/zai/glm-5.3-flash"
+    if operation == "chat":
+        await _collect(chat_text("hi", model=name))
+    elif operation == "continue":
+        await _collect(continue_text("hi", model=name, strategy="system"))
+    else:
+        _ = [
+            chunk
+            async for chunk in branch_text("hi", model=name, n=2, strategy="system")
+        ]
+    assert fake.requests
+    assert all(
+        request["model"] == "deepinfra/zai-org/GLM-5.3-Flash"
+        for request in fake.requests
+    )

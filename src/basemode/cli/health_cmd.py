@@ -4,6 +4,7 @@ from typing import Annotated
 import typer
 from rich.table import Table
 
+from ..identity import canonical_id
 from ..observation_queries import (
     clear_endpoint_health,
     controlled_status,
@@ -81,7 +82,7 @@ def health(
 
     if clear:
         clear_endpoint_health(resolved)
-        target = f"[bold]{resolved}[/bold]" if resolved else "every model"
+        target = f"[bold]{canonical_id(resolved)}[/bold]" if resolved else "every model"
         console.print(f"[green]✓[/green] Cleared health history for {target}")
         return
 
@@ -91,7 +92,7 @@ def health(
             records = (
                 {}
                 if observed["controlled_status"] == "never_tested"
-                else {resolved: observed}
+                else {canonical_id(resolved): observed}
             )
         else:
             records = list_controlled_status()
@@ -138,7 +139,7 @@ def health(
         if observed is None:
             console.print(f"[yellow]No generations recorded for {resolved}.[/yellow]")
             raise typer.Exit(1)
-        records = {resolved: observed}
+        records = {canonical_id(resolved): observed}
     else:
         records = list_endpoint_health(days=days)
         if not records:

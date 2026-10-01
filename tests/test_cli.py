@@ -120,7 +120,8 @@ def test_bench_json_output_is_machine_readable(monkeypatch) -> None:
     result = runner.invoke(app, ["bench", "gpt-4o-mini", "-s", "system", "--json"])
 
     payload = json.loads(result.output)
-    assert payload["model"] == "openai/gpt-4o-mini"
+    assert payload["model"] == "openai/openai/gpt-4o-mini"
+    assert payload["wire_id"] == "openai/gpt-4o-mini"
     assert payload["results"][0]["strategy"] == "system"
     assert payload["results"][0]["score"] == 1.0
 
@@ -704,3 +705,20 @@ def test_default_rejects_ambiguous_canonical_id(monkeypatch) -> None:
     assert result.exit_code == 1
     assert "Ambiguous model" in result.output
     assert get_default_model() is None
+
+
+def test_models_prints_canonical_ids_and_exposes_wire_ids(monkeypatch) -> None:
+    monkeypatch.setenv("COLUMNS", "200")
+    monkeypatch.setattr(
+        "basemode.models._all_provider_pairs",
+        lambda: [("deepinfra", "zai-org/GLM-5.3-Flash")],
+    )
+    args = ["models", "--provider", "deepinfra", "--search", "glm-5.3-flash"]
+    listed = runner.invoke(app, args)
+    assert listed.exit_code == 0
+    assert "deepinfra/zai/glm-5.3-flash" in listed.output
+    assert "zai-org" not in listed.output
+    assert "GLM" not in listed.output
+    raw = runner.invoke(app, [*args, "--wire-ids"])
+    assert raw.exit_code == 0
+    assert "deepinfra/zai-org/GLM-5.3-Flash" in raw.output

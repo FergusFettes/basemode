@@ -274,10 +274,11 @@ def _print_usage_estimate(
 
 
 def _usage_table(usage, show_cost: bool) -> Table:
+    from ..identity import canonical_id
     from ..usage import format_usd
 
     table = Table("Metric", "Value", show_header=False)
-    table.add_row("Model", usage.model)
+    table.add_row("Model", canonical_id(usage.model))
     table.add_row("Source", "provider" if not usage.is_estimate else "estimate")
     table.add_row("Prompt tokens", str(usage.prompt_tokens))
     table.add_row("Completion tokens", str(usage.completion_tokens))

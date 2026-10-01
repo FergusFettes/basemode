@@ -86,6 +86,20 @@ def _normalize_anthropic_name(name: str) -> str:
 
 
 def normalize_model(model: str) -> str:
+    """Resolve aliases and canonical names to the exact provider wire ID.
+
+    Unknown names still pass through for custom endpoints and new models.
+    Catalog validation is available separately through resolve_catalog_model.
+    """
+    resolved = _normalize_model(model)
+    if "/" not in resolved:
+        return resolved
+    from .model_resolution import match_catalog_model
+
+    return match_catalog_model(resolved) or resolved
+
+
+def _normalize_model(model: str) -> str:
     """Add provider prefix if litellm can't resolve, and fix well-known ID typos."""
     alias = _MODEL_ALIASES.get(model.lower())
     if alias:
@@ -94,6 +108,7 @@ def normalize_model(model: str) -> str:
     # Split off an explicit provider prefix
     if "/" in model:
         prefix, _, name = model.partition("/")
+        prefix = prefix.lower()
         if prefix == "anthropic":
             name = _normalize_anthropic_name(name)
         resolved = f"{prefix}/{name}"
@@ -170,6 +185,9 @@ def select_strategy(
     """
     if override:
         return StrategyChoice(_validate(override), "explicit")
+
+    if "/" in model:
+        model = normalize_model(model)
 
     pinned = get_strategy_override(model) if allow_user_override else None
     if pinned and pinned in REGISTRY and _usable(pinned, model):

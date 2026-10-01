@@ -102,7 +102,9 @@ def plan_verification(
     if unknown:
         raise ValueError("unknown status: " + ", ".join(sorted(unknown)))
     provider_filter = {provider.strip().lower() for provider in providers or []}
-    explicit = {model.strip().lower() for model in models or []}
+    from .detect import normalize_model
+
+    explicit = {normalize_model(model.strip()).lower() for model in models or []}
     since = _parse_date(released_since) if released_since else None
     if max_release_age_days is not None:
         age_since = datetime.now(UTC).date() - timedelta(days=max_release_age_days)

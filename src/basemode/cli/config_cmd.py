@@ -3,6 +3,7 @@ from typing import Annotated
 import typer
 from rich.table import Table
 
+from ..identity import canonical_id
 from ..keys import (
     KEY_ALIASES,
     get_default_model,
@@ -114,8 +115,7 @@ def default(
         from ..detect import normalize_model
 
         resolved = normalize_model(current)
-        suffix = f" → [dim]{resolved}[/dim]" if resolved != current else ""
-        console.print(f"[bold]{current}[/bold]{suffix}")
+        console.print(canonical_id(resolved), markup=False)
         return
 
     from ..detect import normalize_model
@@ -127,8 +127,9 @@ def default(
         console.print(str(exc), style="red", markup=False)
         raise typer.Exit(1) from exc
     set_default_model(resolved)
-    suffix = f" → [dim]{resolved}[/dim]" if resolved != model else ""
-    console.print(f"[green]✓[/green] Default model set to [bold]{model}[/bold]{suffix}")
+    console.print(
+        f"[green]✓[/green] Default model set to [bold]{canonical_id(resolved)}[/bold]"
+    )
 
 
 @app.command()

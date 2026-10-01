@@ -23,8 +23,8 @@ def test_list_models_by_provider() -> None:
 
 def test_list_models_includes_extra_gemini_models() -> None:
     models = list_models(provider="gemini")
-    assert "gemini/gemma-4-26b-a4b-it" in models
-    assert "gemini/gemma-4-31b-it" in models
+    assert "gemini/google/gemma-4-26b-a4b-it" in models
+    assert "gemini/google/gemma-4-31b-it" in models
 
 
 def test_list_models_search() -> None:
@@ -50,7 +50,7 @@ def test_live_listing_drops_stale_litellm_models(monkeypatch) -> None:
 
     entries = list_model_picker_entries(provider="groq", text_only=False)
     ids = {e["model"] for e in entries}
-    assert "groq/allam-2-7b" in ids
+    assert "groq/unknown/allam-2-7b" in ids
     assert not any("llama-3.3-70b" in m for m in ids)
 
 
@@ -76,7 +76,7 @@ def test_model_picker_reads_structured_live_catalog_dates(monkeypatch) -> None:
     entry = next(
         row
         for row in list_model_picker_entries(provider="groq", text_only=False)
-        if row["model"] == "groq/allam-2-7b"
+        if row["model"] == "groq/unknown/allam-2-7b"
     )
     assert entry["release_date"] == "2025-01-23"
 
@@ -94,7 +94,7 @@ def test_live_listing_keeps_verified_models_even_if_absent_live(monkeypatch) -> 
     )
 
     entries = list_model_picker_entries(search="gpt-4o-mini", text_only=False)
-    assert any(e["model"] == "gpt-4o-mini" for e in entries)
+    assert any(e["model"] == "openai/openai/gpt-4o-mini" for e in entries)
 
 
 def test_live_listing_with_no_signal_keeps_litellm_as_is(monkeypatch) -> None:
@@ -103,6 +103,11 @@ def test_live_listing_with_no_signal_keeps_litellm_as_is(monkeypatch) -> None:
     import basemode.models as models_mod
 
     monkeypatch.setattr(models_mod, "_live_rows_by_provider", lambda: {})
+    monkeypatch.setattr(
+        models_mod.litellm,
+        "models_by_provider",
+        {"groq": ["groq/llama-3.3-70b-versatile"]},
+    )
 
     entries = list_model_picker_entries(provider="groq", text_only=False)
     assert any("llama-3.3-70b" in e["model"] for e in entries)
@@ -253,7 +258,11 @@ def test_build_model_picker_state_supports_multi_select() -> None:
         selected=selected, max_models=3, verified_only=True
     )
     assert state["max_models"] == 3
-    assert state["selected"] == selected
+    assert state["selected"] == [
+        "openai/openai/gpt-4o-mini",
+        "openai/openai/gpt-5.4-mini",
+        "zai/zai/glm-5",
+    ]
     assert state["too_many_selected"] is False
 
 
@@ -272,7 +281,7 @@ def test_model_picker_entries_carry_the_stored_rating() -> None:
     set_model_rating("openai/gpt-4o-mini", -1)
 
     entries = list_model_picker_entries(search="gpt-4o-mini")
-    rated = [e for e in entries if e["model"] in ("gpt-4o-mini", "openai/gpt-4o-mini")]
+    rated = [e for e in entries if e["model"] == "openai/openai/gpt-4o-mini"]
     assert rated
     assert all(e["rating"] == -1 for e in rated)
     assert all(e["rating"] is None for e in entries if e not in rated)
@@ -314,7 +323,7 @@ def test_model_picker_entries_carry_observed_health() -> None:
     operation.finish("failure", returned_content=False)
 
     entries = list_model_picker_entries(search="gpt-4o-mini")
-    rated = [e for e in entries if e["model"] in ("gpt-4o-mini", "openai/gpt-4o-mini")]
+    rated = [e for e in entries if e["model"] == "openai/openai/gpt-4o-mini"]
 
     assert rated
     assert all(e["health"]["failures"] == 1 for e in rated)
@@ -325,3 +334,41 @@ def test_model_picker_health_is_none_for_a_model_never_used() -> None:
     entries = list_model_picker_entries(search="gpt-4o-mini")
 
     assert all(e["health"] is None for e in entries)
+
+
+def test_picker_and_listing_use_canonical_ids_with_exact_wire_metadata(
+    monkeypatch,
+) -> None:
+    import basemode.models as models_mod
+
+    monkeypatch.setattr(models_mod, "_verified_rows_by_model", lambda: {})
+    monkeypatch.setattr(
+        models_mod.litellm,
+        "models_by_provider",
+        {"deepinfra": ["deepinfra/zai-org/glm-5.3-flash"]},
+    )
+    monkeypatch.setattr(
+        models_mod,
+        "_live_rows_by_provider",
+        lambda: {"deepinfra": {"models": {"zai-org/GLM-5.3-Flash": {}}}},
+    )
+    entries = list_model_picker_entries(search="deepinfra/zai/glm-5.3-flash")
+    assert len(entries) == 1
+    entry = entries[0]
+    assert (
+        entry["model"]
+        == entry["display"]
+        == entry["canonical_id"]
+        == "deepinfra/zai/glm-5.3-flash"
+    )
+    assert entry["wire_id"] == "deepinfra/zai-org/GLM-5.3-Flash"
+    assert list_models(provider="deepinfra") == ["deepinfra/zai/glm-5.3-flash"]
+    assert list_models(provider="deepinfra", wire_ids=True) == [
+        "deepinfra/zai-org/GLM-5.3-Flash"
+    ]
+    from basemode.detect import normalize_model
+
+    assert normalize_model(entry["model"]) == entry["wire_id"]
+    state = build_model_picker_state(selected=[entry["wire_id"]])
+    assert state["selected"] == [entry["model"]]
+    assert state["selected_missing"] == []

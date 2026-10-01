@@ -6,6 +6,7 @@ import typer
 from rich.panel import Panel
 from rich.table import Table
 
+from ..identity import canonical_id
 from ..keys import set_strategy_override
 from . import app
 from .render import _preview, _score_color, console
@@ -70,7 +71,7 @@ def bench(
     current = select_strategy(resolved)
     if not as_json:
         console.print(
-            f"[dim]Benchmarking {resolved} — currently {current.name} "
+            f"[dim]Benchmarking {canonical_id(resolved)} — currently {current.name} "
             f"(from {current.source})[/dim]"
         )
 
@@ -87,7 +88,8 @@ def bench(
         console.print(
             json.dumps(
                 {
-                    "model": resolved,
+                    "model": canonical_id(resolved),
+                    "wire_id": resolved,
                     "current_strategy": current.name,
                     "current_source": current.source,
                     "results": [r.as_dict() for r in results],
@@ -144,7 +146,7 @@ def bench(
     if save:
         set_strategy_override(resolved, best.strategy)
         console.print(
-            f"[green]✓[/green] Pinned [bold]{best.strategy}[/bold] for {resolved}"
+            f"[green]✓[/green] Pinned [bold]{best.strategy}[/bold] for {canonical_id(resolved)}"
         )
         return
 

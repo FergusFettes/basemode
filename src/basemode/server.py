@@ -15,6 +15,8 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from .continue_ import branch_text, continue_text
+from .detect import normalize_model
+from .identity import canonical_id
 from .keys import get_default_model
 from .observations import ObservationContext
 
@@ -51,7 +53,13 @@ async def list_models() -> dict[str, Any]:
     default_model = get_default_model() or "gpt-4o-mini"
     return {
         "object": "list",
-        "data": [{"id": default_model, "object": "model", "owned_by": "basemode"}],
+        "data": [
+            {
+                "id": canonical_id(normalize_model(default_model)),
+                "object": "model",
+                "owned_by": "basemode",
+            }
+        ],
     }
 
 
@@ -100,7 +108,7 @@ async def completions(request: CompletionRequest) -> dict[str, Any]:
         "id": f"cmpl-{uuid.uuid4().hex}",
         "object": "text_completion",
         "created": int(time.time()),
-        "model": model,
+        "model": canonical_id(normalize_model(model)),
         "choices": choices,
         "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
     }

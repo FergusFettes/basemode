@@ -33,7 +33,7 @@ def test_completions_single(client) -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["object"] == "text_completion"
-    assert body["model"] == "gpt-4o-mini"
+    assert body["model"] == "openai/openai/gpt-4o-mini"
     assert len(body["choices"]) == 1
     assert body["choices"][0]["text"] == " hello world"
     assert body["choices"][0]["index"] == 0
@@ -66,7 +66,7 @@ def test_completions_uses_default_model_when_unset(client) -> None:
     response = client.post("/v1/completions", json={"prompt": "hi"})
 
     assert response.status_code == 200
-    assert response.json()["model"] == "gpt-4o-mini"
+    assert response.json()["model"] == "openai/openai/gpt-4o-mini"
 
 
 def test_completions_prompt_list_is_concatenated(client) -> None:
@@ -99,4 +99,4 @@ def test_list_models(client) -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["object"] == "list"
-    assert body["data"][0]["id"] == "gpt-4o-mini"
+    assert body["data"][0]["id"] == "openai/openai/gpt-4o-mini"

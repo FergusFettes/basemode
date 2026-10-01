@@ -18,7 +18,7 @@ Container for model and generation settings passed into strategies.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `model` | `str` | Normalized model identifier |
+| `model` | `str` | Provider wire ID, as returned by `normalize_model()` |
 | `max_tokens` | `int` | Requested max output tokens |
 | `temperature` | `float` | Sampling temperature |
 | `context` | `str` | Optional context injected into strategy prompting |

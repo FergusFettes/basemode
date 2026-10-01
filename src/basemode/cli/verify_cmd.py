@@ -11,6 +11,7 @@ from .render import console
 
 def _verify_plan_table(plan) -> Table:
     """Render a dry-run verification plan as a Table of targets."""
+    from ..identity import canonical_id
     from ..usage import format_usd
 
     table = Table(
@@ -28,7 +29,7 @@ def _verify_plan_table(plan) -> Table:
         table.add_row(
             target.stage,
             target.provider,
-            target.model,
+            canonical_id(target.model),
             target.prior_status,
             "yes"
             if target.catalog_available

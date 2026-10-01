@@ -138,12 +138,27 @@ def set_default_model(model: str | None) -> None:
 
 def get_strategy_override(model: str) -> str | None:
     """Strategy this user pinned for `model`, if any (see `basemode bench --save`)."""
-    return _load()["strategy_overrides"].get(model.lower())
+    values = _load()["strategy_overrides"]
+    key = _model_key(values, model)
+    return values.get(key) if key else None
+
+
+def _model_key(values: dict, model: str) -> str | None:
+    """Match old wire keys and canonical keys without rewriting the file."""
+    from .identity import canonical_id
+
+    if model.lower() in values:
+        return model.lower()
+    identity = canonical_id(model)
+    return next((key for key in values if canonical_id(key) == identity), None)
 
 
 def set_strategy_override(model: str, strategy: str | None) -> None:
     """Pin (or, with `strategy=None`, unpin) the strategy used for `model`."""
     data = _load()
+    key = _model_key(data["strategy_overrides"], model)
+    if key:
+        data["strategy_overrides"].pop(key)
     if strategy is None:
         data["strategy_overrides"].pop(model.lower(), None)
     else:
@@ -157,7 +172,9 @@ def list_strategy_overrides() -> dict[str, str]:
 
 def get_model_rating(model: str) -> int | None:
     """This user's private thumb for `model`, kept outside observations."""
-    return _load()["model_ratings"].get(model.lower())
+    values = _load()["model_ratings"]
+    key = _model_key(values, model)
+    return values.get(key) if key else None
 
 
 def set_model_rating(model: str, rating: int | None) -> None:
@@ -174,6 +191,9 @@ def set_model_rating(model: str, rating: int | None) -> None:
     ):
         raise ValueError(f"rating must be {RATING_UP}, {RATING_DOWN}, or None")
     data = _load()
+    key = _model_key(data["model_ratings"], model)
+    if key:
+        data["model_ratings"].pop(key)
     if rating is None:
         data["model_ratings"].pop(model.lower(), None)
     else:

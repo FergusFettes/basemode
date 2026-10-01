@@ -60,3 +60,23 @@ def test_legacy_flat_file_gains_ratings_on_write() -> None:
         "keys": {"openai": "sk-legacy"},
         "model_ratings": {"openai/gpt-4o": 1},
     }
+
+
+def test_ratings_and_pins_match_canonical_and_legacy_wire_ids() -> None:
+    from basemode.keys import (
+        get_model_rating,
+        get_strategy_override,
+        set_model_rating,
+        set_strategy_override,
+    )
+
+    wire = "deepinfra/zai-org/GLM-5.3-Flash"
+    canonical = "deepinfra/zai/glm-5.3-flash"
+    set_model_rating(wire, 1)
+    set_strategy_override(wire, "system")
+    assert get_model_rating(canonical) == 1
+    assert get_strategy_override(canonical) == "system"
+    set_model_rating(canonical, None)
+    set_strategy_override(canonical, None)
+    assert get_model_rating(wire) is None
+    assert get_strategy_override(wire) is None

@@ -81,6 +81,12 @@ basemode models [--provider openai] [--search claude] [--available] [--verified]
 - `--since 6m` limits results by release age; ISO dates are also accepted.
 - `--live` queries a provider's current catalog and requires `--provider`.
 - `--json` emits structured picker metadata (provider, availability, reliability, pricing fields when known).
+- `--wire-ids` shows exact provider IDs instead of canonical names.
+
+Model listings and command summaries use lowercase canonical
+`provider/creator/model` names. JSON listings expose this name as `model`, with
+the exact provider spelling in `wire_id`. Canonical names can be copied into
+model arguments for generation, inspection, rating, benchmarking and verification.
 
 The `Rating` column shows your own thumbs (see `rate`); rated models sort to
 the top or the bottom of the list.

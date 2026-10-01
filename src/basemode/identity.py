@@ -78,6 +78,14 @@ _CREATOR_BY_STEM_PREFIX: tuple[tuple[str, str], ...] = (
 UNKNOWN_CREATOR = "unknown"
 
 
+def qualify_model_id(provider: str, model: str) -> str:
+    """Add a provider route once, preserving the provider's model spelling."""
+    prefix = f"{provider.lower()}/"
+    return prefix + (
+        model[len(prefix) :] if model.lower().startswith(prefix) else model
+    )
+
+
 def canonical_creator(name: str) -> str:
     """Fold one published creator name onto its canonical spelling.
 

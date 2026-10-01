@@ -7,6 +7,16 @@ from basemode import keys, observations
 
 
 @pytest.fixture(autouse=True)
+def isolated_model_resolution():
+    """Catalog mocks must not leak through the process-local resolution index."""
+    from basemode.model_resolution import _catalog_index
+
+    _catalog_index.cache_clear()
+    yield
+    _catalog_index.cache_clear()
+
+
+@pytest.fixture(autouse=True)
 def isolated_key_store(
     request: pytest.FixtureRequest,
     tmp_path: Path,
