@@ -47,6 +47,8 @@ The catalog index is cached for the life of the process.
 `--wire-ids` to inspect exact provider IDs. JSON picker entries expose the
 canonical name as `model`, `display` and `canonical_id`, and the exact provider
 ID as `wire_id`. Snapshot IDs and picker selections use canonical names too.
+Nested model paths are preserved: `novita/deepseek/deepseek-r1/community`
+and `novita/deepseek/deepseek-v3/community` remain distinct identities.
 
 Local aliases are checked before LiteLLM. Some LiteLLM resolution failures
 print provider guidance to stdout, which would corrupt machine-readable CLI

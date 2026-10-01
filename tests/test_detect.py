@@ -239,3 +239,21 @@ def test_canonical_input_preserves_strategy_pin_provenance(monkeypatch) -> None:
     set_strategy_override("deepinfra/zai-org/GLM-5.3-Flash", "few_shot")
     choice = select_strategy("deepinfra/zai/glm-5.3-flash")
     assert (choice.name, choice.source) == ("few_shot", "user")
+
+
+def test_nested_canonical_model_paths_resolve_independently(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "basemode.model_resolution._all_provider_pairs",
+        lambda: [
+            ("novita", "deepseek/DeepSeek-R1/community"),
+            ("novita", "deepseek/DeepSeek-V3/community"),
+        ],
+    )
+    assert (
+        normalize_model("novita/deepseek/deepseek-r1/community")
+        == "novita/deepseek/DeepSeek-R1/community"
+    )
+    assert (
+        normalize_model("novita/deepseek/deepseek-v3/community")
+        == "novita/deepseek/DeepSeek-V3/community"
+    )

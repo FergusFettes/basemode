@@ -145,7 +145,9 @@ def creator_of(wire_id: str) -> str:
 
 def model_stem(wire_id: str) -> str:
     """The model's own name, without provider route or creator."""
-    return split_wire_id(wire_id)[1].rpartition("/")[2]
+    rest = split_wire_id(wire_id)[1]
+    _, separator, stem = rest.partition("/")
+    return stem if separator else rest
 
 
 def canonical_id(wire_id: str) -> str:

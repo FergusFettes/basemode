@@ -894,14 +894,18 @@ def operation_attempt_kinds(operation_id: int) -> set[str]:
 def _backfill_canonical_ids(conn: sqlite3.Connection) -> None:
     """Give existing endpoints their canonical ID without touching the wire ID."""
     rows = conn.execute(
-        """SELECT id,provider_route,provider_model_id FROM model_endpoints
-           WHERE canonical_model_id IS NULL"""
+        """SELECT id,provider_route,provider_model_id,canonical_model_id
+           FROM model_endpoints
+           WHERE canonical_model_id IS NULL OR provider_model_id LIKE '%/%/%'"""
     ).fetchall()
     for row in rows:
+        canonical = _canonical_for(row["provider_route"], row["provider_model_id"])
+        if canonical == row["canonical_model_id"]:
+            continue
         conn.execute(
             "UPDATE model_endpoints SET canonical_model_id=? WHERE id=?",
             (
-                _canonical_for(row["provider_route"], row["provider_model_id"]),
+                canonical,
                 row["id"],
             ),
         )

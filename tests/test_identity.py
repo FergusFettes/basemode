@@ -85,3 +85,12 @@ def test_stem_drops_route_and_creator() -> None:
 
 def test_creator_of_is_lowercase() -> None:
     assert creator_of("Deepinfra/Qwen/Qwen3-32B") == "qwen"
+
+
+def test_nested_model_paths_keep_the_model_and_variant() -> None:
+    a = canonical_id("novita/deepseek/DeepSeek-R1/community")
+    b = canonical_id("novita/deepseek/DeepSeek-V3/community")
+    assert a == "novita/deepseek/deepseek-r1/community"
+    assert b == "novita/deepseek/deepseek-v3/community"
+    assert a != b
+    assert canonical_id(a) == a

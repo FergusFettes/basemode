@@ -386,3 +386,35 @@ async def test_internal_recovery_calls_share_one_logical_operation(monkeypatch) 
     assert len(operations) == 1
     assert operations[0]["attempt_count"] == 2
     assert [row["attempt_kind"] for row in attempts] == ["initial", "reasoning_off"]
+
+
+def test_nested_model_identity_migration_preserves_wire_ids_and_history() -> None:
+    from basemode.observation_queries import list_endpoint_health
+
+    for stem in ("deepseek-r1", "deepseek-v3"):
+        operation = observations.observe_operation(
+            f"novita/deepseek/{stem}/community", "system", "heuristic", None
+        )
+        attempt = operation.begin_attempt("initial")
+        attempt.saw_content("ok")
+        attempt.finish("success")
+        operation.finish("success", returned_content=True)
+    with observations._db() as conn:
+        conn.execute(
+            "UPDATE model_endpoints SET canonical_model_id='novita/deepseek/community'"
+        )
+    records = list_endpoint_health()
+    assert set(records) == {
+        "novita/deepseek/deepseek-r1/community",
+        "novita/deepseek/deepseek-v3/community",
+    }
+    assert all(row["operations"] == 1 for row in records.values())
+    with observations._db() as conn:
+        wire_ids = {
+            row[0]
+            for row in conn.execute("SELECT provider_model_id FROM model_endpoints")
+        }
+    assert wire_ids == {
+        "deepseek/deepseek-r1/community",
+        "deepseek/deepseek-v3/community",
+    }
