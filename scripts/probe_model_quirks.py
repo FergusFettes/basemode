@@ -57,6 +57,8 @@ from basemode.params import GenerationParams  # noqa: E402
 from basemode.settings import settings  # noqa: E402
 
 REGISTRY_PATH = ROOT / "data" / "verified_models_registry.json"
+FAILURE_LIMIT = 3
+STATE_PATH = ROOT / "dist" / "quirk-probe" / "failures.json"
 SUMMARY_PATH = ROOT / "dist" / "quirk-probe" / "summary.md"
 
 PROBE_PREFIX = "The quick brown fox jumps over the lazy"
@@ -180,7 +182,9 @@ async def _try(coro) -> tuple[bool, str]:
     return bool(text.strip()), "empty continuation" if not text.strip() else "ok"
 
 
-async def _probe_model(entry: dict) -> list[QuirkChange]:
+async def _probe_model(
+    entry: dict, failures: dict[str, int] | None = None
+) -> list[QuirkChange]:
     model = str(entry["model"])
     changes: list[QuirkChange] = []
     current_quirks = set(entry.get("quirks", []))
@@ -213,7 +217,15 @@ async def _probe_model(entry: dict) -> list[QuirkChange]:
                         f"{REASONING_PROBE_MAX_TOKENS} ({wide_detail})",
                     )
                 )
+        if failures is not None:
+            if changes:
+                failures.pop(model, None)
+            else:
+                failures[model] = failures.get(model, 0) + 1
         return changes
+
+    if failures is not None:
+        failures.pop(model, None)
 
     # Temperature probe: force a non-default temperature through, bypassing
     # any existing no_temperature quirk.
@@ -250,7 +262,7 @@ async def _probe_model(entry: dict) -> list[QuirkChange]:
 PROBE_CONCURRENCY = 8  # bounded so a full sweep of every verified model stays fast
 
 
-async def _run(model_filter: str | None) -> int:
+async def _run(model_filter: str | None, retry_suspended: bool = False) -> int:
     load_into_environ()
     registry = _load_registry()
     entries = [
@@ -268,11 +280,21 @@ async def _run(model_filter: str | None) -> int:
         or _provider(str(e["model"])) == "openrouter"
     ]
 
+    failures = json.loads(STATE_PATH.read_text()) if STATE_PATH.exists() else {}
+    suspended = [
+        str(e["model"])
+        for e in keyed_entries
+        if failures.get(str(e["model"]), 0) >= FAILURE_LIMIT
+    ]
+    if not retry_suspended:
+        keyed_entries = [e for e in keyed_entries if str(e["model"]) not in suspended]
+        for model in suspended:
+            print(f"skip {model}: suspended after {failures[model]} failed baselines")
     semaphore = asyncio.Semaphore(PROBE_CONCURRENCY)
 
     async def _bounded_probe(entry: dict) -> list[QuirkChange]:
         async with semaphore:
-            return await _probe_model(entry)
+            return await _probe_model(entry, failures)
 
     results = await asyncio.gather(*(_bounded_probe(e) for e in keyed_entries))
 
@@ -295,11 +317,15 @@ async def _run(model_filter: str | None) -> int:
 
     if all_changes:
         _save_registry(registry)
-    _write_summary(all_changes)
+    STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    STATE_PATH.write_text(json.dumps(failures, indent=2, sort_keys=True) + "\n")
+    _write_summary(all_changes, failures)
     return 0
 
 
-def _write_summary(changes: list[QuirkChange]) -> None:
+def _write_summary(
+    changes: list[QuirkChange], failures: dict[str, int] | None = None
+) -> None:
     lines = ["# Model quirk probe", ""]
     added = [c for c in changes if c.action == "added"]
     removed = [c for c in changes if c.action == "removed"]
@@ -313,6 +339,11 @@ def _write_summary(changes: list[QuirkChange]) -> None:
         lines.append("")
     if not changes:
         lines.append("No quirk drift detected this run.")
+    if failures:
+        lines.extend(["", "## Failed baselines", ""])
+        for model, count in sorted(failures.items()):
+            status = "suspended" if count >= FAILURE_LIMIT else "will retry"
+            lines.append(f"- `{model}`: {count} consecutive failures ({status})")
     SUMMARY_PATH.parent.mkdir(parents=True, exist_ok=True)
     SUMMARY_PATH.write_text("\n".join(lines) + "\n")
 
@@ -320,8 +351,13 @@ def _write_summary(changes: list[QuirkChange]) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--model", help="Only probe models whose id contains this")
+    parser.add_argument(
+        "--retry-suspended",
+        action="store_true",
+        help="Retry suspended models (use --model to narrow selection)",
+    )
     args = parser.parse_args()
-    return asyncio.run(_run(args.model))
+    return asyncio.run(_run(args.model, args.retry_suspended))
 
 
 if __name__ == "__main__":

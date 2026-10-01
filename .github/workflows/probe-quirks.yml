@@ -6,13 +6,21 @@ on:
       model:
         description: "Only probe models whose id contains this"
         required: false
+      retry_suspended:
+        description: "Retry suspended models"
+        type: boolean
+        default: false
   schedule:
     - cron: "15 4 * * 3"
 
 jobs:
   probe:
     runs-on: ubuntu-latest
+    concurrency:
+      group: model-quirk-probes
+      cancel-in-progress: false
     permissions:
+      actions: read
       contents: write
       pull-requests: write
 
@@ -31,6 +39,17 @@ jobs:
       - name: Sync deps
         run: uv sync --locked --all-groups
 
+      - name: Restore probe failure counts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          artifact_id=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?name=quirk-probe-failures&per_page=100" --jq '[.artifacts[] | select(.expired == false and .workflow_run.head_branch == "main")] | first | .id // empty')
+          if [ -n "$artifact_id" ]; then
+            gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id/zip" > "$RUNNER_TEMP/probe-failures.zip"
+            mkdir -p dist/quirk-probe
+            unzip -o "$RUNNER_TEMP/probe-failures.zip" -d dist/quirk-probe
+          fi
+
       - name: Probe every verified model for known API-quirk classes
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -46,7 +65,25 @@ jobs:
           DEEPINFRA_API_KEY: ${{ secrets.DEEPINFRA_API_KEY }}
           NOVITA_API_KEY: ${{ secrets.NOVITA_API_KEY }}
           CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}
-        run: uv run python scripts/probe_model_quirks.py --model "${{ inputs.model }}"
+          MODEL_FILTER: ${{ inputs.model }}
+          RETRY_SUSPENDED: ${{ inputs.retry_suspended }}
+        run: |
+          args=()
+          if [ "$RETRY_SUSPENDED" = "true" ]; then
+            args+=(--retry-suspended)
+          fi
+          uv run python scripts/probe_model_quirks.py --model "$MODEL_FILTER" "${args[@]}"
+
+      - name: Save probe failure counts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: quirk-probe-failures
+          path: dist/quirk-probe/failures.json
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Publish probe summary
+        run: cat dist/quirk-probe/summary.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Refresh verified model table
         run: uv run python scripts/generate_verified_models_table.py

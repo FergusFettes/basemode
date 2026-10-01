@@ -214,3 +214,21 @@ basemode health openai/gpt-4o-mini
 See [[Model Evidence]] for the unified ledger, derived-status rules, and
 opt-in aggregate contributions. See [[Strategies]] for the separate `basemode bench`
 workflow, which compares prompt strategies for one model.
+
+## Scheduled probe suspension
+
+The weekly quirk sweep stops requesting a model after three consecutive failed
+baseline probes. A working baseline (including a successful reasoning-budget
+retry) resets the count; deliberately rejected quirk probes do not count.
+Models skipped for missing provider keys do not count as failures.
+
+CI restores counts from the latest `quirk-probe-failures` artifact on `main`
+and saves them after each sweep, independently of model-data PRs. Artifacts
+are retained for 90 days; if deleted or expired, counts start over. Suspended
+models and failure counts appear in the Actions summary.
+
+To retry, manually dispatch **Probe model quirks**, supply the model filter,
+and enable `retry_suspended`. Locally use
+`uv run python scripts/probe_model_quirks.py --model MODEL --retry-suspended`;
+local counts live in `dist/quirk-probe/failures.json`. This suspension applies
+to the scheduled quirk sweep; explicit CLI requests still work as usual.

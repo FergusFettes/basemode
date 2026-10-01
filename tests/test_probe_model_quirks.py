@@ -56,7 +56,11 @@ async def test_probe_model_adds_reasoning_budget_quirk_on_empty_baseline(
     monkeypatch.setattr(pmq, "_collect_normal", fake_collect_normal)
     monkeypatch.setattr(pmq, "_collect_forced", fake_collect_forced)
 
-    changes = await pmq._probe_model({"model": "anthropic/claude-some-new-reasoner"})
+    failures = {"anthropic/claude-some-new-reasoner": 2}
+    changes = await pmq._probe_model(
+        {"model": "anthropic/claude-some-new-reasoner"}, failures
+    )
+    assert failures == {}
 
     assert len(changes) == 1
     assert changes[0].quirk == "reasoning_budget"
@@ -104,3 +108,47 @@ async def test_probe_model_skips_reasoning_budget_retry_when_already_tagged(
 
     assert changes == []
     assert calls == []  # no reasoning-budget retry attempted; already tagged
+
+
+async def test_failed_baselines_increment_and_success_resets(monkeypatch) -> None:
+    async def unavailable(model):
+        raise RuntimeError("model decommissioned")
+
+    monkeypatch.setattr(pmq, "_collect_normal", unavailable)
+    failures = {}
+    entry = {"model": "openai/gone"}
+    for _ in range(3):
+        assert await pmq._probe_model(entry, failures) == []
+    assert failures == {"openai/gone": 3}
+
+    async def working(*args, **kwargs):
+        return " continuation"
+
+    monkeypatch.setattr(pmq, "_collect_normal", working)
+    monkeypatch.setattr(pmq, "_collect_forced", working)
+    await pmq._probe_model(entry, failures)
+    assert failures == {}
+
+
+async def test_run_persists_suspension_and_explicit_retry(
+    monkeypatch, tmp_path
+) -> None:
+    monkeypatch.setattr(pmq, "STATE_PATH", tmp_path / "failures.json")
+    monkeypatch.setattr(pmq, "SUMMARY_PATH", tmp_path / "summary.md")
+    monkeypatch.setattr(pmq, "load_into_environ", lambda: None)
+    monkeypatch.setattr(
+        pmq, "_load_registry", lambda: {"models": [{"model": "openrouter/gone"}]}
+    )
+    calls = []
+
+    async def unavailable(model):
+        calls.append(model)
+        raise RuntimeError("model decommissioned")
+
+    monkeypatch.setattr(pmq, "_collect_normal", unavailable)
+    for _ in range(4):
+        await pmq._run(None)
+    assert len(calls) == 3
+    assert "suspended" in pmq.SUMMARY_PATH.read_text()
+    await pmq._run("gone", retry_suspended=True)
+    assert len(calls) == 4
