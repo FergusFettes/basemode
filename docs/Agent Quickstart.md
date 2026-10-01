@@ -126,6 +126,7 @@ small.
 | Area | Start here | Use it when |
 |---|---|---|
 | Public streaming API | `src/basemode/continue_.py` | Changing single or parallel continuation behaviour |
+| Plain chat | `src/basemode/chat.py`, `src/basemode/cli/ask.py` | Changing `chat_text` / `basemode ask` (answers, not continuations) |
 | Prompt coercion | `src/basemode/strategies/` | Adding or adjusting a continuation strategy; see [[Strategies]] |
 | Provider quirks | `src/basemode/strategies/compat.py` | A model rejects a parameter, prefill, or needs thinking-budget handling |
 | Text repair | `src/basemode/healing.py` | Fixing spaces, fragmented words, or streamed-newline behaviour |

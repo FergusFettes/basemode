@@ -28,6 +28,40 @@ basemode [PREFIX] [OPTIONS]
 
 `PREFIX` can come from stdin when omitted.
 
+### `ask`
+
+Ask a question and stream a normal chat answer. No continuation coercion: the
+model answers as an assistant, through the same model normalization, keys and
+provider quirks as `run`.
+
+```bash
+basemode ask "PROMPT" [OPTIONS]
+cat notes.md | basemode ask "summarise this" -m claude-haiku-4-5
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `-m`, `--model` | stored default or `gpt-4o-mini` | Model to use |
+| `-s`, `--system` | none | System prompt |
+| `-M`, `--max-tokens` | `4096` | Max output tokens |
+| `-t`, `--temperature` | `0.7` | Sampling temperature (when model allows) |
+| `--transcript` / `--no-transcript` | auto | Force or skip the `User:`/`Assistant:` transcript used for base models |
+| `--show-usage` | `false` | Print token usage after the answer (stderr) |
+| `--show-cost` | `false` | Print estimated cost after the answer (stderr) |
+| `-v`, `--verbose` | `false` | Show content-free operation, attempt, outcome, and ledger events on stderr |
+
+Piped or redirected stdin is prepended to `PROMPT`, separated by a blank line.
+The answer is written verbatim to stdout and usage tables go to stderr, so
+`basemode ask ... > answer.md` stays clean. A provider error prints one
+`error:` line on stderr and exits 1.
+
+Models litellm lists as completion-only (`davinci-002`,
+`gpt-3.5-turbo-instruct`) have no chat endpoint. They are answered by extending
+a `User:`/`Assistant:` transcript, cut off where the model starts the next user
+turn. `--transcript` does the same for a base model served without a chat
+template. Calls are recorded in health with strategy `chat` (or
+`chat_transcript`).
+
 ## Discovery
 
 ### `models`

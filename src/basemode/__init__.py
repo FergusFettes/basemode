@@ -8,6 +8,7 @@ logging.getLogger("basemode").addHandler(logging.NullHandler())
 #: its import graph can't drift apart, and `__all__` is derived from it below.
 _LAZY: dict[str, str] = {
     "branch_text": ".continue_",
+    "chat_text": ".chat",
     "continue_text": ".continue_",
     "detect_strategy": ".detect",
     "select_strategy": ".detect",

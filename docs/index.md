@@ -20,6 +20,7 @@ quirks. Unregistered models use conservative name-based defaults. See
 
 - Selects a continuation strategy per model (`completion`, `prefill`, `system`, `few_shot`, `fim`)
 - Streams text token-by-token from CLI or Python
+- Also answers plain questions (`basemode ask`, `chat_text`) through the same provider plumbing
 - Supports parallel branching (`-n/--branches`)
 - Normalizes common model aliases and provider prefixes
 - Includes usage and cost estimates using LiteLLM metadata

@@ -49,4 +49,14 @@ You can now omit `--model`.
 cat chapter1.txt | basemode --model groq/llama-3.3-70b-versatile
 ```
 
+## 7. Ask a normal question
+
+Not everything is a continuation. `ask` gets a plain chat answer from any
+model basemode can reach:
+
+```bash
+basemode ask "why is the sky blue?"
+git diff | basemode ask "write a commit message" -m claude-haiku-4-5
+```
+
 See [[CLI Reference]] for all commands and options.

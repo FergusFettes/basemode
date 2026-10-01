@@ -46,6 +46,7 @@ def _main() -> None:
 # Importing these modules registers their commands on `app` via decorators.
 # Re-exported here so `basemode.cli.<name>` keeps working for anything that
 # referenced the pre-split flat module (tests, scripts, docs examples).
+from .ask import ask as ask  # noqa: E402
 from .bench_cmd import bench as bench  # noqa: E402
 from .config_cmd import default as default  # noqa: E402
 from .config_cmd import keys as keys  # noqa: E402
@@ -64,6 +65,7 @@ from .verify_cmd import verify_command as verify_command  # noqa: E402
 
 __all__ = [
     "app",
+    "ask",
     "bench",
     "console",
     "contribute_app",

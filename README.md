@@ -57,6 +57,10 @@ basemode "The ship rounded the headland and"
 # Parallel continuations
 basemode "The ship rounded the headland and" -n 3
 
+# Or just ask a question, like `llm`
+basemode ask "why is the sky blue?" -m claude-haiku-4-5
+cat notes.md | basemode ask "summarise this"
+
 # Inspect selected strategy and pricing metadata
 basemode info claude-sonnet-4-6
 
@@ -82,6 +86,7 @@ basemode strategies --help
 ```
 
 - `basemode run`: stream one or more continuations; this is the default command
+- `basemode ask`: ask a question and stream a normal chat answer (stdin is prepended)
 - `basemode models`: list known models and filter by provider or availability
 - `basemode info`: inspect a model's normalized ID, strategy, quirks, price, and local health
 - `basemode bench`: compare strategies using live requests and optionally pin the winner

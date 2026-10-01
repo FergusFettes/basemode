@@ -257,7 +257,7 @@ def _print_usage_estimate(
     usage_events: list[dict] | None = None,
 ) -> None:
     from ..detect import normalize_model
-    from ..usage import estimate_usage, format_usd, usage_from_events
+    from ..usage import estimate_usage, usage_from_events
 
     resolved = normalize_model(model)
     usage = usage_from_events(resolved, usage_events) if usage_events else None
@@ -270,6 +270,12 @@ def _print_usage_estimate(
             prompt_messages=messages,
             prompt_requests=prompt_requests,
         )
+    console.print(_usage_table(usage, show_cost))
+
+
+def _usage_table(usage, show_cost: bool) -> Table:
+    from ..usage import format_usd
+
     table = Table("Metric", "Value", show_header=False)
     table.add_row("Model", usage.model)
     table.add_row("Source", "provider" if not usage.is_estimate else "estimate")
@@ -280,7 +286,7 @@ def _print_usage_estimate(
         table.add_row("Estimated cost", format_usd(usage.cost_usd))
         if not usage.pricing_available:
             table.add_row("Cost note", "pricing unavailable in LiteLLM model map")
-    console.print(table)
+    return table
 
 
 def _usage_prompt(

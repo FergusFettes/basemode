@@ -11,6 +11,7 @@ from basemode import (
     bench_model,
     branch_text,
     build_model_picker_state,
+    chat_text,
     continue_text,
     detect_strategy,
     list_model_picker_entries,
@@ -65,6 +66,23 @@ async for idx, token in branch_text(
 ):
     print(f"[{idx}] {token}", end="")
 ```
+
+## `chat_text`
+
+Stream a normal chat answer instead of a continuation. Takes a single user
+message or a full message list, so a caller can keep a running conversation.
+
+```python
+from basemode import chat_text
+
+messages = [{"role": "user", "content": "What is the capital of Scotland?"}]
+async for token in chat_text(messages, model="claude-haiku-4-5", system="Be terse."):
+    print(token, end="", flush=True)
+```
+
+Completion-only models are answered through a `User:`/`Assistant:` transcript;
+`transcript=True` or `False` overrides that detection. An empty answer raises
+`EmptyCompletionError` with `strategy="chat"`. See [[chat_text]].
 
 ## `detect_strategy`
 

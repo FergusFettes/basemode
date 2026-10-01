@@ -55,6 +55,7 @@ nav:
     - Model Evidence: usage/Model Evidence.md
   - Reference:
     - continue_text: reference/continue_text.md
+    - chat_text: reference/chat_text.md
     - branch_text: reference/branch_text.md
     - GenerationParams: reference/GenerationParams.md
     - detect_strategy: reference/detect_strategy.md
