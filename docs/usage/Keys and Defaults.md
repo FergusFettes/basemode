@@ -32,6 +32,11 @@ Environment variables are never overwritten by stored keys.
 
 Set a default model once:
 
+The name is checked against the local catalog before saving. You can use a
+canonical name such as `deepinfra/zai/glm-5.3-flash`; it resolves to the wire ID
+`deepinfra/zai-org/GLM-5.3-Flash`. Typos produce suggestions and leave the existing
+default intact. For models missing from the local catalog, pass `--force`.
+
 ```bash
 basemode default claude-sonnet-4-6
 ```

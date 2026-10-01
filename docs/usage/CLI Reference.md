@@ -276,6 +276,12 @@ basemode keys get anthropic
 
 Show/set/unset default model.
 
+Setting a default resolves aliases and canonical `provider/creator/model`
+names to the provider's catalog ID, preserving its spelling and case. Unknown
+names are rejected with close-match suggestions; the previous default is kept.
+Validation uses the local model catalog and makes no provider requests. Use
+`--force` to save an unlisted model when the catalog has not caught up.
+
 ```bash
 basemode default
 basemode default gpt-4o-mini

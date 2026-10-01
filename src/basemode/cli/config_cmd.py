@@ -89,6 +89,10 @@ def default(
     unset: Annotated[
         bool, typer.Option("--unset", help="Clear the stored default")
     ] = False,
+    force: Annotated[
+        bool,
+        typer.Option("--force", help="Allow a model missing from the local catalog"),
+    ] = False,
 ) -> None:
     """Show or set the default model (stored in ~/.config/basemode/auth.json).
 
@@ -114,10 +118,15 @@ def default(
         console.print(f"[bold]{current}[/bold]{suffix}")
         return
 
-    set_default_model(model)
     from ..detect import normalize_model
+    from ..model_resolution import resolve_catalog_model
 
-    resolved = normalize_model(model)
+    try:
+        resolved = normalize_model(model) if force else resolve_catalog_model(model)
+    except ValueError as exc:
+        console.print(str(exc), style="red", markup=False)
+        raise typer.Exit(1) from exc
+    set_default_model(resolved)
     suffix = f" → [dim]{resolved}[/dim]" if resolved != model else ""
     console.print(f"[green]✓[/green] Default model set to [bold]{model}[/bold]{suffix}")
 

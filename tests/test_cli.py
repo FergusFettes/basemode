@@ -650,3 +650,57 @@ def test_health_omits_the_served_by_column_when_nothing_was_substituted(
 
     assert result.exit_code == 0
     assert "answered under a different model ID" not in result.output
+
+
+def test_default_resolves_canonical_id_and_preserves_catalog_case(monkeypatch) -> None:
+    from basemode.keys import get_default_model
+
+    monkeypatch.setattr(
+        "basemode.model_resolution._all_provider_pairs",
+        lambda: [("deepinfra", "zai-org/GLM-5.3-Flash")],
+    )
+    for name in (
+        "deepinfra/zai/glm-5.3-flash",
+        "deepinfra/zai-org/glm-5.3-flash",
+    ):
+        result = runner.invoke(app, ["default", name])
+        assert result.exit_code == 0
+        assert get_default_model() == "deepinfra/zai-org/GLM-5.3-Flash"
+
+
+def test_default_typo_suggests_wire_id_without_overwriting(monkeypatch) -> None:
+    from basemode.keys import get_default_model, set_default_model
+
+    set_default_model("openai/gpt-4o-mini")
+    monkeypatch.setattr(
+        "basemode.model_resolution._all_provider_pairs",
+        lambda: [("deepinfra", "zai-org/GLM-5.3-Flash")],
+    )
+    result = runner.invoke(app, ["default", "deepinfra/zai-org/GLM-5.3-Flas"])
+    assert result.exit_code == 1
+    assert "Did you mean: deepinfra/zai-org/GLM-5.3-Flash" in " ".join(
+        result.output.split()
+    )
+    assert get_default_model() == "openai/gpt-4o-mini"
+
+
+def test_default_force_allows_unlisted_model(monkeypatch) -> None:
+    from basemode.keys import get_default_model
+
+    monkeypatch.setattr("basemode.model_resolution._all_provider_pairs", lambda: [])
+    result = runner.invoke(app, ["default", "deepinfra/new-model", "--force"])
+    assert result.exit_code == 0
+    assert get_default_model() == "deepinfra/new-model"
+
+
+def test_default_rejects_ambiguous_canonical_id(monkeypatch) -> None:
+    from basemode.keys import get_default_model
+
+    monkeypatch.setattr(
+        "basemode.model_resolution._all_provider_pairs",
+        lambda: [("deepinfra", "z-ai/glm-5"), ("deepinfra", "zai-org/glm-5")],
+    )
+    result = runner.invoke(app, ["default", "deepinfra/zai/glm-5"])
+    assert result.exit_code == 1
+    assert "Ambiguous model" in result.output
+    assert get_default_model() is None
