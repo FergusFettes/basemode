@@ -1,6 +1,66 @@
 {
   "models": [
     {
+      "model": "deepinfra/Audio8/Audio8-TTS-Preview-0.6b",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `Audio8/Audio8-TTS-Preview-0.6b` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `Audio8/Audio8-TTS-Preview-0.6b` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `Audio8/Audio8-TTS-Preview-0.6b` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `Audio8/Audio8-TTS-Preview-0.6b` does not exist"
+      },
+      "checked_at_utc": "2026-10-30T09:35:13.202878+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-base-en-v1.5",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-base-en-v1.5` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-base-en-v1.5` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-base-en-v1.5` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-base-en-v1.5` does not exist"
+      },
+      "checked_at_utc": "2026-10-30T09:35:13.444436+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-en-icl",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-en-icl` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-en-icl` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-en-icl` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-en-icl` does not exist"
+      },
+      "checked_at_utc": "2026-10-30T09:35:13.729896+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-large-en-v1.5",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-large-en-v1.5` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-large-en-v1.5` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-large-en-v1.5` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-large-en-v1.5` does not exist"
+      },
+      "checked_at_utc": "2026-10-30T09:35:13.957394+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-m3",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3` does not exist"
+      },
+      "checked_at_utc": "2026-10-30T09:35:14.470582+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-m3-multi",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi` does not exist"
+      },
+      "checked_at_utc": "2026-10-30T09:35:14.689163+00:00"
+    },
+    {
       "model": "gemini/antigravity-preview-05-2026",
       "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
       "attempted_strategies": {
@@ -9,6 +69,26 @@
         "few_shot": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'"
       },
       "checked_at_utc": "2026-08-22T12:05:10.655922+00:00"
+    },
+    {
+      "model": "gemini/antigravity-preview-09-2026",
+      "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Multiturn chat is not enabled for models/antigravity-preview-09-2026\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-10-30T09:35:17.924007+00:00"
+    },
+    {
+      "model": "gemini/antigravity-preview-latest",
+      "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Multiturn chat is not enabled for models/antigravity-preview-latest\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-10-30T09:35:18.500032+00:00"
     },
     {
       "model": "gemini/aqa",
@@ -151,6 +231,16 @@
       "checked_at_utc": "2026-08-22T12:11:24.937081+00:00"
     },
     {
+      "model": "gemini/gemini-3.5-transcribe",
+      "reason": "empty: ''",
+      "attempted_strategies": {
+        "system": "empty: ''",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Multiturn chat is not enabled for this model\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "empty: ''"
+      },
+      "checked_at_utc": "2026-10-30T09:35:19.337924+00:00"
+    },
+    {
       "model": "gemini/gemini-3.7-flash",
       "reason": "empty continuation",
       "attempted_strategies": {
@@ -159,6 +249,26 @@
         "few_shot": "empty continuation"
       },
       "checked_at_utc": "2026-08-22T12:11:27.970038+00:00"
+    },
+    {
+      "model": "gemini/gemini-3.8-flash-lite-tts",
+      "reason": "empty: ''",
+      "attempted_strategies": {
+        "system": "empty: ''",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Multiturn chat is not enabled for this model\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "empty: ''"
+      },
+      "checked_at_utc": "2026-10-30T09:35:32.257302+00:00"
+    },
+    {
+      "model": "gemini/gemini-3.8-flash-tts",
+      "reason": "empty: ''",
+      "attempted_strategies": {
+        "system": "empty: ''",
+        "prefill": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"Multiturn chat is not enabled for this model\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
+        "few_shot": "empty: ''"
+      },
+      "checked_at_utc": "2026-10-30T09:35:52.010130+00:00"
     },
     {
       "model": "gemini/gemini-embedding-001",
@@ -621,6 +731,66 @@
       "checked_at_utc": "2026-08-11T19:23:29.578311+00:00"
     },
     {
+      "model": "openai/gpt-6-astra",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."
+      },
+      "checked_at_utc": "2026-10-30T09:36:34.833127+00:00"
+    },
+    {
+      "model": "openai/gpt-6-luna",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."
+      },
+      "checked_at_utc": "2026-10-30T09:36:32.449815+00:00"
+    },
+    {
+      "model": "openai/gpt-6-sol",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."
+      },
+      "checked_at_utc": "2026-10-30T09:36:32.874896+00:00"
+    },
+    {
+      "model": "openai/gpt-6.1-sol",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."
+      },
+      "checked_at_utc": "2026-10-30T09:36:32.015685+00:00"
+    },
+    {
+      "model": "openai/gpt-6.1-terra",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."
+      },
+      "checked_at_utc": "2026-10-30T09:36:30.469352+00:00"
+    },
+    {
+      "model": "openai/gpt-live-1",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?"
+      },
+      "checked_at_utc": "2026-10-30T09:36:34.410878+00:00"
+    },
+    {
       "model": "openai/o1",
       "reason": "empty continuation",
       "attempted_strategies": {
@@ -841,6 +1011,26 @@
       "checked_at_utc": "2026-09-04T07:42:40.448921+00:00"
     },
     {
+      "model": "openrouter/openai/gpt-6.1-terra-pro:batch",
+      "reason": "NotFoundError: litellm.NotFoundError: NotFoundError: OpenrouterException - {\"error\":{\"message\":\"openai/gpt-6.1-terra-pro:batch cannot be used with the chat/completions endpoint (adapter OpenAIBatchAdapter).\",\"code\":404},\"user_id\":\"user_2Y8ETwhFoXajBsFaFVMgjQEbhAI\"}",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: NotFoundError: OpenrouterException - {\"error\":{\"message\":\"openai/gpt-6.1-terra-pro:batch cannot be used with the chat/completions endpoint (adapter OpenAIBatchAdapter).\",\"code\":404},\"user_id\":\"user_2Y8ETwhFoXajBsFaFVMgjQEbhAI\"}",
+        "prefill": "NotFoundError: litellm.NotFoundError: NotFoundError: OpenrouterException - {\"error\":{\"message\":\"openai/gpt-6.1-terra-pro:batch cannot be used with the chat/completions endpoint (adapter OpenAIBatchAdapter).\",\"code\":404},\"user_id\":\"user_2Y8ETwhFoXajBsFaFVMgjQEbhAI\"}",
+        "few_shot": "NotFoundError: litellm.NotFoundError: NotFoundError: OpenrouterException - {\"error\":{\"message\":\"openai/gpt-6.1-terra-pro:batch cannot be used with the chat/completions endpoint (adapter OpenAIBatchAdapter).\",\"code\":404},\"user_id\":\"user_2Y8ETwhFoXajBsFaFVMgjQEbhAI\"}"
+      },
+      "checked_at_utc": "2026-10-30T09:36:40.305346+00:00"
+    },
+    {
+      "model": "openrouter/openai/gpt-6.1-terra:batch",
+      "reason": "NotFoundError: litellm.NotFoundError: NotFoundError: OpenrouterException - {\"error\":{\"message\":\"openai/gpt-6.1-terra:batch cannot be used with the chat/completions endpoint (adapter OpenAIBatchAdapter).\",\"code\":404},\"user_id\":\"user_2Y8ETwhFoXajBsFaFVMgjQEbhAI\"}",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: NotFoundError: OpenrouterException - {\"error\":{\"message\":\"openai/gpt-6.1-terra:batch cannot be used with the chat/completions endpoint (adapter OpenAIBatchAdapter).\",\"code\":404},\"user_id\":\"user_2Y8ETwhFoXajBsFaFVMgjQEbhAI\"}",
+        "prefill": "NotFoundError: litellm.NotFoundError: NotFoundError: OpenrouterException - {\"error\":{\"message\":\"openai/gpt-6.1-terra:batch cannot be used with the chat/completions endpoint (adapter OpenAIBatchAdapter).\",\"code\":404},\"user_id\":\"user_2Y8ETwhFoXajBsFaFVMgjQEbhAI\"}",
+        "few_shot": "NotFoundError: litellm.NotFoundError: NotFoundError: OpenrouterException - {\"error\":{\"message\":\"openai/gpt-6.1-terra:batch cannot be used with the chat/completions endpoint (adapter OpenAIBatchAdapter).\",\"code\":404},\"user_id\":\"user_2Y8ETwhFoXajBsFaFVMgjQEbhAI\"}"
+      },
+      "checked_at_utc": "2026-10-30T09:36:40.476899+00:00"
+    },
+    {
       "model": "openrouter/stealth/ox-alpha",
       "reason": "empty continuation",
       "attempted_strategies": {
@@ -869,6 +1059,26 @@
         "few_shot": "BadRequestError: litellm.BadRequestError: Together_aiException - Unable to access non-serverless model MiniMaxAI/MiniMax-M2.7. Please visit https://api.together.ai/models/MiniMaxAI/MiniMax-M2.7 to create and start a new dedicated endpoint for the model."
       },
       "checked_at_utc": "2026-08-22T12:06:48.302999+00:00"
+    },
+    {
+      "model": "together_ai/nvidia/parakeet-tdt-0.6b-v3",
+      "reason": "BadRequestError: litellm.BadRequestError: Together_aiException - 404: Not Found",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Together_aiException - 404: Not Found",
+        "prefill": "BadRequestError: litellm.BadRequestError: Together_aiException - 404: Not Found",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Together_aiException - 404: Not Found"
+      },
+      "checked_at_utc": "2026-10-30T09:36:54.941938+00:00"
+    },
+    {
+      "model": "together_ai/openai/whisper-large-v3",
+      "reason": "BadRequestError: litellm.BadRequestError: Together_aiException - 404: Not Found",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Together_aiException - 404: Not Found",
+        "prefill": "BadRequestError: litellm.BadRequestError: Together_aiException - 404: Not Found",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Together_aiException - 404: Not Found"
+      },
+      "checked_at_utc": "2026-10-30T09:36:52.409792+00:00"
     },
     {
       "model": "xai/grok-4.20-multi-agent-0309",
@@ -929,6 +1139,16 @@
         "few_shot": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-video-1.5 is a video model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/videos/generations. For more information, see https://docs.x.ai/docs/api-reference#video-generation\"}"
       },
       "checked_at_utc": "2026-08-22T12:18:05.170513+00:00"
+    },
+    {
+      "model": "xai/grok-imagine-video-1.5-lite",
+      "reason": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-video-1.5-lite is a video model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/videos/generations. For more information, see https://docs.x.ai/docs/api-reference#video-generation\"}",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-video-1.5-lite is a video model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/videos/generations. For more information, see https://docs.x.ai/docs/api-reference#video-generation\"}",
+        "prefill": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-video-1.5-lite is a video model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/videos/generations. For more information, see https://docs.x.ai/docs/api-reference#video-generation\"}",
+        "few_shot": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-video-1.5-lite is a video model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/videos/generations. For more information, see https://docs.x.ai/docs/api-reference#video-generation\"}"
+      },
+      "checked_at_utc": "2026-10-30T09:36:59.046443+00:00"
     },
     {
       "model": "zai/glm-5.3",
