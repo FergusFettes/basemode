@@ -20,6 +20,12 @@
       "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing"
     },
     {
+      "model": "anthropic/claude-haiku-5-5",
+      "openrouter_id": "anthropic/claude-haiku-5.5",
+      "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing",
+      "prompt_method": "system"
+    },
+    {
       "model": "anthropic/claude-opus-4-1-20250805",
       "openrouter_id": "anthropic/claude-opus-4.1",
       "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing"
@@ -61,6 +67,12 @@
       "quirks": ["no_prefill", "no_temperature"]
     },
     {
+      "model": "anthropic/claude-opus-5-5",
+      "openrouter_id": "anthropic/claude-opus-5.5",
+      "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing",
+      "prompt_method": "system"
+    },
+    {
       "model": "anthropic/claude-sonnet-4-20250514",
       "openrouter_id": "anthropic/claude-sonnet-4",
       "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing"
@@ -84,12 +96,22 @@
       "quirks": ["no_prefill", "no_temperature"]
     },
     {
+      "model": "anthropic/claude-sonnet-5-5",
+      "openrouter_id": "anthropic/claude-sonnet-5.5",
+      "pricing_url": "https://docs.anthropic.com/en/docs/about-claude/pricing",
+      "prompt_method": "system"
+    },
+    {
       "model": "cerebras/gemma-4-31b",
       "pricing_url": "https://www.cerebras.ai/pricing"
     },
     {
       "model": "cerebras/gpt-oss-120b",
       "pricing_url": "https://www.cerebras.ai/pricing",
+      "quirks": ["reasoning_budget"]
+    },
+    {
+      "model": "cerebras/qwen-3.8-27b",
       "quirks": ["reasoning_budget"]
     },
     {
@@ -497,6 +519,11 @@
       "pricing_url": "https://deepinfra.com/pricing"
     },
     {
+      "model": "deepseek/deepseek-flash",
+      "openrouter_id": "~deepseek/deepseek-flash-latest",
+      "quirks": ["reasoning_budget"]
+    },
+    {
       "model": "deepseek/deepseek-v4-flash",
       "quirks": ["reasoning_budget"]
     },
@@ -634,6 +661,10 @@
       "openrouter_id": "qwen/qwen3.6-27b"
     },
     {
+      "model": "groq/qwen/qwen3.8-27b",
+      "openrouter_id": "qwen/qwen3.8-27b"
+    },
+    {
       "model": "moonshot/kimi-k2-0905-preview",
       "openrouter_id": "moonshotai/kimi-k2",
       "pricing_url": "https://platform.moonshot.ai/docs/pricing/chat"
@@ -662,6 +693,14 @@
       "openrouter_id": "moonshotai/kimi-k3",
       "prompt_method": "prefill",
       "quirks": ["no_temperature"]
+    },
+    {
+      "model": "moonshot/kimi-k3.1-pro",
+      "openrouter_id": "moonshotai/kimi-k3.1-pro"
+    },
+    {
+      "model": "moonshot/kimi-k3.1-pro-highspeed",
+      "openrouter_id": "moonshotai/kimi-k3.1-pro"
     },
     {
       "model": "moonshot/moonshot-v1-128k"
@@ -877,8 +916,26 @@
       "quirks": ["no_temperature", "reasoning_budget"]
     },
     {
+      "model": "novita/moonshotai/kimi-k3.1-pro",
+      "openrouter_id": "moonshotai/kimi-k3.1-pro"
+    },
+    {
+      "model": "novita/moonshotai/kimi-k3.1-pro-highspeed",
+      "openrouter_id": "moonshotai/kimi-k3.1-pro"
+    },
+    {
       "model": "novita/nvidia/nemotron-3-nano-30b-a3b",
       "pricing_url": "https://novita.ai/pricing",
+      "quirks": ["reasoning_budget"]
+    },
+    {
+      "model": "novita/nvrouter/auto",
+      "openrouter_id": "openrouter/auto",
+      "quirks": ["reasoning_budget"]
+    },
+    {
+      "model": "novita/nvrouter/fusion",
+      "openrouter_id": "openrouter/fusion",
       "quirks": ["reasoning_budget"]
     },
     {
@@ -1005,6 +1062,11 @@
       "pricing_url": "https://novita.ai/pricing"
     },
     {
+      "model": "novita/tencent/hy4",
+      "openrouter_id": "tencent/hy4",
+      "quirks": ["reasoning_budget"]
+    },
+    {
       "model": "novita/thudm/glm-4-32b-0414",
       "pricing_url": "https://novita.ai/pricing"
     },
@@ -1051,6 +1113,10 @@
     {
       "model": "novita/zai-org/glm-5.3",
       "pricing_url": "https://novita.ai/pricing"
+    },
+    {
+      "model": "novita/zai-org/glm-5.3-flashX",
+      "openrouter_id": "z-ai/glm-5.3-flashx-legal"
     },
     {
       "model": "novita/zai-org/glm-5v-turbo",
@@ -1249,12 +1315,48 @@
       "quirks": ["no_temperature"]
     },
     {
+      "model": "openrouter/auto",
+      "openrouter_id": "openrouter/auto"
+    },
+    {
+      "model": "openrouter/google/gemini-omni-1.1-flash",
+      "openrouter_id": "google/gemini-omni-1.1-flash",
+      "prompt_method": "prefill"
+    },
+    {
       "model": "openrouter/moonshotai/kimi-k2.6",
       "openrouter_id": "moonshotai/kimi-k2.6",
       "pricing_url": "https://openrouter.ai/moonshotai/kimi-k2.6"
     },
     {
+      "model": "openrouter/openrouter/auto-code",
+      "openrouter_id": "openrouter/auto"
+    },
+    {
+      "model": "openrouter/tencent/hy4",
+      "openrouter_id": "tencent/hy4"
+    },
+    {
+      "model": "together_ai/MiniMaxAI/MiniMax-M3.1-Flash",
+      "openrouter_id": "minimax/minimax-m3.1-flash",
+      "quirks": ["reasoning_budget"]
+    },
+    {
       "model": "together_ai/deepseek-ai/DeepSeek-V4-Pro-0813",
+      "quirks": ["reasoning_budget"]
+    },
+    {
+      "model": "together_ai/deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "openrouter_id": "deepseek/deepseek-v4.1-flash-1017",
+      "quirks": ["reasoning_budget"]
+    },
+    {
+      "model": "together_ai/moonshotai/Kimi-K3.1-Pro",
+      "openrouter_id": "moonshotai/kimi-k3.1-pro"
+    },
+    {
+      "model": "together_ai/ricursive-ai/Ripple-65B-Preview",
+      "openrouter_id": "ricursiveai/ripple-65b-preview",
       "quirks": ["reasoning_budget"]
     },
     {
@@ -1276,6 +1378,10 @@
     {
       "model": "xai/grok-4.6",
       "openrouter_id": "x-ai/grok-4.6"
+    },
+    {
+      "model": "xai/grok-4.7",
+      "openrouter_id": "x-ai/grok-4.7"
     },
     {
       "model": "xai/grok-build-0.1",
@@ -1314,6 +1420,18 @@
     {
       "model": "zai/glm-5.2",
       "openrouter_id": "z-ai/glm-5.2"
+    },
+    {
+      "model": "zai/glm-5.3-flash",
+      "openrouter_id": "z-ai/glm-5.3-flashx-legal"
+    },
+    {
+      "model": "zai/glm-5.3-flashx",
+      "openrouter_id": "z-ai/glm-5.3-flashx-legal"
+    },
+    {
+      "model": "zai/glm-5.3-flashx-legal",
+      "openrouter_id": "z-ai/glm-5.3-flashx-legal"
     }
   ]
 }
