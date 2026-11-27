@@ -1,6 +1,66 @@
 {
   "models": [
     {
+      "model": "deepinfra/BAAI/bge-base-en-v1.5",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-base-en-v1.5` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-base-en-v1.5` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-base-en-v1.5` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-base-en-v1.5` does not exist"
+      },
+      "checked_at_utc": "2026-11-27T11:45:04.574416+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-en-icl",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-en-icl` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-en-icl` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-en-icl` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-en-icl` does not exist"
+      },
+      "checked_at_utc": "2026-11-27T11:45:04.845988+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-large-en-v1.5",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-large-en-v1.5` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-large-en-v1.5` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-large-en-v1.5` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-large-en-v1.5` does not exist"
+      },
+      "checked_at_utc": "2026-11-27T11:45:05.162277+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-m3",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3` does not exist"
+      },
+      "checked_at_utc": "2026-11-27T11:45:05.435912+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-m3-multi",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi` does not exist"
+      },
+      "checked_at_utc": "2026-11-27T11:45:05.713653+00:00"
+    },
+    {
+      "model": "deepinfra/BAAI/bge-m3-multi-8k",
+      "reason": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi-8k` does not exist",
+      "attempted_strategies": {
+        "system": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi-8k` does not exist",
+        "prefill": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi-8k` does not exist",
+        "few_shot": "NotFoundError: litellm.NotFoundError: DeepinfraException - The model `BAAI/bge-m3-multi-8k` does not exist"
+      },
+      "checked_at_utc": "2026-11-27T11:45:05.996538+00:00"
+    },
+    {
       "model": "gemini/antigravity-preview-05-2026",
       "reason": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'",
       "attempted_strategies": {
@@ -9,6 +69,26 @@
         "few_shot": "BadRequestError: litellm.BadRequestError: Vertex_ai_betaException BadRequestError - b'{\\n  \"error\": {\\n    \"code\": 400,\\n    \"message\": \"This model only supports Interactions API.\",\\n    \"status\": \"INVALID_ARGUMENT\"\\n  }\\n}\\n'"
       },
       "checked_at_utc": "2026-08-22T12:05:10.655922+00:00"
+    },
+    {
+      "model": "gemini/antigravity-preview-09-2026",
+      "reason": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'",
+        "prefill": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'",
+        "few_shot": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-11-27T11:45:08.099285+00:00"
+    },
+    {
+      "model": "gemini/antigravity-preview-latest",
+      "reason": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'",
+        "prefill": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'",
+        "few_shot": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-11-27T11:45:08.333526+00:00"
     },
     {
       "model": "gemini/aqa",
@@ -151,6 +231,16 @@
       "checked_at_utc": "2026-08-22T12:11:24.937081+00:00"
     },
     {
+      "model": "gemini/gemini-3.5-transcribe",
+      "reason": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'",
+        "prefill": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'",
+        "few_shot": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-11-27T11:45:08.567776+00:00"
+    },
+    {
       "model": "gemini/gemini-3.7-flash",
       "reason": "empty continuation",
       "attempted_strategies": {
@@ -159,6 +249,36 @@
         "few_shot": "empty continuation"
       },
       "checked_at_utc": "2026-08-22T12:11:27.970038+00:00"
+    },
+    {
+      "model": "gemini/gemini-3.8-flash",
+      "reason": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'",
+        "prefill": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'",
+        "few_shot": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-11-27T11:45:08.782045+00:00"
+    },
+    {
+      "model": "gemini/gemini-3.8-flash-lite-tts",
+      "reason": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'",
+        "prefill": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'",
+        "few_shot": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-11-27T11:45:08.976739+00:00"
+    },
+    {
+      "model": "gemini/gemini-3.8-flash-tts",
+      "reason": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'",
+      "attempted_strategies": {
+        "system": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'",
+        "prefill": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'",
+        "few_shot": "APIConnectionError: litellm.APIConnectionError: Vertex_ai_betaException - b'{\\n  \"error\": {\\n    \"code\": 402,\\n    \"message\": \"Your prepayment credits are depleted. Please go to AI Studio at https://ai.studio/projects to manage your project and billing. Learn more at https://ai.google.dev/gemini-api/docs/billing#prepay. \",\\n    \"status\": \"RESOURCE_EXHAUSTED\"\\n  }\\n}\\n'"
+      },
+      "checked_at_utc": "2026-11-27T11:45:09.193431+00:00"
     },
     {
       "model": "gemini/gemini-embedding-001",
@@ -621,6 +741,36 @@
       "checked_at_utc": "2026-08-11T19:23:29.578311+00:00"
     },
     {
+      "model": "openai/gpt-6.2-astra",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."
+      },
+      "checked_at_utc": "2026-11-27T11:45:48.666629+00:00"
+    },
+    {
+      "model": "openai/gpt-6.2-sol",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."
+      },
+      "checked_at_utc": "2026-11-27T11:45:46.575637+00:00"
+    },
+    {
+      "model": "openai/gpt-live-1.1",
+      "reason": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
+        "prefill": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?",
+        "few_shot": "BadRequestError: litellm.BadRequestError: OpenAIException - This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?"
+      },
+      "checked_at_utc": "2026-11-27T11:45:45.495805+00:00"
+    },
+    {
       "model": "openai/o1",
       "reason": "empty continuation",
       "attempted_strategies": {
@@ -871,6 +1021,36 @@
       "checked_at_utc": "2026-08-22T12:06:48.302999+00:00"
     },
     {
+      "model": "together_ai/Qwen/Qwen4-Max",
+      "reason": "BadRequestError: litellm.BadRequestError: Together_aiException - This model sends your prompts to a third-party provider, and your organization has not enabled third-party data sharing. Enable it at https://api.together.ai/settings/privacy, or choose a model served by Together.",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Together_aiException - This model sends your prompts to a third-party provider, and your organization has not enabled third-party data sharing. Enable it at https://api.together.ai/settings/privacy, or choose a model served by Together.",
+        "prefill": "BadRequestError: litellm.BadRequestError: Together_aiException - This model sends your prompts to a third-party provider, and your organization has not enabled third-party data sharing. Enable it at https://api.together.ai/settings/privacy, or choose a model served by Together.",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Together_aiException - This model sends your prompts to a third-party provider, and your organization has not enabled third-party data sharing. Enable it at https://api.together.ai/settings/privacy, or choose a model served by Together."
+      },
+      "checked_at_utc": "2026-11-27T11:46:26.142952+00:00"
+    },
+    {
+      "model": "together_ai/nvidia/nemotron-3-asr-streaming-0.6b",
+      "reason": "BadRequestError: litellm.BadRequestError: Together_aiException - 404: Not Found",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Together_aiException - 404: Not Found",
+        "prefill": "BadRequestError: litellm.BadRequestError: Together_aiException - 404: Not Found",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Together_aiException - 404: Not Found"
+      },
+      "checked_at_utc": "2026-11-27T11:46:27.537080+00:00"
+    },
+    {
+      "model": "together_ai/nvidia/nemotron-3.5-asr-streaming-0.6b",
+      "reason": "BadRequestError: litellm.BadRequestError: Together_aiException - 404: Not Found",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: Together_aiException - 404: Not Found",
+        "prefill": "BadRequestError: litellm.BadRequestError: Together_aiException - 404: Not Found",
+        "few_shot": "BadRequestError: litellm.BadRequestError: Together_aiException - 404: Not Found"
+      },
+      "checked_at_utc": "2026-11-27T11:46:27.895692+00:00"
+    },
+    {
       "model": "xai/grok-4.20-multi-agent-0309",
       "reason": "BadRequestError: litellm.BadRequestError: XaiException - \"Multi Agent requests are not allowed on chat completions\"",
       "attempted_strategies": {
@@ -931,6 +1111,16 @@
       "checked_at_utc": "2026-08-22T12:18:05.170513+00:00"
     },
     {
+      "model": "xai/grok-imagine-video-1.5-lite",
+      "reason": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-video-1.5-lite is a video model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/videos/generations. For more information, see https://docs.x.ai/docs/api-reference#video-generation\"}",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-video-1.5-lite is a video model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/videos/generations. For more information, see https://docs.x.ai/docs/api-reference#video-generation\"}",
+        "prefill": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-video-1.5-lite is a video model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/videos/generations. For more information, see https://docs.x.ai/docs/api-reference#video-generation\"}",
+        "few_shot": "BadRequestError: litellm.BadRequestError: XaiException - {\"code\":\"invalid-argument\",\"error\":\"The model grok-imagine-video-1.5-lite is a video model and is therefore not available on this endpoint. Please use a compatible endpoint such as https://api.x.ai/v1/videos/generations. For more information, see https://docs.x.ai/docs/api-reference#video-generation\"}"
+      },
+      "checked_at_utc": "2026-11-27T11:46:40.041194+00:00"
+    },
+    {
       "model": "zai/glm-5.3",
       "reason": "BadRequestError: litellm.BadRequestError: ZaiException - This model always engages in thinking and cannot be disabled; please use low, high, or max",
       "attempted_strategies": {
@@ -939,6 +1129,16 @@
         "few_shot": "BadRequestError: litellm.BadRequestError: ZaiException - This model always engages in thinking and cannot be disabled; please use low, high, or max"
       },
       "checked_at_utc": "2026-08-22T12:07:00.756871+00:00"
+    },
+    {
+      "model": "zai/glm-5.4",
+      "reason": "BadRequestError: litellm.BadRequestError: ZaiException - This model always engages in thinking and cannot be disabled; please use low, high, or max",
+      "attempted_strategies": {
+        "system": "BadRequestError: litellm.BadRequestError: ZaiException - This model always engages in thinking and cannot be disabled; please use low, high, or max",
+        "prefill": "BadRequestError: litellm.BadRequestError: ZaiException - This model always engages in thinking and cannot be disabled; please use low, high, or max",
+        "few_shot": "BadRequestError: litellm.BadRequestError: ZaiException - This model always engages in thinking and cannot be disabled; please use low, high, or max"
+      },
+      "checked_at_utc": "2026-11-27T11:46:41.129602+00:00"
     }
   ]
 }
